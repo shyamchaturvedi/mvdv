@@ -42,27 +42,41 @@ const DEFAULT_SETTINGS = {
   updatedAt: new Date().toISOString()
 };
 
+const os = require('os');
+const TMP_SETTINGS_FILE = path.join(os.tmpdir(), 'mvd_settings.json');
+let inMemorySettings = null;
+
 function loadSettingsFromDisk() {
+  if (inMemorySettings) return inMemorySettings;
   try {
-    if (fs.existsSync(SETTINGS_FILE)) {
-      const data = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
-      return { ...DEFAULT_SETTINGS, ...data };
+    const file = fs.existsSync(SETTINGS_FILE) ? SETTINGS_FILE : (fs.existsSync(TMP_SETTINGS_FILE) ? TMP_SETTINGS_FILE : null);
+    if (file) {
+      const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+      inMemorySettings = { ...DEFAULT_SETTINGS, ...data };
+      return inMemorySettings;
     }
   } catch (err) {
-    console.warn('⚠️ Could not load settings from disk:', err.message);
+    // Fallback to defaults
   }
-  return { ...DEFAULT_SETTINGS };
+  inMemorySettings = { ...DEFAULT_SETTINGS };
+  return inMemorySettings;
 }
 
 function saveSettingsToDisk(settings) {
+  inMemorySettings = settings;
   try {
     const dataDir = path.dirname(SETTINGS_FILE);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf8');
-  } catch (err) {
-    console.warn('⚠️ Could not save settings to disk:', err.message);
+    return;
+  } catch (_) {
+    try {
+      fs.writeFileSync(TMP_SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf8');
+    } catch (err) {
+      // Memory state is preserved
+    }
   }
 }
 

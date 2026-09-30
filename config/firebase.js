@@ -44,50 +44,65 @@ try {
 // -------------------------------------------------------------
 // Local JSON Storage fallback implementing Firestore API
 // -------------------------------------------------------------
+const os = require('os');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const TMP_DB_FILE = path.join(os.tmpdir(), 'mvd_db.json');
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
+let inMemoryDb = null;
 
 function loadLocalData() {
-  if (!fs.existsSync(DB_FILE)) {
-    const initialData = {
-      bookings: [],
-      admins: [
-        {
-          id: 'admin_1',
-          username: process.env.ADMIN_USERNAME || 'admin',
-          passwordHash: '$2a$10$wT/pZ/sHjIovPzB1X8d0d.NfJgA0kF0c5vUaI7X3Qe3Ea2zIeP2tK' // admin@mvd2026
-        }
-      ],
-      settings: {
-        currentYatraYear: 2026,
-        trainName: 'Mata Vaishno Devi Yatra Special Superfast',
-        trainNumber: '04201 / 04202',
-        departureTime: '18:30 IST',
-        destinationStation: 'Shri Mata Vaishno Devi Katra (SVDK)',
-        fares: {
-          AC: 4000,
-          Sleeper: 3000,
-          General: 2000
-        }
-      }
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
-    return initialData;
+  if (inMemoryDb) return inMemoryDb;
+
+  // 1. Try reading bundled db.json
+  if (fs.existsSync(DB_FILE)) {
+    try {
+      inMemoryDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      return inMemoryDb;
+    } catch (e) {
+      console.warn('Could not read bundled db.json:', e.message);
+    }
   }
-  try {
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-  } catch (e) {
-    console.error('Error reading local db.json:', e);
-    return { bookings: [], admins: [], settings: {} };
+
+  // 2. Try reading /tmp/mvd_db.json
+  if (fs.existsSync(TMP_DB_FILE)) {
+    try {
+      inMemoryDb = JSON.parse(fs.readFileSync(TMP_DB_FILE, 'utf8'));
+      return inMemoryDb;
+    } catch (e) {
+      console.warn('Could not read /tmp db:', e.message);
+    }
   }
+
+  inMemoryDb = {
+    bookings: [],
+    staffMembers: [],
+    auditLogs: [],
+    defaulters: [],
+    payments: [],
+    cashAdjustments: [],
+    trainCoaches: []
+  };
+  return inMemoryDb;
 }
 
 function saveLocalData(data) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+  inMemoryDb = data;
+  // Try saving to project data dir first (local dev)
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+    return;
+  } catch (_) {
+    // If read-only filesystem (e.g. Vercel), save to /tmp
+    try {
+      fs.writeFileSync(TMP_DB_FILE, JSON.stringify(data, null, 2));
+    } catch (err) {
+      // Memory state is already preserved in inMemoryDb
+    }
+  }
 }
 
 // Fallback Local Firestore Implementation

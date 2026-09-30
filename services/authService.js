@@ -1,17 +1,20 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { StaffService, ROLES } = require('./staffService');
 
 const SESSIONS_FILE = path.join(__dirname, '../data/sessions.json');
+const TMP_SESSIONS_FILE = path.join(os.tmpdir(), 'mvd_sessions.json');
 
 // In-memory token store backed by persistent disk storage
 const activeSessions = new Map();
 
 function loadSessionsFromDisk() {
   try {
-    if (fs.existsSync(SESSIONS_FILE)) {
-      const data = JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf8'));
+    const file = fs.existsSync(SESSIONS_FILE) ? SESSIONS_FILE : (fs.existsSync(TMP_SESSIONS_FILE) ? TMP_SESSIONS_FILE : null);
+    if (file) {
+      const data = JSON.parse(fs.readFileSync(file, 'utf8'));
       const now = Date.now();
       for (const [token, session] of Object.entries(data)) {
         if (session && session.expiresAt > now) {
@@ -20,7 +23,7 @@ function loadSessionsFromDisk() {
       }
     }
   } catch (err) {
-    console.warn('⚠️ Could not load sessions from disk:', err.message);
+    // Graceful fallback to memory
   }
 }
 
@@ -33,13 +36,18 @@ function saveSessionsToDisk() {
         obj[token] = session;
       }
     }
-    const dataDir = path.dirname(SESSIONS_FILE);
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    try {
+      const dataDir = path.dirname(SESSIONS_FILE);
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      fs.writeFileSync(SESSIONS_FILE, JSON.stringify(obj, null, 2), 'utf8');
+      return;
+    } catch (_) {
+      fs.writeFileSync(TMP_SESSIONS_FILE, JSON.stringify(obj, null, 2), 'utf8');
     }
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(obj, null, 2), 'utf8');
   } catch (err) {
-    console.warn('⚠️ Could not save sessions to disk:', err.message);
+    // In-memory map is always active and preserved
   }
 }
 

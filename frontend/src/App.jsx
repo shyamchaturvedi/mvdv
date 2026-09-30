@@ -908,6 +908,19 @@ export default function App() {
     }
   };
 
+  const safeFetchJson = async (url, options = {}) => {
+    const res = await fetch(url, options);
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      if (!res.ok) {
+        throw new Error(`सर्वर स्थिति (${res.status}): ${text.slice(0, 100)}`);
+      }
+      throw new Error('अमान्य सर्वर प्रतिक्रिया');
+    }
+  };
+
   const searchPNR = async (queryTerm) => {
     const term = (queryTerm !== undefined ? queryTerm : pnrInput).trim();
     if (!term) {
@@ -917,8 +930,7 @@ export default function App() {
     setPnrLoading(true);
     setPnrSearchError('');
     try {
-      const res = await fetch(`/api/bookings/pnr/${encodeURIComponent(term)}`);
-      const data = await res.json();
+      const data = await safeFetchJson(`/api/bookings/pnr/${encodeURIComponent(term)}`);
       if (data.success && data.booking) {
         setSearchedTicket(data.booking);
         setTicketModal(data.booking);
@@ -935,8 +947,7 @@ export default function App() {
 
   const openUpiQR = async (bookingId) => {
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/upi-qr?type=remaining`);
-      const data = await res.json();
+      const data = await safeFetchJson(`/api/bookings/${bookingId}/upi-qr?type=remaining`);
       if (data.success) {
         setUpiQrModal(data);
       }
@@ -950,7 +961,7 @@ export default function App() {
     setAuthLoginLoading(true);
     setAuthLoginError('');
     try {
-      const res = await fetch('/api/auth/login', {
+      const data = await safeFetchJson('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -960,7 +971,6 @@ export default function App() {
           password: authLoginPassword
         })
       });
-      const data = await res.json();
       if (data.success) {
         setStaffToken(data.token);
         setStaffUser(data.user);
@@ -1002,12 +1012,11 @@ export default function App() {
     setAuthLoginLoading(true);
     setAuthLoginError('');
     try {
-      const res = await fetch('/api/auth/login', {
+      const data = await safeFetchJson('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'tt', password: 'tte@mvd2026' })
+        body: JSON.stringify({ username: 'admin', password: 'admin@mvd2026' })
       });
-      const data = await res.json();
       if (data.success) {
         setStaffToken(data.token);
         setStaffUser(data.user);
@@ -1048,7 +1057,7 @@ export default function App() {
         idToken = await user.getIdToken();
       } catch (popupErr) {
         console.warn('Google Popup fallback:', popupErr.message);
-        const promptEmail = window.prompt('अधिकृत Google (Gmail) ईमेल आईडी दर्ज करें:\n(उदा. ramakant.tte@gmail.com, clerk1@gmail.com, admin@gmail.com)', 'ramakant.tte@gmail.com');
+        const promptEmail = window.prompt('अधिकृत Google (Gmail) ईमेल आईडी दर्ज करें:\n(उदा. iammshyam@gmail.com)', 'iammshyam@gmail.com');
         if (!promptEmail) {
           setAuthLoginLoading(false);
           return;
@@ -1062,7 +1071,7 @@ export default function App() {
         return;
       }
 
-      const res = await fetch('/api/auth/google-login', {
+      const data = await safeFetchJson('/api/auth/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1072,7 +1081,6 @@ export default function App() {
           idToken
         })
       });
-      const data = await res.json();
       if (data.success) {
         setStaffToken(data.token);
         setStaffUser(data.user);
