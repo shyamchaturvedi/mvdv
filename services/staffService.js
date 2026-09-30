@@ -32,80 +32,10 @@ const DEPARTMENTS = [
 ];
 
 class StaffService {
-  // Ensure default staff exists
+  // Ensure default staff initialization (clean state, no dummy staff)
   static async initDefaultStaff() {
-    try {
-      const snap = await db.collection('staffMembers').get();
-      const initialStaff = [
-        {
-          staffId: 'STF-101',
-          name: 'श्री रमाकांत शर्मा',
-          username: 'tt',
-          email: 'ramakant.tte@gmail.com',
-          password: 'tte@mvd2026',
-          department: 'Running Staff (ट्रेन संचालन)',
-          role: 'TTE',
-          mobile: '9876543211',
-          assignedCoaches: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
-          status: 'Active',
-          totalCollected: 0,
-          cashCollected: 0,
-          upiCollected: 0,
-          createdAt: new Date().toISOString()
-        },
-        {
-          staffId: 'STF-102',
-          name: 'मनोज कुमार वर्मा',
-          username: 'clerk1',
-          email: 'clerk1@gmail.com',
-          password: 'clerk@mvd2026',
-          department: 'Booking Counter (टिकट काउंटर)',
-          role: 'BookingClerk',
-          mobile: '9876543212',
-          assignedStation: 'New Delhi (NDLS)',
-          status: 'Active',
-          totalCollected: 0,
-          cashCollected: 0,
-          upiCollected: 0,
-          createdAt: new Date().toISOString()
-        },
-        {
-          staffId: 'STF-103',
-          name: 'वीरेंद्र सिंह',
-          username: 'finance',
-          email: 'finance@gmail.com',
-          password: 'finance@mvd2026',
-          department: 'Accounts & Audit (लेखा व कोषागार)',
-          role: 'FinanceOfficer',
-          mobile: '9876543213',
-          status: 'Active',
-          totalCollected: 0,
-          cashCollected: 0,
-          upiCollected: 0,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      if (snap.empty || snap.docs.length === 0) {
-        console.log('🌱 Initializing default staff and security roles...');
-        for (const s of initialStaff) {
-          await db.collection('staffMembers').doc(s.staffId).set(s);
-        }
-      } else {
-        // Sync default emails if missing on default records
-        for (const s of initialStaff) {
-          const doc = await db.collection('staffMembers').doc(s.staffId).get();
-          if (doc.exists) {
-            const data = doc.data();
-            if (!data.email) {
-              await db.collection('staffMembers').doc(s.staffId).set({ ...data, email: s.email });
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('Could not initialize staff defaults:', err.message);
-    }
+    // No-op: Staff members are added dynamically by SuperAdmin
+    return;
   }
 
   // Get all staff members
@@ -227,19 +157,6 @@ class StaffService {
     );
 
     if (!staff) {
-      // Fallback for default admin/tt credentials
-      if ((cleanId === 'tt' || cleanId === 'ramakant.tte@gmail.com') && password === 'tte@mvd2026') {
-        return {
-          staffId: 'STF-101',
-          name: 'श्री रमाकांत शर्मा (TTE No. 4182)',
-          username: 'tt',
-          email: 'ramakant.tte@gmail.com',
-          role: 'TTE',
-          department: 'Running Staff (ट्रेन संचालन)',
-          status: 'Active',
-          permissions: ROLES.TTE.permissions
-        };
-      }
       throw new Error('अमान्य ईमेल आईडी/यूजरनेम या पासवर्ड।');
     }
 

@@ -14,8 +14,8 @@ const DEFAULT_SETTINGS = {
 
   // Trust & Contact Information
   trustName: 'श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट',
-  helplineNumber: '+91 7398959993',
-  officialEmail: 'infomatavaishnodevi@gmail.com',
+  helplineNumber: '+91 9598023701',
+  officialEmail: 'iammshyam@gmail.com',
   adminSupportEmail: 'iammshyam@gmail.com',
   officeAddress: 'Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India',
   sacredAnnouncement: '।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।।',

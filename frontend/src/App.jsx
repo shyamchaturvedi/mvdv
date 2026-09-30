@@ -1840,13 +1840,13 @@ export default function App() {
               <div className="form-group" style={{ textAlign: 'left', marginTop: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <label className="form-label">6-अंकों का OTP कोड दर्ज करें *</label>
-                  <span style={{ fontSize: '0.78rem', color: '#047857', fontWeight: 700 }}>कोड भेजा गया (Demo: 123456)</span>
+                  <span style={{ fontSize: '0.78rem', color: '#047857', fontWeight: 700 }}>ओटीपी भेजा गया</span>
                 </div>
                 <input
                   type="text"
                   maxLength={6}
                   className="form-control"
-                  placeholder="123456"
+                  placeholder="दर्ज करें OTP"
                   value={loginOtp}
                   onChange={(e) => setLoginOtp(e.target.value)}
                   required
@@ -1866,7 +1866,7 @@ export default function App() {
           <div style={{ padding: '12px 0' }}>
             <div style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', padding: '12px 14px', borderRadius: 10, color: '#1E40AF', fontSize: '0.85rem', marginBottom: 16, textAlign: 'left', lineHeight: 1.4 }}>
               <strong><Globe size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> Google (Gmail) वन-क्लिक लॉगिन:</strong>
-              <div style={{ marginTop: 4 }}>एडमिन द्वारा पंजीकृत कर्मचारी की ईमेल आईडी से लॉगिन करते ही उनका संबंधित पद (TTE, क्लर्क या एडमिन) स्वतः खुल जाएगा।</div>
+              <div style={{ marginTop: 4 }}>एडमिन द्वारा पंजीकृत ईमेल आईडी से लॉगिन करते ही उनका संबंधित कार्यभार (एडमिन / स्टाफ) स्वतः खुल जाएगा।</div>
             </div>
 
             <button
@@ -1891,15 +1891,6 @@ export default function App() {
             </button>
           </div>
         )}
-
-        {/* Demo Credentials */}
-        <div style={{ marginTop: 22, padding: 14, background: '#FFF8F2', borderRadius: 8, border: '1px solid #FED7AA', fontSize: '0.8rem', color: '#7C2D12', textAlign: 'left' }}>
-          <strong style={{ color: '#9A3412', display: 'block', marginBottom: 6 }}><Lightbulb size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> अधिकृत पंजीकृत डेमो खाते (Gmail ID & Passwords):</strong>
-          <div>• <strong>सुपर एडमिन:</strong> <code>admin@gmail.com</code> या <code>admin</code> (पासवर्ड: <code>admin@mvd2026</code>)</div>
-          <div>• <strong>TTE स्टाफ:</strong> <code>ramakant.tte@gmail.com</code> या <code>tt</code> (पासवर्ड: <code>tte@mvd2026</code>)</div>
-          <div>• <strong>बुकिंग क्लर्क:</strong> <code>clerk1@gmail.com</code> या <code>clerk1</code> (पासवर्ड: <code>clerk@mvd2026</code>)</div>
-          <div>• <strong>अकाउंट्स ऑफिसर:</strong> <code>finance@gmail.com</code> या <code>finance</code> (पासवर्ड: <code>finance@mvd2026</code>)</div>
-        </div>
       </div>
     );
   };

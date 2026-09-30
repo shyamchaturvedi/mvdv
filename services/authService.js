@@ -62,17 +62,17 @@ class AuthService {
 
     // 1. Check SuperAdmin credentials by username 'admin' or admin email
     const adminPass = process.env.ADMIN_PASSWORD || 'admin@mvd2026';
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@gmail.com').trim().toLowerCase();
+    const adminEmail = (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase();
 
-    if (cleanId === 'admin' || cleanId === adminEmail || cleanId === 'admin@mvd.org' || cleanId === 'admin@matavaishnodevi.org' || cleanId === 'infomatavaishnodevi@gmail.com') {
+    if (cleanId === 'admin' || cleanId === adminEmail || cleanId === 'iammshyam@gmail.com') {
       if (password !== adminPass) {
         throw new Error('व्यवस्थापक (Admin) पासवर्ड अमान्य है।');
       }
       const adminUser = {
         staffId: 'ADMIN-001',
-        name: 'मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)',
+        name: 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
         username: 'admin',
-        email: adminEmail,
+        email: 'iammshyam@gmail.com',
         role: 'SuperAdmin',
         department: 'Trust Executive (ट्रस्ट प्रबंधन)',
         status: 'Active',
@@ -142,12 +142,12 @@ class AuthService {
     const cleanEmail = email.trim().toLowerCase();
 
     // 1. Check SuperAdmin email
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@gmail.com').trim().toLowerCase();
-    if (cleanEmail === adminEmail || cleanEmail === 'admin@mvd.org' || cleanEmail === 'admin@gmail.com' || cleanEmail === 'admin@matavaishnodevi.org' || cleanEmail === 'infomatavaishnodevi@gmail.com') {
+    const adminEmail = (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase();
+    if (cleanEmail === adminEmail || cleanEmail === 'iammshyam@gmail.com') {
       const adminUser = {
         staffId: 'ADMIN-001',
-        name: profile.name || 'मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)',
-        email: cleanEmail,
+        name: profile.name || 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
+        email: 'iammshyam@gmail.com',
         username: 'admin',
         role: 'SuperAdmin',
         department: 'Trust Executive (ट्रस्ट प्रबंधन)',
