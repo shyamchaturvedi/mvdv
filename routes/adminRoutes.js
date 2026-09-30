@@ -4,16 +4,21 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const os = require('os');
 const { BookingService } = require('../services/bookingService');
 const { StaffService, ROLES, DEPARTMENTS } = require('../services/staffService');
 const { AuthService, requireAuth } = require('../services/authService');
 const ExcelService = require('../services/excelService');
 const PDFService = require('../services/pdfService');
 
-// Multer temporary storage for excel upload
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Multer temporary storage for excel upload (uses /tmp on serverless environments)
+let uploadDir = path.join(os.tmpdir(), 'mvd_uploads');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (_) {
+  uploadDir = os.tmpdir();
 }
 
 const storage = multer.diskStorage({
