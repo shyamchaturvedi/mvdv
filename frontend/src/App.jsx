@@ -3445,8 +3445,53 @@ export default function App() {
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
                   GPay, PhonePe, Paytm द्वारा सीधे ट्रस्ट के खाते में अग्रिम भुगतान करें और तत्काल अधिकृत यात्रा पर्ची एवं क्यूआर कोड प्राप्त करें।
                 </p>
+            </div>
+
+            {/* Organizer Details & Guidelines */}
+            <div style={{ marginTop: 40, borderTop: '2px dashed #FED7AA', paddingTop: 32 }}>
+              <div className="grid-2" style={{ gap: 24, alignItems: 'stretch' }}>
+                
+                {/* Organizer Info */}
+                <div className="glass-card" style={{ padding: '28px 24px', border: '1.5px solid #FDBA74', background: '#FFF8F2', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: -20, right: -20, opacity: 0.05, transform: 'scale(1.5)' }}>
+                    <Users size={180} />
+                  </div>
+                  <h3 style={{ fontSize: '1.4rem', color: '#9A3412', fontWeight: 900, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Users size={24} color="#C2410C" /> मुख्य आयोजक विवरण
+                  </h3>
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                    <div style={{ flexShrink: 0, width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #F97316, #C2410C)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 900, border: '4px solid #FED7AA', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                      DR
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: '1.3rem', color: '#7C2D12', margin: '0 0 4px', fontWeight: 800 }}>डॉ. राकेश तिवारी (Dr. Rakesh Tiwari)</h4>
+                      <p style={{ margin: '0 0 10px', color: '#9A3412', fontWeight: 700, fontSize: '0.9rem' }}>
+                        प्रसिद्ध चिकित्सक, समाजसेवी एवं मुख्य आयोजक
+                      </p>
+                      <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                        डॉ. राकेश तिवारी जी के कुशल नेतृत्व एवं निःस्वार्थ सेवाभाव से प्रतिवर्ष श्री माता वैष्णो देवी की यह भव्य विशेष ट्रेन यात्रा आयोजित की जाती है। उनके अथक प्रयासों से हज़ारों श्रद्धालुओं को माता के दरबार में दर्शन का सौभाग्य प्राप्त होता है।
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rules & Warnings */}
+                <div className="glass-card" style={{ padding: '28px 24px', border: '1.5px solid #FCA5A5', background: '#FEF2F2' }}>
+                  <h3 style={{ fontSize: '1.4rem', color: '#B91C1C', fontWeight: 900, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <AlertTriangle size={24} color="#DC2626" /> यात्रा नियम एवं चेतावनी
+                  </h3>
+                  <ul style={{ margin: 0, paddingLeft: 20, color: '#991B1B', fontSize: '0.9rem', lineHeight: 1.7, fontWeight: 500 }}>
+                    <li style={{ marginBottom: 6 }}>यात्रा के दौरान <strong>मूल (Original) आधार कार्ड</strong> व अधिकृत <strong>यात्रा पर्ची (Ticket)</strong> साथ रखना अनिवार्य है।</li>
+                    <li style={{ marginBottom: 6 }}>जिन यात्रियों की राशि बकाया (Pending) है, वे यात्रा से पूर्व भुगतान कर <strong>Payment Slip</strong> प्राप्त कर लें, अन्यथा यात्रा की अनुमति नहीं होगी।</li>
+                    <li style={{ marginBottom: 6 }}>यह टिकट <strong>अहस्तांतरणीय (Non-transferable)</strong> है। किसी अन्य व्यक्ति को यात्रा करने की अनुमति नहीं है।</li>
+                    <li style={{ marginBottom: 6 }}>ट्रेन परिसर में किसी भी प्रकार का मादक पदार्थ या अनुचित व्यवहार सख्त वर्जित है।</li>
+                    <li>आपातकालीन स्थिति में पर्ची पर दिए गए हेल्पलाइन नंबर पर संपर्क करें।</li>
+                  </ul>
+                </div>
+
               </div>
             </div>
+
           </div>
               </div>
             )}
