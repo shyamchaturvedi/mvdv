@@ -28,6 +28,11 @@ app.use(session({
 }));
 
 // Serve React Single Page App as the primary frontend
+const fs = require('fs');
+const distPath = path.join(__dirname, 'frontend', 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+}
 app.use(express.static(path.join(__dirname, 'public', 'app')));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -37,6 +42,10 @@ app.use('/api/admin', adminRoutes);
 
 // Fallback route: Always serve the React Application
 app.get('*', (req, res) => {
+  const distIndex = path.join(__dirname, 'frontend', 'dist', 'index.html');
+  if (fs.existsSync(distIndex)) {
+    return res.sendFile(distIndex);
+  }
   res.sendFile(path.join(__dirname, 'public', 'app', 'index.html'));
 });
 
