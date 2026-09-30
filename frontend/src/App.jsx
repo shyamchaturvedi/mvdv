@@ -846,6 +846,10 @@ export default function App() {
   const netPayable = Math.max(0, grossAmount - Number(discount || 0));
   const remainingDue = Math.max(0, netPayable - Number(advancePayment || 0));
 
+  useEffect(() => {
+    setAdvancePayment(netPayable);
+  }, [netPayable]);
+
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!bookedBy || !mobile) {
