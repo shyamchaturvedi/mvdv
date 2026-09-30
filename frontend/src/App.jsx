@@ -6102,10 +6102,10 @@ export default function App() {
                               <th>बोगी कोड</th>
                               <th>बोगी का नाम</th>
                               <th>श्रेणी</th>
-                              <th>कुल सीटें</th>
-                              <th>आरक्षित</th>
-                              <th>उपलब्ध</th>
-                              <th>किराया</th>
+                              {staffUser && <th>कुल सीटें</th>}
+                              {staffUser && <th>आरक्षित</th>}
+                              {staffUser && <th>उपलब्ध</th>}
+                              {staffUser && <th>किराया</th>}
                               <th>प्लेटफ़ॉर्म स्थिति</th>
                               <th>बुकिंग</th>
                             </tr>
@@ -6117,10 +6117,10 @@ export default function App() {
                               <td><span className="badge badge-danger">LOCO</span></td>
                               <td><strong>इंजन (WAP-7 Locomotive)</strong></td>
                               <td>लोकोमोटिव</td>
-                              <td>-</td>
-                              <td>-</td>
-                              <td>-</td>
-                              <td>-</td>
+                              {staffUser && <td>-</td>}
+                              {staffUser && <td>-</td>}
+                              {staffUser && <td>-</td>}
+                              {staffUser && <td>-</td>}
                               <td>इंजन छोर (Front End)</td>
                               <td><span className="badge" style={{ background: '#CBD5E1', color: '#334155' }}>संचालन</span></td>
                             </tr>
@@ -6144,12 +6144,14 @@ export default function App() {
                                     {c.coachClass}
                                   </span>
                                 </td>
-                                <td><strong>{c.capacity || '-'}</strong></td>
-                                <td style={{ color: '#047857', fontWeight: 700 }}>{c.isBookable ? (c.bookedPassengers || 0) : '-'}</td>
-                                <td style={{ color: '#0284C7', fontWeight: 700 }}>
-                                  {c.isBookable ? ((c.capacity || 72) - (c.bookedPassengers || 0)) : '-'}
-                                </td>
-                                <td>{c.baseFare ? `₹ ${c.baseFare}` : '-'}</td>
+                                {staffUser && <td><strong>{c.capacity || '-'}</strong></td>}
+                                {staffUser && <td style={{ color: '#047857', fontWeight: 700 }}>{c.isBookable ? (c.bookedPassengers || 0) : '-'}</td>}
+                                {staffUser && (
+                                  <td style={{ color: '#0284C7', fontWeight: 700 }}>
+                                    {c.isBookable ? ((c.capacity || 72) - (c.bookedPassengers || 0)) : '-'}
+                                  </td>
+                                )}
+                                {staffUser && <td>{c.baseFare ? `₹ ${c.baseFare}` : '-'}</td>}
                                 <td>{c.platformPlacement || 'Center'}</td>
                                 <td>
                                   {c.isBookable ? (
