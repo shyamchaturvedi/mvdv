@@ -97,6 +97,7 @@ export default function App() {
     d.setDate(d.getDate() + 15);
     return d.toISOString().split('T')[0];
   });
+
   const [fromStation, setFromStation] = useState('New Delhi (NDLS)');
   const [travelClass, setTravelClass] = useState('Sleeper');
   const [coachName, setCoachName] = useState('S1');
@@ -191,6 +192,12 @@ export default function App() {
   const [projectSettingsSaving, setProjectSettingsSaving] = useState(false);
   const [projectSettingsSuccess, setProjectSettingsSuccess] = useState('');
   const [projectSettingsError, setProjectSettingsError] = useState('');
+
+  useEffect(() => {
+    if (projectSettings?.defaultTravelDate) {
+      setTravelDate(projectSettings.defaultTravelDate);
+    }
+  }, [projectSettings?.defaultTravelDate]);
 
   // Online Transactions & UTR Matching Desk State
   const [onlineTxnsList, setOnlineTxnsList] = useState([]);
@@ -3668,6 +3675,9 @@ export default function App() {
                               <div className="form-group">
                                 <label className="form-label">यात्रा की तिथि (Travel Date):</label>
                                 <input type="date" className="form-control" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} required />
+                                <div style={{ marginTop: '6px', color: '#DC2626', fontWeight: 800, fontSize: '0.82rem', animation: 'pulse 2s infinite' }}>
+                                  🔥 1,245+ Tickets Booked! Limited Seats Available.
+                                </div>
                               </div>
                             </div>
 
@@ -5400,6 +5410,15 @@ export default function App() {
                                   placeholder="उदा. MVD2026"
                                   value={projectSettings.merchantCode || ''}
                                   onChange={e => setProjectSettings({ ...projectSettings, merchantCode: e.target.value })}
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label className="form-label">डिफ़ॉल्ट यात्रा तिथि (Travel Date)</label>
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  value={projectSettings.defaultTravelDate || ''}
+                                  onChange={e => setProjectSettings({ ...projectSettings, defaultTravelDate: e.target.value })}
                                 />
                               </div>
                             </div>
