@@ -57,9 +57,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, error: err.message || 'आंतरिक सर्वर त्रुटि' });
 });
 
-// Start listening
-app.listen(PORT, () => {
-  console.log(`🚆 Mata Vaishno Devi Train System Server running on port ${PORT}`);
-});
+// Start listening only if not running inside Vercel Serverless environment
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚆 Mata Vaishno Devi Train System Server running on port ${PORT}`);
+  });
+}
 
 module.exports = app;
