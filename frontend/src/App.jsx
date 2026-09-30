@@ -2060,7 +2060,7 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
             <div>
               <span className="badge badge-bhakti" style={{ marginBottom: 6 }}>
-                {isPersonalOnly ? <>👨‍<Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> व्यक्तिगत दैनिक वसूली बहीखाता</> : <><BarChart3 size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> दिनांक-वार समग्र MIS रिपोर्ट एवं शून्य हेर-फेर समाधान</>}
+                {isPersonalOnly ? <><Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> व्यक्तिगत दैनिक वसूली बहीखाता</> : <><BarChart3 size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> दिनांक-वार समग्र MIS रिपोर्ट एवं शून्य हेर-फेर समाधान</>}
               </span>
               <h3 style={{ fontSize: '1.45rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
                 {isPersonalOnly
@@ -2097,7 +2097,7 @@ export default function App() {
           {/* Date-to-Date & Range Filter Toolbar */}
           <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1.5px solid #FFEDD5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#9A3412' }}>📅 त्वरित फ़िल्टर:</span>
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#9A3412' }}>त्वरित फ़िल्टर:</span>
               <button
                 className={`btn btn-sm ${dateFilterPreset === 'today' ? 'btn-primary' : 'btn-outline'}`}
                 onClick={() => {
@@ -2183,7 +2183,7 @@ export default function App() {
                   loadDailyReport(null, isPersonalOnly ? staffUser?.username : dailyStaffFilter, dateRangeStartDate, dateRangeEndDate);
                 }}
               >
-                📊 लागू करें
+                लागू करें
               </button>
             </div>
 
@@ -2312,7 +2312,7 @@ export default function App() {
                 <BarChart3 size={22} color="#C2410C" />
                 <div>
                   <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>
-                    📊 दिनांक-वार दैनिक वसूली व वित्तीय प्रवाह ग्राफ (MIS Time-Series Chart)
+                    दिनांक-वार दैनिक वसूली व वित्तीय प्रवाह ग्राफ (MIS Time-Series Chart)
                   </h4>
                   <div style={{ fontSize: '0.82rem', color: '#7C2D12' }}>
                     तारीख अनुसार नकद संग्रह (हरा), UPI संग्रह (नीला) एवं शेष देय (लाल) की दृश्य तुलना
@@ -2433,7 +2433,7 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Users size={20} color="#C2410C" />
                 <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-                  👥 भूमिका-वार वित्तीय संकलन एवं प्रदर्शन सारांश (Role-Wise Breakdown)
+                  भूमिका-वार वित्तीय संकलन एवं प्रदर्शन सारांश (Role-Wise Breakdown)
                 </h4>
               </div>
               <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
@@ -2455,11 +2455,11 @@ export default function App() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <strong style={{ color: '#9A3412', fontSize: '0.95rem' }}>
-                      {roleKey === 'SuperAdmin' ? '👑 चीफ़ एडमिन' :
-                       roleKey === 'BookingClerk' ? '💼 बुकिंग क्लर्क' :
-                       roleKey === 'TTE' ? '🎫 TTE चेकिंग स्टाफ' :
-                       roleKey === 'FinanceOfficer' || roleKey === 'AccountsOfficer' ? '📊 वित्त अधिकारी' :
-                       roleKey === 'StationMaster' ? '🚉 स्टेशन मास्टर' : roleKey}
+                      {roleKey === 'SuperAdmin' ? 'चीफ़ एडमिन' :
+                       roleKey === 'BookingClerk' ? 'बुकिंग क्लर्क' :
+                       roleKey === 'TTE' ? 'TTE चेकिंग स्टाफ' :
+                       roleKey === 'FinanceOfficer' || roleKey === 'AccountsOfficer' ? 'वित्त अधिकारी' :
+                       roleKey === 'StationMaster' ? 'स्टेशन मास्टर' : roleKey}
                     </strong>
                     <span className="badge badge-bhakti" style={{ fontSize: '0.7rem' }}>
                       {rStats.bookingsCount || 0} टिकट
@@ -2553,7 +2553,7 @@ export default function App() {
         <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-              📜 {isPersonalOnly ? 'मेरी विस्तृत वसूली रसीदें / लेनदेन सूची' : 'विस्तृत लेनदेन ऑडिट ट्रेल (Transaction Ledger)'}
+              {isPersonalOnly ? 'मेरी विस्तृत वसूली रसीदें / लेनदेन सूची' : 'विस्तृत लेनदेन ऑडिट ट्रेल (Transaction Ledger)'}
             </h4>
             <span style={{ fontSize: '0.8rem', color: '#7C2D12' }}>
               कुल प्रविष्टियां: <strong>{transactions.length}</strong>
@@ -2666,7 +2666,7 @@ export default function App() {
             <input
               type="text"
               className="input-field"
-              placeholder="🔍 PNR नंबर (जैसे MVD-2026-...), भक्त का नाम, या मोबाइल नंबर दर्ज करें..."
+              placeholder="PNR नंबर (जैसे MVD-2026-...), भक्त का नाम, या मोबाइल नंबर दर्ज करें..."
               value={receiptSearchQuery}
               onChange={(e) => setReceiptSearchQuery(e.target.value)}
               style={{ flex: 1, border: 'none', background: 'transparent', fontSize: '1rem', fontWeight: 600, padding: '8px 12px' }}
@@ -2692,7 +2692,7 @@ export default function App() {
         {/* List of Matched Devotees / Bookings with their slips */}
         {matchedBookings.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: 40, color: '#784D35' }}>
-            <div style={{ fontSize: 40, marginBottom: 10 }}>🔍</div>
+            <div style={{ fontSize: 24, marginBottom: 10, color: "#9CA3AF" }}><Search size={36} /></div>
             <h3>कोई रिकॉर्ड नहीं मिला</h3>
             <p>कृपया सही PNR नंबर, नाम या मोबाइल नंबर डालकर पुनः प्रयास करें।</p>
           </div>
@@ -2727,16 +2727,16 @@ export default function App() {
                         </strong>
                       </div>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1F2937', marginTop: 4 }}>
-                        👤 {b.bookedBy}
+                        {b.bookedBy}
                       </div>
                       <div style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: 2 }}>
-                        📱 मोबाइल: <strong>{b.mobile || 'N/A'}</strong> {b.aadhar ? `| आधार: ${b.aadhar}` : ''}
+                        मोबाइल: <strong>{b.mobile || 'N/A'}</strong> {b.aadhar ? `| आधार: ${b.aadhar}` : ''}
                       </div>
                     </div>
 
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#047857' }}>
-                        🚂 {b.fromStation} ➔ {b.toStation}
+                        {b.fromStation} ➔ {b.toStation}
                       </div>
                       <div style={{ fontSize: '0.84rem', marginTop: 2 }}>
                         कोच: <strong style={{ color: '#C2410C' }}>{b.coachName}</strong> | सीट: <strong style={{ color: '#1E40AF' }}>{Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</strong> ({b.travelClass})
@@ -2886,7 +2886,7 @@ export default function App() {
         {/* All Project Features Master Command Grid for SuperAdmin */}
         <div style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ color: '#9A3412', margin: 0, fontWeight: 900, fontSize: '1.25rem' }}>
-            🚩 संपूर्ण नियंत्रण कक्ष — समस्त प्रोजेक्ट मॉड्यूल (All Project Features)
+             संपूर्ण नियंत्रण कक्ष — समस्त प्रोजेक्ट मॉड्यूल (All Project Features)
           </h3>
           <span className="badge badge-bhakti" style={{ fontSize: '0.82rem' }}>12 अधिकृत मॉड्यूल</span>
         </div>
@@ -3115,7 +3115,7 @@ export default function App() {
         {/* ----------------- ROUTE ACCESS GUARD: ROLE MISMATCH ----------------- */}
         {!routeAccess.allowed && routeAccess.reason === 'ROLE_MISMATCH' && (
           <div className="glass-card" style={{ maxWidth: 650, margin: '40px auto', textAlign: 'center', border: '2px solid #F87171', padding: 32 }}>
-            <div style={{ fontSize: 50, marginBottom: 12 }}>🚫</div>
+            <div style={{ fontSize: 50, marginBottom: 12 }}></div>
             <span className="badge badge-unpaid" style={{ fontSize: '0.85rem', marginBottom: 8 }}>अनाधिकृत क्षेत्र (Access Restricted)</span>
             <h2 style={{ color: '#991B1B', fontWeight: 800, margin: '8px 0 12px' }}>पहुंच अस्वीकृत</h2>
             <p style={{ color: '#7F1D1D', fontSize: '1rem', lineHeight: 1.5 }}>
@@ -3144,7 +3144,7 @@ export default function App() {
             <div className="pnr-hero" style={{ marginBottom: 28 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <span className="badge badge-bhakti" style={{ fontSize: '0.88rem', padding: '5px 18px' }}>
-                  🔔 ।। जय माता दी • वार्षिक विशेष तीर्थ यात्रा ।। 🔔
+                   ।। जय माता दी • वार्षिक विशेष तीर्थ यात्रा ।। 
                 </span>
               </div>
 
@@ -3167,7 +3167,7 @@ export default function App() {
                   onKeyDown={(e) => e.key === 'Enter' && searchPNR()}
                 />
                 <button className="btn btn-primary" onClick={() => searchPNR()} disabled={pnrLoading} style={{ flexShrink: 0 }}>
-                  {pnrLoading ? '⏳ जांच...' : 'स्टेटस जांचें ➔'}
+                  {pnrLoading ? 'जांच जारी...' : 'स्टेटस जांचें ➔'}
                 </button>
               </div>
 
@@ -3356,7 +3356,7 @@ export default function App() {
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap', marginTop: 16 }}>
                 <button className="btn btn-primary" style={{ padding: '12px 26px', fontSize: '0.98rem' }} onClick={() => navigate('/coach-position')}>
-                  <Train size={20} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> 🚂 ट्रेन बोगी स्थिति व रेक संरचना (Live Coach Position)
+                  <Train size={20} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> ट्रेन बोगी स्थिति व रेक संरचना (Live Coach Position)
                 </button>
                 <button className="btn btn-gold" style={{ padding: '12px 26px', fontSize: '0.98rem' }} onClick={() => setActiveTab('staff')}>
                   <Lock size={20} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> अधिकृत कर्मचारी एवं ट्रस्ट अधिकारी लॉगिन
@@ -3632,13 +3632,13 @@ export default function App() {
                             </div>
 
                             <div style={{ marginTop: 14, textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                              🔒 सुरक्षा सील हैश: <code>{verifierResult.securityHash}</code>
+                              सुरक्षा सील हैश: <code>{verifierResult.securityHash}</code>
                             </div>
                           </div>
                         ) : verifierResult.status === 'TAMPERED' ? (
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEE2E2', color: '#991B1B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>🚨</div>
+                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEE2E2', color: '#991B1B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}></div>
                               <div>
                                 <h3 style={{ margin: 0, color: '#991B1B', fontSize: '1.3rem', fontWeight: 800 }}>{verifierResult.title}</h3>
                                 <p style={{ margin: '2px 0 0', color: '#B91C1C', fontSize: '0.88rem', fontWeight: 600 }}>{verifierResult.message}</p>
@@ -3784,7 +3784,7 @@ export default function App() {
                                   style={{ padding: '5px 10px', fontSize: '0.8rem', fontWeight: 700 }}
                                   title="स्वचालित रूप से उपलब्ध सीटें चुनें"
                                 >
-                                  ⚡ स्वतः सीटें चुनें ({passengers.length} Seat{passengers.length > 1 ? 's' : ''})
+                                  स्वतः सीटें चुनें ({passengers.length} Seat{passengers.length > 1 ? 's' : ''})
                                 </button>
                                 <span className="badge badge-paid">{coachLayout.availableCount} खाली</span>
                                 <span className="badge badge-unpaid">{coachLayout.bookedCount} आरक्षित</span>
@@ -3831,7 +3831,7 @@ export default function App() {
                           {/* Lead Devotee Details */}
                           <div className="glass-card" style={{ marginBottom: 20 }}>
                             <h3 style={{ color: '#9A3412', fontSize: '1.25rem', marginBottom: 16, fontWeight: 800 }}>
-                              👤 2. मुख्य भक्त विवरण (Lead Devotee)
+                              2. मुख्य भक्त विवरण (Lead Devotee)
                             </h3>
 
                             <div className="grid-2">
@@ -4087,7 +4087,7 @@ export default function App() {
                                       <div style={{ marginTop: 4, padding: 2, background: b.utrStatus === 'Verified' ? '#D1FAE5' : '#FEF3C7', borderRadius: 4, border: '1px solid #FDE68A' }}>
                                         <span style={{ fontWeight: 600 }}>UTR:</span> {b.utrNumber}
                                         <div style={{ fontSize: '0.75rem', color: b.utrStatus === 'Verified' ? '#047857' : '#D97706' }}>
-                                          {b.utrStatus === 'Verified' ? '✓ Verified' : '⏳ Pending'}
+                                          {b.utrStatus === 'Verified' ? '✓ Verified' : 'Pending'}
                                         </div>
                                       </div>
                                     )}
@@ -4655,7 +4655,7 @@ export default function App() {
                         {/* Staff / Collector Wise Collection Breakdown */}
                         <div className="glass-card">
                           <h4 style={{ color: '#9A3412', marginBottom: 14, fontSize: '1.15rem', fontWeight: 800 }}>
-                            👨‍<Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> कर्मचारी-वार एवं टीटी-वार वसूली ऑडिट (Staff Collection Breakdown)
+                            <Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> कर्मचारी-वार एवं टीटी-वार वसूली ऑडिट (Staff Collection Breakdown)
                           </h4>
                           <div className="table-responsive">
                             <table className="custom-table">
@@ -4976,7 +4976,7 @@ export default function App() {
                           </div>
 
                           <div className="glass-card" style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', padding: 14 }}>
-                            <div style={{ fontSize: '0.76rem', color: '#92400E', fontWeight: 700 }}>⏳ लंबित UTR मिलान (Pending)</div>
+                            <div style={{ fontSize: '0.76rem', color: '#92400E', fontWeight: 700 }}>लंबित UTR मिलान (Pending)</div>
                             <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#B45309', margin: '4px 0' }}>{onlineTxnsSummary.pending}</div>
                             <div style={{ fontSize: '0.78rem', color: '#78350F' }}>बैंक से मैच करना बाकी</div>
                           </div>
@@ -5017,7 +5017,7 @@ export default function App() {
                                   loadOnlineTransactions('Pending', onlineTxnsSearch);
                                 }}
                               >
-                                ⏳ लंबित ({onlineTxnsSummary.pending})
+                                लंबित ({onlineTxnsSummary.pending})
                               </button>
                               <button
                                 className={`btn btn-sm ${onlineTxnsStatusFilter === 'Verified' ? 'btn-primary' : 'btn-outline'}`}
@@ -5046,7 +5046,7 @@ export default function App() {
                               <input
                                 type="text"
                                 className="form-control"
-                                placeholder="🔍 PNR, नाम, 12-अंकों का UTR या मोबाइल नंबर..."
+                                placeholder="PNR, नाम, 12-अंकों का UTR या मोबाइल नंबर..."
                                 value={onlineTxnsSearch}
                                 onChange={(e) => {
                                   setOnlineTxnsSearch(e.target.value);
@@ -5083,7 +5083,7 @@ export default function App() {
                                 {onlineTxnsLoading ? (
                                   <tr>
                                     <td colSpan="8" style={{ textAlign: 'center', padding: 30, color: '#7C2D12' }}>
-                                      ⏳ ऑनलाइन लेनदेन डेटा लोड हो रहा है...
+                                      ऑनलाइन लेनदेन डेटा लोड हो रहा है...
                                     </td>
                                   </tr>
                                 ) : onlineTxnsList.length === 0 ? (
@@ -5100,9 +5100,9 @@ export default function App() {
                                       <td style={{ textAlign: 'center', fontWeight: 700 }}>{idx + 1}</td>
                                       <td>
                                         <div style={{ fontWeight: 800, color: '#C2410C' }}>{tx.pnr}</div>
-                                        <div style={{ fontWeight: 700, color: '#1F2937' }}>👤 {tx.devoteeName}</div>
+                                        <div style={{ fontWeight: 700, color: '#1F2937' }}>{tx.devoteeName}</div>
                                         <div style={{ fontSize: '0.76rem', color: '#6B7280' }}>
-                                          📱 {tx.mobile} | कोच {tx.coachName} (सीट: {tx.seatNumber})
+                                          {tx.mobile} | कोच {tx.coachName} (सीट: {tx.seatNumber})
                                         </div>
                                       </td>
                                       <td>
@@ -5153,7 +5153,7 @@ export default function App() {
                                           </span>
                                         ) : (
                                           <span className="badge badge-partial" style={{ fontSize: '0.78rem' }}>
-                                            ⏳ मिलान लंबित
+                                            मिलान लंबित
                                           </span>
                                         )}
                                       </td>
@@ -5196,7 +5196,7 @@ export default function App() {
                                             })}
                                             title="UTR नंबर या स्थिति संशोधित करें"
                                           >
-                                            ✏️ बदलें
+                                            बदलें
                                           </button>
                                         </div>
                                       </td>
@@ -5305,13 +5305,13 @@ export default function App() {
                                 </div>
 
                                 <div style={{ marginTop: 14, textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                  🔒 सुरक्षा सील हैश: <code>{verifierResult.securityHash}</code>
+                                  सुरक्षा सील हैश: <code>{verifierResult.securityHash}</code>
                                 </div>
                               </div>
                             ) : verifierResult.status === 'TAMPERED' ? (
                               <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEE2E2', color: '#991B1B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>🚨</div>
+                                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FEE2E2', color: '#991B1B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}></div>
                                   <div>
                                     <h3 style={{ margin: 0, color: '#991B1B', fontSize: '1.3rem', fontWeight: 800 }}>{verifierResult.title}</h3>
                                     <p style={{ margin: '2px 0 0', color: '#B91C1C', fontSize: '0.88rem', fontWeight: 600 }}>{verifierResult.message}</p>
@@ -5367,7 +5367,7 @@ export default function App() {
                             </div>
                             <div>
                               <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.3rem', fontWeight: 800 }}>
-                                ⚙️ प्रोजेक्ट वित्तीय एवं UPI सेटिंग्स (Project & UPI Configuration)
+                                प्रोजेक्ट वित्तीय एवं UPI सेटिंग्स (Project & UPI Configuration)
                               </h3>
                               <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.86rem' }}>
                                 आधिकारिक ट्रस्ट UPI ID, क्यूआर कोड, प्रति सीट किराया दरें एवं संपर्क विवरण अपडेट करें
@@ -5570,7 +5570,7 @@ export default function App() {
                             disabled={projectSettingsSaving}
                           >
                             <Settings size={18} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
-                            {projectSettingsSaving ? 'सेटिंग्स सुरक्षित हो रही हैं...' : '💾 प्रोजेक्ट एवं UPI सेटिंग्स सुरक्षित करें (Save Settings)'}
+                            {projectSettingsSaving ? 'सेटिंग्स सुरक्षित हो रही हैं...' : 'प्रोजेक्ट एवं UPI सेटिंग्स सुरक्षित करें (Save Settings)'}
                           </button>
                         </form>
                       </div>
@@ -5796,7 +5796,7 @@ export default function App() {
                     <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
                         <div style={{ fontWeight: 800, color: '#9A3412', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span>🚂 रेक संरचना (Live Rake Layout - 18 Bogies)</span>
+                          <span>रेक संरचना (Live Rake Layout - 18 Bogies)</span>
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#7C2D12', display: 'flex', gap: 12, alignItems: 'center' }}>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -6060,14 +6060,14 @@ export default function App() {
 
                         {selectedCoachForPosition.notes && (
                           <div style={{ background: '#FFFBEB', padding: '10px 14px', borderRadius: 8, border: '1px solid #FDE68A', fontSize: '0.85rem', color: '#92400E' }}>
-                            <strong>📝 कोच विवरण / विशेष टिप्पणी:</strong> {selectedCoachForPosition.notes}
+                            <strong>कोच विवरण / विशेष टिप्पणी:</strong> {selectedCoachForPosition.notes}
                           </div>
                         )}
 
                         {/* Berth Arrangement Explanation */}
                         {selectedCoachForPosition.isBookable && (
                           <div style={{ marginTop: 14, background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', fontSize: '0.82rem', color: '#7C2D12' }}>
-                            <strong>🛏️ बर्थ लेआउट दिशानिर्देश:</strong>
+                            <strong>बर्थ लेआउट दिशानिर्देश:</strong>
                             {selectedCoachForPosition.coachClass === 'Sleeper' ? (
                               <span> 1 से 72 तक प्रत्येक 8 सीटों का कूपे (Lower: 1,4, Middle: 2,5, Upper: 3,6, Side Lower: 7, Side Upper: 8)।</span>
                             ) : (
@@ -6081,7 +6081,7 @@ export default function App() {
                     {/* Tabular Full Rake Reference */}
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.15rem', marginBottom: 14 }}>
-                        📋 संपूर्ण रेक गठन तालिका (Complete Train Formation Chart)
+                        संपूर्ण रेक गठन तालिका (Complete Train Formation Chart)
                       </h3>
 
                       <div className="table-responsive">
@@ -6261,7 +6261,7 @@ export default function App() {
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                         <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.15rem', margin: 0 }}>
-                          🚆 ट्रेन बोगी क्रम एवं विवरण तालिका (Rake Sequence & Configuration)
+                          ट्रेन बोगी क्रम एवं विवरण तालिका (Rake Sequence & Configuration)
                         </h3>
                         <span style={{ fontSize: '0.8rem', color: '#7C2D12' }}>
                           ⬆️ / ⬇️ बटन से बोगी का क्रम (इंजन से दूरी) बदलें
@@ -6398,7 +6398,7 @@ export default function App() {
                           </div>
                           <div>
                             <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.35rem', fontWeight: 800 }}>
-                              🚫 टिकट रद्दीकरण व रिफंड डेस्क (Ticket Cancellation & Refund Master)
+                               टिकट रद्दीकरण व रिफंड डेस्क (Ticket Cancellation & Refund Master)
                             </h2>
                             <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.85rem' }}>
                               यात्री टिकट रद्द करें, रिफंड राशि समायोजित करें तथा रद्दीकरणकर्ता कर्मचारी का रिकॉर्ड देखें
@@ -6511,7 +6511,7 @@ export default function App() {
                         </div>
                         <div>
                           <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.4rem', fontWeight: 800 }}>
-                            📖 संपूर्ण यूज़र गाइड व संचालन कार्यप्रणाली (User Manual & SOP)
+                            संपूर्ण यूज़र गाइड व संचालन कार्यप्रणाली (User Manual & SOP)
                           </h2>
                           <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.88rem' }}>
                             ट्रस्ट व्यवस्थापक, बुकिंग क्लर्क, टीटीई एवं लेखा टीम हेतु चरणबद्ध उपयोग निर्देश
@@ -6525,31 +6525,31 @@ export default function App() {
                           className={`btn btn-sm ${userGuideTab === 'admin' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('admin')}
                         >
-                          👑 1. मुख्य व्यवस्थापक (SuperAdmin SOP)
+                          1. मुख्य व्यवस्थापक (SuperAdmin SOP)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'clerk' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('clerk')}
                         >
-                          🎫 2. टिकट काउंटर लिपिक (Booking Clerk)
+                          2. टिकट काउंटर लिपिक (Booking Clerk)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'tte' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('tte')}
                         >
-                          📱 3. चल टिकट परीक्षक (TTE Live Check)
+                          3. चल टिकट परीक्षक (TTE Live Check)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'accounts' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('accounts')}
                         >
-                          💰 4. दैनिक वसूली व लेखा मिलान (Accounts/MIS)
+                          4. दैनिक वसूली व लेखा मिलान (Accounts/MIS)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'refund_rules' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('refund_rules')}
                         >
-                          🚫 5. रद्दीकरण व रिफंड नियम (Cancellation Policy)
+                           5. रद्दीकरण व रिफंड नियम (Cancellation Policy)
                         </button>
                       </div>
                     </div>
@@ -6558,7 +6558,7 @@ export default function App() {
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 24, lineHeight: 1.7 }}>
                       {userGuideTab === 'admin' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>👑 मुख्य व्यवस्थापक (Chief Admin) कार्यप्रणाली</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>मुख्य व्यवस्थापक (Chief Admin) कार्यप्रणाली</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
                             <li><strong>डैशबोर्ड:</strong> लाइव कुल आरक्षण, दैनिक बिक्री, रिफंड राशि और शुद्ध राजस्व का विश्लेषण करें।</li>
                             <li><strong>ट्रेन बोगी प्रबंधन:</strong> ट्रेन में नई बोगियां जोड़ें, 18-बोगी रेक रीसेट करें या ⬆️/⬇️ बटन से क्रम बदलें।</li>
@@ -6571,7 +6571,7 @@ export default function App() {
 
                       {userGuideTab === 'clerk' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>🎫 टिकट काउंटर बुकिंग क्लर्क SOP</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>टिकट काउंटर बुकिंग क्लर्क SOP</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
                             <li><strong>नया आरक्षण:</strong> यात्रा वर्ष, श्रेणी (Sleeper/AC) एवं कोच चुनें।</li>
                             <li><strong>सीट चयन:</strong> सीट मैप में खाली सीट पर क्लिक करें (हरी लाइट से चयनित सीट दिखती है)।</li>
@@ -6583,7 +6583,7 @@ export default function App() {
 
                       {userGuideTab === 'tte' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>📱 चल टिकट परीक्षक (TTE) ऑन-ट्रेन अटेंडेंस SOP</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>चल टिकट परीक्षक (TTE) ऑन-ट्रेन अटेंडेंस SOP</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
                             <li><strong>लाइव सीट ग्रिड:</strong> अपने आवंटित कोच का चयन करें।</li>
                             <li><strong>उपस्थिति जाँच:</strong> प्रत्येक यात्री का नाम व आधार देखकर <strong>✓ उपस्थित (Present)</strong> या <strong>✕ अनुपस्थित (Absent)</strong> मार्क करें।</li>
@@ -6594,7 +6594,7 @@ export default function App() {
 
                       {userGuideTab === 'accounts' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>💰 दैनिक वसूली व लेखा मिलान (Daily MIS & Accounts)</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>दैनिक वसूली व लेखा मिलान (Daily MIS & Accounts)</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
                             <li><strong>दैनिक रिपोर्ट:</strong> तिथि चुनें (आज, कल, पिछले 7 दिन या कस्टम डेट रेंज)।</li>
                             <li><strong>कर्मचारीवार बहीखाता:</strong> किस क्लर्क या TTE ने कितना नकद व UPI कलेक्ट किया, उसका पूरा हिसाब देखें।</li>
@@ -6606,7 +6606,7 @@ export default function App() {
 
                       {userGuideTab === 'refund_rules' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>🚫 टिकट रद्दीकरण व रिफंड नियम (Cancellation & Refund Rules)</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}> टिकट रद्दीकरण व रिफंड नियम (Cancellation & Refund Rules)</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
                             <li><strong>रद्दीकरण प्रक्रिया:</strong> बुकिंग डायरेक्टरी में जाकर टिकट के सामने <strong>"✕ रद्द / रिफंड"</strong> दबाएं।</li>
                             <li><strong>रिफंड राशि निर्धारण:</strong> जमा अग्रिम में से नियमानुसार कटौती कर श्रद्धालु को रिफंड राशि प्रदान करें।</li>
@@ -6737,8 +6737,8 @@ export default function App() {
                   value={cancelModal.refundChannel || 'UPI'}
                   onChange={(e) => setCancelModal({ ...cancelModal, refundChannel: e.target.value, refundMode: e.target.value === 'UPI' ? 'Admin UPI Transfer (5-7 Days)' : 'Admin Bank Transfer (5-7 Days)' })}
                 >
-                  <option value="UPI">📱 UPI ट्रांसफर (5-7 कार्य दिवस)</option>
-                  <option value="Bank">🏦 बैंक खाता ट्रांसफर (NEFT/IMPS 5-7 कार्य दिवस)</option>
+                  <option value="UPI">UPI ट्रांसफर (5-7 कार्य दिवस)</option>
+                  <option value="Bank">बैंक खाता ट्रांसफर (NEFT/IMPS 5-7 कार्य दिवस)</option>
                 </select>
               </div>
 
@@ -7272,7 +7272,7 @@ export default function App() {
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ border: '1.5px solid #C2410C', borderRadius: '50%', width: 50, height: 50, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#C2410C', fontSize: '0.55rem', fontWeight: 900, transform: 'rotate(-5deg)', margin: '0 auto 2px', background: '#FFF7ED' }}>
-                            <span>🚩 MVD</span>
+                            <span> MVD</span>
                             <span>SEAL</span>
                             <span>2026</span>
                           </div>
@@ -7932,7 +7932,7 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Smartphone size={20} color="#C2410C" />
                 <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.15rem', fontWeight: 800 }}>
-                  ✏️ UTR नंबर एवं बैंक मिलान स्थिति
+                  UTR नंबर एवं बैंक मिलान स्थिति
                 </h3>
               </div>
               <button className="btn btn-outline btn-sm" onClick={() => setEditUtrModal(null)}>✕</button>
@@ -7979,7 +7979,7 @@ export default function App() {
                   value={editUtrModal.status}
                   onChange={e => setEditUtrModal({ ...editUtrModal, status: e.target.value })}
                 >
-                  <option value="Pending">⏳ मिलान लंबित (Pending Match)</option>
+                  <option value="Pending">मिलान लंबित (Pending Match)</option>
                   <option value="Verified">✓ बैंक से सत्यापित (Verified / Approved)</option>
                   <option value="Rejected">✕ अस्वीकृत (Rejected / Fake UTR)</option>
                 </select>
@@ -8131,7 +8131,7 @@ export default function App() {
     <div style={{ backgroundColor: 'var(--peach-bg)', minHeight: '100vh', color: 'var(--text-main)' }}>
       {/* Top Sacred Bhagwa Animated Band */}
       <div className="sacred-band">
-        <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> ।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।। <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> &nbsp;&nbsp; जय माता दी • श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट 🔱 &nbsp;&nbsp;
+        <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> ।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।। <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> &nbsp;&nbsp; जय माता दी • श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट  &nbsp;&nbsp;
       </div>
 
       {/* Main Navbar (Mobile-Responsive) */}
