@@ -599,7 +599,7 @@ export default function App() {
       if (data.success) {
         alert(data.message || 'टिकट सफलतापूर्वक रद्द किया गया एवं रिफंड रिकॉर्ड दर्ज किया गया।');
         setCancelModal(null);
-        loadAdminBookings();
+        loadAdminDashboard();
         loadDashboardStats();
         loadCoachLayout(coachName, bookingYear);
         loadTrainComposition(compositionYearFilter);
@@ -6344,7 +6344,7 @@ export default function App() {
                           </div>
                         </div>
 
-                        <button className="btn btn-outline btn-sm" onClick={loadAdminBookings}>
+                        <button className="btn btn-outline btn-sm" onClick={loadAdminDashboard}>
                           <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रिफ्रेश
                         </button>
                       </div>
@@ -7509,7 +7509,7 @@ export default function App() {
                     value={newStaffForm.role}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, role: e.target.value })}
                   >
-                    {(staffRoles && typeof staffRoles === 'object' && !Array.isArray(staffRoles)
+                    {(staffRoles && typeof staffRoles === 'object' && !Array.isArray(staffRoles) && Object.keys(staffRoles).length > 0
                       ? Object.entries(staffRoles).map(([k, v]) => ({ id: k, name: v?.name || k }))
                       : Array.isArray(staffRoles) && staffRoles.length > 0
                         ? staffRoles
