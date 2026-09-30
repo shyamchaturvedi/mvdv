@@ -3091,9 +3091,12 @@ export default function App() {
                 <div>
             {/* ── IRCTC-Grade PNR Hero Banner ── */}
             <div className="pnr-hero" style={{ marginBottom: 28 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 12 }}>
                 <span className="badge badge-bhakti" style={{ fontSize: '0.88rem', padding: '5px 18px' }}>
                    ।। जय माता दी • वार्षिक विशेष तीर्थ यात्रा ।। 
+                </span>
+                <span className="badge" style={{ background: '#DC2626', color: '#FFF', fontSize: '0.85rem', padding: '5px 18px', animation: 'pulse 2s infinite', border: '1px solid #B91C1C' }}>
+                  🔥 1,245+ Tickets Booked! Limited Seats Available.
                 </span>
               </div>
 
