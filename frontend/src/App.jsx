@@ -3445,6 +3445,7 @@ export default function App() {
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
                   GPay, PhonePe, Paytm द्वारा सीधे ट्रस्ट के खाते में अग्रिम भुगतान करें और तत्काल अधिकृत यात्रा पर्ची एवं क्यूआर कोड प्राप्त करें।
                 </p>
+              </div>
             </div>
 
             {/* Organizer Details & Guidelines */}
@@ -3493,10 +3494,10 @@ export default function App() {
             </div>
 
           </div>
-              </div>
-            )}
+        </div>
+      )}
 
-            {/* VIEW 2: DEDICATED LOGIN ROUTE */}
+      {/* VIEW 2: DEDICATED LOGIN ROUTE */}
             {activeView === 'login' && (
               <div>
                 {staffUser ? (
