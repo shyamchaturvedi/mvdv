@@ -3635,8 +3635,8 @@ export default function App() {
             {/* VIEW: STANDALONE / PUBLIC RECEIPTS DESK */}
             {activeView === 'receipts_desk' && !isStaffView && renderReceiptsDeskView()}
 
-            {/* AUTHENTICATED STAFF WORKSTATION VIEWS */}
-            {staffUser && activeView !== 'public_home' && activeView !== 'login' && !(activeView === 'verifier' && currentPath === '/verify-ticket') && (
+            {/* AUTHENTICATED STAFF WORKSTATION VIEWS (AND PUBLIC COACH POSITION) */}
+            {(staffUser || activeView === 'coach_position') && activeView !== 'public_home' && activeView !== 'login' && !(activeView === 'verifier' && currentPath === '/verify-ticket') && (
               <div>
 
                 {/* VIEW: ADMIN DASHBOARD */}
