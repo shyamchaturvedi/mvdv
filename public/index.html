@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mata Vaishno Devi Yatra Special Train | Official Booking Portal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <div class="brand-container">
+      <div class="brand-logo-badge">🚆</div>
+      <div>
+        <div class="brand-title">Mata Vaishno Devi Yatra Train</div>
+        <div class="brand-subtitle">Shri Mata Vaishno Devi Public Charitable Trust</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link active"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="/book.html" class="nav-link"><i class="fa-solid fa-ticket"></i> Book Ticket</a>
+      <a href="#pnr-section" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Check PNR</a>
+      <a href="/admin.html" class="btn btn-outline btn-sm"><i class="fa-solid fa-user-shield"></i> Admin Portal</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <div class="hero-pill">
+      <i class="fa-solid fa-dharmachakra"></i> ।। जय माता दी • Annual Pilgrimage Yatra Special 2026 ।।
+    </div>
+    <h1 class="hero-title">
+      Divine Journey to <span>Mata Vaishno Devi</span> Katra
+    </h1>
+    <p class="hero-desc">
+      Official reservation system for the Mata Vaishno Devi Annual Pilgrimage Special Superfast Train. Guaranteed berths, sanitized AC & Sleeper coaches, verified darshan passes, and charitable subsidized fares.
+    </p>
+
+    <!-- Quick PNR Search -->
+    <div class="pnr-search-box" id="pnr-section">
+      <i class="fa-solid fa-magnifying-glass" style="color: #94A3B8; font-size: 1.2rem;"></i>
+      <input type="text" id="pnrInput" class="pnr-input" placeholder="Enter PNR / Booking ID (e.g. MVD-2026-...)">
+      <button class="btn btn-primary" onclick="searchPNR()">
+        <i class="fa-solid fa-arrow-right"></i> Check Status
+      </button>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <a href="/book.html" class="btn btn-primary" style="padding: 14px 34px; font-size: 1.05rem;">
+        <i class="fa-solid fa-train"></i> Book Yatra Ticket Now
+      </a>
+      <a href="/admin.html" class="btn btn-outline" style="padding: 14px 28px; font-size: 1.05rem;">
+        <i class="fa-solid fa-lock"></i> Trust Volunteer Login
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Information Container -->
+  <main class="container">
+    
+    <!-- Highlights Grid -->
+    <div class="grid-3" style="margin-bottom: 50px;">
+      <div class="glass-card">
+        <div style="font-size: 32px; color: #FF6F00; margin-bottom: 14px;"><i class="fa-solid fa-calendar-check"></i></div>
+        <h3 style="font-size: 1.3rem; margin-bottom: 10px;">Multi-Year Yatra Batches</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Special annual trains operating every year with seamless advance reservations for batches from New Delhi, Kanpur, Lucknow, Varanasi, and Agra directly to Katra.
+        </p>
+      </div>
+
+      <div class="glass-card">
+        <div style="font-size: 32px; color: #FFD700; margin-bottom: 14px;"><i class="fa-solid fa-couch"></i></div>
+        <h3 style="font-size: 1.3rem; margin-bottom: 10px;">Visual Coach & Berth Selector</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Choose your preferred lower, middle, or upper berths in real-time with our interactive visual train coach seat layout. Zero double-booking risk.
+        </p>
+      </div>
+
+      <div class="glass-card">
+        <div style="font-size: 32px; color: #10B981; margin-bottom: 14px;"><i class="fa-solid fa-qrcode"></i></div>
+        <h3 style="font-size: 1.3rem; margin-bottom: 10px;">Instant QR & Digital Boarding Slip</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Instant dynamic UPI payment QR for booking advance tokens, followed by downloadable A4 Official Travel Slips with security barcodes and QR verification.
+        </p>
+      </div>
+    </div>
+
+    <!-- Annual Schedule & Fare Table -->
+    <div class="glass-card" style="margin-bottom: 50px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <div>
+          <span class="badge badge-yatra">Special Superfast Express (04201/04202)</span>
+          <h2 style="font-size: 1.8rem; margin-top: 8px;">Train Route & Class Pricing</h2>
+        </div>
+        <a href="/book.html" class="btn btn-gold"><i class="fa-solid fa-bolt"></i> Reserve Now</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Class Type</th>
+              <th>Coaches</th>
+              <th>Fixed Charitable Fare</th>
+              <th>Amenities Included</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>AC 3-Tier / 2-Tier</strong></td>
+              <td>A1, A2, A3, B1, B2, B3</td>
+              <td><span style="color: #FFD700; font-weight: 700; font-size: 1.1rem;">₹ 4,000</span> / person</td>
+              <td>Full AC, Bedroll, Linen, Devotional Bhajan Sound System</td>
+              <td><span class="badge badge-paid">Booking Open</span></td>
+            </tr>
+            <tr>
+              <td><strong>Sleeper Class (SL)</strong></td>
+              <td>S1, S2, S3, S4, S5, S6</td>
+              <td><span style="color: #FFD700; font-weight: 700; font-size: 1.1rem;">₹ 3,000</span> / person</td>
+              <td>Reserved Berth, Window Cushions, Charging Points, Security</td>
+              <td><span class="badge badge-paid">Booking Open</span></td>
+            </tr>
+            <tr>
+              <td><strong>General / Second Seating</strong></td>
+              <td>GS1, GS2, SLR</td>
+              <td><span style="color: #FFD700; font-weight: 700; font-size: 1.1rem;">₹ 2,000</span> / person</td>
+              <td>Subsidized Seating for Seva Yatris & Volunteers</td>
+              <td><span class="badge badge-partial">Fast Filling</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Key Route Stations -->
+    <div class="glass-card">
+      <h3 style="font-size: 1.4rem; margin-bottom: 18px;"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Primary Boarding Stations</h3>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 New Delhi (NDLS)</span>
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 Kanpur Central (CNB)</span>
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 Lucknow Charbagh (LKO)</span>
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 Varanasi Cantt (BSB)</span>
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 Agra Cantt (AGC)</span>
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 Mathura Junction (MTJ)</span>
+        <span class="badge badge-yatra" style="padding: 8px 16px; font-size: 0.9rem;">📍 Ambala Cantt (UMB)</span>
+        <span class="badge badge-paid" style="padding: 8px 16px; font-size: 0.9rem;">🏁 Terminus: Katra (SVDK)</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- PNR Status Modal -->
+  <div class="modal-overlay" id="pnrModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closePNRModal()">&times;</button>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span class="badge badge-yatra" id="modalYatraYear">Yatra 2026</span>
+        <h2 style="margin-top: 10px; font-size: 1.6rem;" id="modalPnr">MVD-2026-XXXX</h2>
+        <div id="modalStatusBadge" style="margin-top: 8px;"></div>
+      </div>
+
+      <div id="modalBody" style="font-size: 0.95rem; color: #E2E8F0;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <a id="modalSlipLink" href="#" target="_blank" class="btn btn-gold" style="flex: 1;">
+          <i class="fa-solid fa-print"></i> View Travel Slip
+        </a>
+        <a id="modalPdfLink" href="#" class="btn btn-primary" style="flex: 1;">
+          <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-trust">Mata Vaishno Devi Public Charitable Trust</div>
+    <div>Central Pilgrimage Rail Reservation & Passenger Service Office</div>
+    <div style="margin-top: 8px; font-size: 0.82rem;">Helpline: +91 98765 43210 • Email: yatra@vaishnodevitrust.org • Jai Mata Di</div>
+  </footer>
+
+  <script>
+    async function searchPNR() {
+      const pnr = document.getElementById('pnrInput').value.trim();
+      if (!pnr) {
+        alert('Please enter a valid Booking ID / PNR (e.g. MVD-2026-...)');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/bookings/pnr/${encodeURIComponent(pnr)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || 'Booking ID not found');
+          return;
+        }
+
+        const b = data.booking;
+        document.getElementById('modalPnr').textContent = b.bookingId;
+        document.getElementById('modalYatraYear').textContent = `Yatra ${b.yatraYear || 2026}`;
+
+        let statusClass = b.paymentStatus === 'Paid' ? 'badge-paid' : (b.paymentStatus === 'Partial' ? 'badge-partial' : 'badge-unpaid');
+        document.getElementById('modalStatusBadge').innerHTML = `<span class="badge ${statusClass}">${b.paymentStatus}</span>`;
+
+        const seats = Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber;
+        const paxList = (b.passengers || []).map((p, i) => `
+          <div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <span>${i + 1}. <strong>${p.name}</strong> (${p.age || '-'}y, ${p.gender || '-'})</span>
+            <span style="color:var(--accent);">Seat ${p.seatAssigned || p.seatNumber || '-'} (${p.berthPreference || '-'})</span>
+          </div>
+        `).join('');
+
+        document.getElementById('modalBody').innerHTML = `
+          <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 8px; margin-bottom: 16px;">
+            <div><strong>Booked By:</strong> ${b.bookedBy} (Mob: ${b.mobile})</div>
+            <div><strong>Route:</strong> ${b.fromStation} ➔ ${b.toStation}</div>
+            <div><strong>Travel Date:</strong> ${b.travelDate}</div>
+            <div><strong>Class & Coach:</strong> ${b.travelClass} • Coach <span style="color:var(--primary); font-weight:bold;">${b.coachName}</span> (Seats: ${seats})</div>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <div style="font-weight:600; margin-bottom: 6px; color: var(--accent);">Passenger Details:</div>
+            ${paxList}
+          </div>
+          <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 8px;">
+            <div style="display:flex; justify-content:space-between;"><span>Total Amount:</span> <strong>₹ ${b.totalAmount}</strong></div>
+            <div style="display:flex; justify-content:space-between; color:#10B981;"><span>Advance Received:</span> <strong>₹ ${b.advance}</strong></div>
+            <div style="display:flex; justify-content:space-between; color:${b.remainingAmount > 0 ? '#EF4444' : '#10B981'}; font-size:1.05rem;"><span>Balance Due:</span> <strong>₹ ${b.remainingAmount}</strong></div>
+          </div>
+        `;
+
+        document.getElementById('modalSlipLink').href = `/ticket.html?pnr=${b.bookingId}`;
+        document.getElementById('modalPdfLink').href = `/api/bookings/${b.bookingId}/pdf`;
+
+        document.getElementById('pnrModal').classList.add('active');
+      } catch (err) {
+        alert('Error fetching booking details: ' + err.message);
+      }
+    }
+
+    function closePNRModal() {
+      document.getElementById('pnrModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

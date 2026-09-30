@@ -1,0 +1,676 @@
+{
+  "953ef7c4590c14a71a8b18fc58f8cd3fad93af80b06d2c5d6e6f2ea6a9f45922": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1893456000000
+  },
+  "e87916916b04c2a2130c385397302b984b02a6c4e32e1aadd09056f300af520d": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा (TTE No. 4182)",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "status": "Active",
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350408067
+  },
+  "db0e9b412d5c85de511e7ca1705e27aecf87f56f7a5ab16fb37005088b843da9": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "Super Admin",
+      "email": "admin@gmail.com",
+      "username": "admin",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "photoUrl": "",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350408119
+  },
+  "1e450ad2f0bf6bb2462bb2e5ad75ed9e0ef0eead3a490cd9b329ebb27d56ccef": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350439254
+  },
+  "4d5288d2ae470b9f6b1a98c6d91b17baaf7280152c121a2397055b9a66e07a9c": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "Super Admin",
+      "email": "admin@gmail.com",
+      "username": "admin",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "photoUrl": "",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350439321
+  },
+  "1cf1d2ce1dd456d63035c355d3ff80c25e0df4ed1300df7c49fb7268dba54e1a": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "photoUrl": "",
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350439350
+  },
+  "e390a6c9d04f0f4321c4b834828c44169d375d7cc0adc00f09db0c4493416546": {
+    "user": {
+      "staffId": "STF-9372",
+      "name": "सुनील कुमार (नया TTE)",
+      "username": "sunil.tte",
+      "email": "sunil.sharma@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9812345678",
+      "assignedCoaches": [
+        "S3",
+        "S4"
+      ],
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350439419
+  },
+  "e2053f6c7cc1751c366a56cf8be1dab8e2b660ddf53fa616857cddacb2e81714": {
+    "user": {
+      "staffId": "STF-9372",
+      "name": "सुनील कुमार (नया TTE)",
+      "username": "sunil.tte",
+      "email": "sunil.sharma@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9812345678",
+      "assignedCoaches": [
+        "S3",
+        "S4"
+      ],
+      "photoUrl": "",
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350439454
+  },
+  "7c33f243a841d5fdfdd2ead916d0fbfa66fe16f12cc672342cb806473b331fe0": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350920473
+  },
+  "7e69f9510cb49bb5945fcbf00fad5b2ee69a1fd2982c7bb894c3483bca82b903": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350959724
+  },
+  "3a301bb5435751a193c6a14b3e20256ddafd43b44218d6c41d173585d11a305f": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350959770
+  },
+  "3ddb03523b7dd93358a8147df9442ad611f9d93943fea57d7ed57a94cc561869": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350959791
+  },
+  "dc5b28083991b87ffb9d692a54a2896bd13c35e7199a440f82e25b2b004b2eb0": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350959816
+  },
+  "b842861a14ce9f12edcc6572344570fd37fed573f74676e67988ac9449d76248": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350978210
+  },
+  "e9ceb04976f0208d10474748dfb2c10bbfc0889c3b28acf2e7b81297f0c45fe5": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350978247
+  },
+  "75e4286e21b8518a8df6baea7f5f4d59bd665a3c9c60f65a9452d7b151621431": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350978266
+  },
+  "debb226c3a02715271b35fad7cfaf4f5be361a6575eb493a6282a66121d995a8": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350978290
+  },
+  "b1ddb1a2b3d64b60aa7cce849c50f9db80fda1b512e682d2f9387e234770ab0f": {
+    "user": {
+      "staffId": "STF-101",
+      "name": "श्री रमाकांत शर्मा",
+      "username": "tt",
+      "email": "ramakant.tte@gmail.com",
+      "role": "TTE",
+      "department": "Running Staff (ट्रेन संचालन)",
+      "mobile": "9876543211",
+      "assignedCoaches": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "photoUrl": "",
+      "permissions": [
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350978313
+  },
+  "338a3f97d496c203cc5e546f6c0048e1f4c6b57bb9d6ace6d53e59e5a372795b": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "Admin Sahib",
+      "email": "admin@matavaishnodevi.org",
+      "username": "admin",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "photoUrl": "",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793350978319
+  },
+  "7d9644e1860f84db428712cfe6d086f9314327ecbd475bfcd49c20d9dcdcd7bd": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793351139886
+  },
+  "adc670e9a786230b7ad739717436bb22b27bda25fdbe3da24d8a6e52295c8db4": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793351206407
+  },
+  "1177efe20481002f7b5decdc3ce2dc7c7a6f6a755e8705e055f5eb3327167431": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793351928432
+  },
+  "499461bfcd96968f67f0339f62fd1f2b801f80a373afa89eb203b6b02635d4ee": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793352171894
+  },
+  "ef2867ce3d79aec8509928fd75829da6d329df7f5c1c36cb8fef2e03a92c3cbc": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793352187635
+  },
+  "10d915bdf85f4dbae1ec412fe49cdf143ca3d3136db8d7ae31cd041a64ea6374": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793353255315
+  },
+  "353b2c130a5c09466b71fedc5c22632e6b19fb4d9f2e7cab34acbcd5188820bb": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793355287660
+  },
+  "c99798b075cac226b14cfbdbc6cb207dfe8e9ad988c6c20cc2a516161ae928b8": {
+    "user": {
+      "staffId": "ADMIN-001",
+      "name": "मुख्य ट्रस्ट व्यवस्थापक (Chief Admin)",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "role": "SuperAdmin",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "status": "Active",
+      "permissions": [
+        "all",
+        "staff_manage",
+        "financial_reconcile",
+        "audit_view",
+        "delete_booking",
+        "export_excel",
+        "create_booking",
+        "checkin",
+        "collect_due",
+        "view_chart",
+        "print_chart"
+      ]
+    },
+    "expiresAt": 1793355770034
+  }
+}

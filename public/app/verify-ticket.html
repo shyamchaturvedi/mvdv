@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>श्री माता वैष्णो देवी यात्रा टिकट डिजिटल सत्यापन प्रणाली (Anti-Fraud Portal)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #E65100;
+      --secondary: #9A3412;
+      --bg: #FFFDF9;
+      --surface: #FFFFFF;
+      --text: #1C1917;
+      --text-muted: #78716C;
+      --success: #059669;
+      --danger: #DC2626;
+      --border: #FED7AA;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Mukta', 'Outfit', sans-serif;
+      background: #FFF8F0;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: linear-gradient(135deg, #0B192C 0%, #1E293B 100%);
+      color: #FFF;
+      padding: 18px 20px;
+      text-align: center;
+      border-bottom: 3px solid #FF8F00;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .badge-gold {
+      background: #FFEDD5;
+      color: #9A3412;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 24px auto;
+      padding: 0 16px;
+      width: 100%;
+      flex: 1;
+    }
+    .card {
+      background: #FFF;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      box-shadow: 0 10px 25px rgba(230, 81, 0, 0.08);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 20px;
+      text-align: center;
+    }
+    .card-header.genuine {
+      background: linear-gradient(180deg, #ECFDF5 0%, #D1FAE5 100%);
+      border-bottom: 2px solid #10B981;
+    }
+    .card-header.tampered {
+      background: linear-gradient(180deg, #FEF2F2 0%, #FEE2E2 100%);
+      border-bottom: 2px solid #EF4444;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.88; }
+    }
+    .status-icon {
+      font-size: 50px;
+      margin-bottom: 8px;
+    }
+    .status-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+    .status-title.genuine { color: #065F46; }
+    .status-title.tampered { color: #991B1B; }
+    .card-body {
+      padding: 22px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .info-item {
+      background: #FFF8F2;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #FFEDD5;
+    }
+    .info-label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .info-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #9A3412;
+      margin-top: 2px;
+    }
+    .passengers-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .passengers-table th {
+      background: #FFEDD5;
+      color: #7C2D12;
+      text-align: left;
+      padding: 8px 10px;
+      font-weight: 700;
+    }
+    .passengers-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #FED7AA;
+    }
+    .badge-paid { background: #D1FAE5; color: #065F46; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; }
+    .badge-due { background: #FEE2E2; color: #991B1B; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; }
+    .search-box {
+      margin-top: 24px;
+      padding: 18px;
+      background: #FFF8F2;
+      border: 1px solid #FED7AA;
+      border-radius: 12px;
+    }
+    .btn-verify {
+      background: linear-gradient(135deg, #E65100, #F97316);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .sec-seal {
+      background: #F1F5F9;
+      border: 1px dashed #94A3B8;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: #334155;
+      text-align: center;
+      margin-top: 14px;
+    }
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      border-top: 1px solid #FED7AA;
+      background: #FFFDF9;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-gold">🚩 श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट</div>
+    <h1 style="font-size: 1.4rem; font-weight: 800; color: #FFD700;">आधिकारिक ई-टिकट एंटी-फ्रॉड सत्यापन सेवा</h1>
+    <p style="font-size: 0.85rem; color: #CBD5E1;">HMAC-SHA256 क्रिप्टोग्राफिक डिजिटल सील एवं लाइव डेटाबेस चेकिंग</p>
+  </header>
+
+  <div class="container">
+    <div id="resultContainer">
+      <div class="card" style="padding: 40px; text-align: center;">
+        <div style="font-size: 40px; animation: spin 1s infinite linear;">🔄</div>
+        <h3 style="margin-top: 12px; color: #9A3412;">टिकट सुरक्षा डेटाबेस से सत्यापन जारी है...</h3>
+        <p style="color: #78716C; font-size: 0.9rem;">कृपया प्रतीक्षा करें, लाइव सर्वर से तुलना की जा रही है।</p>
+      </div>
+    </div>
+
+    <!-- Manual Verification Search -->
+    <div class="search-box">
+      <h4 style="color: #9A3412; margin-bottom: 8px;">🔍 अन्य किसी टिकट का PNR नंबर व कोड जांचें:</h4>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <input type="text" id="manualPnr" placeholder="PNR उदा. MVD-2026-860670" style="flex: 1; padding: 10px; border: 1.5px solid #FED7AA; border-radius: 8px; font-size: 0.95rem;">
+        <input type="text" id="manualSec" placeholder="Security Code (वैकल्पिक)" style="width: 160px; padding: 10px; border: 1.5px solid #FED7AA; border-radius: 8px; font-size: 0.95rem;">
+        <button class="btn-verify" onclick="verifyManual()">सत्यापित करें</button>
+      </div>
+      <div style="font-size: 0.78rem; color: #78716C; margin-top: 6px;">
+        💡 यदि टिकट पर छपे विवरण या सीट में अंतर दिखे तो टीटीई तुरंत कार्रवाई करें।
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट • रेलवे आरक्षण सुरक्षा सेल • हेल्पलाइन: +91 98765 43210
+  </footer>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const pnr = urlParams.get('pnr') || urlParams.get('id');
+    const sec = urlParams.get('sec') || urlParams.get('hash');
+
+    async function checkTicket(pnrVal, secVal) {
+      const container = document.getElementById('resultContainer');
+      if (!pnrVal) {
+        container.innerHTML = `
+          <div class="card" style="padding: 30px; text-align: center;">
+            <div style="font-size: 40px;">⚠️</div>
+            <h3 style="color: #9A3412; margin-top: 10px;">कृपया सत्यापित करने हेतु PNR नंबर दर्ज करें</h3>
+            <p style="color: #78716C; font-size: 0.9rem; margin-top: 6px;">क्यूआर कोड स्कैन करें अथवा नीचे दिए गए बॉक्स में PNR नंबर दर्ज करें।</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="card" style="padding: 40px; text-align: center;">
+          <div style="font-size: 40px;">🔄</div>
+          <h3 style="margin-top: 12px; color: #9A3412;">पीएनआर ${pnrVal} का सत्यापन हो रहा है...</h3>
+        </div>
+      `;
+
+      try {
+        const q = `/api/verify-slip?pnr=${encodeURIComponent(pnrVal)}${secVal ? '&sec=' + encodeURIComponent(secVal) : ''}`;
+        const res = await fetch(q);
+        const data = await res.json();
+
+        if (data.status === 'GENUINE') {
+          const b = data.booking;
+          const isPaid = b.paymentStatus === 'Paid';
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header genuine">
+                <div class="status-icon">✅</div>
+                <div class="status-title genuine">${data.title}</div>
+                <p style="color: #065F46; font-size: 0.92rem; margin-top: 4px; font-weight: 600;">
+                  ${data.message}
+                </p>
+              </div>
+              <div class="card-body">
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-label">PNR / बुकिंग आईडी</div>
+                    <div class="info-val">${b.bookingId}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">यात्रा वर्ष व दिनांक</div>
+                    <div class="info-val">${b.yatraYear} • ${b.travelDate || 'शेड्यूल अनुसार'}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">मुख्य भक्त / आवेदक</div>
+                    <div class="info-val">${b.bookedBy}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">आवंटित कोच व सीट(s)</div>
+                    <div class="info-val" style="color: #059669;">कोच ${b.coachName} • सीट: ${Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">यात्रा मार्ग (Route)</div>
+                    <div class="info-val" style="font-size: 0.95rem;">${b.fromStation} ➔ ${b.toStation}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">भुगतान स्थिति (Accounts)</div>
+                    <div style="margin-top: 4px;">
+                      <span class="${isPaid ? 'badge-paid' : 'badge-due'}">
+                        ${b.paymentStatus} ${b.remainingAmount > 0 ? '(देय: ₹' + b.remainingAmount + ')' : '(पूर्ण भुगतान)'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <h4 style="color: #9A3412; margin-top: 14px; font-size: 0.95rem;">आरक्षित सहयात्री सूची (Authorized Passengers):</h4>
+                <table class="passengers-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>यात्री का नाम</th>
+                      <th>आयु/लिंग</th>
+                      <th>सीट</th>
+                      <th>बर्थ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${(b.passengers || []).map((p, i) => `
+                      <tr>
+                        <td><strong>${i + 1}</strong></td>
+                        <td><strong>${p.name}</strong></td>
+                        <td>${p.age || '-'} / ${p.gender || '-'}</td>
+                        <td><strong style="color: #C2410C;">${p.seatAssigned || p.seatNumber || '-'}</strong></td>
+                        <td>${p.berthPreference || 'आरक्षित'}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+
+                <div class="sec-seal">
+                  🔒 डिजिटल क्रिप्टोग्राफिक हैश: <strong>${data.securityHash}</strong><br>
+                  सत्यापन समय: ${new Date().toLocaleString('hi-IN')}
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (data.status === 'TAMPERED') {
+          const auth = data.authenticData;
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header tampered">
+                <div class="status-icon">🚨</div>
+                <div class="status-title tampered">${data.title}</div>
+                <p style="color: #991B1B; font-size: 0.95rem; font-weight: 700; margin-top: 6px;">
+                  ${data.message}
+                </p>
+              </div>
+              <div class="card-body">
+                <div style="background: #FEF2F2; border: 1.5px solid #F87171; border-radius: 8px; padding: 12px; margin-bottom: 16px; color: #991B1B; font-size: 0.88rem;">
+                  <strong>⚠️ अपराध चेतावनी:</strong> इस भौतिक या डिजिटल पर्ची पर छपे नाम, सीट, कोच अथवा भुगतान की स्थिति को कंप्यूटर द्वारा बदला गया है।
+                  अमान्य सुरक्षा कोड: <code>${data.providedSecurityHash}</code> | अपेक्षित: <code>${data.expectedSecurityHash}</code>
+                </div>
+
+                <h4 style="color: #9A3412; margin-bottom: 10px;">📋 सर्वर पर मौजूद वास्तविक एवं वैध रिकॉर्ड:</h4>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-label">वास्तविक मुख्य भक्त</div>
+                    <div class="info-val">${auth.bookedBy} (${auth.mobile})</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">वास्तविक कोच व सीट</div>
+                    <div class="info-val" style="color: #DC2626;">कोच ${auth.coachName} • सीट: ${Array.isArray(auth.seatNumber) ? auth.seatNumber.join(', ') : auth.seatNumber}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">वास्तविक देय बकाया राशि</div>
+                    <div class="info-val" style="color: #DC2626;">₹ ${auth.remainingAmount} (${auth.paymentStatus})</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">वास्तविक यात्री संख्या</div>
+                    <div class="info-val">${(auth.passengers || []).length} यात्री</div>
+                  </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 14px;">
+                  <button class="btn-verify" style="background: #DC2626;" onclick="alert('अलर्ट: टीटीई कंट्रोल रूम एवं आरपीएफ को सूचित कर दिया गया है।')">
+                    🚨 टीटीई कंट्रोल रूम को रिपोर्ट करें
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          // NOT FOUND
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header tampered">
+                <div class="status-icon">❌</div>
+                <div class="status-title tampered">${data.title || 'अमान्य / फर्जी टिकट'}</div>
+                <p style="color: #991B1B; font-size: 0.95rem; font-weight: 700; margin-top: 6px;">
+                  ${data.message || 'यह टिकट ट्रस्ट के आधिकारिक डेटाबेस में नहीं मिला।'}
+                </p>
+              </div>
+              <div class="card-body" style="text-align: center;">
+                <p style="color: #78716C; margin-bottom: 14px;">
+                  पीएनआर: <strong>${pnrVal}</strong> ट्रस्ट के अधिकृत सर्वर पर पंजीकृत नहीं है। यह पूर्णतः जाली टिकट हो सकता है।
+                </p>
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        container.innerHTML = `
+          <div class="card" style="padding: 30px; text-align: center;">
+            <div style="font-size: 40px; color: #DC2626;">⚠️</div>
+            <h3 style="color: #DC2626; margin-top: 10px;">सत्यापन सर्वर से संपर्क नहीं हो सका</h3>
+            <p style="color: #78716C; font-size: 0.9rem;">त्रुटि: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function verifyManual() {
+      const p = document.getElementById('manualPnr').value.trim();
+      const s = document.getElementById('manualSec').value.trim();
+      if (p) checkTicket(p, s);
+    }
+
+    if (pnr) {
+      checkTicket(pnr, sec);
+    } else {
+      document.getElementById('resultContainer').innerHTML = `
+        <div class="card" style="padding: 36px 20px; text-align: center;">
+          <div style="font-size: 48px;">📷</div>
+          <h3 style="color: #9A3412; margin-top: 12px; font-weight: 800;">क्यूआर कोड स्कैन करें अथवा PNR दर्ज करें</h3>
+          <p style="color: #78716C; font-size: 0.92rem; margin-top: 6px;">
+            यात्रा पर्ची पर मुद्रित एंटी-फ्रॉड क्यूआर कोड को मोबाइल कैमरे से स्कैन करने पर यह पेज स्वतः प्रामाणिकता प्रमाणित करता है।
+          </p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

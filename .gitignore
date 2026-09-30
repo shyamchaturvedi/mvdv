@@ -1,0 +1,14 @@
+node_modules/
+.env
+.DS_Store
+Thumbs.db
+*.log
+test_*.pdf
+fix_*.js
+append_css.js
+replace.js
+revert.js
+scratch/
+dist/
+build/
+.cache/

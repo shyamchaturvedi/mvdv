@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trust Admin Portal | Mata Vaishno Devi Train Booking</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <div class="brand-container">
+      <div class="brand-logo-badge">🛡️</div>
+      <div>
+        <div class="brand-title">Executive Trust Admin Portal</div>
+        <div class="brand-subtitle">Mata Vaishno Devi Yatra Train System</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link"><i class="fa-solid fa-house"></i> Public Portal</a>
+      <a href="/book.html" class="nav-link"><i class="fa-solid fa-plus"></i> New Reservation</a>
+      <button class="btn btn-outline btn-sm" id="logoutBtn" onclick="logoutAdmin()" style="display: none;">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- Login Overlay Screen -->
+  <div id="loginScreen" class="container" style="max-width: 440px; margin-top: 60px;">
+    <div class="glass-card" style="text-align: center;">
+      <div style="font-size: 40px; color: var(--primary); margin-bottom: 12px;">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2 style="font-size: 1.6rem; margin-bottom: 6px;">Trust Volunteer Login</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 24px;">
+        Access restricted to authorized trustees, accounts staff & coach conductors.
+      </p>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label">Username</label>
+          <input type="text" id="loginUsername" class="form-control" value="admin" required>
+        </div>
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPassword" class="form-control" value="admin@mvd2026" required>
+        </div>
+        <button type="submit" id="loginSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
+          <i class="fa-solid fa-lock-open"></i> Authenticate & Enter
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Authenticated Admin Dashboard -->
+  <div id="dashboardScreen" class="container" style="display: none;">
+    
+    <!-- Top Bar with Yatra Year Filter & Quick Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
+      <div>
+        <h1 style="font-size: 1.9rem; font-weight: 700;">Annual Pilgrimage Dashboard</h1>
+        <div style="color: var(--text-muted); font-size: 0.9rem;">
+          Real-time reservations, accounts & passenger manifests
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+          <label style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Yatra Year:</label>
+          <select id="adminYearFilter" class="form-control" style="padding: 6px 10px; width: auto; font-size: 0.88rem;" onchange="loadDashboard()">
+            <option value="">All Years</option>
+            <option value="2026" selected>Yatra 2026</option>
+            <option value="2027">Yatra 2027</option>
+            <option value="2025">Yatra 2025</option>
+            <option value="2024">Yatra 2024</option>
+          </select>
+        </div>
+
+        <button class="btn btn-gold btn-sm" onclick="exportExcel()">
+          <i class="fa-solid fa-file-excel"></i> Export Excel
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="openBulkUploadModal()">
+          <i class="fa-solid fa-file-arrow-up"></i> Bulk Upload Excel
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="downloadBulkSlips()">
+          <i class="fa-solid fa-file-pdf"></i> Download Bulk Slips
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Metrics Grid -->
+    <div class="grid-4" style="margin-bottom: 30px;">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(255, 111, 0, 0.2); color: var(--primary);">
+          <i class="fa-solid fa-ticket"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Total Bookings</h4>
+          <div class="stat-value" id="kpiBookings">0</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;" id="kpiPax">0 Yatris</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2); color: #34D399;">
+          <i class="fa-solid fa-sack-dollar"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Total Collection</h4>
+          <div class="stat-value" style="color: #34D399;" id="kpiCollection">₹ 0</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Gross revenue</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24;">
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Advance Received</h4>
+          <div class="stat-value" style="color: #FBBF24;" id="kpiAdvance">₹ 0</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Token collections</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.2); color: #F87171;">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Remaining Balance</h4>
+          <div class="stat-value" style="color: #F87171;" id="kpiRemaining">₹ 0</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">To collect at Katra</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coach Occupancy Heatmap -->
+    <div class="glass-card" style="margin-bottom: 30px;">
+      <h3 style="font-size: 1.15rem; margin-bottom: 14px; color: var(--accent);">
+        <i class="fa-solid fa-train-subway"></i> Coach Load & Occupancy Heatmap
+      </h3>
+      <div id="coachHeatmapContainer" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- Master Bookings Table -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+        <h3 style="font-size: 1.25rem;">Reservations Master List</h3>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+          <input type="text" id="tableSearchInput" class="form-control" placeholder="Search by PNR, Name, Mobile, Aadhar..." style="width: 260px; padding: 8px 14px; font-size: 0.88rem;" oninput="filterBookingsTable()">
+          
+          <select id="statusFilter" class="form-control" style="width: auto; padding: 8px 12px; font-size: 0.88rem;" onchange="filterBookingsTable()">
+            <option value="">All Statuses</option>
+            <option value="Paid">Paid</option>
+            <option value="Partial">Partial</option>
+            <option value="Unpaid">Unpaid</option>
+          </select>
+
+          <select id="coachFilter" class="form-control" style="width: auto; padding: 8px 12px; font-size: 0.88rem;" onchange="filterBookingsTable()">
+            <option value="">All Coaches</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="S1">S1</option>
+            <option value="S2">S2</option>
+            <option value="S3">S3</option>
+            <option value="GS1">GS1</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table" id="bookingsTable">
+          <thead>
+            <tr>
+              <th>PNR / Booking ID</th>
+              <th>Year</th>
+              <th>Lead Devotee</th>
+              <th>Route</th>
+              <th>Coach / Seats</th>
+              <th>Pax</th>
+              <th>Financials (Total / Adv / Due)</th>
+              <th>Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody">
+            <tr>
+              <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading reservations...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Edit Booking Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      <h3 style="margin-bottom: 18px; color: var(--accent);"><i class="fa-solid fa-pen-to-square"></i> Edit Reservation Details</h3>
+      
+      <form onsubmit="handleEditSubmit(event)">
+        <input type="hidden" id="editBookingId">
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Booked By (Devotee)</label>
+            <input type="text" id="editBookedBy" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input type="text" id="editMobile" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">From Station</label>
+            <input type="text" id="editFromStation" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">To Station</label>
+            <input type="text" id="editToStation" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Coach Name</label>
+            <input type="text" id="editCoachName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Seats (comma-separated)</label>
+            <input type="text" id="editSeatNumber" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="form-group">
+            <label class="form-label">Total Amount (₹)</label>
+            <input type="number" id="editTotalAmount" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Advance Paid (₹)</label>
+            <input type="number" id="editAdvance" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Discount (₹)</label>
+            <input type="number" id="editDiscount" class="form-control">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+          <i class="fa-solid fa-floppy-disk"></i> Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bulk Upload Excel Modal -->
+  <div class="modal-overlay" id="bulkUploadModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeBulkUploadModal()">&times;</button>
+      <h3 style="margin-bottom: 14px; color: var(--accent);"><i class="fa-solid fa-file-excel"></i> Bulk Upload Bookings</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">
+        Upload multi-passenger bookings via Excel spreadsheet (.xlsx).
+      </p>
+
+      <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 0.9rem;">Need standard format template?</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">Download pre-configured Excel file</div>
+        </div>
+        <a href="/api/admin/sample-template" class="btn btn-gold btn-sm">
+          <i class="fa-solid fa-download"></i> Sample Template
+        </a>
+      </div>
+
+      <form onsubmit="handleBulkUpload(event)">
+        <div class="form-group">
+          <label class="form-label">Target Yatra Year:</label>
+          <select id="bulkYear" class="form-control">
+            <option value="2026" selected>Yatra 2026</option>
+            <option value="2027">Yatra 2027</option>
+            <option value="2025">Yatra 2025</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Select Excel File (.xlsx):</label>
+          <input type="file" id="bulkFile" class="form-control" accept=".xlsx,.xls" required>
+        </div>
+
+        <div id="bulkUploadResult" style="margin: 14px 0; font-size: 0.88rem;"></div>
+
+        <button type="submit" id="bulkSubmitBtn" class="btn btn-primary" style="width: 100%;">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Process Bookings
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let allBookings = [];
+
+    // Check existing admin session
+    async function checkSession() {
+      try {
+        const res = await fetch('/api/admin/status');
+        const data = await res.json();
+        if (data.authenticated) {
+          showDashboard();
+        } else {
+          showLogin();
+        }
+      } catch (e) {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      document.getElementById('loginScreen').style.display = 'block';
+      document.getElementById('dashboardScreen').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+    }
+
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboardScreen').style.display = 'block';
+      document.getElementById('logoutBtn').style.display = 'inline-flex';
+      loadDashboard();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showDashboard();
+        } else {
+          alert(data.error || 'Authentication failed.');
+        }
+      } catch (err) {
+        alert('Login error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Authenticate & Enter';
+      }
+    }
+
+    async function logoutAdmin() {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      showLogin();
+    }
+
+    async function loadDashboard() {
+      const year = document.getElementById('adminYearFilter').value;
+      const query = year ? `?year=${year}` : '';
+
+      // 1. Fetch KPI stats
+      try {
+        const statsRes = await fetch(`/api/admin/stats${query}`);
+        const statsData = await statsRes.json();
+        if (statsData.success) {
+          const s = statsData.stats;
+          document.getElementById('kpiBookings').textContent = s.totalBookings;
+          document.getElementById('kpiPax').textContent = `${s.totalPassengers} Yatris Reserved`;
+          document.getElementById('kpiCollection').textContent = `₹ ${s.totalCollection.toLocaleString()}`;
+          document.getElementById('kpiAdvance').textContent = `₹ ${s.totalAdvance.toLocaleString()}`;
+          document.getElementById('kpiRemaining').textContent = `₹ ${s.totalRemaining.toLocaleString()}`;
+
+          // Render Coach Heatmap
+          renderCoachHeatmap(s.coachStats);
+        }
+      } catch (e) {
+        console.warn('Could not load stats:', e);
+      }
+
+      // 2. Fetch Master Bookings
+      try {
+        const bookingsRes = await fetch(`/api/admin/bookings${year ? `?yatraYear=${year}` : ''}`);
+        const bookingsData = await bookingsRes.json();
+        if (bookingsData.success) {
+          allBookings = bookingsData.bookings;
+          renderTable(allBookings);
+        }
+      } catch (e) {
+        document.getElementById('bookingsTableBody').innerHTML = `<tr><td colspan="9" style="color: #EF4444;">Failed to fetch bookings.</td></tr>`;
+      }
+    }
+
+    function renderCoachHeatmap(coachStats) {
+      const container = document.getElementById('coachHeatmapContainer');
+      container.innerHTML = '';
+      const coaches = ['A1', 'A2', 'A3', 'B1', 'B2', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'GS1'];
+
+      coaches.forEach(c => {
+        const count = coachStats[c] || 0;
+        const div = document.createElement('div');
+        div.style.background = 'rgba(255,255,255,0.05)';
+        div.style.border = '1px solid var(--border-glass)';
+        div.style.borderRadius = '8px';
+        div.style.padding = '10px 16px';
+        div.style.minWidth = '85px';
+        div.style.textAlign = 'center';
+
+        div.innerHTML = `
+          <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">${c}</div>
+          <div style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF; margin-top: 2px;">${count}</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted);">booked</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('bookingsTableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 30px;">No bookings found for selected criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      list.forEach(b => {
+        const tr = document.createElement('tr');
+        const seats = Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber;
+        const statusClass = b.paymentStatus === 'Paid' ? 'badge-paid' : (b.paymentStatus === 'Partial' ? 'badge-partial' : 'badge-unpaid');
+
+        tr.innerHTML = `
+          <td>
+            <strong style="color: var(--primary);">${b.bookingId}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${b.createdAt ? b.createdAt.split('T')[0] : ''}</div>
+          </td>
+          <td><span class="badge badge-yatra">${b.yatraYear || 2026}</span></td>
+          <td>
+            <strong>${b.bookedBy}</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">${b.mobile || ''}</div>
+          </td>
+          <td style="font-size: 0.85rem;">
+            <div>${b.fromStation}</div>
+            <div style="color: #4ADE80;">➔ ${b.toStation}</div>
+          </td>
+          <td>
+            <span style="font-weight: 700; color: #FFD700;">Coach ${b.coachName}</span>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Seats: ${seats}</div>
+          </td>
+          <td><strong>${b.numberOfPassengers || (b.passengers ? b.passengers.length : 1)}</strong></td>
+          <td>
+            <div>Tot: ₹ ${b.totalAmount}</div>
+            <div style="color: #34D399; font-size: 0.8rem;">Adv: ₹ ${b.advance}</div>
+            <div style="color: ${b.remainingAmount > 0 ? '#EF4444' : '#34D399'}; font-weight: 700; font-size: 0.85rem;">Due: ₹ ${b.remainingAmount}</div>
+          </td>
+          <td><span class="badge ${statusClass}">${b.paymentStatus}</span></td>
+          <td style="text-align: right; white-space: nowrap;">
+            ${b.remainingAmount > 0 ? `
+              <button class="btn btn-sm btn-success" onclick="markAsPaid('${b.bookingId}')" title="Clear All Dues">
+                <i class="fa-solid fa-check"></i> Paid
+              </button>
+            ` : ''}
+            <a href="/ticket.html?pnr=${b.bookingId}" target="_blank" class="btn btn-sm btn-outline" title="Print/View Slip">
+              <i class="fa-solid fa-print"></i>
+            </a>
+            <a href="/api/bookings/${b.bookingId}/pdf" class="btn btn-sm btn-outline" title="Download PDF">
+              <i class="fa-solid fa-download"></i>
+            </a>
+            <button class="btn btn-sm btn-outline" onclick="openEditModal('${b.bookingId}')" title="Edit Booking">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteBooking('${b.bookingId}')" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterBookingsTable() {
+      const q = document.getElementById('tableSearchInput').value.toLowerCase().trim();
+      const status = document.getElementById('statusFilter').value;
+      const coach = document.getElementById('coachFilter').value;
+
+      const filtered = allBookings.filter(b => {
+        const matchesQ = !q || 
+          (b.bookingId && b.bookingId.toLowerCase().includes(q)) ||
+          (b.bookedBy && b.bookedBy.toLowerCase().includes(q)) ||
+          (b.mobile && b.mobile.includes(q)) ||
+          (b.aadhar && b.aadhar.includes(q));
+
+        const matchesStatus = !status || b.paymentStatus === status;
+        const matchesCoach = !coach || b.coachName === coach;
+
+        return matchesQ && matchesStatus && matchesCoach;
+      });
+
+      renderTable(filtered);
+    }
+
+    async function markAsPaid(bookingId) {
+      if (!confirm(`Mark booking ${bookingId} as fully paid?`)) return;
+      try {
+        const res = await fetch(`/api/admin/bookings/${bookingId}/pay`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadDashboard();
+        } else {
+          alert('Failed: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function deleteBooking(bookingId) {
+      if (!confirm(`Are you sure you want to delete reservation ${bookingId}? This action cannot be undone.`)) return;
+      try {
+        const res = await fetch(`/api/admin/bookings/${bookingId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          loadDashboard();
+        } else {
+          alert('Failed: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function openEditModal(bookingId) {
+      const b = allBookings.find(i => i.bookingId === bookingId);
+      if (!b) return;
+
+      document.getElementById('editBookingId').value = b.bookingId;
+      document.getElementById('editBookedBy').value = b.bookedBy;
+      document.getElementById('editMobile').value = b.mobile;
+      document.getElementById('editFromStation').value = b.fromStation;
+      document.getElementById('editToStation').value = b.toStation;
+      document.getElementById('editCoachName').value = b.coachName;
+      document.getElementById('editSeatNumber').value = Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber;
+      document.getElementById('editTotalAmount').value = b.totalAmount;
+      document.getElementById('editAdvance').value = b.advance;
+      document.getElementById('editDiscount').value = b.discount || 0;
+
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('active');
+    }
+
+    async function handleEditSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('editBookingId').value;
+      const payload = {
+        bookedBy: document.getElementById('editBookedBy').value.trim(),
+        mobile: document.getElementById('editMobile').value.trim(),
+        fromStation: document.getElementById('editFromStation').value.trim(),
+        toStation: document.getElementById('editToStation').value.trim(),
+        coachName: document.getElementById('editCoachName').value.trim(),
+        seatNumber: document.getElementById('editSeatNumber').value.split(',').map(s => s.trim()),
+        totalAmount: parseFloat(document.getElementById('editTotalAmount').value),
+        advance: parseFloat(document.getElementById('editAdvance').value),
+        discount: parseFloat(document.getElementById('editDiscount').value) || 0
+      };
+
+      try {
+        const res = await fetch(`/api/admin/bookings/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeEditModal();
+          loadDashboard();
+        } else {
+          alert('Failed to update: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function exportExcel() {
+      const year = document.getElementById('adminYearFilter').value;
+      window.location.href = `/api/admin/export-excel${year ? `?yatraYear=${year}` : ''}`;
+    }
+
+    function downloadBulkSlips() {
+      const year = document.getElementById('adminYearFilter').value;
+      window.location.href = `/api/admin/bulk-slips${year ? `?yatraYear=${year}` : ''}`;
+    }
+
+    function openBulkUploadModal() {
+      document.getElementById('bulkUploadResult').innerHTML = '';
+      document.getElementById('bulkUploadModal').classList.add('active');
+    }
+
+    function closeBulkUploadModal() {
+      document.getElementById('bulkUploadModal').classList.remove('active');
+    }
+
+    async function handleBulkUpload(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('bulkFile');
+      if (!fileInput.files[0]) {
+        alert('Please select an Excel file');
+        return;
+      }
+
+      const btn = document.getElementById('bulkSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Excel File...';
+
+      const formData = new FormData();
+      formData.append('excelFile', fileInput.files[0]);
+      formData.append('yatraYear', document.getElementById('bulkYear').value);
+
+      try {
+        const res = await fetch('/api/admin/bulk-upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById('bulkUploadResult').innerHTML = `
+            <div style="color: #34D399; font-weight: 600;">
+              <i class="fa-solid fa-circle-check"></i> ${data.message}
+            </div>
+            ${data.errorsCount > 0 ? `<div style="color: #F87171; font-size: 0.78rem; margin-top: 4px;">Skipped ${data.errorsCount} rows with errors.</div>` : ''}
+          `;
+          setTimeout(() => {
+            closeBulkUploadModal();
+            loadDashboard();
+          }, 1500);
+        } else {
+          document.getElementById('bulkUploadResult').innerHTML = `<div style="color: #EF4444;">${data.error}</div>`;
+        }
+      } catch (err) {
+        document.getElementById('bulkUploadResult').innerHTML = `<div style="color: #EF4444;">Upload error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload & Process Bookings';
+      }
+    }
+
+    // Initialize session
+    checkSession();
+  </script>
+</body>
+</html>

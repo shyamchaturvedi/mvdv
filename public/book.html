@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Yatra Train Ticket | Mata Vaishno Devi Trust</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <div class="brand-container">
+      <div class="brand-logo-badge">🚆</div>
+      <div>
+        <div class="brand-title">Mata Vaishno Devi Yatra Train</div>
+        <div class="brand-subtitle">Shri Mata Vaishno Devi Public Charitable Trust</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="/book.html" class="nav-link active"><i class="fa-solid fa-ticket"></i> Book Ticket</a>
+      <a href="/admin.html" class="btn btn-outline btn-sm"><i class="fa-solid fa-user-shield"></i> Admin Portal</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div style="margin-bottom: 30px; text-align: center;">
+      <span class="badge badge-yatra" style="font-size: 0.9rem; padding: 6px 18px;">
+        <i class="fa-solid fa-om"></i> ।। ॐ नमो भगवते वासुदेवाय • जय माता दी ।।
+      </span>
+      <h1 style="font-size: 2.4rem; margin-top: 10px;">Reserve Pilgrimage Train Ticket</h1>
+      <p style="color: var(--text-muted);">Select your Yatra edition, journey route, interactive coach seats, and devotee passenger details.</p>
+    </div>
+
+    <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
+      <div class="grid-2">
+        
+        <!-- Left Column: Journey Details & Coach/Seat Selector -->
+        <div>
+          <div class="glass-card" style="margin-bottom: 24px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 20px; color: var(--accent);">
+              <i class="fa-solid fa-train"></i> 1. Journey & Coach Selection
+            </h3>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Yatra Year (हर साल यात्रा):</label>
+                <select id="yatraYear" class="form-control" onchange="onYearOrCoachChange()">
+                  <option value="2026" selected>Yatra 2026 (Active Pilgrimage)</option>
+                  <option value="2027">Yatra 2027 (Advance Booking)</option>
+                  <option value="2025">Yatra 2025 (Archive Batch)</option>
+                  <option value="2024">Yatra 2024 (Archive Batch)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Travel Date:</label>
+                <input type="date" id="travelDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">From Station (Boarding):</label>
+                <select id="fromStation" class="form-control" required>
+                  <option value="New Delhi (NDLS)">New Delhi (NDLS)</option>
+                  <option value="Kanpur Central (CNB)">Kanpur Central (CNB)</option>
+                  <option value="Lucknow Charbagh (LKO)">Lucknow Charbagh (LKO)</option>
+                  <option value="Varanasi Cantt (BSB)">Varanasi Cantt (BSB)</option>
+                  <option value="Agra Cantt (AGC)">Agra Cantt (AGC)</option>
+                  <option value="Mathura Junction (MTJ)">Mathura Junction (MTJ)</option>
+                  <option value="Ambala Cantt (UMB)">Ambala Cantt (UMB)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Destination Station:</label>
+                <input type="text" id="toStation" class="form-control" value="Shri Mata Vaishno Devi Katra (SVDK)" readonly style="background: rgba(0,0,0,0.3); color: #4ADE80;">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Travel Class:</label>
+                <select id="travelClass" class="form-control" onchange="onClassChange()" required>
+                  <option value="Sleeper" selected>Sleeper Class (SL) - ₹ 3,000</option>
+                  <option value="AC">AC 3-Tier / 2-Tier - ₹ 4,000</option>
+                  <option value="General">General / Second Seating - ₹ 2,000</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Coach Name:</label>
+                <select id="coachName" class="form-control" onchange="loadCoachLayout()" required>
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Visual Coach Seat Grid -->
+          <div class="glass-card">
+            <div class="coach-header">
+              <div>
+                <h4 style="font-size: 1.15rem; color: #FFFFFF;" id="coachTitle">Coach S1 Seat Layout</h4>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">Click available berths to select seats</div>
+              </div>
+              <div id="coachAvailabilityBadge">
+                <!-- Availability stats -->
+              </div>
+            </div>
+
+            <div class="seat-legend">
+              <div class="legend-item"><div class="legend-dot" style="background: rgba(255,255,255,0.15);"></div> Available</div>
+              <div class="legend-item"><div class="legend-dot" style="background: var(--primary);"></div> Selected</div>
+              <div class="legend-item"><div class="legend-dot" style="background: rgba(239, 68, 68, 0.4);"></div> Booked</div>
+            </div>
+
+            <div class="seat-grid" id="seatGridContainer">
+              <div style="grid-column: 1/-1; text-align:center; padding: 20px; color: var(--text-muted);">Loading coach seat layout...</div>
+            </div>
+
+            <div style="margin-top: 14px; font-size: 0.88rem; color: var(--accent);">
+              <strong>Selected Seats:</strong> <span id="selectedSeatsLabel" style="color: #FFFFFF;">None</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Lead Devotee & Passenger Roster & Payment -->
+        <div>
+          <div class="glass-card" style="margin-bottom: 24px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 20px; color: var(--accent);">
+              <i class="fa-solid fa-user"></i> 2. Lead Devotee Contact
+            </h3>
+
+            <div class="form-group">
+              <label class="form-label">Primary Devotee Name (Booked By):</label>
+              <input type="text" id="bookedBy" class="form-control" placeholder="Full name of booking person" required>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Mobile Number (WhatsApp Updates):</label>
+                <input type="tel" id="mobile" class="form-control" placeholder="10-digit mobile" maxlength="10" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Aadhar Number (Lead Person):</label>
+                <input type="text" id="aadhar" class="form-control" placeholder="12-digit Aadhar" maxlength="12">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Address (Optional):</label>
+              <input type="email" id="email" class="form-control" placeholder="devotee@example.com">
+            </div>
+          </div>
+
+          <!-- Passenger Details Section -->
+          <div class="glass-card" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+              <h3 style="font-size: 1.3rem; color: var(--accent);">
+                <i class="fa-solid fa-users"></i> 3. Passenger Details
+              </h3>
+              <button type="button" class="btn btn-outline btn-sm" onclick="addPassenger()">
+                <i class="fa-solid fa-plus"></i> Add Yatri
+              </button>
+            </div>
+
+            <div id="passengerContainer">
+              <!-- Dynamically rendered passengers -->
+            </div>
+          </div>
+
+          <!-- Accounting & Advance Calculation Box -->
+          <div class="glass-card">
+            <h3 style="font-size: 1.3rem; margin-bottom: 20px; color: var(--accent);">
+              <i class="fa-solid fa-receipt"></i> 4. Fare & Advance Summary
+            </h3>
+
+            <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); padding: 18px; margin-bottom: 20px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Fare per Passenger:</span>
+                <strong id="unitFareLabel">₹ 3,000</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Total Passengers:</span>
+                <strong id="paxCountLabel">1</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Gross Amount:</span>
+                <strong id="grossAmountLabel" style="font-size: 1.1rem; color: #FFFFFF;">₹ 3,000</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #34D399;">
+                <span>Discount / Concession:</span>
+                <strong id="discountSummaryLabel">- ₹ 0</strong>
+              </div>
+              <div style="border-top: 1px solid var(--border-glass); margin: 10px 0;"></div>
+              <div style="display: flex; justify-content: space-between; font-size: 1.25rem;">
+                <span style="color: var(--accent);">Total Payable:</span>
+                <strong id="netAmountLabel" style="color: var(--accent);">₹ 3,000</strong>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Advance Payment (Token):</label>
+                <input type="number" id="advancePayment" class="form-control" value="1000" min="0" oninput="calculateFare()" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Discount Amount (If any):</label>
+                <input type="number" id="discount" class="form-control" value="0" min="0" oninput="calculateFare()">
+              </div>
+            </div>
+
+            <div style="background: rgba(255, 111, 0, 0.12); border: 1px solid rgba(255, 111, 0, 0.3); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 0.85rem; color: #FFB74D;">Balance Due at Katra / Boarding:</div>
+                  <div style="font-size: 1.4rem; font-weight: 700; color: #FFFFFF;" id="remainingBalanceLabel">₹ 2,000</div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge badge-partial" id="paymentStatusPill">Partial</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+              <i class="fa-solid fa-check-circle"></i> Confirm & Generate Travel Slip
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const FARES = {
+      AC: 4000,
+      Sleeper: 3000,
+      General: 2000
+    };
+
+    const COACHES = {
+      AC: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'],
+      Sleeper: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+      General: ['GS1', 'GS2', 'SLR']
+    };
+
+    let selectedSeats = [];
+    let passengerCount = 0;
+
+    // Set default travel date (e.g. 15 days ahead)
+    const today = new Date();
+    today.setDate(today.getDate() + 15);
+    document.getElementById('travelDate').value = today.toISOString().split('T')[0];
+
+    function onClassChange() {
+      const cls = document.getElementById('travelClass').value;
+      const coachSelect = document.getElementById('coachName');
+      coachSelect.innerHTML = '';
+
+      const list = COACHES[cls] || COACHES.Sleeper;
+      list.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = `Coach ${c}`;
+        coachSelect.appendChild(opt);
+      });
+
+      selectedSeats = [];
+      updateSelectedSeatsUI();
+      loadCoachLayout();
+      calculateFare();
+    }
+
+    function onYearOrCoachChange() {
+      selectedSeats = [];
+      updateSelectedSeatsUI();
+      loadCoachLayout();
+    }
+
+    async function loadCoachLayout() {
+      const coach = document.getElementById('coachName').value;
+      const year = document.getElementById('yatraYear').value;
+      document.getElementById('coachTitle').textContent = `Coach ${coach} Seat Layout (Yatra ${year})`;
+
+      const container = document.getElementById('seatGridContainer');
+      container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 20px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading seats...</div>';
+
+      try {
+        const res = await fetch(`/api/coaches/${coach}/layout?year=${year}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          container.innerHTML = `<div style="grid-column: 1/-1; color: #EF4444;">Failed to load coach layout.</div>`;
+          return;
+        }
+
+        document.getElementById('coachAvailabilityBadge').innerHTML = `
+          <span class="badge badge-paid">${data.availableCount} Available</span>
+          <span class="badge badge-unpaid">${data.bookedCount} Booked</span>
+        `;
+
+        container.innerHTML = '';
+        data.layout.forEach(seat => {
+          const item = document.createElement('div');
+          const isSelected = selectedSeats.includes(String(seat.seatNumber));
+          item.className = `seat-item ${seat.isBooked ? 'booked' : ''} ${isSelected ? 'selected' : ''}`;
+          item.innerHTML = `
+            <div class="seat-number">${seat.seatNumber}</div>
+            <div class="seat-berth">${seat.berthType.substring(0, 2)}</div>
+          `;
+
+          if (!seat.isBooked) {
+            item.onclick = () => toggleSeat(String(seat.seatNumber), seat.berthType);
+          } else {
+            item.title = `Seat ${seat.seatNumber} is already reserved for Yatra ${year}`;
+          }
+
+          container.appendChild(item);
+        });
+
+      } catch (e) {
+        container.innerHTML = `<div style="grid-column: 1/-1; color: #EF4444;">Error: ${e.message}</div>`;
+      }
+    }
+
+    function toggleSeat(seatNum, berthType) {
+      const idx = selectedSeats.indexOf(seatNum);
+      if (idx >= 0) {
+        selectedSeats.splice(idx, 1);
+      } else {
+        selectedSeats.push(seatNum);
+      }
+      updateSelectedSeatsUI();
+      loadCoachLayout();
+
+      // Synchronize passenger rows count to match selected seats
+      syncPassengersWithSeats();
+      calculateFare();
+    }
+
+    function updateSelectedSeatsUI() {
+      const label = document.getElementById('selectedSeatsLabel');
+      label.textContent = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None';
+    }
+
+    function syncPassengersWithSeats() {
+      const container = document.getElementById('passengerContainer');
+      const targetCount = Math.max(1, selectedSeats.length);
+
+      while (passengerCount < targetCount) {
+        addPassenger();
+      }
+
+      // Assign selected seats to passenger inputs
+      const seatInputs = document.querySelectorAll('.pax-seat-assigned');
+      seatInputs.forEach((input, i) => {
+        if (selectedSeats[i]) {
+          input.value = selectedSeats[i];
+        }
+      });
+    }
+
+    function addPassenger() {
+      passengerCount++;
+      const container = document.getElementById('passengerContainer');
+      const card = document.createElement('div');
+      card.className = 'passenger-card';
+      card.id = `pax-card-${passengerCount}`;
+
+      const assignedSeat = selectedSeats[passengerCount - 1] || `${passengerCount}`;
+
+      card.innerHTML = `
+        <div class="pax-header">
+          <strong style="color: #FFB74D;"><i class="fa-solid fa-user-tag"></i> Passenger #${passengerCount}</strong>
+          ${passengerCount > 1 ? `<button type="button" class="btn btn-outline btn-sm" onclick="removePassenger(${passengerCount})" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-trash"></i></button>` : ''}
+        </div>
+        <div class="grid-2">
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label">Full Name:</label>
+            <input type="text" class="form-control pax-name" placeholder="Devotee name" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label">Age & Gender:</label>
+            <div style="display:flex; gap: 8px;">
+              <input type="number" class="form-control pax-age" placeholder="Age" min="1" max="100" style="width: 80px;" required>
+              <select class="form-control pax-gender" style="flex:1;">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Child">Child</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Aadhar Number:</label>
+            <input type="text" class="form-control pax-aadhar" placeholder="12-digit Aadhar" maxlength="12">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Seat Assigned:</label>
+            <input type="text" class="form-control pax-seat-assigned" value="${assignedSeat}" readonly style="background: rgba(0,0,0,0.3); color: var(--accent);">
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+      calculateFare();
+    }
+
+    function removePassenger(id) {
+      const el = document.getElementById(`pax-card-${id}`);
+      if (el) el.remove();
+      passengerCount = document.querySelectorAll('.passenger-card').length;
+      calculateFare();
+    }
+
+    function calculateFare() {
+      const cls = document.getElementById('travelClass').value;
+      const unit = FARES[cls] || 3000;
+      const count = document.querySelectorAll('.passenger-card').length || 1;
+      const gross = unit * count;
+
+      const advanceInput = document.getElementById('advancePayment');
+      const discountInput = document.getElementById('discount');
+
+      const adv = parseFloat(advanceInput.value) || 0;
+      const disc = parseFloat(discountInput.value) || 0;
+
+      const net = Math.max(0, gross - disc);
+      const remaining = Math.max(0, net - adv);
+
+      document.getElementById('unitFareLabel').textContent = `₹ ${unit.toLocaleString()}`;
+      document.getElementById('paxCountLabel').textContent = `${count}`;
+      document.getElementById('grossAmountLabel').textContent = `₹ ${gross.toLocaleString()}`;
+      document.getElementById('discountSummaryLabel').textContent = `- ₹ ${disc.toLocaleString()}`;
+      document.getElementById('netAmountLabel').textContent = `₹ ${net.toLocaleString()}`;
+      document.getElementById('remainingBalanceLabel').textContent = `₹ ${remaining.toLocaleString()}`;
+
+      const statusPill = document.getElementById('paymentStatusPill');
+      if (remaining <= 0) {
+        statusPill.className = 'badge badge-paid';
+        statusPill.textContent = 'Paid in Full';
+      } else if (adv > 0) {
+        statusPill.className = 'badge badge-partial';
+        statusPill.textContent = 'Partial / Advance Paid';
+      } else {
+        statusPill.className = 'badge badge-unpaid';
+        statusPill.textContent = 'Unpaid';
+      }
+    }
+
+    async function handleBookingSubmit(event) {
+      event.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Ticket...';
+
+      try {
+        const passengerCards = document.querySelectorAll('.passenger-card');
+        const passengers = [];
+        passengerCards.forEach((card, idx) => {
+          passengers.push({
+            name: card.querySelector('.pax-name').value.trim(),
+            age: parseInt(card.querySelector('.pax-age').value, 10),
+            gender: card.querySelector('.pax-gender').value,
+            aadhar: card.querySelector('.pax-aadhar').value.trim(),
+            seatAssigned: card.querySelector('.pax-seat-assigned').value.trim()
+          });
+        });
+
+        const payload = {
+          yatraYear: parseInt(document.getElementById('yatraYear').value, 10),
+          travelDate: document.getElementById('travelDate').value,
+          fromStation: document.getElementById('fromStation').value,
+          toStation: document.getElementById('toStation').value,
+          travelClass: document.getElementById('travelClass').value,
+          coachName: document.getElementById('coachName').value,
+          seatNumber: selectedSeats.length > 0 ? selectedSeats : passengers.map(p => p.seatAssigned),
+          bookedBy: document.getElementById('bookedBy').value.trim(),
+          mobile: document.getElementById('mobile').value.trim(),
+          aadhar: document.getElementById('aadhar').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          numberOfPassengers: passengers.length,
+          advancePayment: parseFloat(document.getElementById('advancePayment').value) || 0,
+          discount: parseFloat(document.getElementById('discount').value) || 0,
+          passengers
+        };
+
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          alert('Booking failed: ' + (data.error || 'Server error'));
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirm & Generate Travel Slip';
+          return;
+        }
+
+        // Redirect to live ticket page
+        window.location.href = `/ticket.html?pnr=${data.booking.bookingId}`;
+      } catch (err) {
+        alert('Booking error: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirm & Generate Travel Slip';
+      }
+    }
+
+    // Initialize defaults
+    onClassChange();
+    addPassenger();
+  </script>
+</body>
+</html>
