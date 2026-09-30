@@ -5402,16 +5402,6 @@ export default function App() {
                                   onChange={e => setProjectSettings({ ...projectSettings, merchantCode: e.target.value })}
                                 />
                               </div>
-                              <div className="form-group">
-                                <label className="form-label">डिफ़ॉल्ट अग्रिम टोकन राशि प्रति सीट (₹)</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  className="form-control"
-                                  value={projectSettings.defaultAdvance !== undefined ? projectSettings.defaultAdvance : 1000}
-                                  onChange={e => setProjectSettings({ ...projectSettings, defaultAdvance: Number(e.target.value) })}
-                                />
-                              </div>
                             </div>
                           </div>
 
@@ -7622,7 +7612,7 @@ export default function App() {
                     onChange={(e) => {
                       const cl = e.target.value;
                       const cap = cl === 'Sleeper' ? 72 : cl === '3 AC' ? 64 : cl === '2 AC' ? 48 : cl === 'General' ? 80 : 0;
-                      const fare = cl === 'Sleeper' ? 1650 : cl === '3 AC' ? 2400 : cl === '2 AC' ? 3200 : 0;
+                      const fare = cl === 'Sleeper' ? (projectSettings.fareSleeper || 3000) : (cl === '3 AC' || cl === '2 AC') ? (projectSettings.fareAC || 4000) : cl === 'General' ? (projectSettings.fareGeneral || 2000) : 0;
                       setNewCoachForm({
                         ...newCoachForm,
                         coachClass: cl,
@@ -7773,7 +7763,17 @@ export default function App() {
                   <select
                     className="form-control"
                     value={editCoachForm.coachClass}
-                    onChange={(e) => setEditCoachForm({ ...editCoachForm, coachClass: e.target.value })}
+                    onChange={(e) => {
+                      const cl = e.target.value;
+                      const cap = cl === 'Sleeper' ? 72 : cl === '3 AC' ? 64 : cl === '2 AC' ? 48 : cl === 'General' ? 80 : 0;
+                      const fare = cl === 'Sleeper' ? (projectSettings.fareSleeper || 3000) : (cl === '3 AC' || cl === '2 AC') ? (projectSettings.fareAC || 4000) : cl === 'General' ? (projectSettings.fareGeneral || 2000) : 0;
+                      setEditCoachForm({ 
+                        ...editCoachForm, 
+                        coachClass: cl,
+                        capacity: cap,
+                        baseFare: fare
+                      });
+                    }}
                   >
                     <option value="Sleeper">Sleeper (द्वितीय शयनयान - SL)</option>
                     <option value="3 AC">3 AC (वातानुकूलित थ्री टियर - 3A)</option>
