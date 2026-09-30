@@ -5757,15 +5757,17 @@ export default function App() {
                             <div style={{ fontSize: '0.72rem', color: '#7C3AED' }}>{trainCompositionData.stats.acBerths || 384} सीटें</div>
                           </div>
 
-                          <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.75rem', color: '#065F46', fontWeight: 700 }}>कुल आरक्षित यात्री</div>
-                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
-                              {trainCompositionData.stats.totalBooked || 0} / {trainCompositionData.stats.totalBerthCapacity || 816}
+                          {staffUser && (
+                            <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
+                              <div style={{ fontSize: '0.75rem', color: '#065F46', fontWeight: 700 }}>कुल आरक्षित यात्री</div>
+                              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
+                                {trainCompositionData.stats.totalBooked || 0} / {trainCompositionData.stats.totalBerthCapacity || 816}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: '#059669' }}>
+                                उपलब्ध: {(trainCompositionData.stats.totalBerthCapacity || 816) - (trainCompositionData.stats.totalBooked || 0)}
+                              </div>
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#059669' }}>
-                              उपलब्ध: {(trainCompositionData.stats.totalBerthCapacity || 816) - (trainCompositionData.stats.totalBooked || 0)}
-                            </div>
-                          </div>
+                          )}
                         </div>
                       )}
 
@@ -5962,12 +5964,16 @@ export default function App() {
                               <div style={{ marginTop: 8, fontSize: '0.72rem', color: '#4B5563', width: '100%' }}>
                                 {coach.isBookable ? (
                                   <>
-                                    <div style={{ fontWeight: 700, color: '#047857' }}>
-                                      {coach.bookedPassengers || 0}/{coach.capacity || 72}
-                                    </div>
-                                    <div style={{ fontSize: '0.64rem', color: '#6B7280' }}>
-                                      ₹ {coach.baseFare || 0}
-                                    </div>
+                                    {staffUser && (
+                                      <>
+                                        <div style={{ fontWeight: 700, color: '#047857' }}>
+                                          {coach.bookedPassengers || 0}/{coach.capacity || 72}
+                                        </div>
+                                        <div style={{ fontSize: '0.64rem', color: '#6B7280' }}>
+                                          ₹ {coach.baseFare || 0}
+                                        </div>
+                                      </>
+                                    )}
                                   </>
                                 ) : (
                                   <div style={{ fontSize: '0.65rem', color: '#6B7280', fontStyle: 'italic' }}>
@@ -6039,22 +6045,26 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>बर्थ क्षमता व आरक्षण स्थिति</div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857', marginTop: 2 }}>
-                              {selectedCoachForPosition.bookedPassengers || 0} / {selectedCoachForPosition.capacity || 72} सीटें आरक्षित
-                            </div>
-                            <div style={{ fontSize: '0.72rem', color: '#059669' }}>
-                              उपलब्ध रिक्त: {(selectedCoachForPosition.capacity || 72) - (selectedCoachForPosition.bookedPassengers || 0)}
-                            </div>
-                          </div>
+                          {staffUser && (
+                            <>
+                              <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
+                                <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>बर्थ क्षमता व आरक्षण स्थिति</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857', marginTop: 2 }}>
+                                  {selectedCoachForPosition.bookedPassengers || 0} / {selectedCoachForPosition.capacity || 72} सीटें आरक्षित
+                                </div>
+                                <div style={{ fontSize: '0.72rem', color: '#059669' }}>
+                                  उपलब्ध रिक्त: {(selectedCoachForPosition.capacity || 72) - (selectedCoachForPosition.bookedPassengers || 0)}
+                                </div>
+                              </div>
 
-                          <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>बेस किराया (Base Fare)</div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#C2410C', marginTop: 2 }}>
-                              ₹ {selectedCoachForPosition.baseFare || 0} / यात्री
-                            </div>
-                          </div>
+                              <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
+                                <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>बेस किराया (Base Fare)</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#C2410C', marginTop: 2 }}>
+                                  ₹ {selectedCoachForPosition.baseFare || 0} / यात्री
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         {selectedCoachForPosition.notes && (
