@@ -1041,43 +1041,19 @@ export default function App() {
     setAuthLoginLoading(true);
     setAuthLoginError('');
     try {
-      let googleUserEmail = '';
-      let googleUserName = '';
-      let googleUserPhoto = '';
-      let idToken = '';
-
-      try {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        googleUserEmail = user.email;
-        googleUserName = user.displayName;
-        googleUserPhoto = user.photoURL;
-        idToken = await user.getIdToken();
-      } catch (popupErr) {
-        console.warn('Google Popup fallback:', popupErr.message);
-        const promptEmail = window.prompt('अधिकृत Google (Gmail) ईमेल आईडी दर्ज करें:\n(उदा. iammshyam@gmail.com)', 'iammshyam@gmail.com');
-        if (!promptEmail) {
-          setAuthLoginLoading(false);
-          return;
-        }
-        googleUserEmail = promptEmail.trim();
-        googleUserName = promptEmail.split('@')[0];
-      }
-
-      if (!googleUserEmail) {
-        setAuthLoginLoading(false);
-        return;
-      }
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
 
       const data = await safeFetchJson('/api/auth/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: googleUserEmail,
-          name: googleUserName,
-          photoUrl: googleUserPhoto,
+          email: user.email,
+          name: user.displayName || user.email,
+          photoUrl: user.photoURL || '',
           idToken
         })
       });
@@ -1091,10 +1067,16 @@ export default function App() {
         const targetRoute = getRoleDefaultPath(data.user.role);
         navigate(targetRoute);
       } else {
-        setAuthLoginError(data.error || 'गूगल प्रमाणीकरण विफल।');
+        setAuthLoginError(data.error || 'गूगल खाता अधिकृत नहीं है।');
       }
     } catch (err) {
-      setAuthLoginError('गूगल प्रमाणीकरण त्रुटि: ' + err.message);
+      if (err.code === 'auth/unauthorized-domain') {
+        setAuthLoginError('सुरक्षा सूचना: Vercel डोमेन को Firebase Authentication Console (Authorized Domains) में जोड़ें, या "आईडी / पासवर्ड" से लॉगिन करें।');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setAuthLoginError('गूगल लॉगिन विंडो बंद कर दी गई।');
+      } else {
+        setAuthLoginError('गूगल प्रमाणीकरण त्रुटि: ' + err.message);
+      }
     } finally {
       setAuthLoginLoading(false);
     }
@@ -1765,26 +1747,18 @@ export default function App() {
           <button
             type="button"
             className={`btn btn-sm ${loginMethod === 'password' ? 'btn-primary' : 'btn-outline'}`}
-            style={{ flex: 1, padding: '7px 4px', fontSize: '0.82rem' }}
+            style={{ flex: 1, padding: '9px 6px', fontSize: '0.86rem' }}
             onClick={() => { setLoginMethod('password'); setAuthLoginError(''); }}
           >
-            <Key size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> आईडी / पासवर्ड
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm ${loginMethod === 'phone' ? 'btn-primary' : 'btn-outline'}`}
-            style={{ flex: 1, padding: '7px 4px', fontSize: '0.82rem' }}
-            onClick={() => { setLoginMethod('phone'); setAuthLoginError(''); }}
-          >
-            <Smartphone size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> फोन OTP
+            <Key size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> आईडी / पासवर्ड
           </button>
           <button
             type="button"
             className={`btn btn-sm ${loginMethod === 'google' ? 'btn-primary' : 'btn-outline'}`}
-            style={{ flex: 1, padding: '7px 4px', fontSize: '0.82rem' }}
+            style={{ flex: 1, padding: '9px 6px', fontSize: '0.86rem' }}
             onClick={() => { setLoginMethod('google'); setAuthLoginError(''); }}
           >
-            <Globe size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> गूगल साइन-इन
+            <Globe size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> Google साइन-इन
           </button>
         </div>
 
@@ -1802,7 +1776,7 @@ export default function App() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="उदा. ramakant.tte@gmail.com या admin या tt"
+                placeholder="iammshyam@gmail.com या admin"
                 value={authLoginUsername}
                 onChange={(e) => setAuthLoginUsername(e.target.value)}
                 required
@@ -1821,50 +1795,6 @@ export default function App() {
             </div>
             <button type="submit" disabled={authLoginLoading} className="btn btn-primary" style={{ width: '100%', padding: '13px', fontSize: '1rem', marginTop: 10 }}>
               {authLoginLoading ? 'सत्यापन जारी...' : <><Lock size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> अधिकृत प्रवेश करें (Secure Login)</>}
-            </button>
-          </form>
-        )}
-
-        {/* Method 2: Phone SMS / OTP */}
-        {loginMethod === 'phone' && (
-          <form onSubmit={handlePhoneLogin}>
-            <div className="form-group" style={{ textAlign: 'left' }}>
-              <label className="form-label">पंजीकृत मोबाइल नंबर (Phone Number) *</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ padding: '10px 12px', background: '#FFF8F2', border: '1.5px solid #FED7AA', borderRadius: 8, fontWeight: 700, color: '#9A3412' }}>+91</span>
-                <input
-                  type="tel"
-                  maxLength={10}
-                  className="form-control"
-                  placeholder="98765 43210"
-                  value={loginPhone}
-                  onChange={(e) => setLoginPhone(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            {otpSentNotice && (
-              <div className="form-group" style={{ textAlign: 'left', marginTop: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label className="form-label">6-अंकों का OTP कोड दर्ज करें *</label>
-                  <span style={{ fontSize: '0.78rem', color: '#047857', fontWeight: 700 }}>ओटीपी भेजा गया</span>
-                </div>
-                <input
-                  type="text"
-                  maxLength={6}
-                  className="form-control"
-                  placeholder="दर्ज करें OTP"
-                  value={loginOtp}
-                  onChange={(e) => setLoginOtp(e.target.value)}
-                  required
-                  style={{ letterSpacing: '0.3em', fontSize: '1.2rem', textAlign: 'center', fontWeight: 800 }}
-                />
-              </div>
-            )}
-
-            <button type="submit" disabled={authLoginLoading} className="btn btn-primary" style={{ width: '100%', padding: '13px', fontSize: '1rem', marginTop: 12 }}>
-              {authLoginLoading ? 'सत्यापन जारी...' : (otpSentNotice ? '✓ OTP सत्यापित कर लॉगिन करें' : <><Send size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> OTP कोड भेजें</>)}
             </button>
           </form>
         )}

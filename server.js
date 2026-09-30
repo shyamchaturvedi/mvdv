@@ -36,9 +36,11 @@ if (fs.existsSync(distPath)) {
 app.use(express.static(path.join(__dirname, 'public', 'app')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Mount Modern REST APIs
-app.use('/api', apiRoutes);
+// Mount Modern REST APIs (compatible with both /api prefix and root rewrites)
 app.use('/api/admin', adminRoutes);
+app.use('/api', apiRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', apiRoutes);
 
 // Fallback route: Always serve the React Application
 app.get('*', (req, res) => {
@@ -49,15 +51,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'app', 'index.html'));
 });
 
-// Start listening if run directly
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`=======================================================`);
-    console.log(`🚆 MATA VAISHNO DEVI TRAIN TICKET BOOKING SYSTEM 2.0`);
-    console.log(`📍 Server live at: http://localhost:${PORT}`);
-    console.log(`🔥 Database Engine: ${isFirebaseActive ? 'Firebase Cloud Firestore' : 'Persistent Local Firestore-compatible JSON Storage'}`);
-    console.log(`=======================================================`);
-  });
-}
+// Express Error Handler - Always return JSON on error
+app.use((err, req, res, next) => {
+  console.error('Unhandled Server Error:', err);
+  res.status(500).json({ success: false, error: err.message || 'आंतरिक सर्वर त्रुटि' });
+});
+
+// Start listening
+app.listen(PORT, () => {
+  console.log(`🚆 Mata Vaishno Devi Train System Server running on port ${PORT}`);
+});
 
 module.exports = app;
