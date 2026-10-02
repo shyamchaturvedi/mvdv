@@ -149,13 +149,20 @@ class AuthService {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Check SuperAdmin email
-    const adminEmail = (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase();
-    if (cleanEmail === adminEmail || cleanEmail === 'iammshyam@gmail.com') {
+    // 1. Check SuperAdmin email (Strict exact match only)
+    const configuredAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+    const authorizedSuperAdminEmails = [
+      'iammshyam@gmail.com',
+      'infomatavaishnodevi@gmail.com',
+      'sahilchaturvedi2004@gmail.com',
+      configuredAdminEmail
+    ].filter(Boolean);
+
+    if (authorizedSuperAdminEmails.includes(cleanEmail)) {
       const adminUser = {
         staffId: 'ADMIN-001',
         name: profile.name || 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
-        email: 'iammshyam@gmail.com',
+        email: cleanEmail,
         username: 'admin',
         role: 'SuperAdmin',
         department: 'Trust Executive (ट्रस्ट प्रबंधन)',
@@ -184,7 +191,7 @@ class AuthService {
       };
     }
 
-    // 2. Look up in staff database by email
+    // 2. Look up in staff database strictly by registered email
     const staff = await StaffService.authenticateByGoogle(cleanEmail, profile);
 
     const roleDef = ROLES[staff.role] || {};

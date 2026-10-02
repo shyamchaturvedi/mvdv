@@ -219,11 +219,10 @@ router.post('/admin/coaches/reorder', requireAuth(), async (req, res) => {
   }
 });
 
-router.post('/admin/coaches/reset-default', async (req, res) => {
+router.post('/admin/coaches/reset-default', requireAuth('SuperAdmin'), async (req, res) => {
   try {
     const result = await CoachService.resetDefaultRake();
-    const token = req.headers['authorization']?.replace('Bearer ', '') || req.query.token;
-    const user = token ? AuthService.validateToken(token) : { name: 'Admin', role: 'SuperAdmin' };
+    const user = req.user || { name: 'Admin', role: 'SuperAdmin' };
     await StaffService.logAudit({
       action: 'COACH_RESET',
       performedBy: user,

@@ -187,19 +187,15 @@ class StaffService {
     const list = await this.getStaffList();
     const cleanEmail = (googleEmail || '').trim().toLowerCase();
 
-    // Check by registered staff email or username prefix
-    let staff = list.find(s => s.email && s.email.toLowerCase() === cleanEmail);
-    if (!staff && cleanEmail.includes('@')) {
-      const uPrefix = cleanEmail.split('@')[0];
-      staff = list.find(s => s.username && s.username.toLowerCase() === uPrefix);
-    }
+    // STRICT MATCH ONLY: Google email MUST match exact registered staff email
+    const staff = list.find(s => s.email && s.email.trim().toLowerCase() === cleanEmail);
 
     if (!staff) {
-      throw new Error(`Google ईमेल '${cleanEmail}' किसी अधिकृत कर्मचारी के रूप में पंजीकृत नहीं है। कृपया एडमिन से अपनी ईमेल आईडी पंजीकृत कराएं।`);
+      throw new Error(`सुरक्षा चेतावनी: Google ईमेल '${cleanEmail}' अधिकृत ट्रस्ट स्टाफ या एडमिन के रूप में पंजीकृत नहीं है। केवल ट्रस्ट द्वारा पूर्व-पंजीकृत ईमेल आईडी ही लॉगिन कर सकती हैं।`);
     }
 
     if (staff.status !== 'Active') {
-      throw new Error('यह कर्मचारी खाता निलंबित (Suspended) है। कृपया ट्रस्ट व्यवस्थापक से संपर्क करें।');
+      throw new Error('यह कर्मचारी खाता निष्क्रिय / निलंबित (Suspended) है। कृपया ट्रस्ट व्यवस्थापक से संपर्क करें।');
     }
 
     return {

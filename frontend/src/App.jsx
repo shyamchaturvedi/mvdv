@@ -3,7 +3,7 @@ import { ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, La
 
 import { db, auth, firebaseConfig } from './firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 const FARES = {
   AC: 4000,
@@ -1069,7 +1069,8 @@ export default function App() {
           idToken
         })
       });
-      if (data.success) {
+
+      if (data && data.success && data.token && data.user) {
         setStaffToken(data.token);
         setStaffUser(data.user);
         localStorage.setItem('mvd_staff_token', data.token);
@@ -1079,15 +1080,24 @@ export default function App() {
         const targetRoute = getRoleDefaultPath(data.user.role);
         navigate(targetRoute);
       } else {
-        setAuthLoginError(data.error || 'गूगल खाता अधिकृत नहीं है।');
+        // Immediately revoke and sign out unauthorized Google account
+        setStaffToken('');
+        setStaffUser(null);
+        localStorage.removeItem('mvd_staff_token');
+        localStorage.removeItem('mvd_staff_user');
+        sessionStorage.removeItem('mvd_staff_token');
+        sessionStorage.removeItem('mvd_staff_user');
+        try { await signOut(auth); } catch (_) {}
+        setAuthLoginError(data?.error || `सुरक्षा अस्वीकृति: Google खाता '${user.email}' अधिकृत नहीं है। केवल ट्रस्ट द्वारा पंजीकृत एडमिन व स्टाफ ईमेल ही लॉगिन कर सकते हैं।`);
       }
     } catch (err) {
+      try { await signOut(auth); } catch (_) {}
       if (err.code === 'auth/unauthorized-domain') {
         setAuthLoginError('सुरक्षा सूचना: Vercel डोमेन को Firebase Authentication Console (Authorized Domains) में जोड़ें, या "आईडी / पासवर्ड" से लॉगिन करें।');
       } else if (err.code === 'auth/popup-closed-by-user') {
         setAuthLoginError('गूगल लॉगिन विंडो बंद कर दी गई।');
       } else {
-        setAuthLoginError('गूगल प्रमाणीकरण त्रुटि: ' + err.message);
+        setAuthLoginError(err.message || 'गूगल प्रमाणीकरण विफल रहा। केवल अधिकृत ईमेल से लॉगिन करें।');
       }
     } finally {
       setAuthLoginLoading(false);
