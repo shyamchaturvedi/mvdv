@@ -4310,16 +4310,43 @@ export default function App() {
                   <h3 style={{ fontSize: '1.4rem', color: '#9A3412', fontWeight: 900, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
                     <Users size={24} color="#C2410C" /> मुख्य आयोजक विवरण
                   </h3>
-                  <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-                    <div style={{ flexShrink: 0, width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #F97316, #C2410C)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 900, border: '4px solid #FED7AA', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                      DR
+                  <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                      <img
+                        src="/organizer.jpg"
+                        alt="मुख्य आयोजक डॉ. राकेश तिवारी (Dr. Rakesh Tiwari)"
+                        style={{
+                          width: 96,
+                          height: 96,
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          objectPosition: 'center top',
+                          border: '3.5px solid #F97316',
+                          boxShadow: '0 6px 16px rgba(249, 115, 22, 0.25)',
+                          display: 'block'
+                        }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        bottom: -4,
+                        right: -4,
+                        background: '#047857',
+                        color: '#FFF',
+                        fontSize: '0.65rem',
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: 10,
+                        border: '1.5px solid #FFF'
+                      }}>
+                        ✓ आयोजक
+                      </div>
                     </div>
-                    <div>
-                      <h4 style={{ fontSize: '1.3rem', color: '#7C2D12', margin: '0 0 4px', fontWeight: 800 }}>डॉ. राकेश तिवारी (Dr. Rakesh Tiwari)</h4>
-                      <p style={{ margin: '0 0 10px', color: '#9A3412', fontWeight: 700, fontSize: '0.9rem' }}>
-                        प्रसिद्ध चिकित्सक, समाजसेवी एवं मुख्य आयोजक
+                    <div style={{ flex: 1, minWidth: 240 }}>
+                      <h4 style={{ fontSize: '1.35rem', color: '#7C2D12', margin: '0 0 4px', fontWeight: 800 }}>डॉ. राकेश तिवारी (Dr. Rakesh Tiwari)</h4>
+                      <p style={{ margin: '0 0 10px', color: '#C2410C', fontWeight: 700, fontSize: '0.92rem' }}>
+                        प्रसिद्ध चिकित्सक, समाजसेवी एवं मुख्य आयोजक (श्री माता वैष्णो देवी यात्रा)
                       </p>
-                      <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                      <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.65 }}>
                         डॉ. राकेश तिवारी जी के कुशल नेतृत्व एवं निःस्वार्थ सेवाभाव से प्रतिवर्ष श्री माता वैष्णो देवी की यह भव्य विशेष ट्रेन यात्रा आयोजित की जाती है। उनके अथक प्रयासों से हज़ारों श्रद्धालुओं को माता के दरबार में दर्शन का सौभाग्य प्राप्त होता है।
                       </p>
                     </div>
