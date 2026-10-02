@@ -17,6 +17,48 @@ const COACHES = {
   General: ['GS1', 'GS2', 'SLR']
 };
 
+// Official Complete Route Stops: Lucknow to Jammu Tawi & Katra
+const DEFAULT_ROUTE_STATIONS = [
+  'Lucknow Charbagh (LKO)',
+  'Sandila (SAN)',
+  'Balamau Junction (BLM)',
+  'Hardoi (HRI)',
+  'Anjhi Shahabad (AJI)',
+  'Roza Junction (ROZA)',
+  'Shahjahanpur (SPN)',
+  'Tilhar (TLH)',
+  'Fatehganj West (FGW)',
+  'Bareilly Junction (BE)',
+  'Rampur Junction (RMU)',
+  'Moradabad Junction (MB)',
+  'Hapur Junction (HPU)',
+  'Ghaziabad Junction (GZB)',
+  'New Delhi (NDLS)',
+  'Delhi Safdarjung (DSJ)',
+  'Kanpur Central (CNB)',
+  'Fatehgarh (FGR)',
+  'Farrukhabad (FBD)',
+  'Meerut City (MTC)',
+  'Muzaffarnagar (MOZ)',
+  'Deoband (DBD)',
+  'Saharanpur Junction (SRE)',
+  'Yamunanagar Jagadhri (YJUD)',
+  'Ambala Cantt (UMB)',
+  'Ludhiana Junction (LDH)',
+  'Phagwara (PGW)',
+  'Jalandhar Cantt (JRC)',
+  'Beas Junction (BEAS)',
+  'Mukerian (MEX)',
+  'Pathankot Cantt (PTKC)',
+  'Kathua (KTHU)',
+  'Hiranagar (HRNR)',
+  'Samba (SMBX)',
+  'Jammu Tawi (JAT)',
+  'Manwal (MNWL)',
+  'Udhampur (UHP)',
+  'Shri Mata Vaishno Devi Katra (SVDK)'
+];
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [pnrInput, setPnrInput] = useState('');
@@ -26,6 +68,7 @@ export default function App() {
   const [upiQrModal, setUpiQrModal] = useState(null);
   const [utrInput, setUtrInput] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [stationsList, setStationsList] = useState(DEFAULT_ROUTE_STATIONS);
 
   // Indian Currency Number to Words
   const numberToWords = (num) => {
@@ -99,7 +142,7 @@ export default function App() {
     return d.toISOString().split('T')[0];
   });
 
-  const [fromStation, setFromStation] = useState('New Delhi (NDLS)');
+  const [fromStation, setFromStation] = useState('Lucknow Charbagh (LKO)');
   const [travelClass, setTravelClass] = useState('Sleeper');
   const [coachName, setCoachName] = useState('S1');
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -184,6 +227,9 @@ export default function App() {
     fareSleeper: 3000,
     fareAC: 4000,
     fareGeneral: 2000,
+    defaultTravelDate: '2026-10-15',
+    journeyDate: '2026-10-15',
+    returnTravelDate: '2026-10-22',
     helplineNumber: '+91 7398959993',
     officialEmail: 'infomatavaishnodevi@gmail.com',
     officeAddress: 'Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India',
@@ -193,6 +239,34 @@ export default function App() {
   const [projectSettingsSaving, setProjectSettingsSaving] = useState(false);
   const [projectSettingsSuccess, setProjectSettingsSuccess] = useState('');
   const [projectSettingsError, setProjectSettingsError] = useState('');
+
+  // Fetch live system configuration on initial mount
+  useEffect(() => {
+    fetch('/api/config')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          if (data.settings) {
+            setProjectSettings(prev => ({
+              ...prev,
+              ...data.settings,
+              defaultTravelDate: data.defaultTravelDate || data.settings.defaultTravelDate || '2026-10-15',
+              journeyDate: data.defaultTravelDate || data.settings.journeyDate || '2026-10-15',
+              returnTravelDate: data.returnTravelDate || data.settings.returnTravelDate || '2026-10-22'
+            }));
+          }
+          if (data.stations && data.stations.length > 0) {
+            setStationsList(data.stations);
+          }
+          if (data.defaultTravelDate || data.journeyDate) {
+            setTravelDate(data.defaultTravelDate || data.journeyDate);
+          }
+        }
+      })
+      .catch(err => {
+        console.warn('Config fetch notice:', err.message);
+      });
+  }, []);
 
   useEffect(() => {
     if (projectSettings?.defaultTravelDate) {
@@ -3838,9 +3912,48 @@ export default function App() {
               <h1 style={{ fontSize: 'clamp(1.45rem, 4.5vw, 2.3rem)', fontWeight: 900, color: '#9A3412', margin: '8px 0 6px', lineHeight: 1.25 }}>
                 PNR स्थिति एवं टिकट सत्यापन
               </h1>
-              <p style={{ color: '#7C2D12', fontSize: 'clamp(0.85rem, 2.2vw, 1rem)', maxWidth: 680, margin: '0 auto 20px', fontWeight: 500 }}>
+              <p style={{ color: '#7C2D12', fontSize: 'clamp(0.85rem, 2.2vw, 1rem)', maxWidth: 680, margin: '0 auto 14px', fontWeight: 500 }}>
                 श्री माता वैष्णो देवी कटड़ा वार्षिक सुपरफास्ट स्पेशल ट्रेन — आधिकारिक डिजिटल पोर्टल।
               </p>
+
+              {/* ── Live Sacred Journey Schedule & Route Banner ── */}
+              <div style={{
+                maxWidth: 720,
+                margin: '0 auto 18px',
+                background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+                border: '1.5px solid #FDBA74',
+                borderRadius: 12,
+                padding: '12px 16px',
+                boxShadow: '0 4px 14px rgba(249, 115, 22, 0.08)',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, borderBottom: '1px dashed #FDBA74', paddingBottom: 8, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Train size={18} color="#C2410C" />
+                    <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.92rem' }}>
+                      विशेष यात्रा ट्रेन प्रस्थान कार्यक्रम ({projectSettings.activeYatraYear || 2026})
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ background: '#EA580C', color: '#FFF', padding: '3px 10px', borderRadius: 20, fontSize: '0.78rem', fontWeight: 800 }}>
+                      प्रस्थान: {projectSettings.defaultTravelDate || projectSettings.journeyDate || '2026-10-15'}
+                    </span>
+                    {projectSettings.returnTravelDate && (
+                      <span style={{ background: '#059669', color: '#FFF', padding: '3px 10px', borderRadius: 20, fontSize: '0.78rem', fontWeight: 700 }}>
+                        वापसी: {projectSettings.returnTravelDate}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6, fontSize: '0.82rem', color: '#7C2D12' }}>
+                  <div>
+                    <strong>मुख्य रूट:</strong> <span style={{ color: '#047857', fontWeight: 700 }}>लखनऊ चारबाग (LKO) ➔ नई दिल्ली ➔ अम्बाला ➔ जम्मू तवी (JAT) ➔ कटड़ा (SVDK)</span>
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#9A3412', fontWeight: 700 }}>
+                    कुल 38 अधिकृत ठहराव / स्टेशन
+                  </div>
+                </div>
+              </div>
 
               {/* ── PNR Search Box ── */}
               <div className="pnr-search-box">
@@ -4469,14 +4582,11 @@ export default function App() {
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">प्रस्थान स्टेशन (From):</label>
+                                <label className="form-label">प्रस्थान स्टेशन (Boarding Station - Lucknow to Katra Route):</label>
                                 <select className="form-control" value={fromStation} onChange={(e) => setFromStation(e.target.value)}>
-                                  <option value="New Delhi (NDLS)">New Delhi (NDLS)</option>
-                                  <option value="Kanpur Central (CNB)">Kanpur Central (CNB)</option>
-                                  <option value="Lucknow Charbagh (LKO)">Lucknow Charbagh (LKO)</option>
-                                  <option value="Varanasi Cantt (BSB)">Varanasi Cantt (BSB)</option>
-                                  <option value="Agra Cantt (AGC)">Agra Cantt (AGC)</option>
-                                  <option value="Ambala Cantt (UMB)">Ambala Cantt (UMB)</option>
+                                  {stationsList.map((stn, idx) => (
+                                    <option key={idx} value={stn}>{stn}</option>
+                                  ))}
                                 </select>
                               </div>
 
@@ -6187,24 +6297,39 @@ export default function App() {
                               </div>
                             </div>
 
-                            <div className="grid-2">
+                            <div className="grid-3">
                               <div className="form-group">
-                                <label className="form-label">मर्चेंट कोड (Merchant Code)</label>
+                                <label className="form-label">सक्रिय यात्रा वर्ष (Yatra Year)</label>
                                 <input
-                                  type="text"
+                                  type="number"
                                   className="form-control"
-                                  placeholder="उदा. MVD2026"
-                                  value={projectSettings.merchantCode || ''}
-                                  onChange={e => setProjectSettings({ ...projectSettings, merchantCode: e.target.value })}
+                                  placeholder="2026"
+                                  value={projectSettings.activeYatraYear || 2026}
+                                  onChange={e => setProjectSettings({ ...projectSettings, activeYatraYear: Number(e.target.value) })}
                                 />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">डिफ़ॉल्ट यात्रा तिथि (Travel Date)</label>
+                                <label className="form-label" style={{ color: '#C2410C', fontWeight: 800 }}>
+                                  यात्रा प्रस्थान तिथि (Journey Date) <span style={{ color: 'red' }}>*</span>
+                                </label>
                                 <input
                                   type="date"
                                   className="form-control"
-                                  value={projectSettings.defaultTravelDate || ''}
-                                  onChange={e => setProjectSettings({ ...projectSettings, defaultTravelDate: e.target.value })}
+                                  style={{ borderColor: '#F97316', background: '#FFF8F2', fontWeight: 700 }}
+                                  value={projectSettings.defaultTravelDate || projectSettings.journeyDate || ''}
+                                  onChange={e => setProjectSettings({ ...projectSettings, defaultTravelDate: e.target.value, journeyDate: e.target.value })}
+                                />
+                                <div style={{ fontSize: '0.72rem', color: '#9A3412', marginTop: 3 }}>
+                                  * होम पेज एवं टिकट बुकिंग काउंटर पर यही तिथि स्वतः लागू होगी।
+                                </div>
+                              </div>
+                              <div className="form-group">
+                                <label className="form-label">यात्रा वापसी तिथि (Return Date)</label>
+                                <input
+                                  type="date"
+                                  className="form-control"
+                                  value={projectSettings.returnTravelDate || ''}
+                                  onChange={e => setProjectSettings({ ...projectSettings, returnTravelDate: e.target.value })}
                                 />
                               </div>
                             </div>
