@@ -149,12 +149,10 @@ class AuthService {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Check SuperAdmin email (Strict exact match only)
+    // 1. Check SuperAdmin email (Strict exact match only: iammshyam@gmail.com)
     const configuredAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
     const authorizedSuperAdminEmails = [
       'iammshyam@gmail.com',
-      'infomatavaishnodevi@gmail.com',
-      'sahilchaturvedi2004@gmail.com',
       configuredAdminEmail
     ].filter(Boolean);
 
