@@ -4202,43 +4202,44 @@ export default function App() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, alignItems: 'center' }}>
-                {/* Poster Thumbnail / Click to Zoom */}
-                <div
-                  onClick={() => setPosterModal(true)}
-                  style={{
-                    cursor: 'pointer',
-                    borderRadius: 12,
-                    overflow: 'hidden',
-                    border: '2px solid #FED7AA',
-                    boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
-                    position: 'relative',
-                    maxHeight: 380,
-                    background: '#1F2937',
-                    textAlign: 'center'
-                  }}
-                  title="क्लिक करके पूरा पोस्टर HD में देखें"
-                >
-                  <img
-                    src="/poster.png"
-                    alt="श्री माता वैष्णो देवी यात्रा पोस्टर 2026"
-                    style={{ width: '100%', height: '100%', maxHeight: 380, objectFit: 'contain', display: 'block', transition: 'transform 0.3s ease' }}
-                  />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, alignItems: 'center' }}>
+                {/* Poster Thumbnail / Clean Fill & Fit Frame */}
+                <div>
+                  <div
+                    onClick={() => setPosterModal(true)}
+                    style={{
+                      cursor: 'pointer',
+                      borderRadius: 14,
+                      overflow: 'hidden',
+                      border: '3px solid #F97316',
+                      boxShadow: '0 8px 24px rgba(249, 115, 22, 0.2)',
+                      background: '#FFF8F2',
+                      textAlign: 'center',
+                      transition: 'transform 0.25s ease, box-shadow 0.25s ease'
+                    }}
+                    title="क्लिक करके पूरा पोस्टर HD में देखें"
+                  >
+                    <img
+                      src="/poster.png"
+                      alt="श्री माता वैष्णो देवी यात्रा पोस्टर 2026"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        aspectRatio: '1 / 1',
+                        objectFit: 'contain',
+                        display: 'block'
+                      }}
+                    />
+                  </div>
                   <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    insetInline: 0,
-                    background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%)',
-                    padding: '12px 14px 8px',
-                    color: '#FFF',
-                    fontSize: '0.82rem',
+                    marginTop: 8,
+                    textAlign: 'center',
+                    fontSize: '0.84rem',
+                    color: '#C2410C',
                     fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6
-                  }}>
-                    <Eye size={15} /> क्लिक करें • पूर्ण आकार (Full HD) में देखें
+                    cursor: 'pointer'
+                  }} onClick={() => setPosterModal(true)}>
+                    <Eye size={15} style={{ display: 'inline', marginRight: 5, verticalAlign: 'text-bottom' }} /> पोस्टर पर क्लिक करके पूर्ण आकार (Full HD) में देखें
                   </div>
                 </div>
 
@@ -8365,11 +8366,11 @@ export default function App() {
               </button>
             </div>
 
-            <div style={{ background: '#111827', borderRadius: 10, padding: 8, marginBottom: 14, boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
+            <div style={{ background: '#FFF8F2', borderRadius: 10, padding: 6, marginBottom: 14, border: '1.5px solid #FED7AA' }}>
               <img
                 src="/poster.png"
                 alt="श्री माता वैष्णो देवी वार्षिक विशेष तीर्थ यात्रा पोस्टर 2026"
-                style={{ width: '100%', maxHeight: '72vh', objectFit: 'contain', borderRadius: 6, display: 'block', margin: '0 auto' }}
+                style={{ width: '100%', maxHeight: '78vh', objectFit: 'contain', borderRadius: 6, display: 'block', margin: '0 auto' }}
               />
             </div>
 
