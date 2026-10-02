@@ -69,6 +69,7 @@ export default function App() {
   const [utrInput, setUtrInput] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stationsList, setStationsList] = useState(DEFAULT_ROUTE_STATIONS);
+  const [posterModal, setPosterModal] = useState(false);
 
   // Indian Currency Number to Words
   const numberToWords = (num) => {
@@ -4166,6 +4167,120 @@ export default function App() {
               </div>
             </div>
 
+            {/* ── Official Yatra 2026 Poster Showcase Card ── */}
+            <div className="glass-card" style={{ marginBottom: 28, padding: '24px 20px', border: '2.5px solid #F97316', background: 'linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 100%)', boxShadow: '0 8px 24px rgba(249, 115, 22, 0.12)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, borderBottom: '1.5px solid #FED7AA', paddingBottom: 12, marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #F97316, #C2410C)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Sparkles size={22} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.35rem', fontWeight: 900 }}>
+                      आधिकारिक यात्रा पोस्टर {projectSettings.activeYatraYear || 2026} (Official Yatra Poster)
+                    </h3>
+                    <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.86rem', fontWeight: 600 }}>
+                      श्री माता वैष्णो देवी वार्षिक विशेष तीर्थ यात्रा ट्रेन — अधिकृत प्रचार एवं विवरण पोस्टर
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => setPosterModal(true)}
+                    style={{ padding: '6px 14px', fontSize: '0.82rem' }}
+                  >
+                    <Eye size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> पूरा पोस्टर देखें (HD Zoom)
+                  </button>
+                  <a
+                    href="/poster.png"
+                    download="Vaishno_Devi_Yatra_Poster_2026.png"
+                    className="btn btn-outline btn-sm"
+                    style={{ padding: '6px 14px', fontSize: '0.82rem', borderColor: '#F97316', color: '#C2410C' }}
+                  >
+                    <Download size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> डाउनलोड करें
+                  </a>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, alignItems: 'center' }}>
+                {/* Poster Thumbnail / Click to Zoom */}
+                <div
+                  onClick={() => setPosterModal(true)}
+                  style={{
+                    cursor: 'pointer',
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    border: '2px solid #FED7AA',
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+                    position: 'relative',
+                    maxHeight: 380,
+                    background: '#1F2937',
+                    textAlign: 'center'
+                  }}
+                  title="क्लिक करके पूरा पोस्टर HD में देखें"
+                >
+                  <img
+                    src="/poster.png"
+                    alt="श्री माता वैष्णो देवी यात्रा पोस्टर 2026"
+                    style={{ width: '100%', height: '100%', maxHeight: 380, objectFit: 'contain', display: 'block', transition: 'transform 0.3s ease' }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    insetInline: 0,
+                    background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%)',
+                    padding: '12px 14px 8px',
+                    color: '#FFF',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}>
+                    <Eye size={15} /> क्लिक करें • पूर्ण आकार (Full HD) में देखें
+                  </div>
+                </div>
+
+                {/* Poster Details & Summary */}
+                <div>
+                  <span className="badge badge-bhakti" style={{ marginBottom: 8, fontSize: '0.82rem' }}>
+                    🚩 वार्षिक विशेष तीर्थ यात्रा
+                  </span>
+                  <h4 style={{ fontSize: '1.3rem', color: '#7C2D12', margin: '4px 0 8px', fontWeight: 800 }}>
+                    विशेष तीर्थ एक्सप्रेस • लखनऊ से कटड़ा
+                  </h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: 12 }}>
+                    श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट द्वारा आयोजित इस पावन यात्रा का आधिकारिक पोस्टर जारी कर दिया गया है। इसमें यात्रा कार्यक्रम, ठहराव स्टेशन, एसी व स्लीपर कोच आरक्षण एवं संपर्क सूत्रों की संपूर्ण जानकारी दी गई है।
+                  </p>
+
+                  <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', marginBottom: 14, fontSize: '0.85rem' }}>
+                    <div style={{ marginBottom: 4 }}><strong>यात्रा वर्ष:</strong> <span style={{ color: '#C2410C', fontWeight: 800 }}>{projectSettings.activeYatraYear || 2026}</span></div>
+                    <div style={{ marginBottom: 4 }}><strong>प्रस्थान तिथि:</strong> <span style={{ color: '#047857', fontWeight: 800 }}>{projectSettings.defaultTravelDate || projectSettings.journeyDate || '2026-10-15'}</span></div>
+                    <div><strong>मार्ग:</strong> <span>लखनऊ चारबाग (LKO) ➔ नई दिल्ली ➔ जम्मू तवी (JAT) ➔ कटड़ा (SVDK)</span></div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    <button
+                      className="btn btn-gold btn-sm"
+                      onClick={() => setPosterModal(true)}
+                      style={{ flex: 1 }}
+                    >
+                      <Eye size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> पोस्टर ज़ूम करें
+                    </button>
+                    <a
+                      href="/poster.png"
+                      download="Vaishno_Devi_Yatra_Poster_2026.png"
+                      className="btn btn-primary btn-sm"
+                      style={{ flex: 1, textAlign: 'center' }}
+                    >
+                      <Download size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> सेव पोस्टर
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Sacred Shrine Panorama Card */}
             <div className="glass-card" style={{ marginBottom: 28, padding: 0, overflow: 'hidden', border: '2px solid #FED7AA' }}>
               <div style={{ position: 'relative', maxHeight: 420, overflow: 'hidden' }}>
@@ -8229,6 +8344,61 @@ export default function App() {
               </a>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ----------------- OFFICIAL YATRA POSTER FULLSCREEN MODAL ----------------- */}
+      {posterModal && (
+        <div className="modal-overlay" onClick={() => setPosterModal(false)} style={{ zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 820, maxHeight: '92vh', overflowY: 'auto', padding: 20, border: '3px solid #F97316', textAlign: 'center', background: '#FFFDF9' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottom: '1.5px solid #FED7AA', paddingBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="badge badge-bhakti">🚩 अधिकृत यात्रा पोस्टर</span>
+                <strong style={{ color: '#9A3412', fontSize: '1.15rem' }}>श्री माता वैष्णो देवी यात्रा {projectSettings.activeYatraYear || 2026}</strong>
+              </div>
+              <button
+                onClick={() => setPosterModal(false)}
+                style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', width: 32, height: 32, borderRadius: '50%', fontSize: 18, cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ background: '#111827', borderRadius: 10, padding: 8, marginBottom: 14, boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
+              <img
+                src="/poster.png"
+                alt="श्री माता वैष्णो देवी वार्षिक विशेष तीर्थ यात्रा पोस्टर 2026"
+                style={{ width: '100%', maxHeight: '72vh', objectFit: 'contain', borderRadius: 6, display: 'block', margin: '0 auto' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <a
+                href="/poster.png"
+                download="Vaishno_Devi_Yatra_Poster_2026.png"
+                className="btn btn-primary"
+                style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+              >
+                <Download size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> पोस्टर डाउनलोड करें (Save High-Res Image)
+              </a>
+              <a
+                href="/poster.png"
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-outline"
+                style={{ padding: '10px 20px', fontSize: '0.92rem', borderColor: '#F97316', color: '#C2410C' }}
+              >
+                <Eye size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> नए टैब में खोलें
+              </a>
+              <button
+                className="btn btn-outline"
+                onClick={() => setPosterModal(false)}
+                style={{ padding: '10px 20px', fontSize: '0.92rem' }}
+              >
+                बंद करें
+              </button>
+            </div>
           </div>
         </div>
       )}
