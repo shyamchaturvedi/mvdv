@@ -81,6 +81,17 @@ router.put('/auth/update-password', requireAuth(), async (req, res) => {
   }
 });
 
+// Dashboard Analytics & KPI stats
+router.get('/stats', requireAuth(), async (req, res) => {
+  try {
+    const yatraYear = req.query.year ? parseInt(req.query.year, 10) : null;
+    const stats = await BookingService.getDashboardStats(yatraYear);
+    res.json({ success: true, stats });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Get current yatra editions and system config
 router.get('/config', async (req, res) => {
   try {

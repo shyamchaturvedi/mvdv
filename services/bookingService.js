@@ -560,7 +560,7 @@ class BookingService {
     throw new Error(`Seat ${seatNumber} not found in Coach ${coachName} for Year ${yatraYear}`);
   }
 
-  // Aggregate stats for executive dashboard with Refund & Cancellation Metrics
+  // Aggregate stats for executive dashboard with Comprehensive Progress, Collections, Discounts, Staff & Coach Analytics
   static async getDashboardStats(yatraYear = null) {
     const allBookings = await this.getBookings(yatraYear ? { yatraYear } : {});
     
@@ -574,7 +574,7 @@ class BookingService {
     const totalBookings = activeBookings.length;
     const totalCancelledCount = cancelledBookings.length;
 
-    const totalPassengers = activeBookings.reduce((sum, b) => sum + (b.numberOfPassengers || (b.passengers ? b.passengers.length : 1)), 0);
+    const totalPassengers = activeBookings.reduce((sum, b) => sum + (Number(b.numberOfPassengers) || (b.passengers ? b.passengers.length : 1)), 0);
     const totalCollection = activeBookings.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
     const grossAdvance = allBookings.reduce((sum, b) => sum + (Number(b.advance) || 0), 0);
     const totalRefundAmount = cancelledBookings.reduce((sum, b) => sum + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0);
@@ -588,28 +588,206 @@ class BookingService {
     const partialCount = activeBookings.filter(b => b.paymentStatus === 'Partial').length;
     const unpaidCount = activeBookings.filter(b => b.paymentStatus === 'Unpaid').length;
 
-    // Coach-wise count
+    // Payment Modes Split (Cash vs UPI vs Bank/Other)
+    let cashAmount = 0, cashCount = 0;
+    let upiAmount = 0, upiCount = 0;
+    let otherAmount = 0, otherCount = 0;
+
+    activeBookings.forEach(b => {
+      const mode = (b.paymentMode || b.advancePaymentMode || '').toUpperCase();
+      const adv = Number(b.advance) || 0;
+      if (mode.includes('CASH') || mode.includes('नकद')) {
+        cashAmount += adv;
+        cashCount++;
+      } else if (mode.includes('UPI') || mode.includes('QR') || mode.includes('GPAY') || mode.includes('PHONEPE')) {
+        upiAmount += adv;
+        upiCount++;
+      } else {
+        otherAmount += adv;
+        otherCount++;
+      }
+    });
+
+    // Coach Capacities & Coach-wise stats
+    let coachList = [];
+    try {
+      const { CoachService } = require('./coachService');
+      coachList = await CoachService.getAllCoaches();
+    } catch (e) {
+      coachList = [];
+    }
+
     const coachStats = {};
     activeBookings.forEach(b => {
       const coach = b.coachName || 'Unassigned';
-      coachStats[coach] = (coachStats[coach] || 0) + (b.numberOfPassengers || 1);
+      coachStats[coach] = (coachStats[coach] || 0) + (Number(b.numberOfPassengers) || 1);
     });
 
-    // Class breakdown
+    // Deep Coach Utilization Matrix
+    const defaultRakeCoaches = [
+      { coachCode: 'S1', coachName: 'स्लीपर कोच S1', coachClass: 'Sleeper', totalSeats: 72 },
+      { coachCode: 'S2', coachName: 'स्लीपर कोच S2', coachClass: 'Sleeper', totalSeats: 72 },
+      { coachCode: 'S3', coachName: 'स्लीपर कोच S3', coachClass: 'Sleeper', totalSeats: 72 },
+      { coachCode: 'S4', coachName: 'स्लीपर कोच S4', coachClass: 'Sleeper', totalSeats: 72 },
+      { coachCode: 'S5', coachName: 'स्लीपर कोच S5', coachClass: 'Sleeper', totalSeats: 72 },
+      { coachCode: 'S6', coachName: 'स्लीपर कोच S6', coachClass: 'Sleeper', totalSeats: 72 },
+      { coachCode: 'B1', coachName: 'थर्ड एसी B1', coachClass: 'AC', totalSeats: 72 },
+      { coachCode: 'B2', coachName: 'थर्ड एसी B2', coachClass: 'AC', totalSeats: 72 },
+      { coachCode: 'B3', coachName: 'थर्ड एसी B3', coachClass: 'AC', totalSeats: 72 },
+      { coachCode: 'A1', coachName: 'सेकंड एसी A1', coachClass: 'AC', totalSeats: 54 },
+      { coachCode: 'A2', coachName: 'सेकंड एसी A2', coachClass: 'AC', totalSeats: 54 },
+      { coachCode: 'A3', coachName: 'सेकंड एसी A3', coachClass: 'AC', totalSeats: 54 },
+      { coachCode: 'GS1', coachName: 'जनरल GS1', coachClass: 'General', totalSeats: 80 },
+      { coachCode: 'GS2', coachName: 'जनरल GS2', coachClass: 'General', totalSeats: 80 },
+      { coachCode: 'SLR1', coachName: 'एसएलआर 1', coachClass: 'General', totalSeats: 20 },
+      { coachCode: 'SLR2', coachName: 'एसएलआर 2', coachClass: 'General', totalSeats: 20 }
+    ];
+
+    const sourceCoaches = (coachList && coachList.length > 0) ? coachList : defaultRakeCoaches;
+
+    const coachMatrix = sourceCoaches
+      .filter(c => Number(c.totalSeats) > 0 && c.coachCode !== 'ENG')
+      .map(c => {
+        const booked = coachStats[c.coachCode] || 0;
+        const capacity = Number(c.totalSeats) || 72;
+        const available = Math.max(0, capacity - booked);
+        const occupancy = capacity > 0 ? Math.min(100, Math.round((booked / capacity) * 100)) : 0;
+        return {
+          coachCode: c.coachCode,
+          coachName: c.coachName,
+          coachClass: c.coachClass,
+          capacity,
+          booked,
+          available,
+          occupancy
+        };
+      });
+
+    const totalTrainCapacity = coachMatrix.reduce((sum, c) => sum + c.capacity, 0) || 1000;
+    const overallOccupancyPercent = totalTrainCapacity > 0 ? Math.min(100, Math.round((totalPassengers / totalTrainCapacity) * 100)) : 0;
+
+    // Class Breakdown & Capacities
+    const classCapacities = {
+      AC: coachMatrix.filter(c => c.coachClass === 'AC').reduce((s, c) => s + c.capacity, 0) || 378,
+      Sleeper: coachMatrix.filter(c => c.coachClass === 'Sleeper').reduce((s, c) => s + c.capacity, 0) || 432,
+      General: coachMatrix.filter(c => c.coachClass === 'General').reduce((s, c) => s + c.capacity, 0) || 200
+    };
+
     const classStats = {
-      AC: activeBookings.filter(b => b.travelClass === 'AC').length,
-      Sleeper: activeBookings.filter(b => b.travelClass === 'Sleeper').length,
-      General: activeBookings.filter(b => b.travelClass === 'General').length
+      AC: {
+        booked: activeBookings.filter(b => b.travelClass === 'AC').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+        capacity: classCapacities.AC,
+        revenue: activeBookings.filter(b => b.travelClass === 'AC').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
+      },
+      Sleeper: {
+        booked: activeBookings.filter(b => b.travelClass === 'Sleeper').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+        capacity: classCapacities.Sleeper,
+        revenue: activeBookings.filter(b => b.travelClass === 'Sleeper').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
+      },
+      General: {
+        booked: activeBookings.filter(b => b.travelClass === 'General').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+        capacity: classCapacities.General,
+        revenue: activeBookings.filter(b => b.travelClass === 'General').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
+      }
+    };
+
+    // Staff Performance Leaderboard & Graph
+    const staffMap = {};
+    activeBookings.forEach(b => {
+      const staffName = (b.bookedByName || b.createdByName || b.bookedBy || 'काउंटर लिपिक').trim();
+      if (!staffMap[staffName]) {
+        staffMap[staffName] = {
+          name: staffName,
+          role: b.bookedByRole || (staffName.toLowerCase() === 'admin' ? 'SuperAdmin' : 'BookingClerk'),
+          bookingsCount: 0,
+          passengersCount: 0,
+          grossCollection: 0,
+          advanceCollected: 0,
+          discountGiven: 0,
+          cashAmount: 0,
+          upiAmount: 0
+        };
+      }
+      const st = staffMap[staffName];
+      st.bookingsCount += 1;
+      st.passengersCount += (Number(b.numberOfPassengers) || 1);
+      st.grossCollection += (Number(b.totalAmount) || 0);
+      st.advanceCollected += (Number(b.advance) || 0);
+      st.discountGiven += (Number(b.discount) || 0);
+      const mode = (b.paymentMode || b.advancePaymentMode || '').toUpperCase();
+      if (mode.includes('CASH') || mode.includes('नकद')) {
+        st.cashAmount += (Number(b.advance) || 0);
+      } else {
+        st.upiAmount += (Number(b.advance) || 0);
+      }
+    });
+
+    const staffLeaderboard = Object.values(staffMap).sort((a, b) => b.grossCollection - a.grossCollection);
+
+    // Timeline / Daily Collection Progress (Chronological timeline)
+    const dateMap = {};
+    activeBookings.forEach(b => {
+      const d = (b.createdAt ? b.createdAt.slice(0, 10) : today);
+      if (!dateMap[d]) {
+        dateMap[d] = { date: d, bookings: 0, passengers: 0, advance: 0, gross: 0, discount: 0, remaining: 0 };
+      }
+      dateMap[d].bookings += 1;
+      dateMap[d].passengers += (Number(b.numberOfPassengers) || 1);
+      dateMap[d].advance += (Number(b.advance) || 0);
+      dateMap[d].gross += (Number(b.totalAmount) || 0);
+      dateMap[d].discount += (Number(b.discount) || 0);
+      dateMap[d].remaining += (Number(b.remainingAmount) || 0);
+    });
+
+    const timelineData = Object.keys(dateMap).sort().map(d => ({
+      ...dateMap[d],
+      label: d.slice(5).replace('-', '/') // MM/DD
+    }));
+
+    // Boarding Station Distribution
+    const stationMap = {};
+    activeBookings.forEach(b => {
+      const stn = (b.boardingStation || b.fromStation || 'Fatehgarh (FGR)').trim();
+      stationMap[stn] = (stationMap[stn] || 0) + (Number(b.numberOfPassengers) || 1);
+    });
+    const boardingStations = Object.keys(stationMap).map(stn => ({
+      station: stn,
+      passengers: stationMap[stn],
+      percentage: totalPassengers > 0 ? Math.round((stationMap[stn] / totalPassengers) * 100) : 0
+    })).sort((a, b) => b.passengers - a.passengers);
+
+    // Check-in & Journey Attendance
+    let presentCount = 0, absentCount = 0, pendingCheckinCount = 0;
+    activeBookings.forEach(b => {
+      const pCount = (Number(b.numberOfPassengers) || (b.passengers ? b.passengers.length : 1));
+      if (b.checkinStatus === 'Present' || b.checkinStatus === 'Boarded') {
+        presentCount += pCount;
+      } else if (b.checkinStatus === 'Absent') {
+        absentCount += pCount;
+      } else {
+        pendingCheckinCount += pCount;
+      }
+    });
+
+    // Discount Analytics
+    const discountedBookings = activeBookings.filter(b => Number(b.discount) > 0);
+    const discountStats = {
+      totalDiscount,
+      discountedTicketsCount: discountedBookings.length,
+      avgDiscount: discountedBookings.length > 0 ? Math.round(totalDiscount / discountedBookings.length) : 0,
+      discountRate: totalCollection > 0 ? ((totalDiscount / (totalCollection + totalDiscount)) * 100).toFixed(1) : '0'
     };
 
     return {
-      yatraYear: yatraYear || 'All Years',
+      yatraYear: yatraYear || '2026',
       totalBookings,
       totalActiveBookings: totalBookings,
       totalCancelledCount,
       todayBookings: todayBookings.length,
       todayCancelledCount: todayCancelled.length,
       totalPassengers,
+      totalTrainCapacity,
+      overallOccupancyPercent,
       totalCollection,
       grossAdvance,
       totalRefundAmount,
@@ -620,8 +798,24 @@ class BookingService {
       paidCount,
       partialCount,
       unpaidCount,
+      paymentModes: {
+        cash: { amount: cashAmount, count: cashCount, percent: totalAdvance > 0 ? Math.round((cashAmount / totalAdvance) * 100) : 0 },
+        upi: { amount: upiAmount, count: upiCount, percent: totalAdvance > 0 ? Math.round((upiAmount / totalAdvance) * 100) : 0 },
+        other: { amount: otherAmount, count: otherCount, percent: totalAdvance > 0 ? Math.round((otherAmount / totalAdvance) * 100) : 0 }
+      },
       coachStats,
-      classStats
+      coachMatrix,
+      classStats,
+      staffLeaderboard,
+      timelineData,
+      boardingStations,
+      checkinStats: {
+        present: presentCount,
+        absent: absentCount,
+        pending: pendingCheckinCount,
+        boardedPercent: totalPassengers > 0 ? Math.round((presentCount / totalPassengers) * 100) : 0
+      },
+      discountStats
     };
   }
 }

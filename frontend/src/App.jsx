@@ -2830,38 +2830,614 @@ export default function App() {
   // RENDER HELPER: ADMIN DASHBOARD OVERVIEW VIEW
   // -------------------------------------------------------------
   const renderAdminDashboardView = () => {
+    const stats = adminStats || {
+      totalBookings: adminBookings.length,
+      totalPassengers: adminBookings.reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+      totalCollection: adminBookings.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0),
+      totalAdvance: adminBookings.reduce((s, b) => s + (Number(b.advance) || 0), 0),
+      totalRemaining: adminBookings.reduce((s, b) => s + (Number(b.remainingAmount) || 0), 0),
+      totalDiscount: adminBookings.reduce((s, b) => s + (Number(b.discount) || 0), 0),
+      totalTrainCapacity: 1000,
+      overallOccupancyPercent: 0
+    };
+
+    const maxTimelineAmount = (stats.timelineData && stats.timelineData.length > 0)
+      ? Math.max(...stats.timelineData.map(t => t.gross || t.advance || 1), 1000)
+      : 1000;
+
     return (
       <div>
-        {/* KPI Metrics Strip */}
-        {adminStats && (
-          <div className="kpi-responsive-grid">
-            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #C2410C' }}>
-              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल बुकिंग्स</div>
-              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#C2410C', margin: '4px 0', lineHeight: 1.1 }}>{adminStats.totalBookings}</div>
-              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>{adminStats.totalPassengers} यात्री आरक्षित</div>
+        {/* Top Executive Header & Filter Bar */}
+        <div className="dash-header-strip">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 12,
+              background: 'linear-gradient(135deg, #FF6D00 0%, #C2410C 100%)',
+              color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(230,81,0,0.3)'
+            }}>
+              <LayoutDashboard size={24} />
             </div>
-
-            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #047857' }}>
-              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल किराया संग्रह</div>
-              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#047857', margin: '4px 0', lineHeight: 1.1 }}>₹ {adminStats.totalCollection.toLocaleString()}</div>
-              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>सकल रियायती राशि</div>
-            </div>
-
-            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #B45309' }}>
-              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>अग्रिम प्राप्त (Token)</div>
-              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#B45309', margin: '4px 0', lineHeight: 1.1 }}>₹ {adminStats.totalAdvance.toLocaleString()}</div>
-              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>खाते में जमा अग्रिम</div>
-            </div>
-
-            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #DC2626' }}>
-              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>शेष देय (Remaining)</div>
-              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#DC2626', margin: '4px 0', lineHeight: 1.1 }}>₹ {adminStats.totalRemaining.toLocaleString()}</div>
-              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>कटड़ा में देय</div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h3 style={{ margin: 0, color: '#431407', fontWeight: 900, fontSize: '1.25rem' }}>
+                  कार्यकारी नियंत्रण कक्ष (Executive Command Dashboard)
+                </h3>
+                <span className="badge badge-bhakti" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
+                  Live Analytics
+                </span>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#7C2D12', marginTop: 2 }}>
+                श्री माता वैष्णो देवी वार्षिक विशेष ट्रेन — लाइव वित्तीय एवं परिचालन रिपोर्ट
+              </div>
             </div>
           </div>
-        )}
 
-        {/* All Project Features Master Command Grid for SuperAdmin */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFFFFF', padding: '4px 8px', borderRadius: 8, border: '1.5px solid #FDBA74' }}>
+              <CalendarDays size={16} color="#C2410C" />
+              <select
+                value={adminYearFilter}
+                onChange={(e) => {
+                  setAdminYearFilter(e.target.value);
+                  setTimeout(() => loadAdminDashboard(), 50);
+                }}
+                style={{ border: 'none', background: 'transparent', fontWeight: 800, color: '#431407', outline: 'none', cursor: 'pointer', fontSize: '0.86rem' }}
+              >
+                <option value="2026">यात्रा वर्ष 2026 (चालू)</option>
+                <option value="2025">यात्रा वर्ष 2025</option>
+                <option value="2024">यात्रा वर्ष 2024</option>
+                <option value="">समस्त वर्ष (All Seasons)</option>
+              </select>
+            </div>
+
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={loadAdminDashboard}
+              title="डेटा रीफ्रेश करें"
+            >
+              <RefreshCw size={15} /> रीफ्रेश
+            </button>
+
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => navigate('/admin/booking')}
+            >
+              <Plus size={15} /> नया आरक्षण
+            </button>
+          </div>
+        </div>
+
+        {/* 1. Core Financial & Volume KPI Intelligence Strip (6 Responsive Cards) */}
+        <div className="kpi-responsive-grid" style={{ marginBottom: 22 }}>
+          {/* Card 1: Gross Ticket Value */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #C2410C' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल सकल किराया</div>
+              <IndianRupee size={16} color="#C2410C" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#C2410C', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {(stats.totalCollection || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: '#784D35' }}>
+              सकल लक्षित टिकट राजस्व
+            </div>
+          </div>
+
+          {/* Card 2: Net Advance Received */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #047857' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>प्राप्त अग्रिम (Net Collected)</div>
+              <CheckCircle2 size={16} color="#047857" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#047857', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {(stats.totalAdvance || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: '#047857', fontWeight: 700 }}>
+              {stats.totalCollection > 0 ? Math.round(((stats.totalAdvance || 0) / stats.totalCollection) * 100) : 0}% कुल किराया वसूल
+            </div>
+          </div>
+
+          {/* Card 3: Outstanding Remaining Dues */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #DC2626' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>शेष देय राशि (Outstanding)</div>
+              <AlertTriangle size={16} color="#DC2626" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#DC2626', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {(stats.totalRemaining || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: '#991B1B' }}>
+              ट्रेन/कटड़ा काउंटर पर वसूली योग्य
+            </div>
+          </div>
+
+          {/* Card 4: Total Discount Conceded */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #D97706' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल छूट व रियायत</div>
+              <Percent size={16} color="#D97706" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#D97706', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {(stats.totalDiscount || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: '#92400E' }}>
+              {stats.discountStats?.discountedTicketsCount || 0} टिकटों पर ट्रस्टी छूट
+            </div>
+          </div>
+
+          {/* Card 5: Pilgrims & Tickets Count */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #2563EB' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>आरक्षित श्रद्धालु</div>
+              <Users size={16} color="#2563EB" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#2563EB', margin: '4px 0', lineHeight: 1.1 }}>
+              {stats.totalPassengers || 0}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: '#1E40AF' }}>
+              {stats.totalBookings || 0} PNR टिकटों में आरक्षित
+            </div>
+          </div>
+
+          {/* Card 6: Train Capacity Occupancy Rate */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #7C3AED' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>ट्रेन लाइव ऑक्यूपेंसी</div>
+              <TrendingUp size={16} color="#7C3AED" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#7C3AED', margin: '4px 0', lineHeight: 1.1 }}>
+              {stats.overallOccupancyPercent || 0}%
+            </div>
+            <div style={{ fontSize: '0.76rem', color: '#5B21B6' }}>
+              {stats.totalPassengers || 0} / {stats.totalTrainCapacity || 1000} सीटें भरीं
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Train Capacity & Live Occupancy Multi-Tier Progress Tracker */}
+        <div className="glass-card" style={{ marginBottom: 22 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Train size={20} /> ट्रेन क्षमता एवं लाइव सीट ऑक्यूपेंसी प्रोग्रेस (Train Capacity Progress)
+              </h4>
+              <div style={{ fontSize: '0.78rem', color: '#7C2D12', marginTop: 2 }}>
+                18 कोच स्पेशल रैक • कुल क्षमता: {stats.totalTrainCapacity || 1000} सीटें • आरक्षित: {stats.totalPassengers || 0} सीटें ({stats.overallOccupancyPercent || 0}%)
+              </div>
+            </div>
+            <button className="btn btn-outline btn-sm" onClick={() => navigate('/admin/chart')}>
+              <Armchair size={15} /> सम्पूर्ण सीटिंग चार्ट देखें ➔
+            </button>
+          </div>
+
+          {/* Master Progress Bar */}
+          <div className="dash-progress-track" style={{ height: 16, marginBottom: 14 }}>
+            <div
+              className="dash-progress-fill bhagwa"
+              style={{ width: `${Math.min(100, Math.max(0, stats.overallOccupancyPercent || 0))}%` }}
+              title={`ट्रेन ऑक्यूपेंसी: ${stats.overallOccupancyPercent}%`}
+            />
+          </div>
+
+          {/* Class Breakdown 3-Grid */}
+          <div className="grid-3" style={{ gap: 12 }}>
+            {/* Sleeper Class */}
+            <div style={{ background: '#FFF7ED', border: '1.5px solid #FDBA74', borderRadius: 10, padding: '12px 14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.88rem' }}>🛏️ स्लीपर क्लास (Sleeper)</span>
+                <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
+                  {stats.classStats?.Sleeper?.capacity ? Math.round(((stats.classStats?.Sleeper?.booked || 0) / stats.classStats.Sleeper.capacity) * 100) : 0}%
+                </span>
+              </div>
+              <div className="dash-progress-track" style={{ height: 8, marginBottom: 6 }}>
+                <div
+                  className="dash-progress-fill orange"
+                  style={{ width: `${stats.classStats?.Sleeper?.capacity ? Math.min(100, Math.round(((stats.classStats?.Sleeper?.booked || 0) / stats.classStats.Sleeper.capacity) * 100)) : 0}%` }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#7C2D12' }}>
+                <span>आरक्षित: <strong>{stats.classStats?.Sleeper?.booked || 0}</strong> / {stats.classStats?.Sleeper?.capacity || 432}</span>
+                <span>राजस्व: <strong>₹{(stats.classStats?.Sleeper?.revenue || 0).toLocaleString()}</strong></span>
+              </div>
+            </div>
+
+            {/* AC Class */}
+            <div style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: 10, padding: '12px 14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.88rem' }}>❄️ वातानुकूलित (AC 3A / 2A)</span>
+                <span className="badge badge-info" style={{ fontSize: '0.75rem' }}>
+                  {stats.classStats?.AC?.capacity ? Math.round(((stats.classStats?.AC?.booked || 0) / stats.classStats.AC.capacity) * 100) : 0}%
+                </span>
+              </div>
+              <div className="dash-progress-track" style={{ height: 8, marginBottom: 6, background: '#DBEAFE' }}>
+                <div
+                  className="dash-progress-fill blue"
+                  style={{ width: `${stats.classStats?.AC?.capacity ? Math.min(100, Math.round(((stats.classStats?.AC?.booked || 0) / stats.classStats.AC.capacity) * 100)) : 0}%` }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#1E40AF' }}>
+                <span>आरक्षित: <strong>{stats.classStats?.AC?.booked || 0}</strong> / {stats.classStats?.AC?.capacity || 378}</span>
+                <span>राजस्व: <strong>₹{(stats.classStats?.AC?.revenue || 0).toLocaleString()}</strong></span>
+              </div>
+            </div>
+
+            {/* General & SLR Class */}
+            <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.88rem' }}>👥 सामान्य व दिव्यांग (General/SLR)</span>
+                <span className="badge badge-success" style={{ fontSize: '0.75rem' }}>
+                  {stats.classStats?.General?.capacity ? Math.round(((stats.classStats?.General?.booked || 0) / stats.classStats.General.capacity) * 100) : 0}%
+                </span>
+              </div>
+              <div className="dash-progress-track" style={{ height: 8, marginBottom: 6, background: '#D1FAE5' }}>
+                <div
+                  className="dash-progress-fill green"
+                  style={{ width: `${stats.classStats?.General?.capacity ? Math.min(100, Math.round(((stats.classStats?.General?.booked || 0) / stats.classStats.General.capacity) * 100)) : 0}%` }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#065F46' }}>
+                <span>आरक्षित: <strong>{stats.classStats?.General?.booked || 0}</strong> / {stats.classStats?.General?.capacity || 200}</span>
+                <span>राजस्व: <strong>₹{(stats.classStats?.General?.revenue || 0).toLocaleString()}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Interactive 2-Column: Collection Timeline Graph & Payment Modes Split */}
+        <div className="grid-2" style={{ marginBottom: 22, alignItems: 'stretch' }}>
+          {/* Left: Daily Collection Progress Graph */}
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <BarChart3 size={18} /> दैनिक आरक्षण व संग्रह ट्रेंड (Collection Velocity Graph)
+                </h4>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>दैनिक बुकिंग प्रवाह एवं प्राप्त किराया (₹)</div>
+              </div>
+              <span className="badge badge-bhakti" style={{ fontSize: '0.72rem' }}>Timeline Progress</span>
+            </div>
+
+            {stats.timelineData && stats.timelineData.length > 0 ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div className="dash-chart-container">
+                  {stats.timelineData.slice(-14).map((item, idx) => {
+                    const heightPercent = Math.max(12, Math.min(100, Math.round(((item.gross || item.advance || 1) / maxTimelineAmount) * 100)));
+                    const tooltipText = `${item.date}: ₹${(item.gross || item.advance || 0).toLocaleString()} (${item.bookings} टिकटें, ${item.passengers} यात्री)`;
+                    return (
+                      <div key={idx} className="dash-chart-col">
+                        <div
+                          className="dash-chart-bar"
+                          style={{ height: `${heightPercent}%` }}
+                          data-tooltip={tooltipText}
+                        />
+                        <div style={{ fontSize: '0.66rem', color: '#7C2D12', marginTop: 6, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          {item.label}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#784D35', borderTop: '1px solid #FED7AA', paddingTop: 8, marginTop: 6 }}>
+                  <span>📊 बार पर होवर करके विस्तृत दैनिक विवरण देखें</span>
+                  <span><strong>{stats.timelineData.length}</strong> सक्रिय तिथियां</span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px 10px', color: '#9A3412', fontSize: '0.86rem' }}>
+                अभी इस सत्र में कोई दिनांक-वार रिकॉर्ड उपलब्ध नहीं है।
+              </div>
+            )}
+          </div>
+
+          {/* Right: Payment Modes Breakdown */}
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <QrCode size={18} /> भुगतान माध्यम वर्गीकरण (Payment Modes Split)
+                </h4>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>नकद बनाम यूपीआई बनाम बैंक/अन्य माध्यम</div>
+              </div>
+              <button className="btn btn-outline btn-xs" onClick={() => navigate('/admin/reconcile')}>
+                समाधान लेजर ➔
+              </button>
+            </div>
+
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
+              {/* Mode 1: Cash */}
+              <div style={{ background: '#FFF7ED', border: '1.5px solid #FED7AA', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.85rem' }}>💵 नकद (Cash Collection)</span>
+                  <span style={{ fontWeight: 900, color: '#C2410C', fontSize: '0.95rem' }}>
+                    ₹ {(stats.paymentModes?.cash?.amount || 0).toLocaleString()}
+                    <span style={{ fontSize: '0.74rem', color: '#7C2D12', marginLeft: 4 }}>({stats.paymentModes?.cash?.percent || 0}%)</span>
+                  </span>
+                </div>
+                <div className="dash-progress-track" style={{ height: 8 }}>
+                  <div className="dash-progress-fill orange" style={{ width: `${stats.paymentModes?.cash?.percent || 0}%` }} />
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#784D35', marginTop: 4 }}>
+                  {stats.paymentModes?.cash?.count || 0} नकद रसीदें जमा
+                </div>
+              </div>
+
+              {/* Mode 2: UPI / QR */}
+              <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.85rem' }}>📱 UPI / क्यूआर कोड (Online UPI)</span>
+                  <span style={{ fontWeight: 900, color: '#047857', fontSize: '0.95rem' }}>
+                    ₹ {(stats.paymentModes?.upi?.amount || 0).toLocaleString()}
+                    <span style={{ fontSize: '0.74rem', color: '#065F46', marginLeft: 4 }}>({stats.paymentModes?.upi?.percent || 0}%)</span>
+                  </span>
+                </div>
+                <div className="dash-progress-track" style={{ height: 8, background: '#D1FAE5' }}>
+                  <div className="dash-progress-fill green" style={{ width: `${stats.paymentModes?.upi?.percent || 0}%` }} />
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#065F46', marginTop: 4 }}>
+                  {stats.paymentModes?.upi?.count || 0} ऑनलाइन क्यूआर डिजिटल रसीदें
+                </div>
+              </div>
+
+              {/* Mode 3: Bank / Other */}
+              <div style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.85rem' }}>🏦 बैंक ट्रांसफर / UTR</span>
+                  <span style={{ fontWeight: 900, color: '#1D4ED8', fontSize: '0.95rem' }}>
+                    ₹ {(stats.paymentModes?.other?.amount || 0).toLocaleString()}
+                    <span style={{ fontSize: '0.74rem', color: '#1E40AF', marginLeft: 4 }}>({stats.paymentModes?.other?.percent || 0}%)</span>
+                  </span>
+                </div>
+                <div className="dash-progress-track" style={{ height: 8, background: '#DBEAFE' }}>
+                  <div className="dash-progress-fill blue" style={{ width: `${stats.paymentModes?.other?.percent || 0}%` }} />
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#1E40AF', marginTop: 4 }}>
+                  {stats.paymentModes?.other?.count || 0} प्रत्यक्ष बैंक / UTR रसीदें
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Staff & Counter Performance Leaderboard (Staff Graph & Ranking) */}
+        <div className="glass-card" style={{ marginBottom: 22 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Crown size={20} color="#D97706" /> कर्मचारी व काउंटर निष्पादन लीडरबोर्ड (Staff Performance & Booking Graph)
+              </h4>
+              <div style={{ fontSize: '0.76rem', color: '#7C2D12', marginTop: 2 }}>
+                किस कर्मचारी / लिपिक ने कितनी टिकटें आरक्षित कीं, कितना नकद व यूपीआई संग्रह किया
+              </div>
+            </div>
+            <button className="btn btn-outline btn-sm" onClick={() => navigate('/admin/staff')}>
+              <Users size={15} /> स्टाफ प्रबंधन ➔
+            </button>
+          </div>
+
+          {stats.staffLeaderboard && stats.staffLeaderboard.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {stats.staffLeaderboard.map((st, idx) => {
+                const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-default';
+                const sharePercent = stats.totalCollection > 0 ? Math.round(((st.grossCollection || 0) / stats.totalCollection) * 100) : 0;
+                return (
+                  <div key={idx} className="dash-leaderboard-item">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 200, flex: 1 }}>
+                      <div className={`dash-rank-badge ${rankClass}`}>
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, color: '#431407', fontSize: '0.92rem' }}>
+                          {st.name}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#7C2D12', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                          <span className="badge badge-bhakti" style={{ fontSize: '0.65rem', padding: '1px 6px' }}>
+                            {st.role}
+                          </span>
+                          <span>• {st.bookingsCount} टिकटें ({st.passengersCount} यात्री)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>सकल संग्रह</div>
+                        <div style={{ fontWeight: 900, color: '#047857', fontSize: '1rem' }}>
+                          ₹ {(st.grossCollection || 0).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>नकद / यूपीआई</div>
+                        <div style={{ fontSize: '0.78rem', color: '#431407', fontWeight: 700 }}>
+                          नकद: ₹{(st.cashAmount || 0).toLocaleString()} | UPI: ₹{(st.upiAmount || 0).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right', minWidth: 90 }}>
+                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>छूट दी गई</div>
+                        <div style={{ fontSize: '0.84rem', color: '#D97706', fontWeight: 800 }}>
+                          ₹ {(st.discountGiven || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '30px', color: '#9A3412', fontSize: '0.88rem' }}>
+              अभी कोई स्टाफ बुकिंग डेटा उपलब्ध नहीं है।
+            </div>
+          )}
+        </div>
+
+        {/* 5. Coach-by-Coach Live Utilization Heatmap Matrix (16+ Coaches) */}
+        <div className="glass-card" style={{ marginBottom: 22 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Layers size={20} /> कोच-वार लाइव ऑक्यूपेंसी मैट्रिक्स (Coach Utilization Heatmap)
+              </h4>
+              <div style={{ fontSize: '0.76rem', color: '#7C2D12', marginTop: 2 }}>
+                प्रत्येक बोगी की आरक्षित व रिक्त सीटें — कोच पर क्लिक करके उसका सीटिंग चार्ट खोलें
+              </div>
+            </div>
+            <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
+              16 आरक्षित बोगियां
+            </span>
+          </div>
+
+          <div className="dash-coach-grid">
+            {(stats.coachMatrix && stats.coachMatrix.length > 0 ? stats.coachMatrix : [
+              { coachCode: 'S1', coachName: 'स्लीपर S1', capacity: 72, booked: stats.coachStats?.S1 || 0, occupancy: 0 },
+              { coachCode: 'S2', coachName: 'स्लीपर S2', capacity: 72, booked: stats.coachStats?.S2 || 0, occupancy: 0 },
+              { coachCode: 'S3', coachName: 'स्लीपर S3', capacity: 72, booked: stats.coachStats?.S3 || 0, occupancy: 0 },
+              { coachCode: 'S4', coachName: 'स्लीपर S4', capacity: 72, booked: stats.coachStats?.S4 || 0, occupancy: 0 },
+              { coachCode: 'S5', coachName: 'स्लीपर S5', capacity: 72, booked: stats.coachStats?.S5 || 0, occupancy: 0 },
+              { coachCode: 'S6', coachName: 'स्लीपर S6', capacity: 72, booked: stats.coachStats?.S6 || 0, occupancy: 0 },
+              { coachCode: 'B1', coachName: 'थर्ड एसी B1', capacity: 72, booked: stats.coachStats?.B1 || 0, occupancy: 0 },
+              { coachCode: 'B2', coachName: 'थर्ड एसी B2', capacity: 72, booked: stats.coachStats?.B2 || 0, occupancy: 0 },
+              { coachCode: 'B3', coachName: 'थर्ड एसी B3', capacity: 72, booked: stats.coachStats?.B3 || 0, occupancy: 0 },
+              { coachCode: 'A1', coachName: 'सेकंड एसी A1', capacity: 54, booked: stats.coachStats?.A1 || 0, occupancy: 0 },
+              { coachCode: 'A2', coachName: 'सेकंड एसी A2', capacity: 54, booked: stats.coachStats?.A2 || 0, occupancy: 0 },
+              { coachCode: 'A3', coachName: 'सेकंड एसी A3', capacity: 54, booked: stats.coachStats?.A3 || 0, occupancy: 0 },
+              { coachCode: 'GS1', coachName: 'जनरल GS1', capacity: 80, booked: stats.coachStats?.GS1 || 0, occupancy: 0 },
+              { coachCode: 'GS2', coachName: 'जनरल GS2', capacity: 80, booked: stats.coachStats?.GS2 || 0, occupancy: 0 },
+              { coachCode: 'SLR1', coachName: 'एसएलआर 1', capacity: 20, booked: stats.coachStats?.SLR1 || 0, occupancy: 0 },
+              { coachCode: 'SLR2', coachName: 'एसएलआर 2', capacity: 20, booked: stats.coachStats?.SLR2 || 0, occupancy: 0 }
+            ]).map((c, idx) => {
+              const booked = c.booked || (stats.coachStats && stats.coachStats[c.coachCode]) || 0;
+              const cap = c.capacity || 72;
+              const occPercent = cap > 0 ? Math.min(100, Math.round((booked / cap) * 100)) : 0;
+              const statusClass = occPercent >= 95 ? 'full' : occPercent >= 70 ? 'almost' : 'available';
+              const progressColor = occPercent >= 95 ? 'red' : occPercent >= 70 ? 'orange' : 'green';
+
+              return (
+                <div
+                  key={idx}
+                  className={`dash-coach-card ${statusClass}`}
+                  onClick={() => {
+                    setChartCoach(c.coachCode);
+                    navigate('/admin/chart');
+                  }}
+                  title={`कोच ${c.coachCode} का चार्ट देखें`}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{ fontWeight: 900, color: '#431407', fontSize: '0.98rem' }}>{c.coachCode}</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: occPercent >= 95 ? '#DC2626' : occPercent >= 70 ? '#D97706' : '#059669' }}>
+                      {occPercent}%
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '0.72rem', color: '#7C2D12', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 6 }}>
+                    {c.coachName}
+                  </div>
+
+                  <div className="dash-progress-track" style={{ height: 6, marginBottom: 6 }}>
+                    <div className={`dash-progress-fill ${progressColor}`} style={{ width: `${occPercent}%` }} />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#784D35', fontWeight: 700 }}>
+                    <span>भरी: {booked}</span>
+                    <span>शेष: {Math.max(0, cap - booked)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 6. Boarding Stations Distribution & On-Train Attendance Grid */}
+        <div className="grid-2" style={{ marginBottom: 22, alignItems: 'stretch' }}>
+          {/* Left: Top Boarding Stations */}
+          <div className="glass-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Train size={18} /> प्रमुख बोर्डिंग स्टेशन वितरण (Boarding Hubs)
+                </h4>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>श्रद्धालु किस स्टेशन से ट्रेन में सवार होंगे</div>
+              </div>
+              <span className="badge badge-bhakti" style={{ fontSize: '0.72rem' }}>स्टेशन शेयर</span>
+            </div>
+
+            {stats.boardingStations && stats.boardingStations.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {stats.boardingStations.slice(0, 6).map((stn, idx) => (
+                  <div key={idx}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, color: '#431407', marginBottom: 4 }}>
+                      <span>📍 {stn.station}</span>
+                      <span>{stn.passengers} यात्री ({stn.percentage}%)</span>
+                    </div>
+                    <div className="dash-progress-track" style={{ height: 7 }}>
+                      <div className="dash-progress-fill orange" style={{ width: `${stn.percentage}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '24px', color: '#9A3412', fontSize: '0.84rem' }}>
+                स्टेशन डेटा प्रोसेस हो रहा है...
+              </div>
+            )}
+          </div>
+
+          {/* Right: Journey Attendance & Verification Status */}
+          <div className="glass-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <BadgeCheck size={18} /> यात्रा उपस्थिति एवं सत्यापन (Attendance Status)
+                </h4>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>चल टिकट परीक्षक (TTE) द्वारा उपस्थिति स्थिति</div>
+              </div>
+              <button className="btn btn-outline btn-xs" onClick={() => navigate('/admin/checkin')}>
+                ऑन-ट्रेन अटेंडेंस ➔
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Boarded / Present */}
+              <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#065F46', fontSize: '0.88rem' }}>🟢 उपस्थित / ट्रेन में सवार (Boarded)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#047857' }}>TTE द्वारा भौतिक रूप से सत्यापित</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857' }}>{stats.checkinStats?.present || 0}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#065F46', fontWeight: 700 }}>{stats.checkinStats?.boardedPercent || 0}%</div>
+                </div>
+              </div>
+
+              {/* Absent */}
+              <div style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#991B1B', fontSize: '0.88rem' }}>🔴 अनुपस्थित (Absent / Missed)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#DC2626' }}>ट्रेन में उपस्थित नहीं हुए</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#DC2626' }}>{stats.checkinStats?.absent || 0}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#991B1B', fontWeight: 700 }}>यात्री</div>
+                </div>
+              </div>
+
+              {/* Pending */}
+              <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#92400E', fontSize: '0.88rem' }}>🟡 प्रतीक्षारत (Pending Boarding)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#D97706' }}>आगामी स्टेशनों से सवार होने वाले</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#D97706' }}>{stats.checkinStats?.pending || 0}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#92400E', fontWeight: 700 }}>यात्री</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. All Project Features Master Command Grid for SuperAdmin */}
         <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
             <h3 style={{ color: '#9A3412', margin: 0, fontWeight: 900, fontSize: '1.22rem' }}>
