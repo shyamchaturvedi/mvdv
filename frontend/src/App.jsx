@@ -1697,11 +1697,12 @@ export default function App() {
     // Shared Public Receipts Desk
     if (p === '/receipts') return 'receipts_desk';
 
-    return '404';
+    return 'redirect_home';
   };
 
   const checkRouteAccess = () => {
     const p = currentPath;
+    // Strictly allowed public routes
     if (p === '/' || p === '/home' || p === '/login' || p === '/receipts' || p === '/verify-ticket' || p === '/coach-position' || p === '/train-composition') {
       return { allowed: true };
     }
@@ -1730,6 +1731,23 @@ export default function App() {
     }
     return { allowed: true };
   };
+
+  // Automatic Security & Route Guard: Redirect invalid / unauthorized routes to Home '/'
+  useEffect(() => {
+    const access = checkRouteAccess();
+    if (!access.allowed) {
+      if (access.reason === 'NOT_LOGGED_IN') {
+        navigate('/');
+      } else if (access.reason === 'ROLE_MISMATCH' && staffUser) {
+        navigate(getRoleDefaultPath(staffUser.role));
+      }
+    } else {
+      const view = getActiveView();
+      if (view === 'redirect_home') {
+        navigate('/');
+      }
+    }
+  }, [currentPath, staffUser]);
 
   // -------------------------------------------------------------
   // RENDER HELPER: HIGH SECURITY LOGIN SCREEN
