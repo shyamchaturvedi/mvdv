@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, DollarSign, TrendingUp, Percent } from 'lucide-react';
+import { ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, DollarSign, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
 
 import { db, auth, firebaseConfig } from './firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -25,6 +25,7 @@ export default function App() {
   const [receiptSearchQuery, setReceiptSearchQuery] = useState('');
   const [upiQrModal, setUpiQrModal] = useState(null);
   const [utrInput, setUtrInput] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Indian Currency Number to Words
   const numberToWords = (num) => {
@@ -2983,8 +2984,8 @@ export default function App() {
   const activeView = getActiveView();
   const routeAccess = checkRouteAccess();
 
-  // Build navigation items for current staff role (Used across sidebar and mobile bottom nav)
-  const getMobileNavItems = () => {
+  // Navigation items for current staff role (Sidebar & All Panels drawer)
+  const getAllStaffNavItems = () => {
     if (!staffUser) return [];
     const role = staffUser.role;
     if (role === 'SuperAdmin') return [
@@ -3045,7 +3046,62 @@ export default function App() {
       { path: '/settings', icon: <Settings size={18} />, label: 'सेटिंग्स' },
     ];
   };
-  const mobileNavItems = getMobileNavItems();
+
+  // Curated 5 items for mobile bottom tab bar (avoids clipping on small screens)
+  const getCuratedBottomNavItems = () => {
+    if (!staffUser) return [];
+    const role = staffUser.role;
+    if (role === 'SuperAdmin') return [
+      { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'डैशबोर्ड' },
+      { path: '/admin/booking', icon: <Ticket size={20} />, label: 'नई टिकट' },
+      { path: '/admin/bookings', icon: <ClipboardList size={20} />, label: 'यात्री सूची' },
+      { path: '/admin/verifier', icon: <QrCode size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
+    ];
+    if (role === 'TTE') return [
+      { path: '/tt/home', icon: <BadgeCheck size={20} />, label: 'अटेंडेंस' },
+      { path: '/tt/chart', icon: <Printer size={20} />, label: 'कोच चार्ट' },
+      { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+      { path: '/tt/verify', icon: <QrCode size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
+    ];
+    if (role === 'BookingClerk') return [
+      { path: '/counter/booking', icon: <Ticket size={20} />, label: 'नया आरक्षण' },
+      { path: '/counter/history', icon: <ClipboardList size={20} />, label: 'आरक्षण सूची' },
+      { path: '/counter/receipts', icon: <FileText size={20} />, label: 'रसीदें' },
+      { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
+    ];
+    if (role === 'AccountsOfficer' || role === 'FinanceOfficer') return [
+      { path: '/finance/ledger', icon: <IndianRupee size={20} />, label: 'वित्तीय बही' },
+      { path: '/finance/bookings', icon: <ClipboardList size={20} />, label: 'आरक्षण' },
+      { path: '/finance/receipts', icon: <FileText size={20} />, label: 'रसीदें' },
+      { path: '/finance/verify', icon: <Search size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
+    ];
+    if (role === 'StationMaster') return [
+      { path: '/station/chart', icon: <Printer size={20} />, label: 'स्टेशन चार्ट' },
+      { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+      { path: '/station/verify', icon: <QrCode size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
+    ];
+    return [
+      { path: '/settings', icon: <Settings size={20} />, label: 'सेटिंग्स' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'मेन्यू' },
+    ];
+  };
+
+  const getPublicBottomNavItems = () => [
+    { path: '/', icon: <Search size={20} />, label: 'PNR जांच' },
+    { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+    { path: '/receipts', icon: <FileText size={20} />, label: 'रसीद काउंटर' },
+    { path: '/verify-ticket', icon: <QrCode size={20} />, label: 'टिकट स्कैन' },
+    { path: '/login', icon: <Lock size={20} />, label: 'स्टाफ लॉगिन' },
+  ];
+
+  const allStaffNavItems = getAllStaffNavItems();
+  const curatedBottomNavItems = getCuratedBottomNavItems();
+  const publicBottomNavItems = getPublicBottomNavItems();
 
   const isStaffView = staffUser && activeView !== 'public_home' && activeView !== 'login' && !(activeView === 'verifier' && currentPath === '/verify-ticket');
 
@@ -8059,7 +8115,7 @@ export default function App() {
             </div>
           </div>
           <div className="admin-sidebar-nav">
-             {mobileNavItems.map((item, idx) => (
+             {allStaffNavItems.map((item, idx) => (
                <a 
                  key={idx} 
                  className={`admin-nav-item ${currentPath.startsWith(item.path) ? 'active' : ''}`}
@@ -8096,60 +8152,164 @@ export default function App() {
         
         <main className="admin-main">
           <header className="admin-header">
-             <div style={{ fontWeight: 800, color: '#9A3412', fontSize: '1.2rem' }}>
-                {mobileNavItems.find(i => currentPath.startsWith(i.path))?.label || (activeView === 'settings' ? 'सेटिंग्स एवं सुरक्षा' : 'डैशबोर्ड')}
+             <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+               <button
+                 className="btn btn-outline btn-sm mobile-only-inline"
+                 onClick={() => setMobileMenuOpen(true)}
+                 style={{ padding: '6px 10px', fontSize: '0.78rem', color: '#9A3412', borderColor: '#FDBA74', background: '#FFF8F2' }}
+                 title="सभी 14 पैनल देखें"
+               >
+                 <Menu size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+                 <span>मेन्यू</span>
+               </button>
+               <div className="admin-header-title">
+                  {allStaffNavItems.find(i => currentPath.startsWith(i.path))?.label || (activeView === 'settings' ? 'सेटिंग्स एवं सुरक्षा' : 'डैशबोर्ड')}
+               </div>
              </div>
+
              <div className="admin-header-user">
                 {isSuperAdmin && (
-                  <div style={{ display: 'flex', gap: 6, marginRight: 12 }}>
+                  <div className="desktop-actions" style={{ display: 'flex', gap: 6 }}>
                     <a href={`/api/admin/export-excel${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
                       className="btn btn-gold btn-sm"><Download size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> Excel</a>
                     <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> बल्क</button>
                     <a href={`/api/admin/bulk-slips${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
                       className="btn btn-primary btn-sm"><FileText size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> पर्चियां</a>
-                    <a href={`/api/admin/reports/defaulters?token=${staffToken}`} target="_blank" rel="noreferrer"
-                      className="btn btn-gold btn-sm"><Printer size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> बकायादारों की सूची</a>
                   </div>
                 )}
-                <span className="badge badge-bhakti" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>{staffUser.department}</span>
+                <span className="badge badge-bhakti" style={{ fontSize: '0.73rem', padding: '3px 8px' }}>{staffUser.department || staffUser.role}</span>
                 <button
                   className="btn btn-outline btn-sm"
                   onClick={() => navigate(roleSettingsPath)}
-                  style={{ color: '#9A3412', borderColor: '#FED7AA', background: '#FFF8F2' }}
+                  style={{ color: '#9A3412', borderColor: '#FED7AA', background: '#FFF8F2', padding: '5px 8px' }}
                   title="सेटिंग्स एवं पासवर्ड"
                 >
-                  <Settings size={15} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> सेटिंग्स
+                  <Settings size={15} style={{ verticalAlign: 'middle' }} />
                 </button>
-                <button className="btn btn-sm" onClick={handleStaffLogout} style={{ color: '#DC2626', border: '1.5px solid #FCA5A5', background: '#FFF5F5' }}>
-                  <LogOut size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> लॉगआउट
+                <button className="btn btn-sm" onClick={handleStaffLogout} style={{ color: '#DC2626', border: '1.5px solid #FCA5A5', background: '#FFF5F5', padding: '5px 8px' }} title="लॉगआउट">
+                  <LogOut size={15} style={{ verticalAlign: 'middle' }} />
                 </button>
              </div>
           </header>
+
           <div className="admin-content">
              {renderInnerViews()}
           </div>
         </main>
 
-        {/* Mobile Nav for staff view on small screens */}
+        {/* Mobile All Panels Drawer / Bottom Sheet */}
+        {mobileMenuOpen && (
+          <div className="mobile-drawer-overlay" onClick={() => setMobileMenuOpen(false)}>
+            <div className="mobile-drawer-content" onClick={(e) => e.stopPropagation()}>
+              <div className="mobile-drawer-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <img src="/logo.jpg" alt="Logo" style={{ width: 38, height: 38, borderRadius: 10, border: '1.5px solid #FDBA74', objectFit: 'cover' }} />
+                  <div>
+                    <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#431407' }}>श्री माता वैष्णो देवी • स्टाफ पैनल</div>
+                    <div style={{ fontSize: '0.74rem', color: '#9A3412', fontWeight: 700 }}>{staffUser.name} ({staffUser.role})</div>
+                  </div>
+                </div>
+                <button
+                  className="btn btn-ghost btn-icon-xs"
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: '#FEE4CC', color: '#7C2D12' }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="mobile-drawer-body">
+                {isSuperAdmin && (
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto', paddingBottom: 4 }}>
+                    <a href={`/api/admin/export-excel${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                      className="btn btn-gold btn-xs" style={{ whiteSpace: 'nowrap' }}><Download size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> Excel Export</a>
+                    <button className="btn btn-outline btn-xs" style={{ whiteSpace: 'nowrap' }} onClick={() => { setMobileMenuOpen(false); setBulkModalOpen(true); }}>
+                      <Upload size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> बल्क अपलोड
+                    </button>
+                    <a href={`/api/admin/bulk-slips${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                      className="btn btn-primary btn-xs" style={{ whiteSpace: 'nowrap' }}><FileText size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> सभी पर्चियां</a>
+                  </div>
+                )}
+
+                <div className="mobile-drawer-grid">
+                  {allStaffNavItems.map((item, idx) => {
+                    const isActive = currentPath === item.path || currentPath.startsWith(item.path);
+                    return (
+                      <div
+                        key={idx}
+                        className={`mobile-drawer-tile ${isActive ? 'active' : ''}`}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigate(item.path);
+                        }}
+                      >
+                        <div className="mobile-drawer-tile-icon">
+                          {item.icon}
+                        </div>
+                        <div className="mobile-drawer-tile-label">{item.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid #FED7AA', display: 'flex', gap: 8 }}>
+                  <button
+                    className="btn btn-outline btn-sm"
+                    style={{ flex: 1, borderColor: '#FED7AA', color: '#9A3412', background: '#FFF8F2' }}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate(roleSettingsPath);
+                    }}
+                  >
+                    <Settings size={15} style={{ verticalAlign: 'middle', marginRight: 4 }} /> पासवर्ड व सेटिंग्स
+                  </button>
+                  <button
+                    className="btn btn-sm"
+                    style={{ flex: 1, color: '#DC2626', border: '1.5px solid #FCA5A5', background: '#FFF5F5' }}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleStaffLogout();
+                    }}
+                  >
+                    <LogOut size={15} style={{ verticalAlign: 'middle', marginRight: 4 }} /> सुरक्षित लॉगआउट
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Curated 5-Tab Bar (Native App Style) */}
         <nav className="bottom-nav">
           <div className="bottom-nav-inner">
-            {mobileNavItems.map(item => (
-              <button
-                key={item.path}
-                className={`bottom-nav-item ${currentPath === item.path ? 'active' : ''}`}
-                onClick={() => navigate(item.path)}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
-              </button>
-            ))}
-            <button
-              className="bottom-nav-item"
-              onClick={handleStaffLogout}
-            >
-              <span className="nav-icon"><LogOut size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /></span>
-              <span className="nav-label" style={{ color: '#DC2626' }}>लॉगआउट</span>
-            </button>
+            {curatedBottomNavItems.map((item, idx) => {
+              if (item.isMoreTrigger) {
+                return (
+                  <button
+                    key="more-menu-trigger"
+                    className={`bottom-nav-item ${mobileMenuOpen ? 'active' : ''}`}
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-label">{item.label}</span>
+                  </button>
+                );
+              }
+              const isActive = currentPath === item.path || (item.path !== '/admin' && currentPath.startsWith(item.path));
+              return (
+                <button
+                  key={idx}
+                  className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate(item.path);
+                  }}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </button>
+              );
+            })}
           </div>
         </nav>
       </div>
@@ -8200,22 +8360,43 @@ export default function App() {
         </div>
       </nav>
 
-      {renderInnerViews()}
+      <div className="public-page-wrapper">
+        {renderInnerViews()}
 
-      {/* Footer */}
-      <footer style={{
-        marginTop: 60, borderTop: '2px solid #FED7AA',
-        padding: '30px 20px', textAlign: 'center', background: '#FFFFFF',
-        color: '#7C2D12', fontSize: '0.9rem', boxShadow: '0 -4px 15px rgba(230,81,0,0.05)'
-      }}>
-        <div style={{ color: '#9A3412', fontWeight: 900, fontSize: '1.1rem', marginBottom: 4 }}>
-          श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट
+        {/* Footer */}
+        <footer style={{
+          marginTop: 60, borderTop: '2px solid #FED7AA',
+          padding: '30px 20px', textAlign: 'center', background: '#FFFFFF',
+          color: '#7C2D12', fontSize: '0.9rem', boxShadow: '0 -4px 15px rgba(230,81,0,0.05)'
+        }}>
+          <div style={{ color: '#9A3412', fontWeight: 900, fontSize: '1.1rem', marginBottom: 4 }}>
+            श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट
+          </div>
+          <div>Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India</div>
+          <div style={{ marginTop: 8, color: '#C2410C', fontSize: '0.85rem', fontWeight: 700 }}>
+            हेल्पलाइन: +91 7398959993 • ईमेल: infomatavaishnodevi@gmail.com • ।। जय माता दी ।।
+          </div>
+        </footer>
+      </div>
+
+      {/* Public Mobile Bottom Navigation Tab Bar */}
+      <nav className="bottom-nav">
+        <div className="bottom-nav-inner">
+          {publicBottomNavItems.map((item, idx) => {
+            const isActive = currentPath === item.path || (item.path === '/' && (currentPath === '/' || currentPath === '/home'));
+            return (
+              <button
+                key={idx}
+                className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+                onClick={() => navigate(item.path)}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                <span className="nav-label">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
-        <div>Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India</div>
-        <div style={{ marginTop: 8, color: '#C2410C', fontSize: '0.85rem', fontWeight: 700 }}>
-          हेल्पलाइन: +91 7398959993 • ईमेल: infomatavaishnodevi@gmail.com • ।। जय माता दी ।।
-        </div>
-      </footer>
+      </nav>
     </div>
   );
 }
