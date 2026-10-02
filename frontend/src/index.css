@@ -299,22 +299,64 @@ select.form-control {
   background: linear-gradient(90deg, transparent, #FF6D00 30%, #F59E0B 50%, #FF6D00 70%, transparent);
 }
 .pnr-search-box {
-  display: flex; align-items: center; gap: 10px; background: #fff;
-  border: 2.5px solid #FF6D00; border-radius: var(--r-md);
-  padding: 8px 8px 8px 18px; max-width: 640px; margin: 0 auto 16px;
-  box-shadow: 0 8px 30px rgba(230,81,0,.14);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 2px solid #FF6D00;
+  border-radius: var(--r-md);
+  padding: 6px 6px 6px 14px;
+  max-width: 640px;
+  margin: 0 auto 16px;
+  box-shadow: 0 6px 24px rgba(230,81,0,.12);
   transition: box-shadow var(--t2) var(--ease), border-color var(--t2) var(--ease);
 }
 .pnr-search-box:focus-within {
   border-color: var(--bhagwa-dark);
-  box-shadow: 0 12px 40px rgba(230,81,0,.22), 0 0 0 4px rgba(230,81,0,.10);
+  box-shadow: 0 10px 32px rgba(230,81,0,.20), 0 0 0 3.5px rgba(230,81,0,.10);
 }
-.pnr-search-box input {
-  flex: 1; border: none; outline: none; background: transparent;
+.pnr-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.pnr-search-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
   font-family: 'DM Sans', 'Hind', sans-serif;
-  font-size: .98rem; font-weight: 600; color: var(--text-900); min-width: 0;
+  font-size: .94rem;
+  font-weight: 600;
+  color: var(--text-900);
+  min-width: 0;
 }
-.pnr-search-box input::placeholder { color: var(--text-faint); font-weight: 400; }
+.pnr-search-input-wrap input::placeholder {
+  color: var(--text-faint);
+  font-weight: 400;
+  font-size: .88rem;
+}
+.pnr-search-btn {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .pnr-search-box {
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+  .pnr-search-input-wrap {
+    width: 100%;
+    padding: 6px 8px;
+  }
+  .pnr-search-btn {
+    width: 100% !important;
+    padding: 10px 14px !important;
+  }
+}
 
 /* MODALS */
 .modal-overlay {

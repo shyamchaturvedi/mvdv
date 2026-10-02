@@ -3221,35 +3221,37 @@ export default function App() {
               <div>
                 <div>
             {/* ── IRCTC-Grade PNR Hero Banner ── */}
-            <div className="pnr-hero" style={{ marginBottom: 28 }}>
+            <div className="pnr-hero" style={{ marginBottom: 24 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 12 }}>
-                <span className="badge badge-bhakti" style={{ fontSize: '0.88rem', padding: '5px 18px' }}>
+                <span className="badge badge-bhakti" style={{ fontSize: '0.84rem', padding: '4px 14px' }}>
                    ।। जय माता दी • वार्षिक विशेष तीर्थ यात्रा ।। 
                 </span>
-                <span className="badge" style={{ background: '#DC2626', color: '#FFF', fontSize: '0.85rem', padding: '5px 18px', animation: 'pulse 2s infinite', border: '1px solid #B91C1C' }}>
+                <span className="badge" style={{ background: '#DC2626', color: '#FFF', fontSize: '0.80rem', padding: '4px 14px', animation: 'pulse 2s infinite', border: '1px solid #B91C1C' }}>
                   🔥 1,245+ Tickets Booked! Limited Seats Available.
                 </span>
               </div>
 
-              <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#9A3412', margin: '10px 0 8px' }}>
-                <Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> PNR स्थिति एवं टिकट सत्यापन
+              <h1 style={{ fontSize: 'clamp(1.45rem, 4.5vw, 2.3rem)', fontWeight: 900, color: '#9A3412', margin: '8px 0 6px', lineHeight: 1.25 }}>
+                PNR स्थिति एवं टिकट सत्यापन
               </h1>
-              <p style={{ color: '#7C2D12', fontSize: '1rem', maxWidth: 680, margin: '0 auto 22px', fontWeight: 500 }}>
+              <p style={{ color: '#7C2D12', fontSize: 'clamp(0.85rem, 2.2vw, 1rem)', maxWidth: 680, margin: '0 auto 20px', fontWeight: 500 }}>
                 श्री माता वैष्णो देवी कटड़ा वार्षिक सुपरफास्ट स्पेशल ट्रेन — आधिकारिक डिजिटल पोर्टल।
               </p>
 
               {/* ── PNR Search Box ── */}
               <div className="pnr-search-box">
-                <span style={{ fontSize: 22 }}><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /></span>
-                <input
-                  id="pnr-search-input"
-                  type="text"
-                  placeholder="अपना PNR नंबर या रजिस्टर्ड मोबाइल नंबर दर्ज करें..."
-                  value={pnrInput}
-                  onChange={(e) => { setPnrInput(e.target.value); setPnrSearchError(''); }}
-                  onKeyDown={(e) => e.key === 'Enter' && searchPNR()}
-                />
-                <button className="btn btn-primary" onClick={() => searchPNR()} disabled={pnrLoading} style={{ flexShrink: 0 }}>
+                <div className="pnr-search-input-wrap">
+                  <Search size={18} color="#C2410C" style={{ flexShrink: 0 }} />
+                  <input
+                    id="pnr-search-input"
+                    type="text"
+                    placeholder="अपना PNR नंबर या रजिस्टर्ड मोबाइल दर्ज करें..."
+                    value={pnrInput}
+                    onChange={(e) => { setPnrInput(e.target.value); setPnrSearchError(''); }}
+                    onKeyDown={(e) => e.key === 'Enter' && searchPNR()}
+                  />
+                </div>
+                <button className="btn btn-primary pnr-search-btn" onClick={() => searchPNR()} disabled={pnrLoading}>
                   {pnrLoading ? 'जांच जारी...' : 'स्टेटस जांचें ➔'}
                 </button>
               </div>
