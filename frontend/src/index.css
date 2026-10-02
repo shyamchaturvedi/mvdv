@@ -1821,5 +1821,96 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   border: 1px solid #FED7AA;
 }
 
+/* =============================================================
+   MOBILE RESPONSIVE & OVERFLOW PREVENTION FIXES
+   ============================================================= */
+@media (max-width: 768px) {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw;
+  }
+
+  .badge {
+    white-space: normal !important;
+    text-align: center;
+    max-width: 100%;
+    word-break: break-word;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.35;
+  }
+
+  .btn {
+    white-space: normal !important;
+    text-align: center;
+    max-width: 100%;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+
+  .sacred-band {
+    white-space: normal !important;
+    font-size: 0.72rem !important;
+    padding: 6px 8px !important;
+    line-height: 1.4 !important;
+    text-align: center;
+  }
+
+  .navbar {
+    padding: 8px 12px !important;
+  }
+
+  .navbar-subtitle {
+    font-size: 0.65rem !important;
+    white-space: normal !important;
+  }
+
+  .public-page-wrapper {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .modal-card {
+    width: 95% !important;
+    max-width: 95vw !important;
+    padding: 16px 12px !important;
+    margin: 10px auto !important;
+  }
+
+  .glass-card {
+    padding: 14px 12px !important;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-text-label {
+    display: inline;
+  }
+  
+  .navbar-actions {
+    gap: 4px !important;
+  }
+
+  .navbar-actions .btn {
+    padding: 5px 8px !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+
 
 

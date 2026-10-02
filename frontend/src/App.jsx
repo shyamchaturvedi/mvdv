@@ -9370,7 +9370,7 @@ export default function App() {
         {/* Footer */}
         <footer style={{
           marginTop: 60, borderTop: '2px solid #FED7AA',
-          padding: '30px 20px', textAlign: 'center', background: '#FFFFFF',
+          padding: '28px 16px 20px', textAlign: 'center', background: '#FFFFFF',
           color: '#7C2D12', fontSize: '0.9rem', boxShadow: '0 -4px 15px rgba(230,81,0,0.05)'
         }}>
           <div style={{ color: '#9A3412', fontWeight: 900, fontSize: '1.1rem', marginBottom: 4 }}>
@@ -9379,6 +9379,46 @@ export default function App() {
           <div>Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India</div>
           <div style={{ marginTop: 8, color: '#C2410C', fontSize: '0.85rem', fontWeight: 700 }}>
             हेल्पलाइन: +91 7398959993 • ईमेल: infomatavaishnodevi@gmail.com • ।। जय माता दी ।।
+          </div>
+          <div style={{
+            marginTop: 16,
+            paddingTop: 12,
+            borderTop: '1px dashed #FED7AA',
+            fontSize: '0.84rem',
+            color: '#6B7280',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 10,
+            flexWrap: 'wrap'
+          }}>
+            <span>
+              Made with <span style={{ color: '#EF4444' }}>❤️</span> by{' '}
+              <a
+                href="https://www.aroventech.site"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: '#EA580C', fontWeight: 800, textDecoration: 'underline' }}
+              >
+                ArovenTech
+              </a>
+            </span>
+            <span style={{ color: '#CBD5E1' }}>•</span>
+            <a
+              href="https://wa.me/919598023701"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                color: '#059669',
+                fontWeight: 700,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4
+              }}
+            >
+              💬 WhatsApp: +91 9598023701
+            </a>
           </div>
         </footer>
       </div>
