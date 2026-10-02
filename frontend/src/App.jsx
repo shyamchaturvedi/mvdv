@@ -2806,124 +2806,199 @@ export default function App() {
       <div>
         {/* KPI Metrics Strip */}
         {adminStats && (
-          <div className="grid-4" style={{ marginBottom: 24 }}>
-            <div className="glass-card" style={{ padding: 20 }}>
-              <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>कुल बुकिंग्स</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#C2410C', margin: '4px 0' }}>{adminStats.totalBookings}</div>
-              <div style={{ fontSize: '0.82rem', color: '#784D35' }}>{adminStats.totalPassengers} यात्री आरक्षित</div>
+          <div className="kpi-responsive-grid">
+            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #C2410C' }}>
+              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल बुकिंग्स</div>
+              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#C2410C', margin: '4px 0', lineHeight: 1.1 }}>{adminStats.totalBookings}</div>
+              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>{adminStats.totalPassengers} यात्री आरक्षित</div>
             </div>
 
-            <div className="glass-card" style={{ padding: 20 }}>
-              <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>कुल किराया संग्रह</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#047857', margin: '4px 0' }}>₹ {adminStats.totalCollection.toLocaleString()}</div>
-              <div style={{ fontSize: '0.82rem', color: '#784D35' }}>सकल रियायती राशि</div>
+            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #047857' }}>
+              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल किराया संग्रह</div>
+              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#047857', margin: '4px 0', lineHeight: 1.1 }}>₹ {adminStats.totalCollection.toLocaleString()}</div>
+              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>सकल रियायती राशि</div>
             </div>
 
-            <div className="glass-card" style={{ padding: 20 }}>
-              <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>अग्रिम प्राप्त (Token)</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#B45309', margin: '4px 0' }}>₹ {adminStats.totalAdvance.toLocaleString()}</div>
-              <div style={{ fontSize: '0.82rem', color: '#784D35' }}>खाते में जमा अग्रिम</div>
+            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #B45309' }}>
+              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>अग्रिम प्राप्त (Token)</div>
+              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#B45309', margin: '4px 0', lineHeight: 1.1 }}>₹ {adminStats.totalAdvance.toLocaleString()}</div>
+              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>खाते में जमा अग्रिम</div>
             </div>
 
-            <div className="glass-card" style={{ padding: 20 }}>
-              <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>शेष देय (Remaining)</div>
-              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#DC2626', margin: '4px 0' }}>₹ {adminStats.totalRemaining.toLocaleString()}</div>
-              <div style={{ fontSize: '0.82rem', color: '#784D35' }}>कटड़ा में देय</div>
+            <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #DC2626' }}>
+              <div style={{ fontSize: '0.78rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>शेष देय (Remaining)</div>
+              <div className="kpi-num" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#DC2626', margin: '4px 0', lineHeight: 1.1 }}>₹ {adminStats.totalRemaining.toLocaleString()}</div>
+              <div style={{ fontSize: '0.78rem', color: '#784D35' }}>कटड़ा में देय</div>
             </div>
           </div>
         )}
 
         {/* All Project Features Master Command Grid for SuperAdmin */}
-        <div style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ color: '#9A3412', margin: 0, fontWeight: 900, fontSize: '1.25rem' }}>
-             संपूर्ण नियंत्रण कक्ष — समस्त प्रोजेक्ट मॉड्यूल (All Project Features)
-          </h3>
-          <span className="badge badge-bhakti" style={{ fontSize: '0.82rem' }}>12 अधिकृत मॉड्यूल</span>
+        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+          <div>
+            <h3 style={{ color: '#9A3412', margin: 0, fontWeight: 900, fontSize: '1.22rem' }}>
+              संपूर्ण नियंत्रण कक्ष — समस्त प्रोजेक्ट मॉड्यूल
+            </h3>
+            <div style={{ fontSize: '0.78rem', color: '#7C2D12', marginTop: 2 }}>All Project Features & Control Desks</div>
+          </div>
+          <span className="badge badge-bhakti" style={{ fontSize: '0.82rem', padding: '4px 12px' }}>12 अधिकृत मॉड्यूल</span>
         </div>
 
-        <div className="grid-4" style={{ marginBottom: 26, gap: 14 }}>
+        <div className="module-hub-grid">
           {/* Feature 1: Live Booking Counter */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/booking')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Ticket size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>1. नया आरक्षण काउंटर</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>नया टिकट आरक्षण, तत्काल सीट आवंटन व थर्मल पर्ची जारी करें।</p>
+          <div className="module-card" onClick={() => navigate('/admin/booking')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <Ticket size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">1. नया आरक्षण काउंटर</h4>
+                <p className="module-card-desc">नया टिकट आरक्षण, तत्काल सीट आवंटन व थर्मल पर्ची जारी करें।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 2: All Bookings Directory */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/bookings')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><ClipboardList size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>2. आरक्षण डायरेक्टरी</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>सभी वर्षों की आरक्षित टिकटें खोजें, पर्ची देखें व डाउनलोड करें।</p>
+          <div className="module-card" onClick={() => navigate('/admin/bookings')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <ClipboardList size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">2. आरक्षण डायरेक्टरी</h4>
+                <p className="module-card-desc">सभी वर्षों की आरक्षित टिकटें खोजें, पर्ची देखें व डाउनलोड करें।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 3: Receipts & Slips Desk */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/receipts')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><FileText size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>3. रसीद एवं पर्ची काउंटर</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>PNR, नाम या मोबाइल से किसी भी श्रद्धालु की भुगतान रसीदें खोजें व प्रिंट करें।</p>
+          <div className="module-card" onClick={() => navigate('/admin/receipts')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <FileText size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">3. रसीद एवं पर्ची काउंटर</h4>
+                <p className="module-card-desc">PNR, नाम या मोबाइल से किसी भी श्रद्धालु की भुगतान रसीदें खोजें व प्रिंट करें।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 4: IRCTC Seating Chart */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/chart')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Printer size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>4. IRCTC सीटिंग चार्ट</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>रेलवे कोच S1-S6, B1-B3, GS1 का सीटिंग चार्ट देखें एवं A4 प्रिंट लें।</p>
+          <div className="module-card" onClick={() => navigate('/admin/chart')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <Printer size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">4. IRCTC सीटिंग चार्ट</h4>
+                <p className="module-card-desc">रेलवे कोच S1-S6, B1-B3, GS1 का सीटिंग चार्ट देखें एवं A4 प्रिंट लें।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 5: On-Train Check-in Attendance */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/checkin')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><BadgeCheck size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>5. ऑन-ट्रेन अटेंडेंस</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>चल टिकट परीक्षक (TTE) लाइव यात्री सत्यापन व उपस्थिति अंकन।</p>
+          <div className="module-card" onClick={() => navigate('/admin/checkin')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <BadgeCheck size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">5. ऑन-ट्रेन अटेंडेंस</h4>
+                <p className="module-card-desc">चल टिकट परीक्षक (TTE) लाइव यात्री सत्यापन व उपस्थिति अंकन।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 6: Daily Collection & Ledger */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/reconcile')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><IndianRupee size={24} color="#047857" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>6. दैनिक वसूली व समाधान</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>तिथि-वार समस्त टीटीई व स्टाफ वसूली, नकद, यूपीआई व पाई-पाई का हिसाब।</p>
+          <div className="module-card" onClick={() => navigate('/admin/reconcile')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap" style={{ color: '#047857', background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)', borderColor: '#A7F3D0' }}>
+                <IndianRupee size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">6. दैनिक वसूली व समाधान</h4>
+                <p className="module-card-desc">तिथि-वार समस्त टीटीई व स्टाफ वसूली, नकद, यूपीआई व पाई-पाई का हिसाब।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 7: Anti-Fraud Verifier & UTR */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/verifier')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Search size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>7. एंटी-फ्रॉड सत्यापन व UTR</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>फर्जी टिकटों की लाइव पहचान, सुरक्षा सील हैश व UTR अनुमोदन।</p>
+          <div className="module-card" onClick={() => navigate('/admin/verifier')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <Search size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">7. एंटी-फ्रॉड सत्यापन व UTR</h4>
+                <p className="module-card-desc">फर्जी टिकटों की लाइव पहचान, सुरक्षा सील हैश व UTR अनुमोदन।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 8: Staff RBAC Management */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/staff')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Users size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>8. कर्मचारी RBAC प्रबंधन</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>नया टीटीई, काउंटर क्लर्क, एकाउंट्स स्टाफ जोड़ें (Gmail ID सहित) व अधिकार नियंत्रित करें।</p>
+          <div className="module-card" onClick={() => navigate('/admin/staff')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <Users size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">8. कर्मचारी RBAC प्रबंधन</h4>
+                <p className="module-card-desc">नया टीटीई, काउंटर क्लर्क, एकाउंट्स स्टाफ जोड़ें (Gmail ID सहित) व अधिकार नियंत्रित करें।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 9: Audit Trail Logs */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/audit')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><ShieldCheck size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>9. ऑडिट ट्रेल्स व सुरक्षा</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>सभी लॉगिन, बुकिंग, भुगतान और सिस्टम परिवर्तनों का सुरक्षित टाइमस्टैम्प्ड रिकॉर्ड।</p>
+          <div className="module-card" onClick={() => navigate('/admin/audit')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <ShieldCheck size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">9. ऑडिट ट्रेल्स व सुरक्षा</h4>
+                <p className="module-card-desc">सभी लॉगिन, बुकिंग, भुगतान और सिस्टम परिवर्तनों का सुरक्षित टाइमस्टैम्प्ड रिकॉर्ड।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 10: Defaulters Report */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => window.open(`/api/admin/reports/defaulters?token=${staffToken}`, '_blank')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Printer size={24} color="#B45309" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>10. बकायादारों की सूची</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>जिन श्रद्धालुओं का किराया शेष (Remaining Due) है, उनकी पूर्ण A4 रिपोर्ट।</p>
+          <div className="module-card" onClick={() => window.open(`/api/admin/reports/defaulters?token=${staffToken}`, '_blank')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap" style={{ color: '#B45309', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)', borderColor: '#FDE68A' }}>
+                <Printer size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">10. बकायादारों की सूची</h4>
+                <p className="module-card-desc">जिन श्रद्धालुओं का किराया शेष (Remaining Due) है, उनकी पूर्ण A4 रिपोर्ट।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 11: Bulk Excel Upload & Export */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => setBulkModalOpen(true)}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Upload size={24} color="#047857" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>11. एक्सेल बल्क बुकिंग</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>सैकड़ों यात्रियों की एक्सेल फाइल एक क्लिक में अपलोड व ऑटो-प्रोसेस करें।</p>
+          <div className="module-card" onClick={() => setBulkModalOpen(true)}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap" style={{ color: '#047857', background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)', borderColor: '#A7F3D0' }}>
+                <Upload size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">11. एक्सेल बल्क बुकिंग</h4>
+                <p className="module-card-desc">सैकड़ों यात्रियों की एक्सेल फाइल एक क्लिक में अपलोड व ऑटो-प्रोसेस करें।</p>
+              </div>
+            </div>
           </div>
 
           {/* Feature 12: Security & Settings */}
-          <div className="glass-card hover-glow" style={{ cursor: 'pointer', border: '2px solid #FED7AA', padding: 16 }} onClick={() => navigate('/admin/settings')}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}><Settings size={24} color="#C2410C" /></div>
-            <h4 style={{ color: '#9A3412', margin: '0 0 4px', fontWeight: 800, fontSize: '1.02rem' }}>12. सेटिंग्स एवं सुरक्षा</h4>
-            <p style={{ fontSize: '0.8rem', color: '#7C2D12', margin: 0 }}>एडमिन पासवर्ड परिवर्तन, ट्रस्ट प्रोफ़ाइल व सत्र प्रबंधन।</p>
+          <div className="module-card" onClick={() => navigate('/admin/settings')}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <div className="module-card-icon-wrap">
+                <Settings size={22} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 className="module-card-title">12. सेटिंग्स एवं सुरक्षा</h4>
+                <p className="module-card-desc">एडमिन पासवर्ड परिवर्तन, ट्रस्ट प्रोफ़ाइल व सत्र प्रबंधन।</p>
+              </div>
+            </div>
           </div>
         </div>
 
