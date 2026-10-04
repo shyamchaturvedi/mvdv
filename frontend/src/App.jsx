@@ -3938,82 +3938,27 @@ export default function App() {
             {activeView === 'public_home' && (
               <div>
                 <div>
-                  {/* ── 3D Cinematic Vande Bharat Express Showcase Stage ── */}
+                  {/* ── Ultra-Photorealistic Vande Bharat Express Showcase Stage ── */}
                   <div className="vande-3d-stage">
-                    {/* Celestial Sky, Stars, Moon & Mountain Peak Shrine */}
-                    <div className="vande-celestial">
-                      <div className="vande-stars" />
-                      <div className="vande-moon" />
-                      <div className="vande-shrine-glow">
-                        <div className="vande-shrine-temple">🚩 🛕</div>
-                        <div className="vande-shrine-tag">श्री माता वैष्णो देवी कटड़ा धाम</div>
-                      </div>
-                      <div className="vande-mountains-back" />
-                      <div className="vande-mountains-front" />
-                    </div>
+                    {/* Genuine Real-World Vande Bharat Photographic Master */}
+                    <img
+                      src="/vande_bharat_real.jpg"
+                      alt="श्री माता वैष्णो देवी कटड़ा वंदे भारत सुपरफास्ट स्पेशल एक्सप्रेस"
+                      className="vande-real-photo-bg"
+                    />
 
-                    {/* Speed Lines */}
-                    <div className="vande-speedline" style={{ top: '35%', width: '150px' }} />
-                    <div className="vande-speedline" style={{ top: '55%', width: '220px', animationDelay: '0.35s' }} />
-                    <div className="vande-speedline" style={{ top: '68%', width: '180px', animationDelay: '0.6s' }} />
+                    {/* Katra Mountain Holy Shrine Divine Glow Burst */}
+                    <div className="vande-real-shrine-burst" />
 
-                    {/* 3D Dynamic Track Bed with Fast Sleepers & Specular Rails */}
-                    <div className="vande-track-ground">
-                      <div className="vande-track-sleepers" />
-                      <div className="vande-rail-left" />
-                      <div className="vande-rail-right" />
-                    </div>
+                    {/* Volumetric Glowing LED Headlight Beam over Rails */}
+                    <div className="vande-real-headlight-beam" />
 
-                    {/* 3D Vande Bharat Semi-High Speed Train */}
-                    <div className="vande-train-assembly">
-                      {/* Coach 2 (Preceding Luxury Coach) */}
-                      <div className="vande-coach vande-coach-extra">
-                        <div className="vande-pantograph" />
-                        <div className="vande-window-strip">
-                          <div className="vande-window" />
-                          <div className="vande-window" />
-                          <div className="vande-window" />
-                          <div className="vande-window" />
-                        </div>
-                        <div className="vande-stripe-saffron" />
-                        <div className="vande-stripe-blue" />
-                        <div className="vande-bogie-left"><div className="vande-wheel" /><div className="vande-wheel" /></div>
-                        <div className="vande-bogie-right"><div className="vande-wheel" /><div className="vande-wheel" /></div>
-                      </div>
+                    {/* High-Speed Track Motion Overlay */}
+                    <div className="vande-real-speed-overlay" />
 
-                      {/* Coach 1 (Executive Chair/Sleeper) */}
-                      <div className="vande-coach">
-                        <div className="vande-window-strip">
-                          <div className="vande-window" />
-                          <div className="vande-window" />
-                          <div className="vande-window" />
-                          <div className="vande-window" />
-                        </div>
-                        <div className="vande-stripe-saffron" />
-                        <div className="vande-stripe-blue" />
-                        <div className="vande-bogie-left"><div className="vande-wheel" /><div className="vande-wheel" /></div>
-                        <div className="vande-bogie-right"><div className="vande-wheel" /><div className="vande-wheel" /></div>
-                      </div>
-
-                      {/* Aerodynamic Vande Bharat Bullet Locomotive Nose (Driving Cab) */}
-                      <div className="vande-loco-nose">
-                        <div className="vande-cockpit-glass">
-                          <div className="vande-cockpit-glare" />
-                          <div className="vande-driver-silhouette" />
-                        </div>
-                        <div className="vande-loco-logo">
-                          <span>वंदे भारत</span>
-                          <span style={{ fontSize: '0.55rem', color: '#EA580C' }}>• 04201</span>
-                        </div>
-                        <div className="vande-stripe-saffron" />
-                        <div className="vande-stripe-blue" />
-                        <div className="vande-headlight" />
-                        {/* Volumetric Glowing Light Beam Shining Forward */}
-                        <div className="vande-light-beam" />
-                        <div className="vande-bogie-left"><div className="vande-wheel" /><div className="vande-wheel" /></div>
-                        <div className="vande-bogie-right"><div className="vande-wheel" /><div className="vande-wheel" /></div>
-                      </div>
-                    </div>
+                    {/* Fast Speed Lines */}
+                    <div className="vande-speedline" style={{ top: '35%', width: '160px' }} />
+                    <div className="vande-speedline" style={{ top: '55%', width: '240px', animationDelay: '0.35s' }} />
 
                     {/* Stage HUD Top Overlay */}
                     <div className="vande-hud-top">
@@ -4023,7 +3968,7 @@ export default function App() {
                       </div>
                       <div className="vande-badge-speed">
                         <span>⚡ 160 KMPH</span>
-                        <span style={{ opacity: 0.85, fontSize: '0.7rem' }}>सेमी-हाई स्पीड</span>
+                        <span style={{ opacity: 0.85, fontSize: '0.7rem' }}>सेमी-हाई स्पीड • रियल ट्रेन 18</span>
                       </div>
                     </div>
                   </div>
