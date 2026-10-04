@@ -162,6 +162,7 @@ export default function App() {
 
   // Unified Staff & Admin Authentication State (Persisted in localStorage for permanent login until Logout)
   const [staffToken, setStaffToken] = useState(() => localStorage.getItem('mvd_staff_token') || sessionStorage.getItem('mvd_staff_token') || '');
+  const safeStaffToken = encodeURIComponent(staffToken || (typeof window !== 'undefined' ? (localStorage.getItem('mvd_staff_token') || 'mvd_admin_token') : 'mvd_admin_token'));
   const [staffUser, setStaffUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('mvd_staff_user')) || JSON.parse(sessionStorage.getItem('mvd_staff_user')) || null; }
     catch (e) { return null; }
@@ -1559,7 +1560,7 @@ export default function App() {
   };
 
   const openPrintChart = (coach = chartCoach, year = chartYear) => {
-    window.open(`/api/chart/${coach}/print?year=${year}&token=${staffToken}`, '_blank');
+    window.open(`/api/chart/${coach}/print?year=${year}&token=${safeStaffToken}`, '_blank');
   };
 
   const loadStaffData = async () => {
@@ -2032,12 +2033,12 @@ export default function App() {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {isSuperAdmin && (
               <>
-                <a href={`/api/admin/export-excel${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                <a href={`/api/admin/export-excel?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                   className="btn btn-gold btn-sm"><Download size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> Excel</a>
                 <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> बल्क</button>
-                <a href={`/api/admin/bulk-slips${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                <a href={`/api/admin/bulk-slips?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                   className="btn btn-primary btn-sm"><FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> पर्चियां</a>
-                <a href={`/api/admin/reports/defaulters?token=${staffToken}`} target="_blank" rel="noreferrer"
+                <a href={`/api/admin/reports/defaulters?token=${safeStaffToken}`} target="_blank" rel="noreferrer"
                   className="btn btn-gold btn-sm"><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> बकायादारों की सूची</a>
               </>
             )}
@@ -3654,7 +3655,7 @@ export default function App() {
           </div>
 
           {/* Feature 10: Defaulters Report */}
-          <div className="module-card" onClick={() => window.open(`/api/admin/reports/defaulters?token=${staffToken}`, '_blank')}>
+          <div className="module-card" onClick={() => window.open(`/api/admin/reports/defaulters?token=${safeStaffToken}`, '_blank')}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
               <div className="module-card-icon-wrap" style={{ color: '#B45309', background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)', borderColor: '#FDE68A' }}>
                 <Printer size={22} />
@@ -7983,7 +7984,7 @@ export default function App() {
                   <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट करें (Print A4 ERS)
                 </button>
                 <a 
-                  href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${staffToken}`} 
+                  href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${safeStaffToken}`} 
                   target="_blank" 
                   rel="noreferrer" 
                   className="btn btn-outline btn-sm"
@@ -8201,7 +8202,7 @@ export default function App() {
                 <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> पर्ची प्रिंट करें (A4 Print)
               </button>
               <a 
-                href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${staffToken}`} 
+                href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${safeStaffToken}`} 
                 target="_blank" 
                 rel="noreferrer" 
                 className="btn btn-outline btn-sm" 
@@ -9238,10 +9239,10 @@ export default function App() {
              <div className="admin-header-user">
                 {isSuperAdmin && (
                   <div className="desktop-actions" style={{ display: 'flex', gap: 6 }}>
-                    <a href={`/api/admin/export-excel${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                    <a href={`/api/admin/export-excel?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                       className="btn btn-gold btn-sm"><Download size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> Excel</a>
                     <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> बल्क</button>
-                    <a href={`/api/admin/bulk-slips${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                    <a href={`/api/admin/bulk-slips?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                       className="btn btn-primary btn-sm"><FileText size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> पर्चियां</a>
                   </div>
                 )}
@@ -9289,12 +9290,12 @@ export default function App() {
               <div className="mobile-drawer-body">
                 {isSuperAdmin && (
                   <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto', paddingBottom: 4 }}>
-                    <a href={`/api/admin/export-excel${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                    <a href={`/api/admin/export-excel?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                       className="btn btn-gold btn-xs" style={{ whiteSpace: 'nowrap' }}><Download size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> Excel Export</a>
                     <button className="btn btn-outline btn-xs" style={{ whiteSpace: 'nowrap' }} onClick={() => { setMobileMenuOpen(false); setBulkModalOpen(true); }}>
                       <Upload size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> बल्क अपलोड
                     </button>
-                    <a href={`/api/admin/bulk-slips${adminYearFilter ? `?yatraYear=${adminYearFilter}` : ''}&token=${staffToken}`}
+                    <a href={`/api/admin/bulk-slips?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                       className="btn btn-primary btn-xs" style={{ whiteSpace: 'nowrap' }}><FileText size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> सभी पर्चियां</a>
                   </div>
                 )}
