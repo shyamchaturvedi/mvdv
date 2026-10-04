@@ -55,8 +55,16 @@ function saveSessionsToDisk() {
 loadSessionsFromDisk();
 
 class AuthService {
-  // Generate secure random token
-  static generateToken() {
+  // Generate secure token (Stateless JWT-like fallback for Serverless)
+  static generateToken(userPayload = null) {
+    if (userPayload) {
+      try {
+        const payloadStr = JSON.stringify({ user: userPayload, exp: Date.now() + 30 * 24 * 60 * 60 * 1000 });
+        const b64 = Buffer.from(payloadStr).toString('base64');
+        const sig = crypto.createHmac('sha256', process.env.SESSION_SECRET || 'mvd_secret_key_2026_fallback').update(b64).digest('hex');
+        return `jwt.${b64}.${sig}`;
+      } catch (err) {}
+    }
     return crypto.randomBytes(32).toString('hex');
   }
 
@@ -118,7 +126,7 @@ class AuthService {
       permissions
     };
 
-    const token = this.generateToken();
+    const token = this.generateToken(staffUser);
     const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
     activeSessions.set(token, { user: staffUser, expiresAt });
     saveSessionsToDisk();
@@ -199,7 +207,7 @@ class AuthService {
       permissions
     };
 
-    const token = this.generateToken();
+    const token = this.generateToken(staffUser);
     const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
     activeSessions.set(token, { user: staffUser, expiresAt });
     saveSessionsToDisk();
@@ -236,6 +244,24 @@ class AuthService {
           ? ['all', 'staff_manage', 'financial_reconcile', 'audit_view', 'delete_booking', 'export_excel', 'create_booking', 'checkin', 'collect_due', 'view_chart', 'print_chart']
           : ['checkin', 'collect_due', 'view_chart', 'print_chart']
       };
+    }
+
+    // Stateless token verification (Serverless compatible)
+    if (token.startsWith('jwt.')) {
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const b64 = parts[1];
+          const sig = parts[2];
+          const expectedSig = crypto.createHmac('sha256', process.env.SESSION_SECRET || 'mvd_secret_key_2026_fallback').update(b64).digest('hex');
+          if (sig === expectedSig) {
+            const data = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+            if (data.exp > Date.now()) {
+              return data.user;
+            }
+          }
+        }
+      } catch (err) {}
     }
 
     // Check in-memory map first
