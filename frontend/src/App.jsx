@@ -975,6 +975,12 @@ export default function App() {
 
       if (data.success) {
         setTicketModal(data.booking);
+        
+        const initialTxn = data.booking.transactions && data.booking.transactions.length > 0 
+           ? data.booking.transactions[0] 
+           : { id: `TXN-${Date.now()}`, amount: data.booking.advance || 0, method: 'Cash', date: new Date().toISOString() };
+        setReceiptModal({ booking: data.booking, txn: initialTxn });
+
         setSelectedSeats([]);
         setBookedBy('');
         setMobile('');
@@ -985,6 +991,10 @@ export default function App() {
         // Fast counter workflow: immediately trigger print dialog
         setTimeout(() => {
           printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${data.booking.bookingId}`);
+          
+          setTimeout(() => {
+             printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${data.booking.bookingId}`);
+          }, 1500);
         }, 500);
       } else {
         alert('बुकिंग विफल: ' + data.error);
