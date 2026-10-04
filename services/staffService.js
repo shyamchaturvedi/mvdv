@@ -48,7 +48,6 @@ class StaffService {
           department: 'Trust Executive (ट्रस्ट प्रबंधन)',
           role: 'SuperAdmin',
           mobile: '9598023701',
-          assignedCoaches: [], // SuperAdmin has NO coach assignment
           assignedStation: 'All Stations',
           status: 'Active',
           totalCollected: 0,
@@ -121,7 +120,7 @@ class StaffService {
       department: dept,
       role: payload.role || 'BookingClerk',
       mobile: payload.mobile || '',
-      assignedCoaches,
+      ...(payload.role === 'TTE' ? { assignedCoaches } : {}),
       assignedStation: payload.assignedStation || 'New Delhi (NDLS)',
       status: 'Active',
       totalCollected: 0,
