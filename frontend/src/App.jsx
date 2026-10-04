@@ -5931,21 +5931,23 @@ export default function App() {
 
                       {/* Navigation Tabs */}
                       <div style={{ display: 'flex', gap: 10, borderTop: '1.5px solid #FFEDD5', paddingTop: 14 }}>
+                        {staffUser?.role !== 'TTE' && (
+                          <button
+                            type="button"
+                            className={`btn btn-sm ${verifierTab === 'utr_desk' ? 'btn-primary' : 'btn-outline'}`}
+                            style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 700 }}
+                            onClick={() => {
+                              setVerifierTab('utr_desk');
+                              loadOnlineTransactions();
+                            }}
+                          >
+                            <Smartphone size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
+                            1. ऑनलाइन UPI व UTR मिलान लेजर ({onlineTxnsList.length || 'Desk'})
+                          </button>
+                        )}
                         <button
                           type="button"
-                          className={`btn btn-sm ${verifierTab === 'utr_desk' ? 'btn-primary' : 'btn-outline'}`}
-                          style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 700 }}
-                          onClick={() => {
-                            setVerifierTab('utr_desk');
-                            loadOnlineTransactions();
-                          }}
-                        >
-                          <Smartphone size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
-                          1. ऑनलाइन UPI व UTR मिलान लेजर ({onlineTxnsList.length || 'Desk'})
-                        </button>
-                        <button
-                          type="button"
-                          className={`btn btn-sm ${verifierTab === 'ticket_scanner' ? 'btn-primary' : 'btn-outline'}`}
+                          className={`btn btn-sm ${(verifierTab === 'ticket_scanner' || staffUser?.role === 'TTE') ? 'btn-primary' : 'btn-outline'}`}
                           style={{ padding: '8px 16px', fontSize: '0.9rem', fontWeight: 700 }}
                           onClick={() => setVerifierTab('ticket_scanner')}
                         >
@@ -5956,7 +5958,7 @@ export default function App() {
                     </div>
 
                     {/* TAB 1: ONLINE TRANSACTIONS & UTR MATCHING DESK */}
-                    {verifierTab === 'utr_desk' && (
+                    {(verifierTab === 'utr_desk' && staffUser?.role !== 'TTE') && (
                       <div>
                         {/* 4 Summary KPI Cards */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }} className="grid-kpi-mobile">
@@ -6202,7 +6204,7 @@ export default function App() {
                     )}
 
                     {/* TAB 2: LIVE HMAC TICKET SECURITY SCANNER */}
-                    {verifierTab === 'ticket_scanner' && (
+                    {(verifierTab === 'ticket_scanner' || staffUser?.role === 'TTE') && (
                       <div>
                         <div className="glass-card" style={{ maxWidth: 640, margin: '0 auto 24px', border: '2px solid #FED7AA', padding: 24, textAlign: 'center' }}>
                           <div className="qr-scanner-frame">
@@ -8607,26 +8609,6 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">विभाग (Department) *</label>
-                  <select
-                    className="form-control"
-                    value={newStaffForm.department}
-                    onChange={(e) => setNewStaffForm({ ...newStaffForm, department: e.target.value })}
-                  >
-                    {(Array.isArray(staffDepartments) && staffDepartments.length > 0 ? staffDepartments : [
-                      'Running Staff (ट्रेन संचालन)',
-                      'Booking Counter (टिकट काउंटर)',
-                      'Accounts & Audit (लेखा व कोषागार)',
-                      'Trust Executive (ट्रस्ट प्रबंधन)',
-                      'Station Management (स्टेशन समन्वयन)'
-                    ]).map((d, i) => {
-                      const val = typeof d === 'object' ? (d.id || d.name) : d;
-                      const lbl = typeof d === 'object' ? (d.name || d.id) : d;
-                      return <option key={i} value={val}>{lbl}</option>;
-                    })}
-                  </select>
-                </div>
-                <div className="form-group">
                   <label className="form-label">पद / रोल (Role) *</label>
                   <select
                     className="form-control"
@@ -8649,7 +8631,6 @@ export default function App() {
                     ))}
                   </select>
                 </div>
-              </div>
 
               <div className="grid-2">
                 <div className="form-group">

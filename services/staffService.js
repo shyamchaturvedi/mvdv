@@ -67,6 +67,16 @@ class StaffService {
       throw new Error(`ईमेल आईडी '${email}' पहले से किसी अन्य कर्मचारी के नाम पर पंजीकृत है।`);
     }
 
+    let dept = payload.department;
+    if (!dept) {
+      if (payload.role === 'TTE') dept = 'Running Staff (ट्रेन संचालन)';
+      else if (payload.role === 'BookingClerk') dept = 'Booking Counter (टिकट काउंटर)';
+      else if (payload.role === 'FinanceOfficer') dept = 'Accounts & Audit (लेखा व कोषागार)';
+      else if (payload.role === 'SuperAdmin') dept = 'Trust Executive (ट्रस्ट प्रबंधन)';
+      else if (payload.role === 'StationMaster') dept = 'Station Management (स्टेशन समन्वयन)';
+      else dept = 'Booking Counter (टिकट काउंटर)';
+    }
+
     const staffId = `STF-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const newStaff = {
       staffId,
@@ -74,7 +84,7 @@ class StaffService {
       username,
       email,
       password: payload.password,
-      department: payload.department || 'Booking Counter (टिकट काउंटर)',
+      department: dept,
       role: payload.role || 'BookingClerk',
       mobile: payload.mobile || '',
       assignedCoaches: payload.assignedCoaches || ['S1'],
