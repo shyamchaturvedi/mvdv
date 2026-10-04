@@ -298,6 +298,7 @@ export default function App() {
   const [bulkFile, setBulkFile] = useState(null);
   const [bulkYear, setBulkYear] = useState('2026');
   const [bulkMessage, setBulkMessage] = useState('');
+  const [showNoFreeTicketPopup, setShowNoFreeTicketPopup] = useState(false);
 
   // Coach & Seating Chart State
   const [chartCoach, setChartCoach] = useState('S1');
@@ -4684,6 +4685,33 @@ export default function App() {
                 {/* VIEW: RECEIPTS & PAYMENT SLIPS DESK */}
                 {activeView === 'receipts_desk' && renderReceiptsDeskView()}
 
+                {/* NO FREE TICKET POPUP */}
+                {showNoFreeTicketPopup && (
+                  <div className="modal-overlay" onClick={() => setShowNoFreeTicketPopup(false)} style={{ zIndex: 9999, background: 'rgba(0,0,0,0.85)' }}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 850, textAlign: 'center', padding: '60px 40px', background: 'linear-gradient(135deg, #FFF1F2, #FFE4E6)', border: '4px solid #E11D48', borderRadius: 24, boxShadow: '0 25px 50px -12px rgba(225, 29, 72, 0.4)' }}>
+                      <AlertTriangle size={100} color="#E11D48" style={{ marginBottom: 24 }} />
+                      <h1 style={{ fontSize: '3rem', color: '#9F1239', fontWeight: 900, marginBottom: 24, lineHeight: 1.2 }}>
+                        बिना भुगतान के बुकिंग संभव नहीं है!
+                      </h1>
+                      <h2 style={{ fontSize: '1.8rem', color: '#BE123C', fontWeight: 700, marginBottom: 30, lineHeight: 1.4 }}>
+                        कृपया स्टाफ पर निःशुल्क (Free) टिकट के लिए दबाव न डालें और बुकिंग कार्य में बाधा उत्पन्न न करें।
+                      </h2>
+                      <div style={{ fontSize: '1.2rem', color: '#4C0519', fontWeight: 600, padding: '20px', background: '#FDA4AF', borderRadius: 12, display: 'inline-block' }}>
+                        🙏 आपके सहयोग के लिए हम आभारी हैं। 🙏
+                      </div>
+                      <div style={{ marginTop: 40 }}>
+                        <button 
+                          className="btn btn-primary" 
+                          style={{ padding: '16px 40px', fontSize: '1.2rem', background: '#E11D48', borderColor: '#E11D48' }}
+                          onClick={() => setShowNoFreeTicketPopup(false)}
+                        >
+                          बंद करें (Close)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* VIEW: BOOKING COUNTER FORM */}
                 {activeView === 'booking' && (
                   <div>
@@ -4692,6 +4720,18 @@ export default function App() {
                       <span className="badge badge-bhakti">आधिकारिक रेलवे आरक्षण काउंटर</span>
                       <h2 style={{ fontSize: '2.1rem', color: '#9A3412', marginTop: 6, fontWeight: 800 }}>ट्रेन टिकट बुकिंग फॉर्म</h2>
                       <p style={{ color: '#7C2D12', fontWeight: 600 }}>लाइव सीट उपलब्धता मैप • तत्काल क्यूआर टोकन पेमेंट • आधिकारिक यात्रा पर्ची</p>
+                      
+                      <div style={{ marginTop: 12 }}>
+                        <button 
+                          type="button" 
+                          className="btn btn-outline" 
+                          style={{ borderColor: '#991B1B', color: '#991B1B', fontWeight: 800, padding: '8px 16px', fontSize: '0.85rem' }}
+                          onClick={() => setShowNoFreeTicketPopup(true)}
+                        >
+                          <AlertTriangle size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> 
+                          फ्री टिकट वार्निंग दिखाएं (Show Warning)
+                        </button>
+                      </div>
                     </div>
 
                     <form onSubmit={handleBookingSubmit}>
@@ -6570,6 +6610,21 @@ export default function App() {
                             </div>
                           </div>
 
+                          <div className="grid-2">
+                            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
+                              <input
+                                type="checkbox"
+                                id="hideBerthNumber"
+                                checked={projectSettings.hideBerthNumber || false}
+                                onChange={e => setProjectSettings({ ...projectSettings, hideBerthNumber: e.target.checked })}
+                                style={{ width: 20, height: 20, cursor: 'pointer' }}
+                              />
+                              <label htmlFor="hideBerthNumber" className="form-label" style={{ margin: 0, cursor: 'pointer', color: '#9A3412', fontWeight: 800 }}>
+                                टिकट पर बर्थ/सीट नंबर छिपाएं (सिर्फ कोच प्रिंट होगा)
+                              </label>
+                            </div>
+                          </div>
+
                           <button
                             type="submit"
                             className="btn btn-primary"
@@ -7917,7 +7972,7 @@ export default function App() {
                   <div>
                     <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Coach / Assigned Seats</div>
                     <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0284C7' }}>
-                      Coach {ticketModal.coachName || 'S1'} : Berths [ {Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]
+                      Coach {ticketModal.coachName || 'S1'} {!(projectSettings && projectSettings.hideBerthNumber) && `: Berths [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
                     </div>
                   </div>
                 </div>
@@ -7955,7 +8010,7 @@ export default function App() {
                     <div>Age / Gender</div>
                     <div>Booking Status</div>
                     <div>Current Status</div>
-                    <div>Coach / Berth / Type</div>
+                    <div>Coach / {!(projectSettings && projectSettings.hideBerthNumber) ? 'Berth / Type' : 'Type'}</div>
                   </div>
                   {(ticketModal.passengers && ticketModal.passengers.length > 0
                     ? ticketModal.passengers
@@ -7972,7 +8027,7 @@ export default function App() {
                         <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
                         <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
                         <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
-                        <div style={{ color: '#0284C7', fontWeight: 700 }}>{ticketModal.coachName || 'S1'} / {assignedSeat} / {p.berthPreference || 'Berth'}</div>
+                        <div style={{ color: '#0284C7', fontWeight: 700 }}>{ticketModal.coachName || 'S1'} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}</div>
                       </div>
                     );
                   })}

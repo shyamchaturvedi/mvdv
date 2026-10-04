@@ -84,6 +84,7 @@ const DEFAULT_SETTINGS = {
   // Security & Audit
   enablePublicPnrSearch: true,
   strictQrVerification: true,
+  hideBerthNumber: false,
   updatedAt: new Date().toISOString()
 };
 
