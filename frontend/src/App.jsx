@@ -984,7 +984,7 @@ export default function App() {
         
         // Fast counter workflow: immediately trigger print dialog
         setTimeout(() => {
-          window.print();
+          printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${data.booking.bookingId}`);
         }, 500);
       } else {
         alert('बुकिंग विफल: ' + data.error);
@@ -5150,19 +5150,21 @@ export default function App() {
                                       <button className="btn btn-icon-xs btn-outline" onClick={() => openUpiQR(b.bookingId)} title="UPI QR">
                                         <Smartphone size={13} />
                                       </button>
-                                      <button className="btn btn-icon-xs btn-outline" onClick={() => {
-                                        setPaymentEditData({
-                                          bookingId: b.bookingId,
-                                          paymentMode: b.paymentMode || 'Cash',
-                                          upiTransactionId: b.upiTransactionId || '',
-                                          advance: b.advance || 0,
-                                          discount: b.discount || 0,
-                                          totalAmount: b.totalAmount
-                                        });
-                                        setPaymentEditModal(true);
-                                      }} title="किराया / भुगतान एडिट">
-                                        <IndianRupee size={13} />
-                                      </button>
+                                      {isSuperAdmin && (
+                                        <button className="btn btn-icon-xs btn-outline" onClick={() => {
+                                          setPaymentEditData({
+                                            bookingId: b.bookingId,
+                                            paymentMode: b.paymentMode || 'Cash',
+                                            upiTransactionId: b.upiTransactionId || '',
+                                            advance: b.advance || 0,
+                                            discount: b.discount || 0,
+                                            totalAmount: b.totalAmount
+                                          });
+                                          setPaymentEditModal(true);
+                                        }} title="किराया / भुगतान एडिट">
+                                          <IndianRupee size={13} />
+                                        </button>
+                                      )}
                                       <a href={`/api/bookings/${b.bookingId}/pdf`} target="_blank" rel="noreferrer" className="btn btn-icon-xs btn-outline" title="PDF डाउनलोड">
                                         <FileText size={13} />
                                       </a>
@@ -8740,16 +8742,6 @@ export default function App() {
                     value={newStaffForm.mobile}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, mobile: e.target.value })}
                     required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">आवंटित कोच (अल्पविराम से अलग)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="उदा. S1, S2, B1 (खाली = सभी कोच)"
-                    value={newStaffForm.assignedCoach}
-                    onChange={(e) => setNewStaffForm({ ...newStaffForm, assignedCoach: e.target.value })}
                   />
                 </div>
               </div>
