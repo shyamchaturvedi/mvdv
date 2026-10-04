@@ -12,8 +12,15 @@ const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT
   : path.resolve(__dirname, '..', 'serviceAccountKey.json');
 
 try {
-  if (fs.existsSync(serviceAccountPath)) {
-    const serviceAccount = require(serviceAccountPath);
+  let serviceAccount = null;
+
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  } else if (fs.existsSync(serviceAccountPath)) {
+    serviceAccount = require(serviceAccountPath);
+  }
+
+  if (serviceAccount) {
     admin = require('firebase-admin');
     
     if (!admin.apps.length) {
