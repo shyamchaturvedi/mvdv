@@ -67,7 +67,7 @@ class StaffService {
       throw new Error(`ईमेल आईडी '${email}' पहले से किसी अन्य कर्मचारी के नाम पर पंजीकृत है।`);
     }
 
-    const staffId = `STF-${Date.now().toString().slice(-4)}`;
+    const staffId = `STF-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const newStaff = {
       staffId,
       name: payload.name.trim(),

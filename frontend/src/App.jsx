@@ -1669,7 +1669,7 @@ export default function App() {
         setNewStaffModal(false);
         setNewStaffForm({
           name: '',
-          username: '',
+          email: '',
           password: '',
           department: 'Running Staff (ट्रेन संचालन)',
           role: 'TTE',
@@ -8584,31 +8584,14 @@ export default function App() {
                     className="form-control"
                     placeholder="उदा. rajesh.tte@gmail.com"
                     value={newStaffForm.email}
-                    onChange={(e) => {
-                      const em = e.target.value;
-                      setNewStaffForm({
-                        ...newStaffForm,
-                        email: em,
-                        username: newStaffForm.username || (em.includes('@') ? em.split('@')[0] : em)
-                      });
-                    }}
+                    onChange={(e) => setNewStaffForm({ ...newStaffForm, email: e.target.value })}
                     required
                   />
                 </div>
               </div>
 
               <div className="grid-2">
-                <div className="form-group">
-                  <label className="form-label">लॉगिन उपयोगकर्ता नाम (Username) *</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="उदा. rajesh.tte"
-                    value={newStaffForm.username}
-                    onChange={(e) => setNewStaffForm({ ...newStaffForm, username: e.target.value })}
-                    required
-                  />
-                </div>
+
                 <div className="form-group">
                   <label className="form-label">लॉगिन पासवर्ड *</label>
                   <input
