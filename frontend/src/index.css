@@ -1917,3 +1917,643 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
 
 
 @media print { .hide-on-print { display: none !important; } .rules-page { box-shadow: none !important; margin: 0 !important; max-width: 100% !important; border: none !important; } }
+
+/* ==========================================================================
+   3D VANDE BHARAT SEMI-HIGH SPEED EXPRESS & LUXURY HOME HERO ENHANCEMENTS
+   ========================================================================== */
+
+/* 3D Train Showcase Container */
+.vande-3d-stage {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: linear-gradient(180deg, #060B1E 0%, #111A3E 40%, #2A1747 70%, #68263A 90%, #A34823 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(10, 15, 40, 0.45), 0 0 0 2px rgba(249, 115, 22, 0.4);
+  margin-bottom: 24px;
+  perspective: 1200px;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .vande-3d-stage {
+    height: 270px;
+  }
+}
+
+/* Mountain Backdrop & Celestial Elements */
+.vande-celestial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 65%;
+  pointer-events: none;
+}
+
+.vande-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 10% 20%, #FFF 100%, transparent),
+    radial-gradient(1.2px 1.2px at 25% 45%, #FFD700 100%, transparent),
+    radial-gradient(1.5px 1.5px at 45% 15%, #FFF 100%, transparent),
+    radial-gradient(1px 1px at 65% 35%, #FFF 100%, transparent),
+    radial-gradient(1.8px 1.8px at 80% 25%, #FFF 100%, transparent),
+    radial-gradient(1.2px 1.2px at 92% 50%, #FFD700 100%, transparent),
+    radial-gradient(1.4px 1.4px at 35% 60%, #FFF 100%, transparent);
+  opacity: 0.85;
+}
+
+.vande-moon {
+  position: absolute;
+  top: 24px;
+  right: 48px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF, #FFF9D2 70%, #E6C875 100%);
+  box-shadow: 0 0 35px rgba(255, 245, 180, 0.7), 0 0 70px rgba(245, 158, 11, 0.35);
+  animation: moonGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes moonGlow {
+  0% { box-shadow: 0 0 30px rgba(255, 245, 180, 0.6), 0 0 60px rgba(245, 158, 11, 0.3); }
+  100% { box-shadow: 0 0 45px rgba(255, 245, 180, 0.85), 0 0 90px rgba(245, 158, 11, 0.5); }
+}
+
+/* Holy Shrine atop Mountain Peak */
+.vande-shrine-glow {
+  position: absolute;
+  top: 55px;
+  left: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.vande-shrine-temple {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 0 14px #FFD700) drop-shadow(0 0 24px #FF6D00);
+  animation: templePulse 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes templePulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 10px #FFD700); }
+  100% { transform: scale(1.12); filter: drop-shadow(0 0 24px #FF9100) drop-shadow(0 0 36px #FF3D00); }
+}
+
+.vande-shrine-tag {
+  background: rgba(194, 65, 12, 0.85);
+  color: #FFFAF0;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #FDBA74;
+  white-space: nowrap;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+
+/* Mountain Silhouette Layers */
+.vande-mountains-back {
+  position: absolute;
+  bottom: 85px;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  opacity: 0.45;
+  background: linear-gradient(135deg, transparent 30%, #1A1333 30%, #1A1333 45%, transparent 45%, transparent 60%, #1A1333 60%, #1A1333 80%, transparent 80%);
+}
+
+.vande-mountains-front {
+  position: absolute;
+  bottom: 75px;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  background: linear-gradient(180deg, #1C0F2B 0%, #13071F 100%);
+  clip-path: polygon(0% 100%, 12% 40%, 22% 65%, 35% 25%, 48% 60%, 65% 15%, 78% 50%, 90% 30%, 100% 100%);
+  z-index: 1;
+}
+
+/* 3D Track & Ground Bed */
+.vande-track-ground {
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 120%;
+  height: 95px;
+  background: linear-gradient(180deg, #1A0D08 0%, #0F0703 100%);
+  transform-origin: bottom center;
+  transform: perspective(600px) rotateX(42deg);
+  z-index: 2;
+  border-top: 3px solid #78350F;
+  box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+/* Dynamic Fast-Moving Railway Sleepers */
+.vande-track-sleepers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 28px,
+    rgba(217, 119, 6, 0.4) 28px,
+    rgba(217, 119, 6, 0.4) 34px,
+    #5A2D0C 34px,
+    #451A03 40px
+  );
+  animation: trackSleepersMove 0.45s linear infinite;
+}
+
+@keyframes trackSleepersMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-40px); }
+}
+
+/* Parallel Steel Rails with Specular Gleam */
+.vande-rail-left {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(180deg, #E2E8F0 0%, #94A3B8 50%, #475569 100%);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.vande-rail-right {
+  position: absolute;
+  top: 62px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(180deg, #E2E8F0 0%, #94A3B8 50%, #475569 100%);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0,0,0,0.8);
+}
+
+/* 3D Vande Bharat Train Composition */
+.vande-train-assembly {
+  position: absolute;
+  bottom: 38px;
+  left: 5%;
+  display: flex;
+  align-items: flex-end;
+  z-index: 5;
+  animation: trainSuspension 1.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.75));
+}
+
+@keyframes trainSuspension {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(0.1deg); }
+  100% { transform: translateY(1px) rotate(-0.1deg); }
+}
+
+/* Vande Bharat Aerodynamic Bullet Engine Nose (Driving Cab) */
+.vande-loco-nose {
+  position: relative;
+  width: 210px;
+  height: 74px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 55%, #E2E8F0 100%);
+  border-radius: 4px 60px 14px 6px;
+  box-shadow: inset 0 2px 4px #FFFFFF, inset -4px 0 8px rgba(0,0,0,0.15), 0 6px 16px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: visible;
+}
+
+/* Aerodynamic Cockpit Windshield */
+.vande-cockpit-glass {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 82px;
+  height: 32px;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #334155 100%);
+  border-radius: 6px 36px 4px 6px;
+  border: 1.5px solid #0284C7;
+  box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.4), 0 0 8px rgba(2, 132, 199, 0.3);
+  overflow: hidden;
+}
+
+.vande-cockpit-glare {
+  position: absolute;
+  top: 0;
+  left: 20%;
+  width: 14px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-35deg);
+}
+
+.vande-driver-silhouette {
+  position: absolute;
+  bottom: 4px;
+  right: 22px;
+  width: 16px;
+  height: 18px;
+  background: #0284C7;
+  border-radius: 50% 50% 0 0;
+  opacity: 0.7;
+}
+
+/* Signature Saffron & Royal Blue Speed Stripes */
+.vande-stripe-saffron {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  width: 98%;
+  height: 7px;
+  background: linear-gradient(90deg, #EA580C, #F97316);
+  border-radius: 0 10px 0 0;
+}
+
+.vande-stripe-blue {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  width: 95%;
+  height: 8px;
+  background: linear-gradient(90deg, #1E3A8A, #1D4ED8);
+  border-radius: 0 14px 4px 0;
+}
+
+.vande-loco-logo {
+  position: absolute;
+  bottom: 34px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 0.65rem;
+  color: #1E3A8A;
+  letter-spacing: 0.5px;
+}
+
+/* High-Intensity Projector LED Headlights */
+.vande-headlight {
+  position: absolute;
+  bottom: 12px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 18px #FFFFFF, 0 0 35px #38BDF8, 0 0 60px #F59E0B;
+  z-index: 6;
+}
+
+/* Radiating Volumetric Light Beam Projecting Forward */
+.vande-light-beam {
+  position: absolute;
+  bottom: -15px;
+  left: 195px;
+  width: 480px;
+  height: 70px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.85) 0%, rgba(254, 240, 138, 0.45) 25%, rgba(245, 158, 11, 0.15) 60%, transparent 100%);
+  clip-path: polygon(0% 45%, 100% 0%, 100% 100%, 0% 55%);
+  pointer-events: none;
+  z-index: 4;
+  filter: blur(1.5px);
+  animation: beamFlicker 0.2s infinite alternate;
+}
+
+@keyframes beamFlicker {
+  0% { opacity: 0.92; }
+  100% { opacity: 1; }
+}
+
+/* Modern Passenger Coaches */
+.vande-coach {
+  position: relative;
+  width: 175px;
+  height: 72px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 55%, #E2E8F0 100%);
+  border-radius: 6px;
+  margin-left: 3px;
+  box-shadow: inset 0 2px 4px #FFFFFF, inset 0 -4px 8px rgba(0,0,0,0.1), 0 6px 14px rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+@media (max-width: 600px) {
+  .vande-coach-extra {
+    display: none !important;
+  }
+}
+
+/* Panoramic Tinted Window Strip */
+.vande-window-strip {
+  position: absolute;
+  top: 14px;
+  left: 10px;
+  width: 155px;
+  height: 24px;
+  background: #0F172A;
+  border-radius: 4px;
+  display: flex;
+  gap: 6px;
+  padding: 3px 6px;
+  align-items: center;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.8);
+}
+
+.vande-window {
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(180deg, #38BDF8 0%, #0284C7 45%, #FDE047 90%);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(253, 224, 71, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.vande-window::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  width: 40%;
+  height: 50%;
+  background: rgba(15, 23, 42, 0.65);
+  border-radius: 50% 50% 0 0;
+}
+
+/* Rooftop Pantograph & Aerodynamic Air Ducts */
+.vande-pantograph {
+  position: absolute;
+  top: -16px;
+  left: 28px;
+  width: 32px;
+  height: 16px;
+  border-top: 2.5px solid #CBD5E1;
+  border-left: 2px solid #94A3B8;
+  border-right: 2px solid #94A3B8;
+  transform: skewX(-20deg);
+}
+
+.vande-pantograph::after {
+  content: '⚡';
+  position: absolute;
+  top: -14px;
+  left: 6px;
+  font-size: 0.68rem;
+  color: #FDE047;
+  filter: drop-shadow(0 0 6px #F59E0B);
+  animation: sparkPulse 0.8s infinite alternate;
+}
+
+@keyframes sparkPulse {
+  0% { opacity: 0.4; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.3); }
+}
+
+/* Wheels & Underbody Bogie Assembly */
+.vande-bogie-left, .vande-bogie-right {
+  position: absolute;
+  bottom: -11px;
+  width: 44px;
+  height: 14px;
+  background: #1E293B;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.vande-bogie-left { left: 16px; }
+.vande-bogie-right { right: 16px; }
+
+.vande-wheel {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #64748B 30%, #0F172A 70%, #94A3B8 100%);
+  border: 1.5px solid #475569;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.9);
+  animation: wheelRotate 0.2s linear infinite;
+}
+
+@keyframes wheelRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Speed Lines Traversing */
+.vande-speedline {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+  animation: speedLineFly 0.8s linear infinite;
+  pointer-events: none;
+  z-index: 6;
+}
+
+@keyframes speedLineFly {
+  0% { transform: translateX(350px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(-350px); opacity: 0; }
+}
+
+/* Stage HUD Overlay (Info Badges & Live Status) */
+.vande-hud-top {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 10;
+}
+
+.vande-badge-title {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(251, 146, 60, 0.6);
+  color: #FFF;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.vande-badge-speed {
+  background: linear-gradient(135deg, #EA580C, #C2410C);
+  color: #FFF;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 14px rgba(234, 88, 12, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   SACRED YATRA DEPARTURE COUNTDOWN TIMER
+   ========================================================================== */
+
+.yatra-countdown-card {
+  background: linear-gradient(135deg, #1C0F08 0%, #2D1405 50%, #431407 100%);
+  border: 2px solid #F97316;
+  border-radius: 18px;
+  padding: 22px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 32px rgba(67, 20, 7, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: #FFF;
+  position: relative;
+  overflow: hidden;
+}
+
+.yatra-countdown-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.countdown-digits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 580px;
+  margin: 14px auto 0;
+}
+
+@media (max-width: 480px) {
+  .countdown-digits-grid {
+    gap: 8px;
+  }
+}
+
+.countdown-digit-box {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(251, 146, 60, 0.45);
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.countdown-digit-box:hover {
+  transform: translateY(-2px);
+  border-color: #F97316;
+}
+
+.countdown-val {
+  font-family: 'Poppins', 'Baloo 2', sans-serif;
+  font-size: clamp(1.8rem, 4.2vw, 2.6rem);
+  font-weight: 900;
+  line-height: 1.1;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FEF08A 45%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(245, 158, 11, 0.5));
+}
+
+.countdown-label {
+  font-size: clamp(0.72rem, 1.8vw, 0.85rem);
+  color: #FED7AA;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   LIVE AVAILABLE SEATS & LUXURY INVENTORY SHOWCASE (BIG & STYLISH FONTS)
+   ========================================================================== */
+
+.seats-showcase-card {
+  background: linear-gradient(135deg, #FFFDFB 0%, #FFF7ED 50%, #FFEDD5 100%);
+  border: 2.5px solid #F97316;
+  border-radius: 20px;
+  padding: 24px 20px;
+  margin-bottom: 26px;
+  box-shadow: 0 12px 30px rgba(249, 115, 22, 0.16);
+  position: relative;
+}
+
+.seats-hero-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #FFFFFF;
+  border: 2px solid #FED7AA;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.08);
+  margin-bottom: 20px;
+}
+
+.seats-big-number {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2.8rem, 7vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 14px rgba(234, 88, 12, 0.3));
+  letter-spacing: -1.5px;
+}
+
+.seats-class-card {
+  background: #FFFFFF;
+  border: 1.5px solid #FED7AA;
+  border-radius: 14px;
+  padding: 16px 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.seats-class-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(234, 88, 12, 0.15);
+  border-color: #F97316;
+}
+
+.seats-class-count {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  font-weight: 900;
+  color: #9A3412;
+  line-height: 1.1;
+}

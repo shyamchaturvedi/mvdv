@@ -534,7 +534,7 @@ router.get('/bookings/:id/receipt/:txId', async (req, res) => {
     
     // Graceful fallback for initial advance payment receipt or custom IDs
     if (!txn) {
-      if (txId.startsWith('REC-ADV-') || txId === 'advance' || (booking.advance && booking.advance > 0)) {
+      if (txId.startsWith('R') || txId.startsWith('REC-') || txId.startsWith('TXN-') || txId === 'advance' || (booking.advance && booking.advance > 0)) {
         txn = {
           id: txId,
           amount: booking.advance || 0,
@@ -792,7 +792,7 @@ router.get('/admin/online-transactions', async (req, res) => {
       const pHistory = Array.isArray(b.paymentHistory) && b.paymentHistory.length > 0 ? b.paymentHistory : [];
       if (pHistory.length === 0 && (b.advance > 0 || b.utrNumber)) {
         txns.push({
-          id: 'TXN-ADV-' + b.bookingId,
+          id: 'R' + (b.yatraYear || 2026) + '000001',
           bookingId: b.bookingId,
           pnr: b.bookingId,
           devoteeName: b.bookedBy,
@@ -823,7 +823,7 @@ router.get('/admin/online-transactions', async (req, res) => {
                            Boolean(tx.utr) || Boolean(b.utrNumber);
           if (isOnline || !status || status === 'All') {
             txns.push({
-              id: tx.id || 'TXN-' + Math.random().toString().slice(2, 8),
+              id: tx.id || ('R' + (b.yatraYear || 2026) + '000001'),
               bookingId: b.bookingId,
               pnr: b.bookingId,
               devoteeName: b.bookedBy,

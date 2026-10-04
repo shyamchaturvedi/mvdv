@@ -97,6 +97,77 @@ class BookingService {
     return `MVD-${yr}-${padded}`;
   }
 
+  // Generate sequential Receipt ID format: R2026000001, R2026000002... (or with -REF for refunds)
+  static async generateReceiptId(yatraYear = 2026, isRefund = false) {
+    const yr = parseInt(yatraYear, 10) || 2026;
+    const counterRef = db.collection('counters').doc(`receipt_${yr}`);
+
+    if (db.runTransaction) {
+      try {
+        const nextNum = await db.runTransaction(async (t) => {
+          const doc = await t.get(counterRef);
+          let current = 0;
+          if (doc.exists) {
+            current = doc.data().lastNumber || 0;
+          } else {
+            // Count any existing receipts across bookings
+            const snap = await db.collection('bookings').get();
+            let maxFound = 0;
+            snap.forEach(d => {
+              const b = d.data();
+              const history = b.paymentHistory || [];
+              history.forEach(tx => {
+                if (tx && tx.id) {
+                  const match = tx.id.match(new RegExp(`^R${yr}(\\d+)`));
+                  if (match && match[1]) {
+                    const num = parseInt(match[1], 10);
+                    if (!isNaN(num) && num > maxFound) maxFound = num;
+                  }
+                }
+              });
+            });
+            current = maxFound;
+          }
+          const next = current + 1;
+          t.set(counterRef, {
+            yatraYear: yr,
+            lastNumber: next,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+          return next;
+        });
+
+        const padded = String(nextNum).padStart(6, '0');
+        return isRefund ? `R${yr}${padded}-REF` : `R${yr}${padded}`;
+      } catch (err) {
+        console.warn('Transaction receipt counter error, running fallback:', err.message);
+      }
+    }
+
+    // Fallback if runTransaction not available
+    const snapshot = await db.collection('bookings').get();
+    let max = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const history = data.paymentHistory || [];
+      history.forEach(tx => {
+        if (tx && tx.id) {
+          const match = tx.id.match(new RegExp(`^R${yr}(\\d+)`));
+          if (match && match[1]) {
+            const num = parseInt(match[1], 10);
+            if (!isNaN(num) && num > max) max = num;
+          }
+        }
+      });
+    });
+    const next = max + 1;
+    try {
+      await counterRef.set({ yatraYear: yr, lastNumber: next, updatedAt: new Date().toISOString() });
+    } catch (_) {}
+    const padded = String(next).padStart(6, '0');
+    return isRefund ? `R${yr}${padded}-REF` : `R${yr}${padded}`;
+  }
+
   // Get all bookings with optional filters
   static async getBookings(filters = {}) {
     const snapshot = await db.collection('bookings').get();
@@ -236,7 +307,7 @@ class BookingService {
       status: 'Confirmed', // Confirmed | Cancelled
       paymentMode: payload.paymentMode || 'UPI',
       paymentHistory: advance > 0 ? [{
-        id: 'TXN-' + Date.now().toString(),
+        id: await BookingService.generateReceiptId(yatraYear),
         date: new Date().toISOString(),
         amount: advance,
         method: payload.paymentMode || 'UPI',
@@ -324,8 +395,9 @@ class BookingService {
 
     const paymentHistory = booking.paymentHistory || [];
     if (refundAmount > 0) {
+      const refundReceiptId = await BookingService.generateReceiptId(booking.yatraYear || 2026, true);
       paymentHistory.push({
-        id: 'TXN-REF-' + Date.now().toString(),
+        id: refundReceiptId,
         date: new Date().toISOString(),
         amount: -refundAmount,
         refundAmount: refundAmount,
@@ -400,8 +472,9 @@ class BookingService {
     const paymentStatus = remainingAmount <= 0 ? 'Paid' : (newAdvance > 0 ? 'Partial' : 'Unpaid');
 
     const paymentHistory = booking.paymentHistory || [];
+    const receiptId = await BookingService.generateReceiptId(booking.yatraYear || 2026);
     const newTxn = {
-      id: 'TXN-' + Date.now().toString(),
+      id: receiptId,
       date: new Date().toISOString(),
       amount: amountToPay,
       method: paymentDetails.method || 'Cash',

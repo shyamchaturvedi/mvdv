@@ -276,6 +276,28 @@ export default function App() {
     }
   }, [projectSettings?.defaultTravelDate]);
 
+  // Live Sacred Yatra Departure Countdown State (Days, Hours, Minutes, Seconds)
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const travelDateStr = projectSettings?.journeyDate || projectSettings?.defaultTravelDate || '2026-10-15';
+    const targetTime = new Date(`${travelDateStr}T06:00:00+05:30`).getTime();
+
+    const calcCountdown = () => {
+      const now = Date.now();
+      const diff = Math.max(0, targetTime - now);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setCountdown({ days, hours, minutes, seconds });
+    };
+
+    calcCountdown();
+    const timer = setInterval(calcCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [projectSettings?.journeyDate, projectSettings?.defaultTravelDate]);
+
   // Online Transactions & UTR Matching Desk State
   const [onlineTxnsList, setOnlineTxnsList] = useState([]);
   const [onlineTxnsLoading, setOnlineTxnsLoading] = useState(false);
@@ -977,9 +999,11 @@ export default function App() {
       if (data.success) {
         setTicketModal(data.booking);
         
-        const initialTxn = data.booking.transactions && data.booking.transactions.length > 0 
-           ? data.booking.transactions[0] 
-           : { id: `TXN-${Date.now()}`, amount: data.booking.advance || 0, method: 'Cash', date: new Date().toISOString() };
+        const initialTxn = (data.booking.paymentHistory && data.booking.paymentHistory.length > 0)
+          ? data.booking.paymentHistory[0]
+          : ((data.booking.transactions && data.booking.transactions.length > 0) 
+            ? data.booking.transactions[0] 
+            : { id: `R${data.booking.yatraYear || '2026'}000001`, amount: data.booking.advance || 0, method: data.booking.paymentMode || 'Cash', date: new Date().toISOString() });
         setReceiptModal({ booking: data.booking, txn: initialTxn });
 
         setSelectedSeats([]);
@@ -3914,6 +3938,253 @@ export default function App() {
             {activeView === 'public_home' && (
               <div>
                 <div>
+                  {/* ── 3D Cinematic Vande Bharat Express Showcase Stage ── */}
+                  <div className="vande-3d-stage">
+                    {/* Celestial Sky, Stars, Moon & Mountain Peak Shrine */}
+                    <div className="vande-celestial">
+                      <div className="vande-stars" />
+                      <div className="vande-moon" />
+                      <div className="vande-shrine-glow">
+                        <div className="vande-shrine-temple">🚩 🛕</div>
+                        <div className="vande-shrine-tag">श्री माता वैष्णो देवी कटड़ा धाम</div>
+                      </div>
+                      <div className="vande-mountains-back" />
+                      <div className="vande-mountains-front" />
+                    </div>
+
+                    {/* Speed Lines */}
+                    <div className="vande-speedline" style={{ top: '35%', width: '150px' }} />
+                    <div className="vande-speedline" style={{ top: '55%', width: '220px', animationDelay: '0.35s' }} />
+                    <div className="vande-speedline" style={{ top: '68%', width: '180px', animationDelay: '0.6s' }} />
+
+                    {/* 3D Dynamic Track Bed with Fast Sleepers & Specular Rails */}
+                    <div className="vande-track-ground">
+                      <div className="vande-track-sleepers" />
+                      <div className="vande-rail-left" />
+                      <div className="vande-rail-right" />
+                    </div>
+
+                    {/* 3D Vande Bharat Semi-High Speed Train */}
+                    <div className="vande-train-assembly">
+                      {/* Coach 2 (Preceding Luxury Coach) */}
+                      <div className="vande-coach vande-coach-extra">
+                        <div className="vande-pantograph" />
+                        <div className="vande-window-strip">
+                          <div className="vande-window" />
+                          <div className="vande-window" />
+                          <div className="vande-window" />
+                          <div className="vande-window" />
+                        </div>
+                        <div className="vande-stripe-saffron" />
+                        <div className="vande-stripe-blue" />
+                        <div className="vande-bogie-left"><div className="vande-wheel" /><div className="vande-wheel" /></div>
+                        <div className="vande-bogie-right"><div className="vande-wheel" /><div className="vande-wheel" /></div>
+                      </div>
+
+                      {/* Coach 1 (Executive Chair/Sleeper) */}
+                      <div className="vande-coach">
+                        <div className="vande-window-strip">
+                          <div className="vande-window" />
+                          <div className="vande-window" />
+                          <div className="vande-window" />
+                          <div className="vande-window" />
+                        </div>
+                        <div className="vande-stripe-saffron" />
+                        <div className="vande-stripe-blue" />
+                        <div className="vande-bogie-left"><div className="vande-wheel" /><div className="vande-wheel" /></div>
+                        <div className="vande-bogie-right"><div className="vande-wheel" /><div className="vande-wheel" /></div>
+                      </div>
+
+                      {/* Aerodynamic Vande Bharat Bullet Locomotive Nose (Driving Cab) */}
+                      <div className="vande-loco-nose">
+                        <div className="vande-cockpit-glass">
+                          <div className="vande-cockpit-glare" />
+                          <div className="vande-driver-silhouette" />
+                        </div>
+                        <div className="vande-loco-logo">
+                          <span>वंदे भारत</span>
+                          <span style={{ fontSize: '0.55rem', color: '#EA580C' }}>• 04201</span>
+                        </div>
+                        <div className="vande-stripe-saffron" />
+                        <div className="vande-stripe-blue" />
+                        <div className="vande-headlight" />
+                        {/* Volumetric Glowing Light Beam Shining Forward */}
+                        <div className="vande-light-beam" />
+                        <div className="vande-bogie-left"><div className="vande-wheel" /><div className="vande-wheel" /></div>
+                        <div className="vande-bogie-right"><div className="vande-wheel" /><div className="vande-wheel" /></div>
+                      </div>
+                    </div>
+
+                    {/* Stage HUD Top Overlay */}
+                    <div className="vande-hud-top">
+                      <div className="vande-badge-title">
+                        <span style={{ fontSize: '1rem' }}>🚆</span>
+                        <span>वंदे भारत सुपरफास्ट विशेष एक्सप्रेस ({projectSettings.activeYatraYear || 2026})</span>
+                      </div>
+                      <div className="vande-badge-speed">
+                        <span>⚡ 160 KMPH</span>
+                        <span style={{ opacity: 0.85, fontSize: '0.7rem' }}>सेमी-हाई स्पीड</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Sacred Yatra Departure Live Countdown Timer ── */}
+                  <div className="yatra-countdown-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                      <div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#FB923C', fontSize: '0.86rem', fontWeight: 800 }}>
+                          <Sparkles size={16} /> <span>शुभ तीर्थ यात्रा उल्टी गिनती (Departure Countdown)</span>
+                        </div>
+                        <h3 style={{ margin: '4px 0 0', color: '#FFF', fontSize: 'clamp(1.1rem, 2.5vw, 1.45rem)', fontWeight: 900 }}>
+                          श्री माता वैष्णो देवी कटड़ा विशेष यात्रा प्रस्थान
+                        </h3>
+                        <p style={{ margin: '3px 0 0', color: '#FED7AA', fontSize: '0.82rem' }}>
+                          प्रस्थान: <strong>{projectSettings.defaultTravelDate || projectSettings.journeyDate || '2026-10-15'}</strong> सुबह 06:00 बजे | चारबाग रेलवे स्टेशन, लखनऊ ➔ श्री माता वैष्णो देवी कटड़ा
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(234, 88, 12, 0.3)', border: '1px solid rgba(251, 146, 60, 0.5)', padding: '5px 12px', borderRadius: 20 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 8px #22C55E', animation: 'pulse 1.5s infinite' }} />
+                        <span style={{ fontSize: '0.78rem', color: '#FEF08A', fontWeight: 800 }}>लाइव सिंक</span>
+                      </div>
+                    </div>
+
+                    {/* Digits Grid */}
+                    <div className="countdown-digits-grid">
+                      <div className="countdown-digit-box">
+                        <div className="countdown-val">{String(countdown.days).padStart(2, '0')}</div>
+                        <div className="countdown-label">दिन (Days)</div>
+                      </div>
+                      <div className="countdown-digit-box">
+                        <div className="countdown-val">{String(countdown.hours).padStart(2, '0')}</div>
+                        <div className="countdown-label">घंटे (Hours)</div>
+                      </div>
+                      <div className="countdown-digit-box">
+                        <div className="countdown-val">{String(countdown.minutes).padStart(2, '0')}</div>
+                        <div className="countdown-label">मिनट (Mins)</div>
+                      </div>
+                      <div className="countdown-digit-box">
+                        <div className="countdown-val">{String(countdown.seconds).padStart(2, '0')}</div>
+                        <div className="countdown-label">सेकंड (Secs)</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Live Available Seats & Train Capacity Showcase (Big & Stylish Fonts) ── */}
+                  <div className="seats-showcase-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, borderBottom: '1.5px dashed #FED7AA', paddingBottom: 12, marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #EA580C, #C2410C)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Armchair size={22} />
+                        </div>
+                        <div>
+                          <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.25rem', fontWeight: 900 }}>
+                            ट्रेन सीट उपलब्धता एवं लाइव बर्थ भंडार (Live Available Berths)
+                          </h3>
+                          <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.82rem' }}>
+                            वंदे भारत 18-कोच विशेष रेक • यात्रा वर्ष {projectSettings.activeYatraYear || 2026}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '4px 12px', borderRadius: 20, fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981' }} />
+                          आरक्षण खुला है (Booking Open)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Hero Big Stat Number */}
+                    <div className="seats-hero-counter">
+                      <div>
+                        <div style={{ fontSize: '0.88rem', color: '#7C2D12', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                          वर्तमान कुल उपलब्ध बर्थ (Total Available Berths)
+                        </div>
+                        <div className="seats-big-number">
+                          {trainCompositionData?.totalAvailable !== undefined ? trainCompositionData.totalAvailable : 986}
+                        </div>
+                        <div style={{ fontSize: '0.84rem', color: '#047857', fontWeight: 700, marginTop: 2 }}>
+                          ✓ सभी 18 कोचों में कुल {trainCompositionData?.totalCapacity || 986} में से {trainCompositionData?.totalAvailable !== undefined ? trainCompositionData.totalAvailable : 986} बर्थ तुरंत उपलब्ध
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+                        <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 10, border: '1px solid #FED7AA' }}>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700 }}>कुल बर्थ क्षमता</div>
+                          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#431407' }}>
+                            {trainCompositionData?.totalCapacity || 986} कुल बर्थ
+                          </div>
+                        </div>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => navigate('/coach-position')}
+                          style={{ padding: '8px 14px', fontSize: '0.85rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        >
+                          <Train size={15} /> लाइव कोच लेआउट व चार्ट देखें ➔
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Class-wise 3 Breakdown Cards */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+                      {/* AC 3-Tier */}
+                      <div className="seats-class-card" style={{ borderLeft: '4px solid #0284C7' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '2px 8px', borderRadius: 6 }}>
+                            AC 3-Tier (वातानुकूलित)
+                          </span>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#C2410C' }}>
+                            ₹ 4,000
+                          </span>
+                        </div>
+                        <div className="seats-class-count" style={{ marginTop: 8 }}>
+                          {trainCompositionData?.coaches ? trainCompositionData.coaches.filter(c => c.coachClass === 'AC').reduce((sum, c) => sum + (c.availableBerths || 0), 0) : 384}
+                          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: 6 }}>सीटें उपलब्ध</span>
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: 4 }}>
+                          कोच B1 से B6 • कुल 384 बर्थ • चादर, कंबल, AC सुविधा
+                        </div>
+                      </div>
+
+                      {/* Sleeper */}
+                      <div className="seats-class-card" style={{ borderLeft: '4px solid #EA580C' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#9A3412', background: '#FFEDD5', padding: '2px 8px', borderRadius: 6 }}>
+                            Sleeper Class (शयनयान)
+                          </span>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#C2410C' }}>
+                            ₹ 3,000
+                          </span>
+                        </div>
+                        <div className="seats-class-count" style={{ marginTop: 8 }}>
+                          {trainCompositionData?.coaches ? trainCompositionData.coaches.filter(c => c.coachClass === 'Sleeper').reduce((sum, c) => sum + (c.availableBerths || 0), 0) : 432}
+                          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: 6 }}>सीटें उपलब्ध</span>
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: 4 }}>
+                          कोच S1 से S6 • कुल 432 बर्थ • आरक्षित आरामदायक शयनयान
+                        </div>
+                      </div>
+
+                      {/* General / Divyangjan */}
+                      <div className="seats-class-card" style={{ borderLeft: '4px solid #10B981' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#047857', background: '#D1FAE5', padding: '2px 8px', borderRadius: 6 }}>
+                            General / SLR (सामान्य)
+                          </span>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#C2410C' }}>
+                            ₹ 2,000
+                          </span>
+                        </div>
+                        <div className="seats-class-count" style={{ marginTop: 8 }}>
+                          {trainCompositionData?.coaches ? trainCompositionData.coaches.filter(c => c.coachClass === 'General').reduce((sum, c) => sum + (c.availableBerths || 0), 0) : 170}
+                          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: 6 }}>सीटें उपलब्ध</span>
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: 4 }}>
+                          कोच G1 से G4 • कुल 170 सीटें • सुगम बैठक व्यवस्था
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
             {/* ── IRCTC-Grade PNR Hero Banner ── */}
             <div className="pnr-hero" style={{ marginBottom: 24 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 12 }}>
@@ -3994,24 +4265,43 @@ export default function App() {
                 <ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <strong>सामान्य यात्रियों हेतु:</strong> PNR स्टेटस एवं बर्थ जांच। नया आरक्षण व चेकिंग केवल अधिकृत ट्रस्ट कर्मियों द्वारा।
               </div>
 
-              {/* PNR Format & Info */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>PNR प्रारूप:</span>
-                <span
-                  style={{
-                    padding: '3px 10px',
-                    fontSize: '0.78rem',
-                    fontFamily: 'monospace',
-                    fontWeight: 700,
-                    background: '#FEF3C7',
-                    color: '#92400E',
-                    borderRadius: 6,
-                    border: '1px solid #FCD34D'
-                  }}
-                >
-                  MVD-2026-000001
-                </span>
-                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>(प्रथम टिकट MVD-2026-000001 से +1 क्रमानुसार)</span>
+              {/* PNR & Receipt Format Info */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, flexWrap: 'wrap', margin: '6px auto 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>PNR प्रारूप:</span>
+                  <span
+                    style={{
+                      padding: '3px 10px',
+                      fontSize: '0.78rem',
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      background: '#FEF3C7',
+                      color: '#92400E',
+                      borderRadius: 6,
+                      border: '1px solid #FCD34D'
+                    }}
+                  >
+                    MVD-2026-000001
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>रसीद प्रारूप (Receipt ID):</span>
+                  <span
+                    style={{
+                      padding: '3px 10px',
+                      fontSize: '0.78rem',
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      background: '#ECFDF5',
+                      color: '#065F46',
+                      borderRadius: 6,
+                      border: '1px solid #6EE7B7'
+                    }}
+                  >
+                    R2026000001
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>(प्रथम टिकट MVD-2026-000001 व रसीद R2026000001 से +1 क्रमानुसार)</span>
               </div>
 
 
@@ -4086,7 +4376,7 @@ export default function App() {
                         {((searchedTicket.paymentHistory && searchedTicket.paymentHistory.length > 0)
                           ? searchedTicket.paymentHistory
                           : [{
-                              id: 'REC-ADV-' + (searchedTicket.bookingId ? searchedTicket.bookingId.replace(/[^0-9]/g, '') : '001'),
+                              id: 'R' + (searchedTicket.yatraYear || '2026') + '000001',
                               date: searchedTicket.createdAt || new Date().toISOString(),
                               amount: searchedTicket.advance,
                               method: searchedTicket.paymentMode || 'Cash',

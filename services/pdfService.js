@@ -498,7 +498,7 @@ class PDFService {
     const amountWords = PDFService.numberToWords(absAmount);
 
     const cleanPnr = PDFService.cleanPdfText(booking.bookingId, 'MVD-PNR');
-    const cleanTxnId = PDFService.cleanPdfText(txn.id, 'TXN-001');
+    const cleanTxnId = PDFService.cleanPdfText(txn.id, 'R2026000001');
     const cleanBookedBy = PDFService.cleanPdfText(booking.bookedBy, 'Devotee');
     const cleanMobile = PDFService.cleanPdfText(booking.mobile, 'N/A');
     const cleanAadhar = PDFService.cleanPdfText(booking.aadhar, 'Verified');
