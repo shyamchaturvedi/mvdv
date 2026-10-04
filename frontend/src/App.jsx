@@ -6110,7 +6110,9 @@ export default function App() {
                                   <th>UTR / बैंक संदर्भ क्रमांक</th>
                                   <th>प्राप्तकर्ता स्टाफ</th>
                                   <th>सत्यापन स्थिति</th>
-                                  <th style={{ textAlign: 'center', width: 220 }}>एडमिन मिलान कार्यवाही</th>
+                                  <th style={{ textAlign: 'center', width: 220 }}>
+                                    {isSuperAdmin ? 'एडमिन मिलान कार्यवाही' : 'स्थिति'}
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -6192,47 +6194,53 @@ export default function App() {
                                         )}
                                       </td>
                                       <td style={{ textAlign: 'center' }}>
-                                        <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
-                                          {tx.status !== 'Verified' && (
+                                        {isSuperAdmin ? (
+                                          <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+                                            {tx.status !== 'Verified' && (
+                                              <button
+                                                className="btn btn-sm btn-success"
+                                                style={{ padding: '4px 8px', fontSize: '0.76rem', fontWeight: 700 }}
+                                                onClick={() => handleVerifyUtrAction(tx.bookingId, tx.id, 'Verified', tx.utrNumber, 'Matched with Trust Bank Account')}
+                                                title="बैंक खाते से UTR का मिलान कर स्वीकृत करें"
+                                              >
+                                                ✓ मैच (Approve)
+                                              </button>
+                                            )}
+                                            {tx.status !== 'Rejected' && (
+                                              <button
+                                                className="btn btn-sm btn-danger"
+                                                style={{ padding: '4px 8px', fontSize: '0.76rem', fontWeight: 700 }}
+                                                onClick={() => {
+                                                  const r = window.prompt('अस्वीकार करने का कारण दर्ज करें (उदा. बैंक में नहीं आया / अमान्य):', 'बैंक खाते में राशि नहीं दिखी');
+                                                  if (r !== null) {
+                                                    handleVerifyUtrAction(tx.bookingId, tx.id, 'Rejected', tx.utrNumber, r);
+                                                  }
+                                                }}
+                                                title="UTR अस्वीकार करें"
+                                              >
+                                                ✕ रिजेक्ट
+                                              </button>
+                                            )}
                                             <button
-                                              className="btn btn-sm btn-success"
-                                              style={{ padding: '4px 8px', fontSize: '0.76rem', fontWeight: 700 }}
-                                              onClick={() => handleVerifyUtrAction(tx.bookingId, tx.id, 'Verified', tx.utrNumber, 'Matched with Trust Bank Account')}
-                                              title="बैंक खाते से UTR का मिलान कर स्वीकृत करें"
+                                              className="btn btn-sm btn-outline"
+                                              style={{ padding: '4px 8px', fontSize: '0.76rem' }}
+                                              onClick={() => setEditUtrModal({
+                                                show: true,
+                                                txn: tx,
+                                                newUtr: tx.utrNumber || '',
+                                                status: tx.status || 'Pending',
+                                                remarks: tx.remarks || ''
+                                              })}
+                                              title="UTR नंबर या स्थिति संशोधित करें"
                                             >
-                                              ✓ मैच (Approve)
+                                              बदलें
                                             </button>
-                                          )}
-                                          {tx.status !== 'Rejected' && (
-                                            <button
-                                              className="btn btn-sm btn-danger"
-                                              style={{ padding: '4px 8px', fontSize: '0.76rem', fontWeight: 700 }}
-                                              onClick={() => {
-                                                const r = window.prompt('अस्वीकार करने का कारण दर्ज करें (उदा. बैंक में नहीं आया / अमान्य):', 'बैंक खाते में राशि नहीं दिखी');
-                                                if (r !== null) {
-                                                  handleVerifyUtrAction(tx.bookingId, tx.id, 'Rejected', tx.utrNumber, r);
-                                                }
-                                              }}
-                                              title="UTR अस्वीकार करें"
-                                            >
-                                              ✕ रिजेक्ट
-                                            </button>
-                                          )}
-                                          <button
-                                            className="btn btn-sm btn-outline"
-                                            style={{ padding: '4px 8px', fontSize: '0.76rem' }}
-                                            onClick={() => setEditUtrModal({
-                                              show: true,
-                                              txn: tx,
-                                              newUtr: tx.utrNumber || '',
-                                              status: tx.status || 'Pending',
-                                              remarks: tx.remarks || ''
-                                            })}
-                                            title="UTR नंबर या स्थिति संशोधित करें"
-                                          >
-                                            बदलें
-                                          </button>
-                                        </div>
+                                          </div>
+                                        ) : (
+                                          <div style={{ fontSize: '0.8rem', color: '#6B7280', fontStyle: 'italic', padding: '8px' }}>
+                                            केवल देखने हेतु (View Only)
+                                          </div>
+                                        )}
                                       </td>
                                     </tr>
                                   ))
