@@ -30,11 +30,15 @@ const upload = multer({ storage });
 // Admin Authentication Middleware using high-security AuthService
 const checkAdminAuth = requireAuth();
 
-// Admin Login
+// Admin Login - Legacy route (main auth via /api/auth/login)
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const adminUser = process.env.ADMIN_USERNAME || 'admin';
-  const adminPass = process.env.ADMIN_PASSWORD || 'admin@mvd2026';
+  const adminPass = process.env.ADMIN_PASSWORD; // NO default fallback — must be set in env
+
+  if (!adminPass) {
+    return res.status(503).json({ success: false, error: 'Admin पासवर्ड सर्वर पर कॉन्फ़िगर नहीं है। कृपया Vercel पर ADMIN_PASSWORD environment variable सेट करें।' });
+  }
 
   if (username === adminUser && password === adminPass) {
     req.session.isAdmin = true;
@@ -47,8 +51,9 @@ router.post('/login', async (req, res) => {
     });
   }
 
-  return res.status(401).json({ success: false, error: 'Invalid admin username or password.' });
+  return res.status(401).json({ success: false, error: 'गलत Admin Username या Password।' });
 });
+
 
 // Admin Session Status
 router.get('/status', (req, res) => {

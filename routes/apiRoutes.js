@@ -68,13 +68,17 @@ router.post('/auth/logout', (req, res) => {
   res.json({ success: true, message: 'लॉगआउट सफल।' });
 });
 
-// Update Password
+// Update Password - Self-service (old pass required) OR SuperAdmin override (targetUsername se kisi bhi ka)
 router.put('/auth/update-password', requireAuth(), async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword, targetUsername } = req.body;
     const user = req.user;
-    
-    await StaffService.updatePassword(user.username, oldPassword, newPassword);
+
+    // SuperAdmin can reset anyone's password without old password
+    const isSuperAdmin = user.role === 'SuperAdmin' || (user.permissions && user.permissions.includes('all'));
+    const whoToChange = (isSuperAdmin && targetUsername) ? targetUsername : user.username;
+
+    await StaffService.updatePassword(whoToChange, oldPassword, newPassword, isSuperAdmin ? user : null);
     res.json({ success: true, message: 'पासवर्ड सफलतापूर्वक अपडेट किया गया।' });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });

@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Bookings: Frontend realtime onSnapshot + PNR search
+    match /bookings/{bookingId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Train Coaches: Public read
+    match /trainCoaches/{coachId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Settings: Public read
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Staff Members: Backend only
+    match /staffMembers/{staffId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // Audit Logs: Backend only
+    match /auditLogs/{logId} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}

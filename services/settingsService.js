@@ -128,16 +128,26 @@ function saveSettingsToDisk(settings) {
 
 class SettingsService {
   static async getSettings() {
+    // Always try Firebase first (primary source of truth)
     try {
       const docRef = db.collection('settings').doc('general');
       const snap = await docRef.get();
       if (snap.exists) {
         const data = snap.data();
-        return { ...DEFAULT_SETTINGS, ...data };
+        // Cache in memory for performance
+        inMemorySettings = { ...DEFAULT_SETTINGS, ...data };
+        return inMemorySettings;
+      } else {
+        // First time: Initialize settings in Firebase with defaults
+        const defaults = { ...DEFAULT_SETTINGS, createdAt: new Date().toISOString() };
+        await docRef.set(defaults);
+        inMemorySettings = defaults;
+        return defaults;
       }
     } catch (e) {
-      // Fallback to local disk
+      console.warn('⚠️ Firebase settings read fallback to local:', e.message);
     }
+    // Emergency fallback: local disk
     return loadSettingsFromDisk();
   }
 
@@ -150,12 +160,14 @@ class SettingsService {
       lastUpdatedBy: updatedByName
     };
 
-    saveSettingsToDisk(updated);
-
+    // Primary: Save to Firebase
     try {
       await db.collection('settings').doc('general').set(updated);
+      inMemorySettings = updated;
+      console.log('✅ Settings saved to Firebase Firestore.');
     } catch (e) {
-      console.warn('Firestore settings write warning:', e.message);
+      console.warn('⚠️ Firestore settings write failed, saving locally:', e.message);
+      saveSettingsToDisk(updated);
     }
 
     try {

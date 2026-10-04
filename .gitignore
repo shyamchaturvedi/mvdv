@@ -12,3 +12,9 @@ scratch/
 dist/
 build/
 .cache/
+
+# Firebase Service Account Key - NEVER commit this!
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+
+.vercel

@@ -642,6 +642,60 @@ class StaffService {
       recentLogs: filteredLogs.slice(0, 50)
     };
   }
+  // -------------------------------------------------------------
+  // Change Password (Staff Self-Service OR SuperAdmin Override)
+  // -------------------------------------------------------------
+  static async updatePassword(usernameOrId, oldPassword, newPassword, performedBy = null) {
+    if (!newPassword || newPassword.trim().length < 6) {
+      throw new Error('नया पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।');
+    }
+
+    const list = await this.getStaffList();
+    const cleanId = (usernameOrId || '').trim().toLowerCase();
+
+    const staff = list.find(s =>
+      (s.username && s.username.toLowerCase() === cleanId) ||
+      (s.email && s.email.toLowerCase() === cleanId) ||
+      s.staffId === usernameOrId
+    );
+
+    if (!staff) {
+      throw new Error('कर्मचारी नहीं मिला।');
+    }
+
+    // SuperAdmin bypass: no old password required if performedBy is SuperAdmin
+    const isSuperAdminOverride = performedBy && (performedBy.role === 'SuperAdmin' || (performedBy.permissions && performedBy.permissions.includes('all')));
+
+    if (!isSuperAdminOverride) {
+      // Self-service: old password must match
+      if (!oldPassword) {
+        throw new Error('पासवर्ड बदलने के लिए पुराना पासवर्ड अनिवार्य है।');
+      }
+      if (staff.password !== oldPassword) {
+        throw new Error('पुराना पासवर्ड गलत है।');
+      }
+    }
+
+    const updatedStaff = {
+      ...staff,
+      password: newPassword.trim(),
+      updatedAt: new Date().toISOString(),
+      passwordChangedAt: new Date().toISOString()
+    };
+
+    await db.collection('staffMembers').doc(staff.staffId).set(updatedStaff);
+
+    await this.logAudit({
+      action: 'PASSWORD_CHANGED',
+      performedBy: performedBy || { name: staff.name, username: staff.username, role: staff.role },
+      details: isSuperAdminOverride
+        ? `SuperAdmin द्वारा ${staff.name} (${staff.username}) का पासवर्ड रीसेट किया गया।`
+        : `${staff.name} (${staff.username}) ने स्वयं अपना पासवर्ड बदला।`,
+      targetId: staff.staffId
+    });
+
+    return { success: true, message: 'पासवर्ड सफलतापूर्वक अपडेट किया गया।' };
+  }
 }
 
 module.exports = { StaffService, ROLES, DEPARTMENTS };
