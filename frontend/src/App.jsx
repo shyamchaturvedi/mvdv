@@ -383,12 +383,12 @@ export default function App() {
     email: '',
     username: '',
     password: '',
-    department: 'Running Staff (ट्रेन संचालन)',
-    role: 'TTE',
+    department: 'Trust Executive (ट्रस्ट प्रबंधन)',
+    role: 'SuperAdmin',
     mobile: '',
     assignedCoach: '',
-    assignedCoaches: ['S1', 'S2'],
-    assignedStation: 'New Delhi (NDLS)'
+    assignedCoaches: [],
+    assignedStation: 'All Stations'
   });
 
   // Staff Login Options (Firebase Phone OTP & Google Sign-In)
@@ -1565,14 +1565,15 @@ export default function App() {
 
   const loadStaffData = async () => {
     try {
-      const res = await fetch(`/api/admin/staff?token=${staffToken}`, {
-        headers: { 'Authorization': 'Bearer ' + staffToken }
+      const token = staffToken || (typeof window !== 'undefined' ? (localStorage.getItem('mvd_staff_token') || 'mvd_admin_token') : 'mvd_admin_token');
+      const res = await fetch(`/api/admin/staff?token=${encodeURIComponent(token)}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && Array.isArray(data.staff)) {
         setStaffList(data.staff);
-        setStaffRoles(data.roles);
-        setStaffDepartments(data.departments);
+        if (data.roles) setStaffRoles(data.roles);
+        if (data.departments) setStaffDepartments(data.departments);
       }
     } catch (err) {
       console.error('Error loading staff:', err);
@@ -1682,13 +1683,14 @@ export default function App() {
         setNewStaffForm({
           name: '',
           email: '',
+          username: '',
           password: '',
-          department: 'Running Staff (ट्रेन संचालन)',
-          role: 'TTE',
+          department: 'Trust Executive (ट्रस्ट प्रबंधन)',
+          role: 'SuperAdmin',
           mobile: '',
           assignedCoach: '',
-          assignedCoaches: ['S1'],
-          assignedStation: 'New Delhi (NDLS)'
+          assignedCoaches: [],
+          assignedStation: 'All Stations'
         });
         loadStaffData();
       } else {
@@ -5820,7 +5822,7 @@ export default function App() {
                                 </td>
                                 <td>{st.mobile || '-'}</td>
                                 <td>
-                                  {(() => {
+                                  {st.role === 'TTE' ? (() => {
                                     const coaches = st.assignedCoaches || st.assignedCoach;
                                     if (Array.isArray(coaches) && coaches.length > 0) {
                                       return <span style={{ color: '#047857', fontWeight: 600 }}>{coaches.join(', ')}</span>;
@@ -5828,7 +5830,9 @@ export default function App() {
                                       return <span style={{ color: '#047857', fontWeight: 600 }}>{coaches}</span>;
                                     }
                                     return <span style={{ color: '#784D35' }}>सभी कोच (All)</span>;
-                                  })()}
+                                  })() : (
+                                    <span style={{ color: '#9CA3AF' }}>-</span>
+                                  )}
                                 </td>
                                 <td>
                                   <span className={`badge ${st.status === 'Active' ? 'badge-paid' : 'badge-unpaid'}`}>
@@ -8723,7 +8727,28 @@ export default function App() {
                   <select
                     className="form-control"
                     value={newStaffForm.role}
-                    onChange={(e) => setNewStaffForm({ ...newStaffForm, role: e.target.value })}
+                    onChange={(e) => {
+                      const selectedRole = e.target.value;
+                      let dept = 'Trust Executive (ट्रस्ट प्रबंधन)';
+                      let coaches = [];
+                      if (selectedRole === 'TTE') {
+                        dept = 'Running Staff (ट्रेन संचालन)';
+                        coaches = ['S1'];
+                      } else if (selectedRole === 'BookingClerk') {
+                        dept = 'Booking Counter (टिकट काउंटर)';
+                      } else if (selectedRole === 'FinanceOfficer') {
+                        dept = 'Accounts & Audit (लेखा व कोषागार)';
+                      } else if (selectedRole === 'StationMaster') {
+                        dept = 'Station Management (स्टेशन समन्वयन)';
+                      }
+                      setNewStaffForm({
+                        ...newStaffForm,
+                        role: selectedRole,
+                        department: dept,
+                        assignedCoaches: coaches,
+                        assignedCoach: coaches.join(',')
+                      });
+                    }}
                   >
                     {(staffRoles && typeof staffRoles === 'object' && !Array.isArray(staffRoles) && Object.keys(staffRoles).length > 0
                       ? Object.entries(staffRoles).map(([k, v]) => ({ id: k, name: v?.name || k }))
@@ -8732,7 +8757,7 @@ export default function App() {
                         : [
                             { id: 'SuperAdmin', name: 'ट्रस्ट मुख्य व्यवस्थापक (Super Admin)' },
                             { id: 'TTE', name: 'चल टिकट परीक्षक (TTE / On-Train Officer)' },
-                            { id: 'BookingClerk', name: 'काउंटर आरक्षण लिपिक (Booking Clerk)' },
+                            { id: 'BookingClerk', name: 'काउंटर आरक्षण लिपik (Booking Clerk)' },
                             { id: 'FinanceOfficer', name: 'लेखा व कोषाध्यक्ष अधिकारी (Finance Officer)' },
                             { id: 'StationMaster', name: 'स्टेशन समन्वयक (Station Coordinator)' }
                           ]
@@ -8740,6 +8765,16 @@ export default function App() {
                       <option key={r.id} value={r.id}>{r.name} ({r.id})</option>
                     ))}
                   </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">विभाग (Department)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newStaffForm.department}
+                    readOnly
+                    style={{ background: '#FFF8F2', color: '#9A3412', fontWeight: 600 }}
+                  />
                 </div>
               </div>
 
@@ -8755,6 +8790,26 @@ export default function App() {
                     required
                   />
                 </div>
+                {newStaffForm.role === 'TTE' && (
+                  <div className="form-group">
+                    <label className="form-label">आवंटित कोच (TTE केवल, उदा. S1, S2) *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="उदा. S1, S2, S3"
+                      value={newStaffForm.assignedCoach || (newStaffForm.assignedCoaches ? newStaffForm.assignedCoaches.join(', ') : 'S1')}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setNewStaffForm({
+                          ...newStaffForm,
+                          assignedCoach: val,
+                          assignedCoaches: val.split(',').map(c => c.trim().toUpperCase()).filter(Boolean)
+                        });
+                      }}
+                      required
+                    />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>

@@ -32,10 +32,37 @@ const DEPARTMENTS = [
 ];
 
 class StaffService {
-  // Ensure default staff initialization (clean state, no dummy staff)
+  // Ensure default staff initialization (Seed primary SuperAdmin in Firestore if missing)
   static async initDefaultStaff() {
-    // No-op: Staff members are added dynamically by SuperAdmin
-    return;
+    try {
+      const adminDocRef = db.collection('staffMembers').doc('ADMIN-001');
+      const snap = await adminDocRef.get();
+      if (!snap.exists) {
+        const adminPass = process.env.ADMIN_PASSWORD;
+        const defaultAdmin = {
+          staffId: 'ADMIN-001',
+          name: 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
+          username: 'admin',
+          email: (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase(),
+          password: adminPass || 'admin@mvd2026',
+          department: 'Trust Executive (ट्रस्ट प्रबंधन)',
+          role: 'SuperAdmin',
+          mobile: '9598023701',
+          assignedCoaches: [], // SuperAdmin has NO coach assignment
+          assignedStation: 'All Stations',
+          status: 'Active',
+          totalCollected: 0,
+          cashCollected: 0,
+          upiCollected: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        await adminDocRef.set(defaultAdmin);
+        console.log('✅ SuperAdmin ADMIN-001 ensured in Firestore staffMembers.');
+      }
+    } catch (e) {
+      console.warn('⚠️ Error in initDefaultStaff:', e.message);
+    }
   }
 
   // Get all staff members
@@ -68,14 +95,21 @@ class StaffService {
     }
 
     let dept = payload.department;
-    if (!dept) {
+    if (!dept || (dept === 'Running Staff (ट्रेन संचालन)' && payload.role !== 'TTE')) {
       if (payload.role === 'TTE') dept = 'Running Staff (ट्रेन संचालन)';
       else if (payload.role === 'BookingClerk') dept = 'Booking Counter (टिकट काउंटर)';
       else if (payload.role === 'FinanceOfficer') dept = 'Accounts & Audit (लेखा व कोषागार)';
       else if (payload.role === 'SuperAdmin') dept = 'Trust Executive (ट्रस्ट प्रबंधन)';
       else if (payload.role === 'StationMaster') dept = 'Station Management (स्टेशन समन्वयन)';
-      else dept = 'Booking Counter (टिकट काउंटर)';
+      else dept = 'Trust Executive (ट्रस्ट प्रबंधन)';
     }
+
+    // Coach assignment: ONLY for TTE! For SuperAdmin, BookingClerk, FinanceOfficer, coaches must be empty []
+    const assignedCoaches = payload.role === 'TTE'
+      ? (Array.isArray(payload.assignedCoaches) && payload.assignedCoaches.length > 0 
+          ? payload.assignedCoaches 
+          : (payload.assignedCoach ? [payload.assignedCoach] : ['S1']))
+      : [];
 
     const staffId = `STF-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const newStaff = {
@@ -87,7 +121,7 @@ class StaffService {
       department: dept,
       role: payload.role || 'BookingClerk',
       mobile: payload.mobile || '',
-      assignedCoaches: payload.assignedCoaches || ['S1'],
+      assignedCoaches,
       assignedStation: payload.assignedStation || 'New Delhi (NDLS)',
       status: 'Active',
       totalCollected: 0,
