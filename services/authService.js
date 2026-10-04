@@ -80,7 +80,7 @@ class AuthService {
     const adminPass = process.env.ADMIN_PASSWORD || 'admin@mvd2026';
     const adminEmail = (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase();
 
-    if (cleanId === 'admin' || cleanId === adminEmail || cleanId === 'iammshyam@gmail.com') {
+    if (cleanId === 'admin' || cleanId === adminEmail || cleanId === 'iammshyam@gmail.com' || cleanId === 'info.aroventech@gmail.com') {
       if (password !== adminPass) {
         throw new Error('व्यवस्थापक (Admin) पासवर्ड अमान्य है।');
       }
@@ -161,6 +161,7 @@ class AuthService {
     const configuredAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
     const authorizedSuperAdminEmails = [
       'iammshyam@gmail.com',
+      'info.aroventech@gmail.com',
       configuredAdminEmail
     ].filter(Boolean);
 

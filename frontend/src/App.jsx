@@ -438,13 +438,13 @@ export default function App() {
       fetch(`/api/auth/me?token=${staffToken}`, {
         headers: { 'Authorization': 'Bearer ' + staffToken }
       })
-      .then(res => res.json())
-      .then(data => {
+      .then(async (res) => {
+        const data = await res.json();
         if (data.success && data.user) {
           setStaffUser(data.user);
           localStorage.setItem('mvd_staff_user', JSON.stringify(data.user));
           sessionStorage.setItem('mvd_staff_user', JSON.stringify(data.user));
-        } else if (data.status === 401 || data.error?.includes('अमान्य')) {
+        } else if (res.status === 401 || res.status === 403 || data.error?.includes('सुरक्षा') || data.error?.includes('अमान्य')) {
           handleStaffLogout();
         }
       })
