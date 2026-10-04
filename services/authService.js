@@ -59,7 +59,7 @@ class AuthService {
   static generateToken(userPayload = null) {
     if (userPayload) {
       try {
-        const payloadStr = JSON.stringify({ user: userPayload, exp: Date.now() + 30 * 24 * 60 * 60 * 1000 });
+        const payloadStr = JSON.stringify({ user: userPayload, exp: Date.now() + 3650 * 24 * 60 * 60 * 1000 });
         const b64 = Buffer.from(payloadStr).toString('base64');
         const sig = crypto.createHmac('sha256', process.env.SESSION_SECRET || 'mvd_secret_key_2026_fallback').update(b64).digest('hex');
         return `jwt.${b64}.${sig}`;
@@ -99,7 +99,7 @@ class AuthService {
       };
 
       const token = this.generateToken(adminUser);
-      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+      const expiresAt = Date.now() + 3650 * 24 * 60 * 60 * 1000; // 30 days
       activeSessions.set(token, { user: adminUser, expiresAt });
       saveSessionsToDisk();
 
@@ -130,7 +130,7 @@ class AuthService {
     };
 
     const token = this.generateToken(staffUser);
-    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+    const expiresAt = Date.now() + 3650 * 24 * 60 * 60 * 1000; // 30 days
     activeSessions.set(token, { user: staffUser, expiresAt });
     saveSessionsToDisk();
 
@@ -182,7 +182,7 @@ class AuthService {
       };
 
       const token = this.generateToken(adminUser);
-      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+      const expiresAt = Date.now() + 3650 * 24 * 60 * 60 * 1000;
       activeSessions.set(token, { user: adminUser, expiresAt });
       saveSessionsToDisk();
 
@@ -212,7 +212,7 @@ class AuthService {
     };
 
     const token = this.generateToken(staffUser);
-    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    const expiresAt = Date.now() + 10 * 365 * 24 * 60 * 60 * 1000;
     activeSessions.set(token, { user: staffUser, expiresAt });
     saveSessionsToDisk();
 
