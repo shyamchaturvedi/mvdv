@@ -32,11 +32,69 @@ function getBerthType(seatNum, travelClass) {
 }
 
 class BookingService {
-  // Generate a distinct PNR format: MVD-YYYY-XXXXX
+  // Generate sequential PNR format: MVD-YYYY-000001, MVD-YYYY-000002...
   static async generateBookingId(yatraYear = 2026) {
-    const timestamp = Date.now().toString().slice(-4);
-    const random = Math.floor(1000 + Math.random() * 9000);
-    return `MVD-${yatraYear}-${timestamp}${random.toString().slice(-2)}`;
+    const yr = parseInt(yatraYear, 10) || 2026;
+    const counterRef = db.collection('counters').doc(`pnr_${yr}`);
+
+    // If Firebase Admin SDK with runTransaction
+    if (db.runTransaction) {
+      try {
+        const nextNum = await db.runTransaction(async (t) => {
+          const doc = await t.get(counterRef);
+          let current = 0;
+          if (doc.exists) {
+            current = doc.data().lastNumber || 0;
+          } else {
+            // Count any existing bookings in case of counter sync
+            const snap = await db.collection('bookings').get();
+            let maxFound = 0;
+            snap.forEach(d => {
+              const b = d.data();
+              if (b.bookingId && b.bookingId.startsWith(`MVD-${yr}-`)) {
+                const parts = b.bookingId.split('-');
+                const num = parseInt(parts[2], 10);
+                if (!isNaN(num) && num > maxFound) maxFound = num;
+              }
+            });
+            current = maxFound;
+          }
+          const next = current + 1;
+          t.set(counterRef, {
+            yatraYear: yr,
+            lastNumber: next,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+          return next;
+        });
+
+        const padded = String(nextNum).padStart(6, '0');
+        return `MVD-${yr}-${padded}`;
+      } catch (err) {
+        console.warn('Transaction counter error, running fallback:', err.message);
+      }
+    }
+
+    // Fallback if runTransaction not available
+    const snapshot = await db.collection('bookings').get();
+    let max = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const bId = data.bookingId || doc.id;
+      if (bId && bId.startsWith(`MVD-${yr}-`)) {
+        const parts = bId.split('-');
+        if (parts.length >= 3) {
+          const num = parseInt(parts[2], 10);
+          if (!isNaN(num) && num > max) max = num;
+        }
+      }
+    });
+    const next = max + 1;
+    try {
+      await counterRef.set({ yatraYear: yr, lastNumber: next, updatedAt: new Date().toISOString() });
+    } catch (_) {}
+    const padded = String(next).padStart(6, '0');
+    return `MVD-${yr}-${padded}`;
   }
 
   // Get all bookings with optional filters

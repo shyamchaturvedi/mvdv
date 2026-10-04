@@ -3994,25 +3994,24 @@ export default function App() {
                 <ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <strong>सामान्य यात्रियों हेतु:</strong> PNR स्टेटस एवं बर्थ जांच। नया आरक्षण व चेकिंग केवल अधिकृत ट्रस्ट कर्मियों द्वारा।
               </div>
 
-              {/* Quick PNR test chips */}
+              {/* PNR Format & Info */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>त्वरित परीक्षण PNR:</span>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  style={{ padding: '3px 10px', fontSize: '0.74rem' }}
-                  onClick={() => { setPnrInput('MVD-2026-860670'); searchPNR('MVD-2026-860670'); }}
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>PNR प्रारूप:</span>
+                <span
+                  style={{
+                    padding: '3px 10px',
+                    fontSize: '0.78rem',
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    background: '#FEF3C7',
+                    color: '#92400E',
+                    borderRadius: 6,
+                    border: '1px solid #FCD34D'
+                  }}
                 >
-                  MVD-2026-860670
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  style={{ padding: '3px 10px', fontSize: '0.74rem' }}
-                  onClick={() => { setPnrInput('MVD-2026-861347'); searchPNR('MVD-2026-861347'); }}
-                >
-                  MVD-2026-861347
-                </button>
+                  MVD-2026-000001
+                </span>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>(प्रथम टिकट MVD-2026-000001 से +1 क्रमानुसार)</span>
               </div>
 
 
@@ -8138,7 +8137,7 @@ export default function App() {
                 {/* QR Code & Sec Hash Card */}
                 <div className="irctc-qr-card">
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(`http://localhost:3000/verify-ticket.html?pnr=${ticketModal.bookingId}`)}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(`${window.location.origin}/verify-ticket.html?pnr=${ticketModal.bookingId}`)}`}
                     alt="Anti-Fraud Ticket QR"
                     style={{ width: 75, height: 75, margin: '0 auto', display: 'block' }}
                   />

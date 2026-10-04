@@ -41,7 +41,7 @@ class PDFService {
     doc.pipe(stream);
 
     const secHash = PDFService.computeSecurityHash(booking);
-    const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.APP_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://mvdv.vercel.app');
     const verifyUrl = `${baseUrl}/verify-ticket.html?pnr=${encodeURIComponent(booking.bookingId)}&sec=${secHash}`;
     const qrBuffer = await QRCode.toBuffer(verifyUrl, { width: 85, margin: 1 });
 
@@ -255,7 +255,7 @@ class PDFService {
 
     doc.pipe(stream);
 
-    const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.APP_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://mvdv.vercel.app');
 
     for (const booking of bookings) {
       doc.addPage();
