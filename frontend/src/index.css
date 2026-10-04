@@ -1914,3 +1914,5 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
 
 
 
+@ m e d i a   p r i n t   {   . h i d e - o n - p r i n t   {   d i s p l a y :   n o n e   ! i m p o r t a n t ;   }   . r u l e s - p a g e   {   b o x - s h a d o w :   n o n e   ! i m p o r t a n t ;   m a r g i n :   0   ! i m p o r t a n t ;   m a x - w i d t h :   1 0 0 %   ! i m p o r t a n t ;   b o r d e r :   n o n e   ! i m p o r t a n t ;   }   }  
+ 

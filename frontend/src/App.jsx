@@ -1737,6 +1737,7 @@ export default function App() {
     if (p === '/login') return 'login';
     if (p === '/verify-ticket') return 'verifier';
     if (p === '/coach-position' || p === '/train-composition') return 'coach_position';
+    if (p === '/rule' || p === '/rules') return 'rules';
 
     // Universal & Role-specific Settings
     if (p === '/settings' || p.endsWith('/settings')) return 'settings';
@@ -1789,7 +1790,7 @@ export default function App() {
   const checkRouteAccess = () => {
     const p = currentPath;
     // Strictly allowed public routes
-    if (p === '/' || p === '/home' || p === '/login' || p === '/receipts' || p === '/verify-ticket' || p === '/coach-position' || p === '/train-composition') {
+    if (p === '/' || p === '/home' || p === '/login' || p === '/receipts' || p === '/verify-ticket' || p === '/coach-position' || p === '/train-composition' || p === '/rule' || p === '/rules') {
       return { allowed: true };
     }
     if (!staffUser) {
@@ -7701,6 +7702,39 @@ export default function App() {
                         <strong>हेल्पलाइन व तकनीकी सहायता:</strong> किसी भी कठिनाई के लिए एडमिन सपोर्ट <code>iammshyam@gmail.com</code> या <code>info.aroventech@gmail.com</code> पर संपर्क करें।<br />
                         <strong>सॉफ्टवेयर डेवलपर:</strong> ArovenTech (www.aroventech.site | +91 9598023701)
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* VIEW: RULES AND CONDITIONS PAGE */}
+                {activeView === 'rules' && (
+                  <div className="glass-card rules-page" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 30px', background: '#FFFFFF', color: '#1F2937', fontFamily: 'serif' }}>
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #9A3412', paddingBottom: 20, marginBottom: 30 }}>
+                      <h1 style={{ fontSize: '2.5rem', color: '#9A3412', fontWeight: 900, margin: '0 0 10px 0' }}>{projectSettings.trustName || 'श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट'}</h1>
+                      <h2 style={{ fontSize: '1.5rem', color: '#7C2D12', margin: 0 }}>ट्रेन यात्रा के नियम एवं शर्तें (Terms & Conditions)</h2>
+                      <div style={{ marginTop: 15 }}>
+                        <button className="btn btn-outline hide-on-print" onClick={() => window.print()} style={{ borderColor: '#9A3412', color: '#9A3412' }}>
+                          <Printer size={16} style={{ display: 'inline', marginRight: 6 }} /> प्रिंट करें (Print)
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div style={{ lineHeight: 1.8, fontSize: '1.05rem' }}>
+                      <ol style={{ paddingLeft: 24 }}>
+                        <li style={{ marginBottom: 12 }}><strong>टिकट की वैधता (Validity):</strong> यह टिकट केवल उसी तिथि, ट्रेन और यात्री के लिए मान्य है जिसके नाम पर यह जारी किया गया है। टिकट अहस्तांतरणीय (Non-transferable) है।</li>
+                        <li style={{ marginBottom: 12 }}><strong>पहचान पत्र (ID Proof):</strong> यात्रा के दौरान सभी यात्रियों को अपना मूल (Original) वैध पहचान पत्र (जैसे आधार कार्ड, वोटर आईडी) साथ रखना अनिवार्य है। पहचान पत्र न होने पर टिकट अमान्य माना जाएगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>रद्दीकरण एवं रिफंड (Cancellation & Refund):</strong> यात्रा से 48 घंटे पूर्व टिकट रद्द करने पर 25% कटौती होगी। 48 से 24 घंटे पूर्व 50% कटौती होगी। 24 घंटे से कम समय में कोई रिफंड नहीं दिया जाएगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>सामान की जिम्मेदारी (Luggage):</strong> यात्री अपने सामान की सुरक्षा के लिए स्वयं जिम्मेदार हैं। ट्रस्ट या रेलवे प्रशासन किसी भी प्रकार की चोरी या नुकसान के लिए उत्तरदायी नहीं होगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>निःशुल्क यात्रा (Free Travel):</strong> किसी भी प्रकार की निःशुल्क यात्रा पूर्णतः प्रतिबंधित है। बिना भुगतान या फर्जी UTR के यात्रा करते हुए पाए जाने पर दंडात्मक कार्रवाई की जाएगी।</li>
+                        <li style={{ marginBottom: 12 }}><strong>धूम्रपान एवं नशा (Smoking & Intoxicants):</strong> ट्रेन के भीतर धूम्रपान, शराब या किसी भी प्रकार के मादक पदार्थों का सेवन पूर्णतः वर्जित है।</li>
+                        <li style={{ marginBottom: 12 }}><strong>विवाद (Disputes):</strong> किसी भी प्रकार के विवाद की स्थिति में श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट का निर्णय अंतिम एवं सर्वमान्य होगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>आपातकाल (Emergency):</strong> किसी भी आपात स्थिति या चिकित्सा सहायता के लिए कृपया ट्रेन में उपस्थित TTE या सुरक्षा कर्मियों से संपर्क करें।</li>
+                      </ol>
+                    </div>
+
+                    <div style={{ marginTop: 50, borderTop: '1px solid #E5E7EB', paddingTop: 20, textAlign: 'center', fontSize: '0.9rem', color: '#6B7280' }}>
+                      <p style={{ margin: '0 0 5px 0' }}>{projectSettings.sacredShlok || '।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।।'}</p>
+                      <p style={{ margin: 0 }}>अधिक जानकारी के लिए संपर्क करें: {projectSettings.helplineNumber || '+91 9598023701'} | {projectSettings.officialEmail || 'iammshyam@gmail.com'}</p>
                     </div>
                   </div>
                 )}
