@@ -77,10 +77,13 @@ class AuthService {
     const cleanId = identifier.trim().toLowerCase();
 
     // 1. Check SuperAdmin credentials by username 'admin' or admin email
-    const adminPass = process.env.ADMIN_PASSWORD || 'admin@mvd2026';
+    const adminPass = process.env.ADMIN_PASSWORD;
     const adminEmail = (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase();
 
     if (cleanId === 'admin' || cleanId === adminEmail || cleanId === 'iammshyam@gmail.com' || cleanId === 'info.aroventech@gmail.com') {
+      if (!adminPass) {
+        throw new Error('सिस्टम में एडमिन पासवर्ड सेट नहीं है। कृपया Vercel पर ADMIN_PASSWORD सेट करें या Google से लॉगिन करें।');
+      }
       if (password !== adminPass) {
         throw new Error('व्यवस्थापक (Admin) पासवर्ड अमान्य है।');
       }
