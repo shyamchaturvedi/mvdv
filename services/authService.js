@@ -95,7 +95,7 @@ class AuthService {
         permissions: ['all', 'staff_manage', 'financial_reconcile', 'audit_view', 'delete_booking', 'export_excel', 'create_booking', 'checkin', 'collect_due', 'view_chart', 'print_chart']
       };
 
-      const token = this.generateToken();
+      const token = this.generateToken(adminUser);
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
       activeSessions.set(token, { user: adminUser, expiresAt });
       saveSessionsToDisk();
@@ -177,7 +177,7 @@ class AuthService {
         permissions: ['all', 'staff_manage', 'financial_reconcile', 'audit_view', 'delete_booking', 'export_excel', 'create_booking', 'checkin', 'collect_due', 'view_chart', 'print_chart']
       };
 
-      const token = this.generateToken();
+      const token = this.generateToken(adminUser);
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       activeSessions.set(token, { user: adminUser, expiresAt });
       saveSessionsToDisk();
