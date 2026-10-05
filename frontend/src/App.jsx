@@ -121,7 +121,6 @@ export default function App() {
             .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
             .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
           </style>
-          <link rel="stylesheet" href="/css/style.css">
         </head>
         <body style="background: #ffffff; padding: 0;">
           ${elem.outerHTML}
@@ -3940,11 +3939,15 @@ export default function App() {
 
                 {/* ── HERO: Vande Bharat Train Card ── */}
                 <div className="ent-hero-card">
-                  <img
-                    src="/vande_bharat_real.jpg"
-                    alt="वंदे भारत एक्सप्रेस — नई दिल्ली / प्रयागराज से श्री माता वैष्णो देवी कटड़ा"
-                    className="ent-hero-img"
-                  />
+                     <img
+                       src="/vande_bharat_real.jpg"
+                       alt="वंदे भारत एक्सप्रेस — नई दिल्ली / प्रयागराज से श्री माता वैष्णो देवी कटड़ा"
+                       className="ent-hero-img"
+                       width="1376"
+                       height="768"
+                       fetchPriority="high"
+                       decoding="async"
+                     />
                   <div className="ent-hero-overlay" />
                   <div className="ent-hero-content">
                     <div className="ent-hero-badge-row">
@@ -4329,7 +4332,7 @@ export default function App() {
                   </div>
                   <div className="ent-poster-grid">
                     <div className="ent-img-card" onClick={() => setPosterModal(true)} title="पूर्ण पोस्टर HD में देखें">
-                      <img src="/poster.png" alt="श्री माता वैष्णो देवी यात्रा पोस्टर" style={{ height: 280, objectFit: 'contain', background: '#FFF8F2' }} />
+                      <img src="/poster-preview.jpg" alt="श्री माता वैष्णो देवी यात्रा पोस्टर" width="700" height="776" loading="lazy" decoding="async" style={{ height: 280, objectFit: 'contain', background: '#FFF8F2' }} />
                       <div className="ent-img-caption">
                         <div className="ent-img-caption-sub">आधिकारिक पोस्टर — क्लिक करें HD देखें</div>
                         <div className="ent-img-caption-title">विशेष तीर्थ एक्सप्रेस · लखनऊ से कटड़ा</div>
@@ -4366,7 +4369,7 @@ export default function App() {
                 {/* ── SACRED SHRINE PANORAMA ── */}
                 {['/shrine_hero.jpg'].map(src => (
                   <div key={src} className="ent-img-card" style={{ marginBottom: 16, cursor: 'default' }}>
-                    <img src={src} alt="श्री माता वैष्णो देवी पावन धाम — त्रिकुटा पर्वत" style={{ height: 320 }} />
+                    <img src={src} alt="श्री माता वैष्णो देवी पावन धाम — त्रिकुटा पर्वत" width="1376" height="768" loading="lazy" decoding="async" style={{ height: 320 }} />
                     <div className="ent-img-caption" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                       <div>
                         <div className="ent-img-caption-sub">त्रिकुटा पर्वत पावन धाम · कटड़ा (SVDK)</div>
@@ -4389,10 +4392,10 @@ export default function App() {
                     {[
                       { src: '/shrine_night.jpg', sub: 'त्रिकुटा शिखर · पावन धाम', title: 'रात्रि आलोकित दिव्य भवन', desc: 'स्वर्णिम प्रकाश में जगमगाता मां का पावन भवन' },
                       { src: '/yatra_train.jpg', sub: 'विशेष तीर्थ एक्सप्रेस', title: 'सुसज्जित यात्रा ट्रेन', desc: 'ट्रस्ट द्वारा सुसज्जित वार्षिक विशेष ट्रेन' },
-                      { src: '/katra_station.jpg', sub: 'गंतव्य स्टेशन', title: 'कटड़ा रेलवे स्टेशन (SVDK)', desc: 'माता के द्वार तक पहुँचाने वाला अंतिम रेलवे स्टेशन' },
+                      { src: '/sanctum_darshan.jpg', sub: 'पवन धाम · त्रिकुटा शिखर', title: 'भव्य दर्शन · पावन धाम', desc: 'माता के चरणों में सजा संवत पवित्र धाम का अद्भुत दृश्य' },
                     ].map(({ src, sub, title, desc }) => (
                       <div key={src} className="ent-img-card">
-                        <img src={src} alt={title} />
+                        <img src={src} alt={title} width="1376" height="768" loading="lazy" decoding="async" />
                         <div className="ent-img-caption">
                           <div className="ent-img-caption-sub">{sub}</div>
                           <div className="ent-img-caption-title">{title}</div>
@@ -4440,7 +4443,7 @@ export default function App() {
                       <div className="ent-card-icon-box"><Users size={20} strokeWidth={1.75} /></div>
                     </div>
                     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                      <img src="/logo.png" alt="MVD Trust Logo" style={{ width: 68, height: 68, borderRadius: 10, border: '1.5px solid #EFEAE3', objectFit: 'cover', flexShrink: 0 }} />
+                        <img src="/logo-256.jpg" alt="MVD Trust Logo" width="256" height="256" loading="lazy" decoding="async" style={{ width: 68, height: 68, borderRadius: 10, border: '1.5px solid #EFEAE3', objectFit: 'cover', flexShrink: 0 }} />
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '0.85rem', color: '#6B4226', lineHeight: 1.6, margin: '0 0 12px' }}>
                           माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट द्वारा प्रत्येक वर्ष आयोजित यह पावन तीर्थ यात्रा हजारों श्रद्धालुओं को सुरक्षित एवं व्यवस्थित तरीके से माता के दरबार तक पहुँचाती है।
@@ -4491,7 +4494,7 @@ export default function App() {
                   <div className="ent-footer-grid">
                     <div>
                       <div className="ent-footer-title">
-                        <img src="/logo.png" alt="MVD Trust" style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(255,255,255,0.15)', objectFit: 'cover' }} />
+                          <img src="/logo-256.jpg" alt="MVD Trust" width="256" height="256" loading="lazy" decoding="async" style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(255,255,255,0.15)', objectFit: 'cover' }} />
                         श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट
                       </div>
                       <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, maxWidth: 360 }}>
@@ -8309,7 +8312,7 @@ export default function App() {
                 
                 {/* Header Banner */}
                 <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <img src="/logo.jpg" alt="MVD Logo" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'contain', border: '1.5px solid #C2410C', background: '#FFF' }} />
+                     <img src="/logo-256.jpg" alt="MVD Logo" width="256" height="256" decoding="async" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'contain', border: '1.5px solid #C2410C', background: '#FFF' }} />
                   <div style={{ flex: 1, textAlign: 'center' }}>
                     <div style={{ color: '#C2410C', fontWeight: 800, fontSize: '0.72rem' }}>
                       || OM SARVA MANGAL MANGALYE SHIVE SARVARTHA SADHIKE ||
@@ -8534,11 +8537,14 @@ export default function App() {
             </div>
 
             <div style={{ background: '#FFF8F2', borderRadius: 10, padding: 6, marginBottom: 14, border: '1.5px solid #FED7AA' }}>
-              <img
-                src="/poster.png"
-                alt="श्री माता वैष्णो देवी वार्षिक विशेष तीर्थ यात्रा पोस्टर 2026"
-                style={{ width: '100%', maxHeight: '78vh', objectFit: 'contain', borderRadius: 6, display: 'block', margin: '0 auto' }}
-              />
+                 <img
+                   src="/poster.png"
+                   alt="श्री माता वैष्णो देवी वर्ष 2026 यात्रा पोस्टर"
+                   width="1191"
+                   height="1321"
+                   decoding="async"
+                   style={{ width: '100%', maxHeight: '78vh', objectFit: 'contain', borderRadius: 6, display: 'block', margin: '0 auto' }}
+                 />
             </div>
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -9283,7 +9289,7 @@ export default function App() {
       <div className="admin-layout">
         <aside className="admin-sidebar">
           <div className="admin-sidebar-header">
-            <img src="/logo.jpg" alt="MVD Logo" className="admin-sidebar-logo" />
+                     <img src="/logo-256.jpg" alt="MVD Logo" className="admin-sidebar-logo" width="256" height="256" decoding="async" />
             <div>
               <div className="admin-sidebar-title">Mata Vaishno Devi</div>
               <div className="admin-sidebar-subtitle">Staff Portal 2026</div>
@@ -9378,7 +9384,7 @@ export default function App() {
             <div className="mobile-drawer-content" onClick={(e) => e.stopPropagation()}>
               <div className="mobile-drawer-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <img src="/logo.jpg" alt="Logo" style={{ width: 38, height: 38, borderRadius: 10, border: '1.5px solid #FDBA74', objectFit: 'cover' }} />
+                     <img src="/logo-256.jpg" alt="Logo" width="256" height="256" decoding="async" style={{ width: 38, height: 38, borderRadius: 10, border: '1.5px solid #FDBA74', objectFit: 'cover' }} />
                   <div>
                     <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#431407' }}>श्री माता वैष्णो देवी • स्टाफ पैनल</div>
                     <div style={{ fontSize: '0.74rem', color: '#9A3412', fontWeight: 700 }}>{staffUser.name} ({staffUser.role})</div>
@@ -9502,7 +9508,7 @@ export default function App() {
       <nav className="navbar">
         {/* Brand */}
         <div className="navbar-brand" onClick={() => navigate('/')}>
-          <div className="navbar-logo" style={{ background: '#fff', overflow: 'hidden' }}><img src="/logo.jpg" alt="MVD Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /></div>
+                 <div className="navbar-logo" style={{ background: '#fff', overflow: 'hidden' }}><img src="/logo-256.jpg" alt="MVD Logo" width="256" height="256" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /></div>
           <div>
             <div className="navbar-title">Mata Vaishno Devi</div>
             <div className="navbar-subtitle">श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट • Yatra Special Train 2026</div>

@@ -19,9 +19,17 @@
 
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" type="image/jpeg" href="/logo.jpg" />
-    <link rel="shortcut icon" href="/logo.jpg" />
-    <link rel="apple-touch-icon" href="/logo.jpg" />
+    <link rel="alternate icon" type="image/jpeg" href="/logo-256.jpg" />
+    <link rel="shortcut icon" href="/logo-256.jpg" />
+    <link rel="apple-touch-icon" href="/logo-256.jpg" />
+
+    <!-- Fonts: single request + preconnect (pehle CSS @import tha jo render-blocking chain banata tha) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Baloo+2:wght@400;500;600;700;800&family=Hind:wght@300;400;500;600;700&display=swap" />
+
+    <!-- Above-the-fold hero: preload for faster LCP -->
+    <link rel="preload" as="image" href="/vande_bharat_real.jpg" fetchpriority="high" />
 
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website" />
