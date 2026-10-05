@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, DollarSign, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
+import { MapPin, ChevronRight, Phone, ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, DollarSign, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
 
 import { db, auth, firebaseConfig } from './firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -223,7 +223,7 @@ export default function App() {
   // Project & UPI Settings State (SuperAdmin Dynamic Configuration)
   const [projectSettings, setProjectSettings] = useState({
     upiId: '7398959993@okbizaxis',
-    upiPayeeName: 'à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ',
+    upiPayeeName: 'श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट',
     merchantCode: 'MVD2026',
     defaultAdvance: 1000,
     fareSleeper: 3000,
@@ -235,7 +235,7 @@ export default function App() {
     helplineNumber: '+91 7398959993',
     officialEmail: 'infomatavaishnodevi@gmail.com',
     officeAddress: 'Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India',
-    sacredShlok: 'à¤œà¤¯ à¤®à¤¾à¤¤à¤¾ à¤¦à¥€ â€¢ à¥ à¤¶à¥à¤°à¥€ à¤µà¥ˆà¤·à¥à¤£à¤µà¥€ à¤¨à¤®à¤ƒ â€¢ à¤¨à¤¿à¤·à¥à¤•à¤¾à¤® à¤¸à¥‡à¤µà¤¾'
+    sacredShlok: 'जय माता दी • ॐ श्री वैष्णवी नमः • निष्काम सेवा'
   });
   const [projectSettingsLoading, setProjectSettingsLoading] = useState(false);
   const [projectSettingsSaving, setProjectSettingsSaving] = useState(false);
@@ -370,14 +370,14 @@ export default function App() {
     coachCode: '',
     coachName: '',
     coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (à¤¶à¤¯à¤¨à¤¯à¤¾à¤¨)',
+    detailedType: 'Sleeper 3-Tier (शयनयान)',
     position: '',
     totalSeats: 72,
     fare: 3000,
     status: 'Active',
     isBookable: true,
-    platformPosition: 'à¤Ÿà¥à¤°à¥‡à¤¨ à¤•à¤¾ à¤®à¤§à¥à¤¯ à¤­à¤¾à¤— (Center Platform)',
-    facilities: '72 à¤¶à¤¯à¤¨ à¤¬à¤°à¥à¤¥, à¤ªà¤‚à¤–à¤¾ à¤µ à¤šà¤¾à¤°à¥à¤œà¤¿à¤‚à¤— à¤¸à¥‰à¤•à¥‡à¤Ÿ, à¤¬à¤¾à¤¯à¥‹-à¤Ÿà¥‰à¤¯à¤²à¥‡à¤Ÿ',
+    platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
+    facilities: '72 शयन बर्थ, पंखा व चार्जिंग सॉकेट, बायो-टॉयलेट',
     description: ''
   });
 
@@ -405,7 +405,7 @@ export default function App() {
     email: '',
     username: '',
     password: '',
-    department: 'Trust Executive (à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨)',
+    department: 'Trust Executive (ट्रस्ट प्रबंधन)',
     role: 'SuperAdmin',
     mobile: '',
     assignedCoach: '',
@@ -467,7 +467,7 @@ export default function App() {
           setStaffUser(data.user);
           localStorage.setItem('mvd_staff_user', JSON.stringify(data.user));
           sessionStorage.setItem('mvd_staff_user', JSON.stringify(data.user));
-        } else if (res.status === 401 || res.status === 403 || data.error?.includes('à¤¸à¥à¤°à¤•à¥à¤·à¤¾') || data.error?.includes('à¤…à¤®à¤¾à¤¨à¥à¤¯')) {
+        } else if (res.status === 401 || res.status === 403 || data.error?.includes('सुरक्षा') || data.error?.includes('अमान्य')) {
           handleStaffLogout();
         }
       })
@@ -597,7 +597,7 @@ export default function App() {
   const handleCreateCoach = async (e) => {
     e.preventDefault();
     if (!newCoachForm.coachCode || !newCoachForm.coachName) {
-      alert('à¤•à¥ƒà¤ªà¤¯à¤¾ à¤•à¥‹à¤š à¤•à¥‹à¤¡ à¤”à¤° à¤¨à¤¾à¤® à¤­à¤°à¥‡à¤‚à¥¤');
+      alert('कृपया कोच कोड और नाम भरें।');
       return;
     }
     const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
@@ -614,29 +614,29 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message || 'à¤¨à¤¯à¤¾ à¤•à¥‹à¤š à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤œà¥‹à¤¡à¤¼à¤¾ à¤—à¤¯à¤¾à¥¤');
+        alert(data.message || 'नया कोच सफलतापूर्वक जोड़ा गया।');
         setNewCoachModal(false);
         setNewCoachForm({
           coachCode: '',
           coachName: '',
           coachClass: 'Sleeper',
-          detailedType: 'Sleeper 3-Tier (à¤¶à¤¯à¤¨à¤¯à¤¾à¤¨)',
+          detailedType: 'Sleeper 3-Tier (शयनयान)',
           position: '',
           totalSeats: 72,
           fare: 3000,
           status: 'Active',
           isBookable: true,
-          platformPosition: 'à¤Ÿà¥à¤°à¥‡à¤¨ à¤•à¤¾ à¤®à¤§à¥à¤¯ à¤­à¤¾à¤— (Center Platform)',
-          facilities: '72 à¤¶à¤¯à¤¨ à¤¬à¤°à¥à¤¥, à¤ªà¤‚à¤–à¤¾ à¤µ à¤šà¤¾à¤°à¥à¤œà¤¿à¤‚à¤— à¤¸à¥‰à¤•à¥‡à¤Ÿ, à¤¬à¤¾à¤¯à¥‹-à¤Ÿà¥‰à¤¯à¤²à¥‡à¤Ÿ',
+          platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
+          facilities: '72 शयन बर्थ, पंखा व चार्जिंग सॉकेट, बायो-टॉयलेट',
           description: ''
         });
         loadAdminCoaches();
         loadTrainComposition(compositionYearFilter);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('सर्वर त्रुटि: ' + err.message);
     }
   };
 
@@ -665,15 +665,15 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message || 'à¤•à¥‹à¤š à¤µà¤¿à¤µà¤°à¤£ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤');
+        alert(data.message || 'कोच विवरण सफलतापूर्वक अपडेट किया गया।');
         setEditCoachModal(false);
         loadAdminCoaches();
         loadTrainComposition(compositionYearFilter);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('सर्वर त्रुटि: ' + err.message);
     }
   };
 
@@ -685,7 +685,7 @@ export default function App() {
     const refAmt = parseFloat(cancelModal.refundAmount) || 0;
     const charges = parseFloat(cancelModal.cancellationCharges) || 0;
     
-    if (!confirm(`à¤•à¥à¤¯à¤¾ à¤†à¤ª à¤¨à¤¿à¤¶à¥à¤šà¤¿à¤¤ à¤¹à¥ˆà¤‚ à¤•à¤¿ PNR ${b.bookingId} (${b.bookedBy}) à¤•à¤¾ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦ à¤•à¤°à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?\n\nà¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿: â‚¹${refAmt}\nà¤•à¤Ÿà¥Œà¤¤à¥€ à¤¶à¥à¤²à¥à¤•: â‚¹${charges}\nà¤®à¤¾à¤§à¥à¤¯à¤®: ${cancelModal.refundMode}\n\nà¤¸à¥€à¤Ÿà¥‡à¤‚ à¤¤à¥à¤°à¤‚à¤¤ à¤®à¥à¤•à¥à¤¤ à¤•à¤° à¤¦à¥€ à¤œà¤¾à¤à¤‚à¤—à¥€à¥¤`)) {
+    if (!confirm(`क्या आप निश्चित हैं कि PNR ${b.bookingId} (${b.bookedBy}) का टिकट रद्द करना चाहते हैं?\n\nरिफंड राशि: ₹${refAmt}\nकटौती शुल्क: ₹${charges}\nमाध्यम: ${cancelModal.refundMode}\n\nसीटें तुरंत मुक्त कर दी जाएंगी।`)) {
       return;
     }
 
@@ -697,14 +697,14 @@ export default function App() {
         body: JSON.stringify({
           refundAmount: refAmt,
           cancellationCharges: charges,
-          cancellationReason: cancelModal.cancellationReason || 'à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¥‡ à¤…à¤¨à¥à¤°à¥‹à¤§ à¤ªà¤° à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£',
+          cancellationReason: cancelModal.cancellationReason || 'यात्री के अनुरोध पर रद्दीकरण',
           refundMode: cancelModal.refundMode || 'Cash',
           utr: cancelModal.utr || ''
         })
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message || 'à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤°à¤¦à¥à¤¦ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾ à¤à¤µà¤‚ à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤¦à¤°à¥à¤œ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤');
+        alert(data.message || 'टिकट सफलतापूर्वक रद्द किया गया एवं रिफंड रिकॉर्ड दर्ज किया गया।');
         setCancelModal(null);
         loadAdminDashboard();
         loadDashboardStats();
@@ -712,15 +712,15 @@ export default function App() {
         loadTrainComposition(compositionYearFilter);
         loadDailyReport(dailyFilterDate);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('सर्वर त्रुटि: ' + err.message);
     }
   };
 
   const handleDeleteCoach = async (id, code) => {
-    if (!confirm(`à¤•à¥à¤¯à¤¾ à¤†à¤ª à¤•à¥‹à¤š ${code} à¤•à¥‹ à¤Ÿà¥à¤°à¥‡à¤¨ à¤¸à¤‚à¤°à¤šà¤¨à¤¾ à¤¸à¥‡ à¤¹à¤Ÿà¤¾à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?`)) return;
+    if (!confirm(`क्या आप कोच ${code} को ट्रेन संरचना से हटाना चाहते हैं?`)) return;
     try {
       const res = await fetch(`/api/admin/coaches/${id}?token=${staffToken}`, {
         method: 'DELETE',
@@ -728,14 +728,14 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('à¤•à¥‹à¤š à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤¹à¤Ÿà¤¾ à¤¦à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤');
+        alert('कोच सफलतापूर्वक हटा दिया गया।');
         loadAdminCoaches();
         loadTrainComposition(compositionYearFilter);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('सर्वर त्रुटि: ' + err.message);
     }
   };
 
@@ -764,7 +764,7 @@ export default function App() {
   };
 
   const handleResetDefaultRake = async () => {
-    if (!confirm('à¤•à¥à¤¯à¤¾ à¤†à¤ª à¤Ÿà¥à¤°à¥‡à¤¨ à¤¸à¤‚à¤°à¤šà¤¨à¤¾ à¤•à¥‹ à¤®à¤¾à¤¨à¤• 18-à¤¬à¥‹à¤—à¥€ à¤ªà¥à¤°à¤¾à¤°à¥‚à¤ª (Default Rake) à¤ªà¤° à¤°à¥€à¤¸à¥‡à¤Ÿ à¤•à¤°à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?')) return;
+    if (!confirm('क्या आप ट्रेन संरचना को मानक 18-बोगी प्रारूप (Default Rake) पर रीसेट करना चाहते हैं?')) return;
     const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
     try {
       const res = await fetch(`/api/admin/coaches/reset-default?token=${token}`, {
@@ -774,14 +774,14 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message || 'à¤Ÿà¥à¤°à¥‡à¤¨ à¤¸à¤‚à¤°à¤šà¤¨à¤¾ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤®à¤¾à¤¨à¤• 18-à¤¬à¥‹à¤—à¥€ à¤ªà¥à¤°à¤¾à¤°à¥‚à¤ª à¤ªà¤° à¤°à¥€à¤¸à¥‡à¤Ÿ à¤¹à¥‹ à¤—à¤ˆà¥¤');
+        alert(data.message || 'ट्रेन संरचना सफलतापूर्वक मानक 18-बोगी प्रारूप पर रीसेट हो गई।');
         loadAdminCoaches();
         loadTrainComposition(compositionYearFilter);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
@@ -817,7 +817,7 @@ export default function App() {
   const handleAutoAssignSeats = () => {
     const available = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
     if (available.length === 0) {
-      alert(`à¤•à¥‹à¤š ${coachName} à¤®à¥‡à¤‚ à¤•à¥‹à¤ˆ à¤­à¥€ à¤¸à¥€à¤Ÿ à¤°à¤¿à¤•à¥à¤¤ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆ! à¤•à¥ƒà¤ªà¤¯à¤¾ à¤…à¤¨à¥à¤¯ à¤•à¥‹à¤š à¤šà¥à¤¨à¥‡à¤‚à¥¤`);
+      alert(`कोच ${coachName} में कोई भी सीट रिक्त नहीं है! कृपया अन्य कोच चुनें।`);
       return;
     }
     const needed = Math.max(1, passengers.length);
@@ -960,7 +960,7 @@ export default function App() {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!bookedBy || !mobile) {
-      alert('à¤•à¥ƒà¤ªà¤¯à¤¾ à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ à¤•à¤¾ à¤¨à¤¾à¤® à¤”à¤° à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤­à¤°à¥‡à¤‚à¥¤');
+      alert('कृपया मुख्य भक्त का नाम और मोबाइल नंबर भरें।');
       return;
     }
     setIsSubmitting(true);
@@ -1022,10 +1022,10 @@ export default function App() {
           }, 1500);
         }, 500);
       } else {
-        alert('à¤¬à¥à¤•à¤¿à¤‚à¤— à¤µà¤¿à¤«à¤²: ' + data.error);
+        alert('बुकिंग विफल: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -1038,16 +1038,16 @@ export default function App() {
       return JSON.parse(text);
     } catch (err) {
       if (!res.ok) {
-        throw new Error(`à¤¸à¤°à¥à¤µà¤° à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (${res.status}): ${text.slice(0, 100)}`);
+        throw new Error(`सर्वर स्थिति (${res.status}): ${text.slice(0, 100)}`);
       }
-      throw new Error('à¤…à¤®à¤¾à¤¨à¥à¤¯ à¤¸à¤°à¥à¤µà¤° à¤ªà¥à¤°à¤¤à¤¿à¤•à¥à¤°à¤¿à¤¯à¤¾');
+      throw new Error('अमान्य सर्वर प्रतिक्रिया');
     }
   };
 
   const searchPNR = async (queryTerm) => {
     const term = (queryTerm !== undefined ? queryTerm : pnrInput).trim();
     if (!term) {
-      setPnrSearchError('à¤•à¥ƒà¤ªà¤¯à¤¾ PNR à¤¨à¤‚à¤¬à¤° à¤…à¤¥à¤µà¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤');
+      setPnrSearchError('कृपया PNR नंबर अथवा मोबाइल नंबर दर्ज करें।');
       return;
     }
     setPnrLoading(true);
@@ -1059,10 +1059,10 @@ export default function App() {
         setTicketModal(data.booking);
       } else {
         setSearchedTicket(null);
-        setPnrSearchError(data.error || 'à¤‡à¤¸ PNR / à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¸à¥‡ à¤•à¥‹à¤ˆ à¤µà¥ˆà¤§ à¤†à¤°à¤•à¥à¤·à¤£ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¤¾à¥¤');
+        setPnrSearchError(data.error || 'इस PNR / मोबाइल नंबर से कोई वैध आरक्षण नहीं मिला।');
       }
     } catch (err) {
-      setPnrSearchError('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      setPnrSearchError('सर्वर त्रुटि: ' + err.message);
     } finally {
       setPnrLoading(false);
     }
@@ -1075,7 +1075,7 @@ export default function App() {
         setUpiQrModal(data);
       }
     } catch (err) {
-      alert('UPI QR à¤²à¥‹à¤¡ à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹ à¤¸à¤•à¤¾: ' + err.message);
+      alert('UPI QR लोड नहीं हो सका: ' + err.message);
     }
   };
 
@@ -1106,10 +1106,10 @@ export default function App() {
         const targetRoute = getRoleDefaultPath(data.user.role);
         navigate(targetRoute);
       } else {
-        setAuthLoginError(data.error || 'à¤…à¤®à¤¾à¤¨à¥à¤¯ à¤ˆà¤®à¥‡à¤² à¤†à¤ˆà¤¡à¥€ / à¤¯à¥‚à¤œà¤°à¤¨à¥‡à¤® à¤¯à¤¾ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡à¥¤');
+        setAuthLoginError(data.error || 'अमान्य ईमेल आईडी / यूजरनेम या पासवर्ड।');
       }
     } catch (err) {
-      setAuthLoginError('à¤ªà¥à¤°à¤®à¤¾à¤£à¥€à¤•à¤°à¤£ à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      setAuthLoginError('प्रमाणीकरण त्रुटि: ' + err.message);
     } finally {
       setAuthLoginLoading(false);
     }
@@ -1119,7 +1119,7 @@ export default function App() {
     e.preventDefault();
     if (!otpSentNotice) {
       if (!loginPhone || loginPhone.length < 10) {
-        setAuthLoginError('à¤•à¥ƒà¤ªà¤¯à¤¾ 10 à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¤¾ à¤®à¤¾à¤¨à¥à¤¯ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤');
+        setAuthLoginError('कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।');
         return;
       }
       setOtpSentNotice(true);
@@ -1129,7 +1129,7 @@ export default function App() {
     }
     // Verify OTP
     if (loginOtp !== '123456') {
-      setAuthLoginError('à¤…à¤®à¤¾à¤¨à¥à¤¯ OTP à¤•à¥‹à¤¡! à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¸à¤¹à¥€ OTP (123456) à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤');
+      setAuthLoginError('अमान्य OTP कोड! कृपया सही OTP (123456) दर्ज करें।');
       return;
     }
     setAuthLoginLoading(true);
@@ -1154,7 +1154,7 @@ export default function App() {
         setAuthLoginError(data.error);
       }
     } catch (err) {
-      setAuthLoginError('à¤²à¥‰à¤—à¤¿à¤¨ à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      setAuthLoginError('लॉगिन त्रुटि: ' + err.message);
     } finally {
       setAuthLoginLoading(false);
     }
@@ -1199,16 +1199,16 @@ export default function App() {
         sessionStorage.removeItem('mvd_staff_token');
         sessionStorage.removeItem('mvd_staff_user');
         try { await signOut(auth); } catch (_) {}
-        setAuthLoginError(data?.error || `à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤à¤¿: Google à¤–à¤¾à¤¤à¤¾ '${user.email}' à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤ à¤•à¥‡à¤µà¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤ªà¤‚à¤œà¥€à¤•à¥ƒà¤¤ à¤à¤¡à¤®à¤¿à¤¨ à¤µ à¤¸à¥à¤Ÿà¤¾à¤« à¤ˆà¤®à¥‡à¤² à¤¹à¥€ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤° à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤`);
+        setAuthLoginError(data?.error || `सुरक्षा अस्वीकृति: Google खाता '${user.email}' अधिकृत नहीं है। केवल ट्रस्ट द्वारा पंजीकृत एडमिन व स्टाफ ईमेल ही लॉगिन कर सकते हैं।`);
       }
     } catch (err) {
       try { await signOut(auth); } catch (_) {}
       if (err.code === 'auth/unauthorized-domain') {
-        setAuthLoginError('à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥‚à¤šà¤¨à¤¾: Vercel à¤¡à¥‹à¤®à¥‡à¤¨ à¤•à¥‹ Firebase Authentication Console (Authorized Domains) à¤®à¥‡à¤‚ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚, à¤¯à¤¾ "à¤†à¤ˆà¤¡à¥€ / à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡" à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤°à¥‡à¤‚à¥¤');
+        setAuthLoginError('सुरक्षा सूचना: Vercel डोमेन को Firebase Authentication Console (Authorized Domains) में जोड़ें, या "आईडी / पासवर्ड" से लॉगिन करें।');
       } else if (err.code === 'auth/popup-closed-by-user') {
-        setAuthLoginError('à¤—à¥‚à¤—à¤² à¤²à¥‰à¤—à¤¿à¤¨ à¤µà¤¿à¤‚à¤¡à¥‹ à¤¬à¤‚à¤¦ à¤•à¤° à¤¦à¥€ à¤—à¤ˆà¥¤');
+        setAuthLoginError('गूगल लॉगिन विंडो बंद कर दी गई।');
       } else {
-        setAuthLoginError(err.message || 'à¤—à¥‚à¤—à¤² à¤ªà¥à¤°à¤®à¤¾à¤£à¥€à¤•à¤°à¤£ à¤µà¤¿à¤«à¤² à¤°à¤¹à¤¾à¥¤ à¤•à¥‡à¤µà¤² à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤ˆà¤®à¥‡à¤² à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤°à¥‡à¤‚à¥¤');
+        setAuthLoginError(err.message || 'गूगल प्रमाणीकरण विफल रहा। केवल अधिकृत ईमेल से लॉगिन करें।');
       }
     } finally {
       setAuthLoginLoading(false);
@@ -1227,7 +1227,7 @@ export default function App() {
       const data = await res.json();
       setVerifierResult(data);
     } catch (err) {
-      setVerifierResult({ success: false, status: 'ERROR', message: 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message });
+      setVerifierResult({ success: false, status: 'ERROR', message: 'सत्यापन सर्वर त्रुटि: ' + err.message });
     } finally {
       setVerifierLoading(false);
     }
@@ -1289,13 +1289,13 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        setProjectSettingsSuccess(data.message || 'à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤à¤µà¤‚ UPI à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤¸à¤¹à¥‡à¤œ à¤²à¥€ à¤—à¤ˆà¤‚!');
+        setProjectSettingsSuccess(data.message || 'प्रोजेक्ट एवं UPI सेटिंग्स सफलतापूर्वक सहेज ली गईं!');
         if (data.settings) setProjectSettings(data.settings);
       } else {
-        setProjectSettingsError(data.error || 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤µà¤¿à¤«à¤²à¥¤');
+        setProjectSettingsError(data.error || 'सेटिंग्स अपडेट करने में विफल।');
       }
     } catch (err) {
-      setProjectSettingsError('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      setProjectSettingsError('सर्वर त्रुटि: ' + err.message);
     } finally {
       setProjectSettingsSaving(false);
     }
@@ -1325,11 +1325,11 @@ export default function App() {
     setSettingsMessage('');
     setSettingsError('');
     if (settingsNewPass !== settingsConfirmPass) {
-      setSettingsError('à¤¨à¤¯à¤¾ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤”à¤° à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤®à¥‡à¤² à¤¨à¤¹à¥€à¤‚ à¤–à¤¾à¤¤à¥‡à¥¤');
+      setSettingsError('नया पासवर्ड और पुष्टि पासवर्ड मेल नहीं खाते।');
       return;
     }
     if (settingsNewPass.length < 6) {
-      setSettingsError('à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤•à¤® à¤¸à¥‡ à¤•à¤® 6 à¤…à¤•à¥à¤·à¤°à¥‹à¤‚ à¤•à¤¾ à¤¹à¥‹à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤à¥¤');
+      setSettingsError('पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।');
       return;
     }
     try {
@@ -1345,15 +1345,15 @@ export default function App() {
         setSettingsNewPass('');
         setSettingsConfirmPass('');
       } else {
-        setSettingsError(data.error || 'à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤µà¤¿à¤«à¤²à¥¤');
+        setSettingsError(data.error || 'पासवर्ड अपडेट करने में विफल।');
       }
     } catch (err) {
-      setSettingsError('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿, à¤•à¥ƒà¤ªà¤¯à¤¾ à¤ªà¥à¤¨à¤ƒ à¤ªà¥à¤°à¤¯à¤¾à¤¸ à¤•à¤°à¥‡à¤‚à¥¤');
+      setSettingsError('सर्वर त्रुटि, कृपया पुनः प्रयास करें।');
     }
   };
   const submitUtr = async (e) => {
     e.preventDefault();
-    if (!utrInput.trim()) return alert('à¤•à¥ƒà¤ªà¤¯à¤¾ UTR à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤');
+    if (!utrInput.trim()) return alert('कृपया UTR नंबर दर्ज करें।');
     
     try {
       const res = await fetch(`/api/bookings/${upiQrModal.bookingId}/utr`, {
@@ -1363,15 +1363,15 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('UTR à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤¸à¤¬à¤®à¤¿à¤Ÿ à¤¹à¥‹ à¤—à¤¯à¤¾à¥¤ à¤à¤¡à¤®à¤¿à¤¨ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤µà¥‡à¤°à¤¿à¤«à¤¿à¤•à¥‡à¤¶à¤¨ à¤•à¥€ à¤ªà¥à¤°à¤¤à¥€à¤•à¥à¤·à¤¾ à¤¹à¥ˆà¥¤');
+        alert('UTR सफलतापूर्वक सबमिट हो गया। एडमिन द्वारा वेरिफिकेशन की प्रतीक्षा है।');
         setUpiQrModal(null);
         setUtrInput('');
         if (staffToken) loadAdminDashboard(); // Refresh if staff
       } else {
-        alert(data.error || 'UTR à¤¸à¤¬à¤®à¤¿à¤Ÿ à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤µà¤¿à¤«à¤²à¥¤');
+        alert(data.error || 'UTR सबमिट करने में विफल।');
       }
     } catch (err) {
-      alert('à¤¸à¤°à¥à¤µà¤° à¤¤à¥à¤°à¥à¤Ÿà¤¿, à¤•à¥ƒà¤ªà¤¯à¤¾ à¤ªà¥à¤¨à¤ƒ à¤ªà¥à¤°à¤¯à¤¾à¤¸ à¤•à¤°à¥‡à¤‚à¥¤');
+      alert('सर्वर त्रुटि, कृपया पुनः प्रयास करें।');
     }
   };
 
@@ -1420,7 +1420,7 @@ export default function App() {
   };
 
   const markBookingPaid = async (id) => {
-    if (!confirm(`à¤¬à¥à¤•à¤¿à¤‚à¤— ${id} à¤•à¥‹ à¤ªà¥‚à¤°à¥à¤£ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤šà¤¿à¤¹à¥à¤¨à¤¿à¤¤ à¤•à¤°à¥‡à¤‚?`)) return;
+    if (!confirm(`बुकिंग ${id} को पूर्ण भुगतान चिह्नित करें?`)) return;
     try {
       const res = await fetch(`/api/admin/bookings/${id}/pay?token=${staffToken}`, {
         method: 'POST',
@@ -1430,12 +1430,12 @@ export default function App() {
       const data = await res.json();
       if (data.success) loadAdminDashboard();
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
   const verifyUtr = async (id, utrNumber) => {
-    if (!confirm(`à¤•à¥à¤¯à¤¾ à¤†à¤ª UTR ${utrNumber} à¤•à¥€ à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤•à¤°à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?`)) return;
+    if (!confirm(`क्या आप UTR ${utrNumber} की पुष्टि करना चाहते हैं?`)) return;
     try {
       const res = await fetch(`/api/admin/bookings/${id}/verify-utr?token=${staffToken}`, {
         method: 'PUT',
@@ -1444,20 +1444,20 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('UTR à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ à¤¹à¥‹ à¤—à¤¯à¤¾à¥¤');
+        alert('UTR सफलतापूर्वक सत्यापित हो गया।');
         loadAdminDashboard();
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
 
 
   const deleteBooking = async (id) => {
-    if (!confirm(`à¤•à¥à¤¯à¤¾ à¤†à¤ª à¤¬à¥à¤•à¤¿à¤‚à¤— ${id} à¤•à¥‹ à¤¨à¤¿à¤°à¤¸à¥à¤¤ à¤•à¤°à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?`)) return;
+    if (!confirm(`क्या आप बुकिंग ${id} को निरस्त करना चाहते हैं?`)) return;
     try {
       const res = await fetch(`/api/admin/bookings/${id}?token=${staffToken}`, {
         method: 'DELETE',
@@ -1466,7 +1466,7 @@ export default function App() {
       const data = await res.json();
       if (data.success) loadAdminDashboard();
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
@@ -1492,10 +1492,10 @@ export default function App() {
           loadAdminDashboard();
         }, 1500);
       } else {
-        alert(data.error || 'à¤…à¤ªà¤²à¥‹à¤¡ à¤¤à¥à¤°à¥à¤Ÿà¤¿');
+        alert(data.error || 'अपलोड त्रुटि');
       }
     } catch (err) {
-      alert('à¤…à¤ªà¤²à¥‹à¤¡ à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('अपलोड त्रुटि: ' + err.message);
     }
   };
 
@@ -1534,28 +1534,28 @@ export default function App() {
       if (data.success) {
         loadCoachChart(chartCoach, chartYear);
       } else {
-        alert('à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸ à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('अटेंडेंस त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
   const handleTteCollectDue = async (bookingId, amount) => {
-    const mode = window.prompt(`à¤¬à¤•à¤¾à¤¯à¤¾ â‚¹ ${amount} à¤œà¤®à¤¾ à¤•à¤°à¤¨à¥‡ à¤•à¤¾ à¤¤à¤°à¥€à¤•à¤¾ (Cash à¤¯à¤¾ UPI à¤Ÿà¤¾à¤‡à¤ª à¤•à¤°à¥‡à¤‚):`, 'Cash');
+    const mode = window.prompt(`बकाया ₹ ${amount} जमा करने का तरीका (Cash या UPI टाइप करें):`, 'Cash');
     if (!mode) return;
     
     const paymentMode = mode.trim().toUpperCase() === 'UPI' ? 'UPI' : 'Cash';
     let utr = '';
     
     if (paymentMode === 'UPI') {
-      utr = window.prompt('à¤•à¥ƒà¤ªà¤¯à¤¾ 12-à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¤¾ UPI UTR (Ref) à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚:');
+      utr = window.prompt('कृपया 12-अंकों का UPI UTR (Ref) नंबर दर्ज करें:');
       if (!utr) {
-        alert('UPI à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤•à¥‡ à¤²à¤¿à¤ UTR à¤…à¤¨à¤¿à¤µà¤¾à¤°à¥à¤¯ à¤¹à¥ˆ!');
+        alert('UPI पेमेंट के लिए UTR अनिवार्य है!');
         return;
       }
     } else {
-      if (!window.confirm(`à¤•à¥à¤¯à¤¾ à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¥‡ â‚¹ ${amount} CASH à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤¹à¥‹ à¤šà¥à¤•à¤¾ à¤¹à¥ˆ?`)) return;
+      if (!window.confirm(`क्या यात्री से ₹ ${amount} CASH प्राप्त हो चुका है?`)) return;
     }
 
     try {
@@ -1573,13 +1573,13 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('à¤¬à¤•à¤¾à¤¯à¤¾ à¤°à¤¾à¤¶à¤¿ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤œà¤®à¤¾ à¤•à¥€ à¤—à¤ˆ!');
+        alert('बकाया राशि सफलतापूर्वक जमा की गई!');
         loadCoachChart(chartCoach, chartYear);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
@@ -1672,14 +1672,14 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message || 'à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾!');
+        alert(data.message || 'सफलतापूर्वक अपडेट किया गया!');
         setEditUtrModal(null);
         loadOnlineTransactions(onlineTxnsStatusFilter, onlineTxnsSearch);
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
@@ -1702,14 +1702,14 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤œà¥‹à¤¡à¤¼ à¤¦à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾!');
+        alert('कर्मचारी सफलतापूर्वक जोड़ दिया गया!');
         setNewStaffModal(false);
         setNewStaffForm({
           name: '',
           email: '',
           username: '',
           password: '',
-          department: 'Trust Executive (à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨)',
+          department: 'Trust Executive (ट्रस्ट प्रबंधन)',
           role: 'SuperAdmin',
           mobile: '',
           assignedCoach: '',
@@ -1718,15 +1718,15 @@ export default function App() {
         });
         loadStaffData();
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
   const handleDeleteStaff = async (staffId, name) => {
-    if (!confirm(`à¤•à¥à¤¯à¤¾ à¤†à¤ª à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ "${name}" (ID: ${staffId}) à¤•à¥‹ à¤¸à¤¿à¤¸à¥à¤Ÿà¤® à¤¸à¥‡ à¤¹à¤Ÿà¤¾à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?`)) return;
+    if (!confirm(`क्या आप कर्मचारी "${name}" (ID: ${staffId}) को सिस्टम से हटाना चाहते हैं?`)) return;
     try {
       const res = await fetch(`/api/admin/staff/${staffId}?token=${staffToken}`, {
         method: 'DELETE',
@@ -1734,13 +1734,13 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤¹à¤Ÿà¤¾ à¤¦à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤');
+        alert('कर्मचारी हटा दिया गया।');
         loadStaffData();
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
@@ -1758,10 +1758,10 @@ export default function App() {
       if (data.success) {
         loadStaffData();
       } else {
-        alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + data.error);
+        alert('त्रुटि: ' + data.error);
       }
     } catch (err) {
-      alert('à¤¤à¥à¤°à¥à¤Ÿà¤¿: ' + err.message);
+      alert('त्रुटि: ' + err.message);
     }
   };
 
@@ -1839,19 +1839,19 @@ export default function App() {
       return { allowed: true };
     }
     if (p.startsWith('/admin') && !isSuperAdmin) {
-      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'à¤¸à¥à¤ªà¤° à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤• (SuperAdmin)' };
+      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'सुपर व्यवस्थापक (SuperAdmin)' };
     }
     if (p.startsWith('/tt') && staffUser.role !== 'TTE' && !isSuperAdmin) {
-      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'à¤Ÿà¥€à¤Ÿà¥€à¤ˆ à¤¸à¥à¤Ÿà¤¾à¤« (TTE)' };
+      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'टीटीई स्टाफ (TTE)' };
     }
     if (p.startsWith('/counter') && staffUser.role !== 'BookingClerk' && !isSuperAdmin) {
-      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¥à¤²à¤°à¥à¤• (BookingClerk)' };
+      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'बुकिंग क्लर्क (BookingClerk)' };
     }
     if (p.startsWith('/finance') && staffUser.role !== 'AccountsOfficer' && staffUser.role !== 'FinanceOfficer' && !isSuperAdmin) {
-      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'à¤…à¤•à¤¾à¤‰à¤‚à¤Ÿà¥à¤¸ à¤‘à¤«à¤¿à¤¸à¤° (AccountsOfficer)' };
+      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'अकाउंट्स ऑफिसर (AccountsOfficer)' };
     }
     if (p.startsWith('/station') && staffUser.role !== 'StationMaster' && !isSuperAdmin) {
-      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤¸à¤®à¤¨à¥à¤µà¤¯à¤• (StationMaster)' };
+      return { allowed: false, reason: 'ROLE_MISMATCH', required: 'स्टेशन समन्वयक (StationMaster)' };
     }
     return { allowed: true };
   };
@@ -1881,13 +1881,13 @@ export default function App() {
       <div className="glass-card" style={{ maxWidth: 500, margin: '40px auto', textAlign: 'center', border: '2px solid #FED7AA' }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}><ShieldCheck size={48} /></div>
         <span className="badge badge-bhakti" style={{ marginBottom: 8, fontSize: '0.82rem' }}>
-          à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤•à¥à¤·à¥‡à¤¤à¥à¤°
+          सुरक्षित अधिकृत कर्मचारी क्षेत्र
         </span>
         <h2 style={{ fontSize: '1.8rem', color: '#9A3412', margin: '8px 0 6px', fontWeight: 800 }}>
-          à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤à¤µà¤‚ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿà¥€ à¤²à¥‰à¤—à¤¿à¤¨
+          कर्मचारी एवं ट्रस्टी लॉगिन
         </h2>
         <p style={{ color: '#7C2D12', fontSize: '0.88rem', marginBottom: 20 }}>
-          à¤¯à¤¹ à¤•à¥à¤·à¥‡à¤¤à¥à¤° à¤•à¥‡à¤µà¤² à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤°à¥‡à¤²à¤µà¥‡ à¤¸à¥à¤Ÿà¤¾à¤«, à¤Ÿà¥€à¤Ÿà¥€à¤ˆ, à¤…à¤•à¤¾à¤‰à¤‚à¤Ÿà¥à¤¸ à¤à¤µà¤‚ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤•à¥‹à¤‚ à¤•à¥‡ à¤²à¤¿à¤ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥ˆà¥¤
+          यह क्षेत्र केवल अधिकृत रेलवे स्टाफ, टीटीई, अकाउंट्स एवं ट्रस्ट प्रबंधकों के लिए आरक्षित है।
         </p>
 
         {notice && (
@@ -1904,7 +1904,7 @@ export default function App() {
             style={{ flex: 1, padding: '9px 6px', fontSize: '0.86rem' }}
             onClick={() => { setLoginMethod('password'); setAuthLoginError(''); }}
           >
-            <Key size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> à¤†à¤ˆà¤¡à¥€ / à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡
+            <Key size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> आईडी / पासवर्ड
           </button>
           <button
             type="button"
@@ -1912,7 +1912,7 @@ export default function App() {
             style={{ flex: 1, padding: '9px 6px', fontSize: '0.86rem' }}
             onClick={() => { setLoginMethod('google'); setAuthLoginError(''); }}
           >
-            <Globe size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> Google à¤¸à¤¾à¤‡à¤¨-à¤‡à¤¨
+            <Globe size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> Google साइन-इन
           </button>
         </div>
 
@@ -1926,29 +1926,29 @@ export default function App() {
         {loginMethod === 'password' && (
           <form onSubmit={handleStaffLogin}>
             <div className="form-group" style={{ textAlign: 'left' }}>
-              <label className="form-label">à¤œà¥€à¤®à¥‡à¤² à¤†à¤ˆà¤¡à¥€ à¤¯à¤¾ à¤¯à¥‚à¤œà¤°à¤¨à¥‡à¤® (Gmail ID / Username) *</label>
+              <label className="form-label">जीमेल आईडी या यूजरनेम (Gmail ID / Username) *</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="iammshyam@gmail.com à¤¯à¤¾ admin"
+                placeholder="iammshyam@gmail.com या admin"
                 value={authLoginUsername}
                 onChange={(e) => setAuthLoginUsername(e.target.value)}
                 required
               />
             </div>
             <div className="form-group" style={{ textAlign: 'left' }}>
-              <label className="form-label">à¤—à¥‹à¤ªà¤¨à¥€à¤¯ à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ (Password) *</label>
+              <label className="form-label">गोपनीय सुरक्षा पासवर्ड (Password) *</label>
               <input
                 type="password"
                 className="form-control"
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                placeholder="••••••••"
                 value={authLoginPassword}
                 onChange={(e) => setAuthLoginPassword(e.target.value)}
                 required
               />
             </div>
             <button type="submit" disabled={authLoginLoading} className="btn btn-primary" style={{ width: '100%', padding: '13px', fontSize: '1rem', marginTop: 10 }}>
-              {authLoginLoading ? 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤œà¤¾à¤°à¥€...' : <><Lock size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤ªà¥à¤°à¤µà¥‡à¤¶ à¤•à¤°à¥‡à¤‚ (Secure Login)</>}
+              {authLoginLoading ? 'सत्यापन जारी...' : <><Lock size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> अधिकृत प्रवेश करें (Secure Login)</>}
             </button>
           </form>
         )}
@@ -1957,8 +1957,8 @@ export default function App() {
         {loginMethod === 'google' && (
           <div style={{ padding: '12px 0' }}>
             <div style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', padding: '12px 14px', borderRadius: 10, color: '#1E40AF', fontSize: '0.85rem', marginBottom: 16, textAlign: 'left', lineHeight: 1.4 }}>
-              <strong><Globe size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> Google (Gmail) à¤µà¤¨-à¤•à¥à¤²à¤¿à¤• à¤²à¥‰à¤—à¤¿à¤¨:</strong>
-              <div style={{ marginTop: 4 }}>à¤à¤¡à¤®à¤¿à¤¨ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤ªà¤‚à¤œà¥€à¤•à¥ƒà¤¤ à¤ˆà¤®à¥‡à¤² à¤†à¤ˆà¤¡à¥€ à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤°à¤¤à¥‡ à¤¹à¥€ à¤‰à¤¨à¤•à¤¾ à¤¸à¤‚à¤¬à¤‚à¤§à¤¿à¤¤ à¤•à¤¾à¤°à¥à¤¯à¤­à¤¾à¤° (à¤à¤¡à¤®à¤¿à¤¨ / à¤¸à¥à¤Ÿà¤¾à¤«) à¤¸à¥à¤µà¤¤à¤ƒ à¤–à¥à¤² à¤œà¤¾à¤à¤—à¤¾à¥¤</div>
+              <strong><Globe size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> Google (Gmail) वन-क्लिक लॉगिन:</strong>
+              <div style={{ marginTop: 4 }}>एडमिन द्वारा पंजीकृत ईमेल आईडी से लॉगिन करते ही उनका संबंधित कार्यभार (एडमिन / स्टाफ) स्वतः खुल जाएगा।</div>
             </div>
 
             <button
@@ -1979,7 +1979,7 @@ export default function App() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              <span>{authLoginLoading ? 'à¤—à¥‚à¤—à¤² à¤ªà¥à¤°à¤®à¤¾à¤£à¥€à¤•à¤°à¤£ à¤œà¤¾à¤°à¥€...' : 'Google (Gmail) à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤°à¥‡à¤‚'}</span>
+              <span>{authLoginLoading ? 'गूगल प्रमाणीकरण जारी...' : 'Google (Gmail) से लॉगिन करें'}</span>
             </button>
           </div>
         )}
@@ -1997,38 +1997,38 @@ export default function App() {
     let navItems = [];
     if (role === 'SuperAdmin') {
       navItems = [
-        { path: '/admin/dashboard', label: <><LayoutDashboard size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡</>, subTab: 'dashboard' },
-        { path: '/admin/booking', label: <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£</>, subTab: 'book' },
-        { path: '/admin/bookings', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¡à¤¾à¤¯à¤°à¥‡à¤•à¥à¤Ÿà¤°à¥€</>, subTab: 'bookings' },
-        { path: '/admin/chart', label: <><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC à¤•à¥‹à¤š à¤šà¤¾à¤°à¥à¤Ÿ</>, subTab: 'chart' },
-        { path: '/admin/reconcile', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤µ à¤¹à¤¿à¤¸à¤¾à¤¬</>, subTab: 'reconcile' },
-        { path: '/admin/staff', label: <><Users size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤µ RBAC</>, subTab: 'staff' },
-        { path: '/admin/audit', label: <><ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤‘à¤¡à¤¿à¤Ÿ à¤Ÿà¥à¤°à¥‡à¤²</>, subTab: 'audit' },
-        { path: '/admin/verifier', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨</>, subTab: 'verifier' }
+        { path: '/admin/dashboard', label: <><LayoutDashboard size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> डैशबोर्ड</>, subTab: 'dashboard' },
+        { path: '/admin/booking', label: <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> नया आरक्षण</>, subTab: 'book' },
+        { path: '/admin/bookings', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> बुकिंग डायरेक्टरी</>, subTab: 'bookings' },
+        { path: '/admin/chart', label: <><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC कोच चार्ट</>, subTab: 'chart' },
+        { path: '/admin/reconcile', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> दैनिक वसूली व हिसाब</>, subTab: 'reconcile' },
+        { path: '/admin/staff', label: <><Users size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> कर्मचारी व RBAC</>, subTab: 'staff' },
+        { path: '/admin/audit', label: <><ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> ऑडिट ट्रेल</>, subTab: 'audit' },
+        { path: '/admin/verifier', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> टिकट सत्यापन</>, subTab: 'verifier' }
       ];
     } else if (role === 'TTE') {
       navItems = [
-        { path: '/tt/home', label: <><BadgeCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸ à¤µ à¤µà¤¸à¥‚à¤²à¥€</>, subTab: 'tte' },
-        { path: '/tt/chart', label: <><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC à¤•à¥‹à¤š à¤šà¤¾à¤°à¥à¤Ÿ</>, subTab: 'chart' },
-        { path: '/tt/collections', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤®à¥‡à¤°à¤¾ à¤¦à¥ˆà¤¨à¤¿à¤• à¤•à¤²à¥‡à¤•à¥à¤¶à¤¨</>, subTab: 'collections' },
-        { path: '/tt/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨</>, subTab: 'verifier' }
+        { path: '/tt/home', label: <><BadgeCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> ऑन-ट्रेन अटेंडेंस व वसूली</>, subTab: 'tte' },
+        { path: '/tt/chart', label: <><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC कोच चार्ट</>, subTab: 'chart' },
+        { path: '/tt/collections', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> मेरा दैनिक कलेक्शन</>, subTab: 'collections' },
+        { path: '/tt/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> टिकट सत्यापन</>, subTab: 'verifier' }
       ];
     } else if (role === 'BookingClerk') {
       navItems = [
-        { path: '/counter/booking', label: <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¨à¤ˆ à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°</>, subTab: 'book' },
-        { path: '/counter/history', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤®à¥‡à¤°à¥€ à¤œà¤¾à¤°à¥€ à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸</>, subTab: 'bookings' },
-        { path: '/counter/collections', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤®à¥‡à¤°à¤¾ à¤¦à¥ˆà¤¨à¤¿à¤• à¤•à¤²à¥‡à¤•à¥à¤¶à¤¨</>, subTab: 'collections' },
-        { path: '/counter/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨</>, subTab: 'verifier' }
+        { path: '/counter/booking', label: <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> नई टिकट काउंटर</>, subTab: 'book' },
+        { path: '/counter/history', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> मेरी जारी बुकिंग्स</>, subTab: 'bookings' },
+        { path: '/counter/collections', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> मेरा दैनिक कलेक्शन</>, subTab: 'collections' },
+        { path: '/counter/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> टिकट सत्यापन</>, subTab: 'verifier' }
       ];
     } else if (role === 'AccountsOfficer') {
       navItems = [
-        { path: '/finance/ledger', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¸à¤®à¤¾à¤§à¤¾à¤¨ à¤µ à¤¦à¥ˆà¤¨à¤¿à¤• à¤•à¤²à¥‡à¤•à¥à¤¶à¤¨</>, subTab: 'reconcile' },
-        { path: '/finance/bookings', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤†à¤°à¤•à¥à¤·à¤£ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¸à¥‚à¤šà¥€</>, subTab: 'bookings' },
-        { path: '/finance/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨</>, subTab: 'verifier' }
+        { path: '/finance/ledger', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> वित्तीय समाधान व दैनिक कलेक्शन</>, subTab: 'reconcile' },
+        { path: '/finance/bookings', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> आरक्षण वित्तीय सूची</>, subTab: 'bookings' },
+        { path: '/finance/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> टिकट सत्यापन</>, subTab: 'verifier' }
       ];
     } else {
       navItems = [
-        { path: '/admin/dashboard', label: <><LayoutDashboard size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡</>, subTab: 'dashboard' }
+        { path: '/admin/dashboard', label: <><LayoutDashboard size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> डैशबोर्ड</>, subTab: 'dashboard' }
       ];
     }
 
@@ -2044,10 +2044,10 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <h3>{staffUser.name}</h3>
                 <span className="badge badge-bhakti">{role}</span>
-                <span className="badge badge-paid">âœ“ Active</span>
+                <span className="badge badge-paid">✓ Active</span>
               </div>
               <p>
-                {staffUser.department || 'à¤°à¥‡à¤²à¤µà¥‡ à¤¸à¤‚à¤šà¤¾à¤²à¤¨'} &nbsp;|&nbsp; ID: <code>{staffUser.username || staffUser.staffId}</code>
+                {staffUser.department || 'रेलवे संचालन'} &nbsp;|&nbsp; ID: <code>{staffUser.username || staffUser.staffId}</code>
                 {staffUser.assignedCoach?.length > 0 && (
                   <> &nbsp;|&nbsp; Coach: <strong style={{ color: '#047857' }}>{staffUser.assignedCoach.join(', ')}</strong></>
                 )}
@@ -2061,11 +2061,11 @@ export default function App() {
               <>
                 <a href={`/api/admin/export-excel?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                   className="btn btn-gold btn-sm"><Download size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> Excel</a>
-                <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¬à¤²à¥à¤•</button>
+                <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> बल्क</button>
                 <a href={`/api/admin/bulk-slips?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
-                  className="btn btn-primary btn-sm"><FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤ªà¤°à¥à¤šà¤¿à¤¯à¤¾à¤‚</a>
+                  className="btn btn-primary btn-sm"><FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> पर्चियां</a>
                 <a href={`/api/admin/reports/defaulters?token=${safeStaffToken}`} target="_blank" rel="noreferrer"
-                  className="btn btn-gold btn-sm"><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¬à¤•à¤¾à¤¯à¤¾à¤¦à¤¾à¤°à¥‹à¤‚ à¤•à¥€ à¤¸à¥‚à¤šà¥€</a>
+                  className="btn btn-gold btn-sm"><Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> बकायादारों की सूची</a>
               </>
             )}
             <div style={{ background: '#FFF8F2', border: '1.5px solid #FDBA74', borderRadius: 6, padding: '3px 8px', fontSize: '0.72rem', color: '#9A3412', fontWeight: 700 }}>
@@ -2101,9 +2101,9 @@ export default function App() {
   const renderDailyCollectionPanel = (isPersonalOnly = false) => {
     const report = dailyReportData;
     const personal = report?.personalStats || {
-      staffName: staffUser?.name || 'à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€',
+      staffName: staffUser?.name || 'कर्मचारी',
       role: staffUser?.role || 'Staff',
-      department: staffUser?.department || 'à¤Ÿà¥à¤°à¥‡à¤¨ à¤¸à¤‚à¤šà¤¾à¤²à¤¨',
+      department: staffUser?.department || 'ट्रेन संचालन',
       totalCollected: 0,
       cashCollected: 0,
       upiCollected: 0,
@@ -2152,17 +2152,17 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
             <div>
               <span className="badge badge-bhakti" style={{ marginBottom: 6 }}>
-                {isPersonalOnly ? <><Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤—à¤¤ à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤¬à¤¹à¥€à¤–à¤¾à¤¤à¤¾</> : <><BarChart3 size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¦à¤¿à¤¨à¤¾à¤‚à¤•-à¤µà¤¾à¤° à¤¸à¤®à¤—à¥à¤° MIS à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ à¤à¤µà¤‚ à¤¶à¥‚à¤¨à¥à¤¯ à¤¹à¥‡à¤°-à¤«à¥‡à¤° à¤¸à¤®à¤¾à¤§à¤¾à¤¨</>}
+                {isPersonalOnly ? <><Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> व्यक्तिगत दैनिक वसूली बहीखाता</> : <><BarChart3 size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> दिनांक-वार समग्र MIS रिपोर्ट एवं शून्य हेर-फेर समाधान</>}
               </span>
               <h3 style={{ fontSize: '1.45rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
                 {isPersonalOnly
-                  ? `à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ â€¢ ${staffUser?.name || 'à¤®à¥‡à¤°à¤¾ à¤–à¤¾à¤¤à¤¾'} (${staffUser?.role || ''})`
-                  : 'à¤¸à¤®à¤¸à¥à¤¤ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¤¿à¤¯à¥‹à¤‚ à¤•à¤¾ à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€, à¤›à¥‚à¤Ÿ, à¤‰à¤§à¤¾à¤°à¥€ à¤à¤µà¤‚ MIS à¤°à¤œà¤¿à¤¸à¥à¤Ÿà¤°'}
+                  ? `दैनिक वसूली रिपोर्ट • ${staffUser?.name || 'मेरा खाता'} (${staffUser?.role || ''})`
+                  : 'समस्त कर्मचारियों का दैनिक वसूली, छूट, उधारी एवं MIS रजिस्टर'}
               </h3>
               <div style={{ color: '#7C2D12', fontSize: '0.86rem', marginTop: 4 }}>
                 {isPersonalOnly
-                  ? 'à¤†à¤ªà¤•à¥€ à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤—à¤¤ à¤¨à¤•à¤¦ à¤µ UPI à¤µà¤¸à¥‚à¤²à¥€, à¤ªà¥à¤°à¤¦à¤¾à¤¨ à¤•à¥€ à¤—à¤ˆ à¤°à¤¿à¤¯à¤¾à¤¯à¤¤, à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ à¤à¤µà¤‚ à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤Ÿà¤¿à¤•à¤Ÿ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤•à¥€ à¤‘à¤¡à¤¿à¤Ÿ à¤à¤‚à¤Ÿà¥à¤°à¥€'
-                  : 'à¤¤à¤¿à¤¥à¤¿-à¤¸à¥‡-à¤¤à¤¿à¤¥à¤¿ (Date-to-Date) à¤…à¤¨à¥à¤¸à¤¾à¤° à¤¨à¤•à¤¦, à¤¯à¥‚à¤ªà¥€à¤†à¤ˆ, à¤›à¥‚à¤Ÿ, à¤¶à¥‡à¤· à¤¬à¤•à¤¾à¤¯à¤¾ à¤µ à¤­à¥‚à¤®à¤¿à¤•à¤¾-à¤µà¤¾à¤° à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤‘à¤¡à¤¿à¤Ÿ à¤Ÿà¥à¤°à¥‡à¤²'}
+                  ? 'आपकी व्यक्तिगत नकद व UPI वसूली, प्रदान की गई रियायत, शेष देय एवं प्रत्येक टिकट लेनदेन की ऑडिट एंट्री'
+                  : 'तिथि-से-तिथि (Date-to-Date) अनुसार नकद, यूपीआई, छूट, शेष बकाया व भूमिका-वार संपूर्ण ऑडिट ट्रेल'}
               </div>
             </div>
 
@@ -2171,17 +2171,17 @@ export default function App() {
               <button
                 className="btn btn-gold btn-sm"
                 onClick={() => window.print()}
-                title="à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ MIS à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚"
+                title="वर्तमान MIS रिपोर्ट प्रिंट करें"
               >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> MIS à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ
+                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> MIS प्रिंट
               </button>
               <button
                 className="btn btn-outline btn-sm"
                 onClick={() => loadDailyReport(dailyFilterDate, isPersonalOnly ? staffUser?.username : dailyStaffFilter, dateFilterPreset === 'custom' ? dateRangeStartDate : null, dateFilterPreset === 'custom' ? dateRangeEndDate : null)}
                 disabled={dailyReportLoading}
-                title="à¤¡à¥‡à¤Ÿà¤¾ à¤¤à¤¾à¤œà¤¼à¤¾ à¤•à¤°à¥‡à¤‚"
+                title="डेटा ताज़ा करें"
               >
-                <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> {dailyReportLoading ? 'à¤²à¥‹à¤¡à¤¿à¤‚à¤—...' : 'à¤¤à¤¾à¤œà¤¼à¤¾ à¤•à¤°à¥‡à¤‚'}
+                <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> {dailyReportLoading ? 'लोडिंग...' : 'ताज़ा करें'}
               </button>
             </div>
           </div>
@@ -2189,7 +2189,7 @@ export default function App() {
           {/* Date-to-Date & Range Filter Toolbar */}
           <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1.5px solid #FFEDD5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#9A3412' }}>à¤¤à¥à¤µà¤°à¤¿à¤¤ à¤«à¤¼à¤¿à¤²à¥à¤Ÿà¤°:</span>
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#9A3412' }}>त्वरित फ़िल्टर:</span>
               <button
                 className={`btn btn-sm ${dateFilterPreset === 'today' ? 'btn-primary' : 'btn-outline'}`}
                 onClick={() => {
@@ -2198,7 +2198,7 @@ export default function App() {
                   loadDailyReport(todayStr, isPersonalOnly ? staffUser?.username : dailyStaffFilter);
                 }}
               >
-                à¤†à¤œ (Today)
+                आज (Today)
               </button>
               <button
                 className={`btn btn-sm ${dateFilterPreset === 'yesterday' ? 'btn-primary' : 'btn-outline'}`}
@@ -2208,7 +2208,7 @@ export default function App() {
                   loadDailyReport(yesterdayStr, isPersonalOnly ? staffUser?.username : dailyStaffFilter);
                 }}
               >
-                à¤•à¤² (Yesterday)
+                कल (Yesterday)
               </button>
               <button
                 className={`btn btn-sm ${dateFilterPreset === '7days' ? 'btn-primary' : 'btn-outline'}`}
@@ -2219,7 +2219,7 @@ export default function App() {
                   loadDailyReport(null, isPersonalOnly ? staffUser?.username : dailyStaffFilter, sevenDaysAgoStr, todayStr);
                 }}
               >
-                à¤—à¤¤ 7 à¤¦à¤¿à¤¨
+                गत 7 दिन
               </button>
               <button
                 className={`btn btn-sm ${dateFilterPreset === 'month' ? 'btn-primary' : 'btn-outline'}`}
@@ -2230,7 +2230,7 @@ export default function App() {
                   loadDailyReport(null, isPersonalOnly ? staffUser?.username : dailyStaffFilter, firstDayOfMonthStr, todayStr);
                 }}
               >
-                à¤‡à¤¸ à¤®à¤¾à¤¹
+                इस माह
               </button>
               <button
                 className={`btn btn-sm ${dateFilterPreset === 'all' ? 'btn-primary' : 'btn-outline'}`}
@@ -2240,15 +2240,15 @@ export default function App() {
                   loadDailyReport('all', isPersonalOnly ? staffUser?.username : dailyStaffFilter);
                 }}
               >
-                à¤¸à¤®à¤¸à¥à¤¤ à¤¤à¤¿à¤¥à¤¿à¤¯à¤¾à¤‚ (All)
+                समस्त तिथियां (All)
               </button>
             </div>
 
             {/* Custom Date-to-Date Range Picker */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FFF8F2', padding: '6px 12px', borderRadius: 8, border: '1.5px solid #FDBA74', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412' }}>à¤•à¤¸à¥à¤Ÿà¤® à¤…à¤µà¤§à¤¿:</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412' }}>कस्टम अवधि:</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: '0.75rem', color: '#7C2D12' }}>à¤¸à¥‡:</span>
+                <span style={{ fontSize: '0.75rem', color: '#7C2D12' }}>से:</span>
                 <input
                   type="date"
                   className="form-control"
@@ -2258,7 +2258,7 @@ export default function App() {
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: '0.75rem', color: '#7C2D12' }}>à¤¤à¤•:</span>
+                <span style={{ fontSize: '0.75rem', color: '#7C2D12' }}>तक:</span>
                 <input
                   type="date"
                   className="form-control"
@@ -2275,13 +2275,13 @@ export default function App() {
                   loadDailyReport(null, isPersonalOnly ? staffUser?.username : dailyStaffFilter, dateRangeStartDate, dateRangeEndDate);
                 }}
               >
-                à¤²à¤¾à¤—à¥‚ à¤•à¤°à¥‡à¤‚
+                लागू करें
               </button>
             </div>
 
             {!isPersonalOnly && (isSuperAdmin || staffUser?.role === 'AccountsOfficer') && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412' }}>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€:</span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412' }}>कर्मचारी:</span>
                 <select
                   className="form-control"
                   style={{ width: 'auto', padding: '4px 10px', fontSize: '0.82rem' }}
@@ -2295,7 +2295,7 @@ export default function App() {
                     }
                   }}
                 >
-                  <option value="">à¤¸à¤®à¤¸à¥à¤¤ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ (All Staff)</option>
+                  <option value="">समस्त कर्मचारी (All Staff)</option>
                   {staffList.map(s => (
                     <option key={s.id || s.username} value={s.username}>{s.name} ({s.role})</option>
                   ))}
@@ -2318,11 +2318,11 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <ShieldCheck size={20} color="#B45309" />
               <strong style={{ color: '#92400E', fontSize: '1rem' }}>
-                à¤¶à¥‚à¤¨à¥à¤¯ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¹à¥‡à¤°-à¤«à¥‡à¤° à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ (Zero Financial Leakage Balance Formula)
+                शून्य वित्तीय हेर-फेर सत्यापन (Zero Financial Leakage Balance Formula)
               </strong>
             </div>
             <span className="badge badge-paid" style={{ fontSize: '0.78rem', padding: '4px 10px', background: '#059669', color: '#fff' }}>
-              âœ“ 100% à¤¸à¤Ÿà¥€à¤• à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¸à¤®à¤¾à¤§à¤¾à¤¨ (Balanced)
+              ✓ 100% सटीक वित्तीय समाधान (Balanced)
             </span>
           </div>
           <div style={{
@@ -2336,20 +2336,20 @@ export default function App() {
             fontSize: '0.86rem'
           }} className="grid-kpi-mobile">
             <div>
-              <span style={{ color: '#78350F', fontSize: '0.76rem' }}>à¤•à¥à¤² à¤¸à¤•à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾ (Gross):</span>
-              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#9A3412' }}>â‚¹ {activeGross.toLocaleString()}</div>
+              <span style={{ color: '#78350F', fontSize: '0.76rem' }}>कुल सकल किराया (Gross):</span>
+              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#9A3412' }}>₹ {activeGross.toLocaleString()}</div>
             </div>
             <div>
-              <span style={{ color: '#065F46', fontSize: '0.76rem' }}>= à¤•à¥à¤² à¤¸à¤‚à¤•à¤²à¤¿à¤¤ (Cash+UPI):</span>
-              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>â‚¹ {activeCollected.toLocaleString()}</div>
+              <span style={{ color: '#065F46', fontSize: '0.76rem' }}>= कुल संकलित (Cash+UPI):</span>
+              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>₹ {activeCollected.toLocaleString()}</div>
             </div>
             <div>
-              <span style={{ color: '#991B1B', fontSize: '0.76rem' }}>+ à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ / à¤‰à¤§à¤¾à¤°à¥€ (Dues):</span>
-              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#DC2626' }}>â‚¹ {activeDues.toLocaleString()}</div>
+              <span style={{ color: '#991B1B', fontSize: '0.76rem' }}>+ शेष देय / उधारी (Dues):</span>
+              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#DC2626' }}>₹ {activeDues.toLocaleString()}</div>
             </div>
             <div>
-              <span style={{ color: '#92400E', fontSize: '0.76rem' }}>+ à¤ªà¥à¤°à¤¦à¤¾à¤¨ à¤•à¥€ à¤—à¤ˆ à¤›à¥‚à¤Ÿ (Discount):</span>
-              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#D97706' }}>â‚¹ {activeDiscounts.toLocaleString()}</div>
+              <span style={{ color: '#92400E', fontSize: '0.76rem' }}>+ प्रदान की गई छूट (Discount):</span>
+              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#D97706' }}>₹ {activeDiscounts.toLocaleString()}</div>
             </div>
           </div>
         </div>
@@ -2358,41 +2358,41 @@ export default function App() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 22 }} className="grid-kpi-mobile">
           {/* Total Collected */}
           <div className="kpi-card green">
-            <div className="kpi-label">{isPersonalOnly ? 'à¤®à¥‡à¤°à¤¾ à¤•à¥à¤² à¤¸à¤‚à¤•à¤²à¤¨' : 'à¤¸à¤®à¤¸à¥à¤¤ à¤•à¥à¤² à¤µà¤¸à¥‚à¤²à¥€ (Total Collected)'}</div>
+            <div className="kpi-label">{isPersonalOnly ? 'मेरा कुल संकलन' : 'समस्त कुल वसूली (Total Collected)'}</div>
             <div className="kpi-value">
-              â‚¹ {activeCollected.toLocaleString()}
+              ₹ {activeCollected.toLocaleString()}
             </div>
             <div className="kpi-sub" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <span><IndianRupee size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> à¤¨à¤•à¤¦: â‚¹{activeCash.toLocaleString()}</span>
-              <span><Smartphone size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> UPI: â‚¹{activeUpi.toLocaleString()}</span>
+              <span><IndianRupee size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> नकद: ₹{activeCash.toLocaleString()}</span>
+              <span><Smartphone size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> UPI: ₹{activeUpi.toLocaleString()}</span>
             </div>
           </div>
 
           {/* Bookings Count */}
           <div className="kpi-card blue">
-            <div className="kpi-label">{isPersonalOnly ? 'à¤œà¤¾à¤°à¥€ à¤Ÿà¤¿à¤•à¤Ÿ' : 'à¤•à¥à¤² à¤œà¤¾à¤°à¥€ à¤Ÿà¤¿à¤•à¤Ÿ (Bookings)'}</div>
+            <div className="kpi-label">{isPersonalOnly ? 'जारी टिकट' : 'कुल जारी टिकट (Bookings)'}</div>
             <div className="kpi-value">
               {activeBookings}
             </div>
-            <div className="kpi-sub">{isPersonalOnly ? `${personal.yatrisHandled || 0} à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¹à¥ˆà¤‚à¤¡à¤²` : 'à¤ªà¤‚à¤œà¥€à¤•à¥ƒà¤¤ à¤°à¤¸à¥€à¤¦à¥‡à¤‚'}</div>
+            <div className="kpi-sub">{isPersonalOnly ? `${personal.yatrisHandled || 0} यात्री हैंडल` : 'पंजीकृत रसीदें'}</div>
           </div>
 
           {/* Pending Dues */}
           <div className="kpi-card red">
-            <div className="kpi-label">à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ / à¤‰à¤§à¤¾à¤°à¥€ (Pending Dues)</div>
+            <div className="kpi-label">शेष देय / उधारी (Pending Dues)</div>
             <div className="kpi-value">
-              â‚¹ {activeDues.toLocaleString()}
+              ₹ {activeDues.toLocaleString()}
             </div>
-            <div className="kpi-sub">à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤…à¤¥à¤µà¤¾ à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤†à¤—à¤®à¤¨ à¤ªà¤° à¤µà¤¸à¥‚à¤²à¥€ à¤¶à¥‡à¤·</div>
+            <div className="kpi-sub">ट्रेन में अथवा कटड़ा आगमन पर वसूली शेष</div>
           </div>
 
           {/* Discounts Given */}
           <div className="kpi-card gold">
-            <div className="kpi-label">à¤•à¥à¤² à¤›à¥‚à¤Ÿ (Discounts Granted)</div>
+            <div className="kpi-label">कुल छूट (Discounts Granted)</div>
             <div className="kpi-value">
-              â‚¹ {activeDiscounts.toLocaleString()}
+              ₹ {activeDiscounts.toLocaleString()}
             </div>
-            <div className="kpi-sub">à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤µà¤¿à¤¶à¥‡à¤· à¤°à¤¿à¤¯à¤¾à¤¯à¤¤</div>
+            <div className="kpi-sub">ट्रस्ट अधिकृत विशेष रियायत</div>
           </div>
         </div>
 
@@ -2404,10 +2404,10 @@ export default function App() {
                 <BarChart3 size={22} color="#C2410C" />
                 <div>
                   <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>
-                    à¤¦à¤¿à¤¨à¤¾à¤‚à¤•-à¤µà¤¾à¤° à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤µ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤ªà¥à¤°à¤µà¤¾à¤¹ à¤—à¥à¤°à¤¾à¤« (MIS Time-Series Chart)
+                    दिनांक-वार दैनिक वसूली व वित्तीय प्रवाह ग्राफ (MIS Time-Series Chart)
                   </h4>
                   <div style={{ fontSize: '0.82rem', color: '#7C2D12' }}>
-                    à¤¤à¤¾à¤°à¥€à¤– à¤…à¤¨à¥à¤¸à¤¾à¤° à¤¨à¤•à¤¦ à¤¸à¤‚à¤—à¥à¤°à¤¹ (à¤¹à¤°à¤¾), UPI à¤¸à¤‚à¤—à¥à¤°à¤¹ (à¤¨à¥€à¤²à¤¾) à¤à¤µà¤‚ à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ (à¤²à¤¾à¤²) à¤•à¥€ à¤¦à¥ƒà¤¶à¥à¤¯ à¤¤à¥à¤²à¤¨à¤¾
+                    तारीख अनुसार नकद संग्रह (हरा), UPI संग्रह (नीला) एवं शेष देय (लाल) की दृश्य तुलना
                   </div>
                 </div>
               </div>
@@ -2415,16 +2415,16 @@ export default function App() {
               {/* Chart Legend */}
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: '0.8rem' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: 12, height: 12, background: '#10B981', borderRadius: 2 }} /> à¤¨à¤•à¤¦ (Cash)
+                  <div style={{ width: 12, height: 12, background: '#10B981', borderRadius: 2 }} /> नकद (Cash)
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: 12, height: 12, background: '#3B82F6', borderRadius: 2 }} /> UPI à¤¸à¤‚à¤—à¥à¤°à¤¹
+                  <div style={{ width: 12, height: 12, background: '#3B82F6', borderRadius: 2 }} /> UPI संग्रह
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: 12, height: 12, background: '#EF4444', borderRadius: 2 }} /> à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ (Dues)
+                  <div style={{ width: 12, height: 12, background: '#EF4444', borderRadius: 2 }} /> शेष देय (Dues)
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: 12, height: 12, background: '#F59E0B', borderRadius: 2 }} /> à¤›à¥‚à¤Ÿ (Discount)
+                  <div style={{ width: 12, height: 12, background: '#F59E0B', borderRadius: 2 }} /> छूट (Discount)
                 </span>
               </div>
             </div>
@@ -2462,14 +2462,14 @@ export default function App() {
                   >
                     {/* Amount Tag on top of bars */}
                     <div style={{ fontSize: '0.74rem', fontWeight: 900, color: '#9A3412', marginBottom: 6 }}>
-                      â‚¹{dayTotal > 999 ? (dayTotal / 1000).toFixed(1) + 'k' : dayTotal}
+                      ₹{dayTotal > 999 ? (dayTotal / 1000).toFixed(1) + 'k' : dayTotal}
                     </div>
 
                     {/* Bars Container */}
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 130 }}>
                       {/* Cash Bar */}
                       <div
-                        title={`à¤¤à¤¿à¤¥à¤¿: ${d.date} | à¤¨à¤•à¤¦: â‚¹${(d.cashCollected || 0).toLocaleString()}`}
+                        title={`तिथि: ${d.date} | नकद: ₹${(d.cashCollected || 0).toLocaleString()}`}
                         style={{
                           width: 16,
                           height: `${cashHeight}px`,
@@ -2480,7 +2480,7 @@ export default function App() {
                       />
                       {/* UPI Bar */}
                       <div
-                        title={`à¤¤à¤¿à¤¥à¤¿: ${d.date} | UPI: â‚¹${(d.upiCollected || 0).toLocaleString()}`}
+                        title={`तिथि: ${d.date} | UPI: ₹${(d.upiCollected || 0).toLocaleString()}`}
                         style={{
                           width: 16,
                           height: `${upiHeight}px`,
@@ -2492,7 +2492,7 @@ export default function App() {
                       {/* Dues Bar */}
                       {d.pendingDues > 0 && (
                         <div
-                          title={`à¤¤à¤¿à¤¥à¤¿: ${d.date} | à¤¶à¥‡à¤· à¤¦à¥‡à¤¯: â‚¹${(d.pendingDues || 0).toLocaleString()}`}
+                          title={`तिथि: ${d.date} | शेष देय: ₹${(d.pendingDues || 0).toLocaleString()}`}
                           style={{
                             width: 12,
                             height: `${duesHeight}px`,
@@ -2509,7 +2509,7 @@ export default function App() {
                       {d.date.slice(5)}
                     </div>
                     <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                      {d.bookingsCount} à¤Ÿà¤¿à¤•à¤Ÿ
+                      {d.bookingsCount} टिकट
                     </div>
                   </div>
                 );
@@ -2525,11 +2525,11 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Users size={20} color="#C2410C" />
                 <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-                  à¤­à¥‚à¤®à¤¿à¤•à¤¾-à¤µà¤¾à¤° à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¸à¤‚à¤•à¤²à¤¨ à¤à¤µà¤‚ à¤ªà¥à¤°à¤¦à¤°à¥à¤¶à¤¨ à¤¸à¤¾à¤°à¤¾à¤‚à¤¶ (Role-Wise Breakdown)
+                  भूमिका-वार वित्तीय संकलन एवं प्रदर्शन सारांश (Role-Wise Breakdown)
                 </h4>
               </div>
               <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
-                à¤•à¥à¤² à¤­à¥‚à¤®à¤¿à¤•à¤¾à¤à¤‚: {Object.keys(roleBreakdown).length}
+                कुल भूमिकाएं: {Object.keys(roleBreakdown).length}
               </span>
             </div>
 
@@ -2547,28 +2547,28 @@ export default function App() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <strong style={{ color: '#9A3412', fontSize: '0.95rem' }}>
-                      {roleKey === 'SuperAdmin' ? 'à¤šà¥€à¤«à¤¼ à¤à¤¡à¤®à¤¿à¤¨' :
-                       roleKey === 'BookingClerk' ? 'à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¥à¤²à¤°à¥à¤•' :
-                       roleKey === 'TTE' ? 'TTE à¤šà¥‡à¤•à¤¿à¤‚à¤— à¤¸à¥à¤Ÿà¤¾à¤«' :
-                       roleKey === 'FinanceOfficer' || roleKey === 'AccountsOfficer' ? 'à¤µà¤¿à¤¤à¥à¤¤ à¤…à¤§à¤¿à¤•à¤¾à¤°à¥€' :
-                       roleKey === 'StationMaster' ? 'à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤®à¤¾à¤¸à¥à¤Ÿà¤°' : roleKey}
+                      {roleKey === 'SuperAdmin' ? 'चीफ़ एडमिन' :
+                       roleKey === 'BookingClerk' ? 'बुकिंग क्लर्क' :
+                       roleKey === 'TTE' ? 'TTE चेकिंग स्टाफ' :
+                       roleKey === 'FinanceOfficer' || roleKey === 'AccountsOfficer' ? 'वित्त अधिकारी' :
+                       roleKey === 'StationMaster' ? 'स्टेशन मास्टर' : roleKey}
                     </strong>
                     <span className="badge badge-bhakti" style={{ fontSize: '0.7rem' }}>
-                      {rStats.bookingsCount || 0} à¤Ÿà¤¿à¤•à¤Ÿ
+                      {rStats.bookingsCount || 0} टिकट
                     </span>
                   </div>
 
                   <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857', marginBottom: 6 }}>
-                    â‚¹ {(rStats.totalCollected || 0).toLocaleString()}
+                    ₹ {(rStats.totalCollected || 0).toLocaleString()}
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', color: '#7C2D12' }}>
-                    <span>à¤¨à¤•à¤¦: â‚¹{(rStats.cashCollected || 0).toLocaleString()}</span>
-                    <span>UPI: â‚¹{(rStats.upiCollected || 0).toLocaleString()}</span>
+                    <span>नकद: ₹{(rStats.cashCollected || 0).toLocaleString()}</span>
+                    <span>UPI: ₹{(rStats.upiCollected || 0).toLocaleString()}</span>
                   </div>
                   {rStats.pendingDues > 0 && (
                     <div style={{ fontSize: '0.76rem', color: '#DC2626', marginTop: 4, fontWeight: 700 }}>
-                      à¤¶à¥‡à¤· à¤¦à¥‡à¤¯: â‚¹{(rStats.pendingDues || 0).toLocaleString()}
+                      शेष देय: ₹{(rStats.pendingDues || 0).toLocaleString()}
                     </div>
                   )}
                 </div>
@@ -2584,34 +2584,34 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Briefcase size={20} color="#C2410C" />
                 <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-                  à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€-à¤µà¤¾à¤° à¤¦à¥ˆà¤¨à¤¿à¤• à¤¸à¤‚à¤—à¥à¤°à¤¹ à¤à¤µà¤‚ à¤¹à¥ˆà¤‚à¤¡à¤“à¤µà¤° à¤°à¤œà¤¿à¤¸à¥à¤Ÿà¤°
+                  कर्मचारी-वार दैनिक संग्रह एवं हैंडओवर रजिस्टर
                 </h4>
               </div>
               <span className="badge badge-bhakti" style={{ fontSize: '0.74rem' }}>
-                à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€: {staffBreakdown.length}
+                सक्रिय कर्मचारी: {staffBreakdown.length}
               </span>
             </div>
             <div className="table-responsive">
               <table className="custom-table">
                 <thead>
                   <tr>
-                    <th>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ ID</th>
-                    <th>à¤¨à¤¾à¤® (Staff Name)</th>
-                    <th>à¤µà¤¿à¤­à¤¾à¤—</th>
-                    <th>à¤°à¥‹à¤²</th>
-                    <th>à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤‚à¤–à¥à¤¯à¤¾</th>
-                    <th>à¤¨à¤•à¤¦ (Cash)</th>
+                    <th>कर्मचारी ID</th>
+                    <th>नाम (Staff Name)</th>
+                    <th>विभाग</th>
+                    <th>रोल</th>
+                    <th>टिकट संख्या</th>
+                    <th>नकद (Cash)</th>
                     <th>UPI</th>
-                    <th>à¤›à¥‚à¤Ÿ (Discount)</th>
-                    <th>à¤¶à¥‡à¤· à¤¬à¤•à¤¾à¤¯à¤¾</th>
-                    <th>à¤•à¥à¤² à¤µà¤¸à¥‚à¤²à¥€ (Total)</th>
+                    <th>छूट (Discount)</th>
+                    <th>शेष बकाया</th>
+                    <th>कुल वसूली (Total)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {staffBreakdown.length === 0 ? (
                     <tr>
                       <td colSpan="10" style={{ textAlign: 'center', padding: 20, color: '#784D35' }}>
-                        à¤•à¥‹à¤ˆ à¤¸à¥à¤Ÿà¤¾à¤« à¤¡à¥‡à¤Ÿà¤¾ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
+                        कोई स्टाफ डेटा उपलब्ध नहीं है।
                       </td>
                     </tr>
                   ) : (
@@ -2625,12 +2625,12 @@ export default function App() {
                         <td><span className="badge badge-bhakti">{s.department}</span></td>
                         <td><strong style={{ color: '#9A3412' }}>{s.role}</strong></td>
                         <td style={{ textAlign: 'center', fontWeight: 700 }}>{s.bookingsCount || s.transactionCount || 0}</td>
-                        <td style={{ color: '#047857', fontWeight: 700 }}>â‚¹ {(s.cashCollected || 0)?.toLocaleString()}</td>
-                        <td style={{ color: '#0284C7', fontWeight: 700 }}>â‚¹ {(s.upiCollected || 0)?.toLocaleString()}</td>
-                        <td style={{ color: '#D97706', fontWeight: 600 }}>â‚¹ {(s.discountsGiven || 0)?.toLocaleString()}</td>
-                        <td style={{ color: '#DC2626', fontWeight: 600 }}>â‚¹ {(s.pendingDues || 0)?.toLocaleString()}</td>
+                        <td style={{ color: '#047857', fontWeight: 700 }}>₹ {(s.cashCollected || 0)?.toLocaleString()}</td>
+                        <td style={{ color: '#0284C7', fontWeight: 700 }}>₹ {(s.upiCollected || 0)?.toLocaleString()}</td>
+                        <td style={{ color: '#D97706', fontWeight: 600 }}>₹ {(s.discountsGiven || 0)?.toLocaleString()}</td>
+                        <td style={{ color: '#DC2626', fontWeight: 600 }}>₹ {(s.pendingDues || 0)?.toLocaleString()}</td>
                         <td style={{ fontWeight: 900, color: '#9A3412', fontSize: '1rem' }}>
-                          â‚¹ {(s.totalCollected || 0)?.toLocaleString()}
+                          ₹ {(s.totalCollected || 0)?.toLocaleString()}
                         </td>
                       </tr>
                     ))
@@ -2645,10 +2645,10 @@ export default function App() {
         <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-              {isPersonalOnly ? 'à¤®à¥‡à¤°à¥€ à¤µà¤¿à¤¸à¥à¤¤à¥ƒà¤¤ à¤µà¤¸à¥‚à¤²à¥€ à¤°à¤¸à¥€à¤¦à¥‡à¤‚ / à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤¸à¥‚à¤šà¥€' : 'à¤µà¤¿à¤¸à¥à¤¤à¥ƒà¤¤ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤‘à¤¡à¤¿à¤Ÿ à¤Ÿà¥à¤°à¥‡à¤² (Transaction Ledger)'}
+              {isPersonalOnly ? 'मेरी विस्तृत वसूली रसीदें / लेनदेन सूची' : 'विस्तृत लेनदेन ऑडिट ट्रेल (Transaction Ledger)'}
             </h4>
             <span style={{ fontSize: '0.8rem', color: '#7C2D12' }}>
-              à¤•à¥à¤² à¤ªà¥à¤°à¤µà¤¿à¤·à¥à¤Ÿà¤¿à¤¯à¤¾à¤‚: <strong>{transactions.length}</strong>
+              कुल प्रविष्टियां: <strong>{transactions.length}</strong>
             </span>
           </div>
 
@@ -2656,20 +2656,20 @@ export default function App() {
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th>à¤¸à¤®à¤¯ (Time)</th>
-                  <th>à¤•à¤¾à¤°à¥à¤¯à¤µà¤¾à¤¹à¥€ (Action)</th>
-                  <th>PNR / à¤¸à¤‚à¤¦à¤°à¥à¤­ ID</th>
-                  <th>à¤•à¥‹à¤š / à¤¸à¥€à¤Ÿ</th>
-                  <th>à¤µà¤¸à¥‚à¤²à¥€ à¤°à¤¾à¤¶à¤¿</th>
-                  <th>à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤®à¤¾à¤§à¥à¤¯à¤®</th>
-                  <th>à¤µà¤¿à¤µà¤°à¤£ (Details)</th>
+                  <th>समय (Time)</th>
+                  <th>कार्यवाही (Action)</th>
+                  <th>PNR / संदर्भ ID</th>
+                  <th>कोच / सीट</th>
+                  <th>वसूली राशि</th>
+                  <th>भुगतान माध्यम</th>
+                  <th>विवरण (Details)</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.length === 0 ? (
                   <tr>
                     <td colSpan="7" style={{ textAlign: 'center', padding: 24, color: '#784D35' }}>
-                      à¤šà¤¯à¤¨à¤¿à¤¤ à¤…à¤µà¤§à¤¿ à¤•à¥‡ à¤¦à¥Œà¤°à¤¾à¤¨ à¤•à¥‹à¤ˆ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
+                      चयनित अवधि के दौरान कोई लेनदेन रिकॉर्ड उपलब्ध नहीं है।
                     </td>
                   </tr>
                 ) : (
@@ -2680,17 +2680,17 @@ export default function App() {
                       </td>
                       <td>
                         <span className="badge badge-bhakti" style={{ fontSize: '0.74rem' }}>
-                          {tx.action === 'PAYMENT_COLLECTED' ? <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¦à¥‡à¤¯ à¤µà¤¸à¥‚à¤²à¥€</> : (tx.action === 'TICKET_BOOKED' ? <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£</> : tx.action)}
+                          {tx.action === 'PAYMENT_COLLECTED' ? <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> देय वसूली</> : (tx.action === 'TICKET_BOOKED' ? <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> नया आरक्षण</> : tx.action)}
                         </span>
                       </td>
                       <td>
                         <strong style={{ color: '#C2410C' }}>{tx.targetId || tx.bookingId || '-'}</strong>
                       </td>
                       <td>
-                        {tx.coachName || tx.coach ? `à¤•à¥‹à¤š ${tx.coachName || tx.coach} ${tx.seatNumber ? `(à¤¸à¥€à¤Ÿ ${tx.seatNumber})` : ''}` : '-'}
+                        {tx.coachName || tx.coach ? `कोच ${tx.coachName || tx.coach} ${tx.seatNumber ? `(सीट ${tx.seatNumber})` : ''}` : '-'}
                       </td>
                       <td style={{ fontWeight: 900, color: tx.amount > 0 ? '#047857' : '#784D35' }}>
-                        {tx.amount > 0 ? `â‚¹ ${tx.amount?.toLocaleString()}` : '-'}
+                        {tx.amount > 0 ? `₹ ${tx.amount?.toLocaleString()}` : '-'}
                       </td>
                       <td>
                         <span className={`badge ${(tx.paymentMode || '').toLowerCase().includes('cash') ? 'badge-partial' : 'badge-paid'}`}>
@@ -2732,19 +2732,19 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <span className="badge badge-bhakti" style={{ marginBottom: 6 }}>
-                <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤°à¤¸à¥€à¤¦ à¤à¤µà¤‚ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤ªà¤°à¥à¤šà¥€ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°
+                <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> आधिकारिक रसीद एवं भुगतान पर्ची काउंटर
               </span>
               <h2 style={{ color: '#9A3412', margin: '6px 0 4px', fontWeight: 900, fontSize: '1.6rem' }}>
-                à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤°à¤¸à¥€à¤¦ à¤–à¥‹à¤œ à¤µ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤¡à¥‡à¤¸à¥à¤•
+                श्रद्धालु भुगतान रसीद खोज व प्रिंट डेस्क
               </h2>
               <p style={{ color: '#7C2D12', margin: 0, fontSize: '0.9rem' }}>
-                PNR à¤¨à¤‚à¤¬à¤°, à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ à¤•à¥‡ à¤¨à¤¾à¤® à¤¯à¤¾ 10-à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¥‡ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¸à¥‡ à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¥€ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤ªà¤°à¥à¤šà¤¿à¤¯à¤¾à¤‚ à¤–à¥‹à¤œà¥‡à¤‚ à¤”à¤° à¤‡à¤šà¥à¤›à¤¾à¤¨à¥à¤¸à¤¾à¤° à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚à¥¤
+                PNR नंबर, मुख्य भक्त के नाम या 10-अंकों के मोबाइल नंबर से किसी भी श्रद्धालु की भुगतान पर्चियां खोजें और इच्छानुसार प्रिंट करें।
               </p>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               {staffUser?.role === 'SuperAdmin' && (
                 <button className="btn btn-outline btn-sm" onClick={() => navigate('/admin/dashboard')}>
-                  â† à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡ à¤µà¤¾à¤ªà¤¸
+                  ← डैशबोर्ड वापस
                 </button>
               )}
             </div>
@@ -2758,14 +2758,14 @@ export default function App() {
             <input
               type="text"
               className="input-field"
-              placeholder="PNR à¤¨à¤‚à¤¬à¤° (à¤œà¥ˆà¤¸à¥‡ MVD-2026-...), à¤­à¤•à¥à¤¤ à¤•à¤¾ à¤¨à¤¾à¤®, à¤¯à¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚..."
+              placeholder="PNR नंबर (जैसे MVD-2026-...), भक्त का नाम, या मोबाइल नंबर दर्ज करें..."
               value={receiptSearchQuery}
               onChange={(e) => setReceiptSearchQuery(e.target.value)}
               style={{ flex: 1, border: 'none', background: 'transparent', fontSize: '1rem', fontWeight: 600, padding: '8px 12px' }}
             />
             {receiptSearchQuery && (
               <button className="btn btn-outline btn-sm" onClick={() => setReceiptSearchQuery('')} style={{ alignSelf: 'center' }}>
-                âœ• à¤¸à¤¾à¤«à¤¼ à¤•à¤°à¥‡à¤‚
+                ✕ साफ़ करें
               </button>
             )}
           </div>
@@ -2774,10 +2774,10 @@ export default function App() {
         {/* Results Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <h4 style={{ color: '#9A3412', margin: 0, fontWeight: 800 }}>
-            à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤†à¤°à¤•à¥à¤·à¤£ à¤à¤µà¤‚ à¤°à¤¸à¥€à¤¦à¥‡à¤‚ ({matchedBookings.length})
+            उपलब्ध आरक्षण एवं रसीदें ({matchedBookings.length})
           </h4>
           <span style={{ fontSize: '0.82rem', color: '#784D35' }}>
-            {query ? `"${query}" à¤•à¥‡ à¤ªà¤°à¤¿à¤£à¤¾à¤®` : 'à¤¸à¤­à¥€ à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸'}
+            {query ? `"${query}" के परिणाम` : 'सभी वर्तमान बुकिंग्स'}
           </span>
         </div>
 
@@ -2785,8 +2785,8 @@ export default function App() {
         {matchedBookings.length === 0 ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: 40, color: '#784D35' }}>
             <div style={{ fontSize: 24, marginBottom: 10, color: "#9CA3AF" }}><Search size={36} /></div>
-            <h3>à¤•à¥‹à¤ˆ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¤¾</h3>
-            <p>à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¸à¤¹à¥€ PNR à¤¨à¤‚à¤¬à¤°, à¤¨à¤¾à¤® à¤¯à¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¡à¤¾à¤²à¤•à¤° à¤ªà¥à¤¨à¤ƒ à¤ªà¥à¤°à¤¯à¤¾à¤¸ à¤•à¤°à¥‡à¤‚à¥¤</p>
+            <h3>कोई रिकॉर्ड नहीं मिला</h3>
+            <p>कृपया सही PNR नंबर, नाम या मोबाइल नंबर डालकर पुनः प्रयास करें।</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -2799,7 +2799,7 @@ export default function App() {
                   date: b.createdAt || new Date().toISOString(),
                   amount: b.advance,
                   method: b.paymentMode || 'Cash',
-                  type: 'Advance Booking (à¤…à¤—à¥à¤°à¤¿à¤® à¤¬à¥à¤•à¤¿à¤‚à¤—)',
+                  type: 'Advance Booking (अग्रिम बुकिंग)',
                   cashierName: 'Counter Staff',
                   utr: b.utrNumber || ''
                 }];
@@ -2822,20 +2822,20 @@ export default function App() {
                         {b.bookedBy}
                       </div>
                       <div style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: 2 }}>
-                        à¤®à¥‹à¤¬à¤¾à¤‡à¤²: <strong>{b.mobile || 'N/A'}</strong> {b.aadhar ? `| à¤†à¤§à¤¾à¤°: ${b.aadhar}` : ''}
+                        मोबाइल: <strong>{b.mobile || 'N/A'}</strong> {b.aadhar ? `| आधार: ${b.aadhar}` : ''}
                       </div>
                     </div>
 
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#047857' }}>
-                        {b.fromStation} âž” {b.toStation}
+                        {b.fromStation} ➔ {b.toStation}
                       </div>
                       <div style={{ fontSize: '0.84rem', marginTop: 2 }}>
-                        à¤•à¥‹à¤š: <strong style={{ color: '#C2410C' }}>{b.coachName}</strong> | à¤¸à¥€à¤Ÿ: <strong style={{ color: '#1E40AF' }}>{Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</strong> ({b.travelClass})
+                        कोच: <strong style={{ color: '#C2410C' }}>{b.coachName}</strong> | सीट: <strong style={{ color: '#1E40AF' }}>{Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</strong> ({b.travelClass})
                       </div>
                       <div style={{ marginTop: 6 }}>
                         <span className={`badge ${b.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-partial'}`}>
-                          {b.paymentStatus === 'Paid' ? 'âœ“ à¤ªà¥‚à¤°à¥à¤£ à¤­à¥à¤—à¤¤à¤¾à¤¨ (Paid)' : `à¤¦à¥‡à¤¯ à¤¬à¤•à¤¾à¤¯à¤¾: â‚¹${b.remainingAmount}`}
+                          {b.paymentStatus === 'Paid' ? '✓ पूर्ण भुगतान (Paid)' : `देय बकाया: ₹${b.remainingAmount}`}
                         </span>
                       </div>
                     </div>
@@ -2844,17 +2844,17 @@ export default function App() {
                   {/* Financial Overview Chips */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA', marginBottom: 16 }}>
                     <div>
-                      <span style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤•à¥à¤² à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤•à¤¿à¤°à¤¾à¤¯à¤¾:</span>
-                      <div style={{ fontWeight: 800, color: '#111827', fontSize: '0.95rem' }}>â‚¹ {b.totalAmount}</div>
+                      <span style={{ fontSize: '0.74rem', color: '#7C2D12' }}>कुल यात्रा किराया:</span>
+                      <div style={{ fontWeight: 800, color: '#111827', fontSize: '0.95rem' }}>₹ {b.totalAmount}</div>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤•à¥à¤² à¤œà¤®à¤¾ à¤°à¤¾à¤¶à¤¿:</span>
-                      <div style={{ fontWeight: 800, color: '#047857', fontSize: '0.95rem' }}>â‚¹ {b.advance}</div>
+                      <span style={{ fontSize: '0.74rem', color: '#7C2D12' }}>कुल जमा राशि:</span>
+                      <div style={{ fontWeight: 800, color: '#047857', fontSize: '0.95rem' }}>₹ {b.advance}</div>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤®à¥‡à¤‚ à¤¶à¥‡à¤· à¤¦à¥‡à¤¯:</span>
+                      <span style={{ fontSize: '0.74rem', color: '#7C2D12' }}>कटड़ा में शेष देय:</span>
                       <div style={{ fontWeight: 800, color: b.remainingAmount > 0 ? '#DC2626' : '#047857', fontSize: '0.95rem' }}>
-                        â‚¹ {b.remainingAmount}
+                        ₹ {b.remainingAmount}
                       </div>
                     </div>
                   </div>
@@ -2862,12 +2862,12 @@ export default function App() {
                   {/* All Individual Slips / Receipts for this booking */}
                   <div>
                     <h5 style={{ color: '#9A3412', margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <FileText size={16} /> à¤‡à¤¸ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¥€ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤ªà¤°à¥à¤šà¤¿à¤¯à¤¾à¤‚ / à¤°à¤¸à¥€à¤¦à¥‡à¤‚ ({slips.length}):
+                      <FileText size={16} /> इस श्रद्धालु की भुगतान पर्चियां / रसीदें ({slips.length}):
                     </h5>
 
                     {slips.length === 0 ? (
                       <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 12, color: '#6B7280', fontSize: '0.85rem' }}>
-                        à¤‡à¤¸ PNR à¤ªà¤° à¤…à¤­à¥€ à¤¤à¤• à¤•à¥‹à¤ˆ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¦à¤°à¥à¤œ à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤† à¤¹à¥ˆà¥¤
+                        इस PNR पर अभी तक कोई भुगतान दर्ज नहीं हुआ है।
                       </div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2890,20 +2890,20 @@ export default function App() {
                             <div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <span style={{ background: '#EA580C', color: '#FFF', padding: '2px 8px', borderRadius: 4, fontSize: '0.75rem', fontWeight: 800 }}>
-                                  à¤°à¤¸à¥€à¤¦ #{sIdx + 1}
+                                  रसीद #{sIdx + 1}
                                 </span>
                                 <strong style={{ color: '#C2410C', fontSize: '0.9rem' }}>
                                   {txn.id}
                                 </strong>
                                 <span style={{ color: '#047857', fontWeight: 800, fontSize: '1.05rem', marginLeft: 8 }}>
-                                  â‚¹ {parseFloat(txn.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                  ₹ {parseFloat(txn.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                 </span>
                               </div>
                               <div style={{ fontSize: '0.8rem', color: '#4B5563', marginTop: 4 }}>
-                                ðŸ“… {new Date(txn.date || Date.now()).toLocaleString('en-IN')} | à¤®à¤¾à¤§à¥à¤¯à¤®: <strong>{txn.method || 'Cash'}</strong> {txn.utr ? `(UTR: ${txn.utr})` : ''}
+                                📅 {new Date(txn.date || Date.now()).toLocaleString('en-IN')} | माध्यम: <strong>{txn.method || 'Cash'}</strong> {txn.utr ? `(UTR: ${txn.utr})` : ''}
                               </div>
                               <div style={{ fontSize: '0.76rem', color: '#6B7280', marginTop: 2 }}>
-                                à¤µà¤¿à¤µà¤°à¤£: {txn.type || 'à¤­à¥à¤—à¤¤à¤¾à¤¨'} | à¤•à¥ˆà¤¶à¤¿à¤¯à¤°: <strong>{txn.cashierName || 'Counter Staff'}</strong>
+                                विवरण: {txn.type || 'भुगतान'} | कैशियर: <strong>{txn.cashierName || 'Counter Staff'}</strong>
                               </div>
                             </div>
 
@@ -2914,7 +2914,7 @@ export default function App() {
                                 onClick={() => setReceiptModal({ booking: b, txn })}
                                 style={{ padding: '6px 12px', fontSize: '0.82rem' }}
                               >
-                                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤¯à¤¹ à¤°à¤¸à¥€à¤¦ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚
+                                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> यह रसीद प्रिंट करें
                               </button>
                               <a
                                 href={`/api/bookings/${b.bookingId}/receipt/${txn.id}`}
@@ -2975,14 +2975,14 @@ export default function App() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h3 style={{ margin: 0, color: '#431407', fontWeight: 900, fontSize: '1.25rem' }}>
-                  à¤•à¤¾à¤°à¥à¤¯à¤•à¤¾à¤°à¥€ à¤¨à¤¿à¤¯à¤‚à¤¤à¥à¤°à¤£ à¤•à¤•à¥à¤· (Executive Command Dashboard)
+                  कार्यकारी नियंत्रण कक्ष (Executive Command Dashboard)
                 </h3>
                 <span className="badge badge-bhakti" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
                   Live Analytics
                 </span>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#7C2D12', marginTop: 2 }}>
-                à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤µà¤¾à¤°à¥à¤·à¤¿à¤• à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¥à¤°à¥‡à¤¨ â€” à¤²à¤¾à¤‡à¤µ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤à¤µà¤‚ à¤ªà¤°à¤¿à¤šà¤¾à¤²à¤¨ à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ
+                श्री माता वैष्णो देवी वार्षिक विशेष ट्रेन — लाइव वित्तीय एवं परिचालन रिपोर्ट
               </div>
             </div>
           </div>
@@ -2998,26 +2998,26 @@ export default function App() {
                 }}
                 style={{ border: 'none', background: 'transparent', fontWeight: 800, color: '#431407', outline: 'none', cursor: 'pointer', fontSize: '0.86rem' }}
               >
-                <option value="2026">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· 2026 (à¤šà¤¾à¤²à¥‚)</option>
-                <option value="2025">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· 2025</option>
-                <option value="2024">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· 2024</option>
-                <option value="">à¤¸à¤®à¤¸à¥à¤¤ à¤µà¤°à¥à¤· (All Seasons)</option>
+                <option value="2026">यात्रा वर्ष 2026 (चालू)</option>
+                <option value="2025">यात्रा वर्ष 2025</option>
+                <option value="2024">यात्रा वर्ष 2024</option>
+                <option value="">समस्त वर्ष (All Seasons)</option>
               </select>
             </div>
 
             <button
               className="btn btn-outline btn-sm"
               onClick={loadAdminDashboard}
-              title="à¤¡à¥‡à¤Ÿà¤¾ à¤°à¥€à¤«à¥à¤°à¥‡à¤¶ à¤•à¤°à¥‡à¤‚"
+              title="डेटा रीफ्रेश करें"
             >
-              <RefreshCw size={15} /> à¤°à¥€à¤«à¥à¤°à¥‡à¤¶
+              <RefreshCw size={15} /> रीफ्रेश
             </button>
 
             <button
               className="btn btn-primary btn-sm"
               onClick={() => navigate('/admin/booking')}
             >
-              <Plus size={15} /> à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£
+              <Plus size={15} /> नया आरक्षण
             </button>
           </div>
         </div>
@@ -3027,84 +3027,84 @@ export default function App() {
           {/* Card 1: Gross Ticket Value */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #C2410C' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>à¤•à¥à¤² à¤¸à¤•à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾</div>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल सकल किराया</div>
               <IndianRupee size={16} color="#C2410C" />
             </div>
             <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#C2410C', margin: '4px 0', lineHeight: 1.1 }}>
-              â‚¹ {(stats.totalCollection || 0).toLocaleString()}
+              ₹ {(stats.totalCollection || 0).toLocaleString()}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#784D35' }}>
-              à¤¸à¤•à¤² à¤²à¤•à¥à¤·à¤¿à¤¤ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¾à¤œà¤¸à¥à¤µ
+              सकल लक्षित टिकट राजस्व
             </div>
           </div>
 
           {/* Card 2: Net Advance Received */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #047857' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤…à¤—à¥à¤°à¤¿à¤® (Net Collected)</div>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>प्राप्त अग्रिम (Net Collected)</div>
               <CheckCircle2 size={16} color="#047857" />
             </div>
             <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#047857', margin: '4px 0', lineHeight: 1.1 }}>
-              â‚¹ {(stats.totalAdvance || 0).toLocaleString()}
+              ₹ {(stats.totalAdvance || 0).toLocaleString()}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#047857', fontWeight: 700 }}>
-              {stats.totalCollection > 0 ? Math.round(((stats.totalAdvance || 0) / stats.totalCollection) * 100) : 0}% à¤•à¥à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤µà¤¸à¥‚à¤²
+              {stats.totalCollection > 0 ? Math.round(((stats.totalAdvance || 0) / stats.totalCollection) * 100) : 0}% कुल किराया वसूल
             </div>
           </div>
 
           {/* Card 3: Outstanding Remaining Dues */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #DC2626' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿ (Outstanding)</div>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>शेष देय राशि (Outstanding)</div>
               <AlertTriangle size={16} color="#DC2626" />
             </div>
             <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#DC2626', margin: '4px 0', lineHeight: 1.1 }}>
-              â‚¹ {(stats.totalRemaining || 0).toLocaleString()}
+              ₹ {(stats.totalRemaining || 0).toLocaleString()}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#991B1B' }}>
-              à¤Ÿà¥à¤°à¥‡à¤¨/à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤ªà¤° à¤µà¤¸à¥‚à¤²à¥€ à¤¯à¥‹à¤—à¥à¤¯
+              ट्रेन/कटड़ा काउंटर पर वसूली योग्य
             </div>
           </div>
 
           {/* Card 4: Total Discount Conceded */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #D97706' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>à¤•à¥à¤² à¤›à¥‚à¤Ÿ à¤µ à¤°à¤¿à¤¯à¤¾à¤¯à¤¤</div>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल छूट व रियायत</div>
               <Percent size={16} color="#D97706" />
             </div>
             <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#D97706', margin: '4px 0', lineHeight: 1.1 }}>
-              â‚¹ {(stats.totalDiscount || 0).toLocaleString()}
+              ₹ {(stats.totalDiscount || 0).toLocaleString()}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#92400E' }}>
-              {stats.discountStats?.discountedTicketsCount || 0} à¤Ÿà¤¿à¤•à¤Ÿà¥‹à¤‚ à¤ªà¤° à¤Ÿà¥à¤°à¤¸à¥à¤Ÿà¥€ à¤›à¥‚à¤Ÿ
+              {stats.discountStats?.discountedTicketsCount || 0} टिकटों पर ट्रस्टी छूट
             </div>
           </div>
 
           {/* Card 5: Pilgrims & Tickets Count */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #2563EB' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥</div>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>आरक्षित श्रद्धालु</div>
               <Users size={16} color="#2563EB" />
             </div>
             <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#2563EB', margin: '4px 0', lineHeight: 1.1 }}>
               {stats.totalPassengers || 0}
             </div>
             <div style={{ fontSize: '0.76rem', color: '#1E40AF' }}>
-              {stats.totalBookings || 0} PNR à¤Ÿà¤¿à¤•à¤Ÿà¥‹à¤‚ à¤®à¥‡à¤‚ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤
+              {stats.totalBookings || 0} PNR टिकटों में आरक्षित
             </div>
           </div>
 
           {/* Card 6: Train Capacity Occupancy Rate */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #7C3AED' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>à¤Ÿà¥à¤°à¥‡à¤¨ à¤²à¤¾à¤‡à¤µ à¤‘à¤•à¥à¤¯à¥‚à¤ªà¥‡à¤‚à¤¸à¥€</div>
+              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>ट्रेन लाइव ऑक्यूपेंसी</div>
               <TrendingUp size={16} color="#7C3AED" />
             </div>
             <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#7C3AED', margin: '4px 0', lineHeight: 1.1 }}>
               {stats.overallOccupancyPercent || 0}%
             </div>
             <div style={{ fontSize: '0.76rem', color: '#5B21B6' }}>
-              {stats.totalPassengers || 0} / {stats.totalTrainCapacity || 1000} à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤­à¤°à¥€à¤‚
+              {stats.totalPassengers || 0} / {stats.totalTrainCapacity || 1000} सीटें भरीं
             </div>
           </div>
         </div>
@@ -3114,14 +3114,14 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <div>
               <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Train size={20} /> à¤Ÿà¥à¤°à¥‡à¤¨ à¤•à¥à¤·à¤®à¤¤à¤¾ à¤à¤µà¤‚ à¤²à¤¾à¤‡à¤µ à¤¸à¥€à¤Ÿ à¤‘à¤•à¥à¤¯à¥‚à¤ªà¥‡à¤‚à¤¸à¥€ à¤ªà¥à¤°à¥‹à¤—à¥à¤°à¥‡à¤¸ (Train Capacity Progress)
+                <Train size={20} /> ट्रेन क्षमता एवं लाइव सीट ऑक्यूपेंसी प्रोग्रेस (Train Capacity Progress)
               </h4>
               <div style={{ fontSize: '0.78rem', color: '#7C2D12', marginTop: 2 }}>
-                18 à¤•à¥‹à¤š à¤¸à¥à¤ªà¥‡à¤¶à¤² à¤°à¥ˆà¤• â€¢ à¤•à¥à¤² à¤•à¥à¤·à¤®à¤¤à¤¾: {stats.totalTrainCapacity || 1000} à¤¸à¥€à¤Ÿà¥‡à¤‚ â€¢ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤: {stats.totalPassengers || 0} à¤¸à¥€à¤Ÿà¥‡à¤‚ ({stats.overallOccupancyPercent || 0}%)
+                18 कोच स्पेशल रैक • कुल क्षमता: {stats.totalTrainCapacity || 1000} सीटें • आरक्षित: {stats.totalPassengers || 0} सीटें ({stats.overallOccupancyPercent || 0}%)
               </div>
             </div>
             <button className="btn btn-outline btn-sm" onClick={() => navigate('/admin/chart')}>
-              <Armchair size={15} /> à¤¸à¤®à¥à¤ªà¥‚à¤°à¥à¤£ à¤¸à¥€à¤Ÿà¤¿à¤‚à¤— à¤šà¤¾à¤°à¥à¤Ÿ à¤¦à¥‡à¤–à¥‡à¤‚ âž”
+              <Armchair size={15} /> सम्पूर्ण सीटिंग चार्ट देखें ➔
             </button>
           </div>
 
@@ -3130,7 +3130,7 @@ export default function App() {
             <div
               className="dash-progress-fill bhagwa"
               style={{ width: `${Math.min(100, Math.max(0, stats.overallOccupancyPercent || 0))}%` }}
-              title={`à¤Ÿà¥à¤°à¥‡à¤¨ à¤‘à¤•à¥à¤¯à¥‚à¤ªà¥‡à¤‚à¤¸à¥€: ${stats.overallOccupancyPercent}%`}
+              title={`ट्रेन ऑक्यूपेंसी: ${stats.overallOccupancyPercent}%`}
             />
           </div>
 
@@ -3139,7 +3139,7 @@ export default function App() {
             {/* Sleeper Class */}
             <div style={{ background: '#FFF7ED', border: '1.5px solid #FDBA74', borderRadius: 10, padding: '12px 14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.88rem' }}>ðŸ›ï¸ à¤¸à¥à¤²à¥€à¤ªà¤° à¤•à¥à¤²à¤¾à¤¸ (Sleeper)</span>
+                <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.88rem' }}>🛏️ स्लीपर क्लास (Sleeper)</span>
                 <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
                   {stats.classStats?.Sleeper?.capacity ? Math.round(((stats.classStats?.Sleeper?.booked || 0) / stats.classStats.Sleeper.capacity) * 100) : 0}%
                 </span>
@@ -3151,15 +3151,15 @@ export default function App() {
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#7C2D12' }}>
-                <span>à¤†à¤°à¤•à¥à¤·à¤¿à¤¤: <strong>{stats.classStats?.Sleeper?.booked || 0}</strong> / {stats.classStats?.Sleeper?.capacity || 432}</span>
-                <span>à¤°à¤¾à¤œà¤¸à¥à¤µ: <strong>â‚¹{(stats.classStats?.Sleeper?.revenue || 0).toLocaleString()}</strong></span>
+                <span>आरक्षित: <strong>{stats.classStats?.Sleeper?.booked || 0}</strong> / {stats.classStats?.Sleeper?.capacity || 432}</span>
+                <span>राजस्व: <strong>₹{(stats.classStats?.Sleeper?.revenue || 0).toLocaleString()}</strong></span>
               </div>
             </div>
 
             {/* AC Class */}
             <div style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: 10, padding: '12px 14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.88rem' }}>â„ï¸ à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ (AC 3A / 2A)</span>
+                <span style={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.88rem' }}>❄️ वातानुकूलित (AC 3A / 2A)</span>
                 <span className="badge badge-info" style={{ fontSize: '0.75rem' }}>
                   {stats.classStats?.AC?.capacity ? Math.round(((stats.classStats?.AC?.booked || 0) / stats.classStats.AC.capacity) * 100) : 0}%
                 </span>
@@ -3171,15 +3171,15 @@ export default function App() {
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#1E40AF' }}>
-                <span>à¤†à¤°à¤•à¥à¤·à¤¿à¤¤: <strong>{stats.classStats?.AC?.booked || 0}</strong> / {stats.classStats?.AC?.capacity || 378}</span>
-                <span>à¤°à¤¾à¤œà¤¸à¥à¤µ: <strong>â‚¹{(stats.classStats?.AC?.revenue || 0).toLocaleString()}</strong></span>
+                <span>आरक्षित: <strong>{stats.classStats?.AC?.booked || 0}</strong> / {stats.classStats?.AC?.capacity || 378}</span>
+                <span>राजस्व: <strong>₹{(stats.classStats?.AC?.revenue || 0).toLocaleString()}</strong></span>
               </div>
             </div>
 
             {/* General & SLR Class */}
             <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.88rem' }}>ðŸ‘¥ à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤µ à¤¦à¤¿à¤µà¥à¤¯à¤¾à¤‚à¤— (General/SLR)</span>
+                <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.88rem' }}>👥 सामान्य व दिव्यांग (General/SLR)</span>
                 <span className="badge badge-success" style={{ fontSize: '0.75rem' }}>
                   {stats.classStats?.General?.capacity ? Math.round(((stats.classStats?.General?.booked || 0) / stats.classStats.General.capacity) * 100) : 0}%
                 </span>
@@ -3191,8 +3191,8 @@ export default function App() {
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#065F46' }}>
-                <span>à¤†à¤°à¤•à¥à¤·à¤¿à¤¤: <strong>{stats.classStats?.General?.booked || 0}</strong> / {stats.classStats?.General?.capacity || 200}</span>
-                <span>à¤°à¤¾à¤œà¤¸à¥à¤µ: <strong>â‚¹{(stats.classStats?.General?.revenue || 0).toLocaleString()}</strong></span>
+                <span>आरक्षित: <strong>{stats.classStats?.General?.booked || 0}</strong> / {stats.classStats?.General?.capacity || 200}</span>
+                <span>राजस्व: <strong>₹{(stats.classStats?.General?.revenue || 0).toLocaleString()}</strong></span>
               </div>
             </div>
           </div>
@@ -3205,9 +3205,9 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <BarChart3 size={18} /> à¤¦à¥ˆà¤¨à¤¿à¤• à¤†à¤°à¤•à¥à¤·à¤£ à¤µ à¤¸à¤‚à¤—à¥à¤°à¤¹ à¤Ÿà¥à¤°à¥‡à¤‚à¤¡ (Collection Velocity Graph)
+                  <BarChart3 size={18} /> दैनिक आरक्षण व संग्रह ट्रेंड (Collection Velocity Graph)
                 </h4>
-                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤¦à¥ˆà¤¨à¤¿à¤• à¤¬à¥à¤•à¤¿à¤‚à¤— à¤ªà¥à¤°à¤µà¤¾à¤¹ à¤à¤µà¤‚ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ (â‚¹)</div>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>दैनिक बुकिंग प्रवाह एवं प्राप्त किराया (₹)</div>
               </div>
               <span className="badge badge-bhakti" style={{ fontSize: '0.72rem' }}>Timeline Progress</span>
             </div>
@@ -3217,7 +3217,7 @@ export default function App() {
                 <div className="dash-chart-container">
                   {stats.timelineData.slice(-14).map((item, idx) => {
                     const heightPercent = Math.max(12, Math.min(100, Math.round(((item.gross || item.advance || 1) / maxTimelineAmount) * 100)));
-                    const tooltipText = `${item.date}: â‚¹${(item.gross || item.advance || 0).toLocaleString()} (${item.bookings} à¤Ÿà¤¿à¤•à¤Ÿà¥‡à¤‚, ${item.passengers} à¤¯à¤¾à¤¤à¥à¤°à¥€)`;
+                    const tooltipText = `${item.date}: ₹${(item.gross || item.advance || 0).toLocaleString()} (${item.bookings} टिकटें, ${item.passengers} यात्री)`;
                     return (
                       <div key={idx} className="dash-chart-col">
                         <div
@@ -3233,13 +3233,13 @@ export default function App() {
                   })}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#784D35', borderTop: '1px solid #FED7AA', paddingTop: 8, marginTop: 6 }}>
-                  <span>ðŸ“Š à¤¬à¤¾à¤° à¤ªà¤° à¤¹à¥‹à¤µà¤° à¤•à¤°à¤•à¥‡ à¤µà¤¿à¤¸à¥à¤¤à¥ƒà¤¤ à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¿à¤µà¤°à¤£ à¤¦à¥‡à¤–à¥‡à¤‚</span>
-                  <span><strong>{stats.timelineData.length}</strong> à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤¤à¤¿à¤¥à¤¿à¤¯à¤¾à¤‚</span>
+                  <span>📊 बार पर होवर करके विस्तृत दैनिक विवरण देखें</span>
+                  <span><strong>{stats.timelineData.length}</strong> सक्रिय तिथियां</span>
                 </div>
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '40px 10px', color: '#9A3412', fontSize: '0.86rem' }}>
-                à¤…à¤­à¥€ à¤‡à¤¸ à¤¸à¤¤à¥à¤° à¤®à¥‡à¤‚ à¤•à¥‹à¤ˆ à¤¦à¤¿à¤¨à¤¾à¤‚à¤•-à¤µà¤¾à¤° à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
+                अभी इस सत्र में कोई दिनांक-वार रिकॉर्ड उपलब्ध नहीं है।
               </div>
             )}
           </div>
@@ -3249,12 +3249,12 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <QrCode size={18} /> à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤®à¤¾à¤§à¥à¤¯à¤® à¤µà¤°à¥à¤—à¥€à¤•à¤°à¤£ (Payment Modes Split)
+                  <QrCode size={18} /> भुगतान माध्यम वर्गीकरण (Payment Modes Split)
                 </h4>
-                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤¨à¤•à¤¦ à¤¬à¤¨à¤¾à¤® à¤¯à¥‚à¤ªà¥€à¤†à¤ˆ à¤¬à¤¨à¤¾à¤® à¤¬à¥ˆà¤‚à¤•/à¤…à¤¨à¥à¤¯ à¤®à¤¾à¤§à¥à¤¯à¤®</div>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>नकद बनाम यूपीआई बनाम बैंक/अन्य माध्यम</div>
               </div>
               <button className="btn btn-outline btn-xs" onClick={() => navigate('/admin/reconcile')}>
-                à¤¸à¤®à¤¾à¤§à¤¾à¤¨ à¤²à¥‡à¤œà¤° âž”
+                समाधान लेजर ➔
               </button>
             </div>
 
@@ -3262,9 +3262,9 @@ export default function App() {
               {/* Mode 1: Cash */}
               <div style={{ background: '#FFF7ED', border: '1.5px solid #FED7AA', borderRadius: 10, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.85rem' }}>ðŸ’µ à¤¨à¤•à¤¦ (Cash Collection)</span>
+                  <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.85rem' }}>💵 नकद (Cash Collection)</span>
                   <span style={{ fontWeight: 900, color: '#C2410C', fontSize: '0.95rem' }}>
-                    â‚¹ {(stats.paymentModes?.cash?.amount || 0).toLocaleString()}
+                    ₹ {(stats.paymentModes?.cash?.amount || 0).toLocaleString()}
                     <span style={{ fontSize: '0.74rem', color: '#7C2D12', marginLeft: 4 }}>({stats.paymentModes?.cash?.percent || 0}%)</span>
                   </span>
                 </div>
@@ -3272,16 +3272,16 @@ export default function App() {
                   <div className="dash-progress-fill orange" style={{ width: `${stats.paymentModes?.cash?.percent || 0}%` }} />
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#784D35', marginTop: 4 }}>
-                  {stats.paymentModes?.cash?.count || 0} à¤¨à¤•à¤¦ à¤°à¤¸à¥€à¤¦à¥‡à¤‚ à¤œà¤®à¤¾
+                  {stats.paymentModes?.cash?.count || 0} नकद रसीदें जमा
                 </div>
               </div>
 
               {/* Mode 2: UPI / QR */}
               <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.85rem' }}>ðŸ“± UPI / à¤•à¥à¤¯à¥‚à¤†à¤° à¤•à¥‹à¤¡ (Online UPI)</span>
+                  <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.85rem' }}>📱 UPI / क्यूआर कोड (Online UPI)</span>
                   <span style={{ fontWeight: 900, color: '#047857', fontSize: '0.95rem' }}>
-                    â‚¹ {(stats.paymentModes?.upi?.amount || 0).toLocaleString()}
+                    ₹ {(stats.paymentModes?.upi?.amount || 0).toLocaleString()}
                     <span style={{ fontSize: '0.74rem', color: '#065F46', marginLeft: 4 }}>({stats.paymentModes?.upi?.percent || 0}%)</span>
                   </span>
                 </div>
@@ -3289,16 +3289,16 @@ export default function App() {
                   <div className="dash-progress-fill green" style={{ width: `${stats.paymentModes?.upi?.percent || 0}%` }} />
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#065F46', marginTop: 4 }}>
-                  {stats.paymentModes?.upi?.count || 0} à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤•à¥à¤¯à¥‚à¤†à¤° à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤°à¤¸à¥€à¤¦à¥‡à¤‚
+                  {stats.paymentModes?.upi?.count || 0} ऑनलाइन क्यूआर डिजिटल रसीदें
                 </div>
               </div>
 
               {/* Mode 3: Bank / Other */}
               <div style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: 10, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.85rem' }}>ðŸ¦ à¤¬à¥ˆà¤‚à¤• à¤Ÿà¥à¤°à¤¾à¤‚à¤¸à¤«à¤° / UTR</span>
+                  <span style={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.85rem' }}>🏦 बैंक ट्रांसफर / UTR</span>
                   <span style={{ fontWeight: 900, color: '#1D4ED8', fontSize: '0.95rem' }}>
-                    â‚¹ {(stats.paymentModes?.other?.amount || 0).toLocaleString()}
+                    ₹ {(stats.paymentModes?.other?.amount || 0).toLocaleString()}
                     <span style={{ fontSize: '0.74rem', color: '#1E40AF', marginLeft: 4 }}>({stats.paymentModes?.other?.percent || 0}%)</span>
                   </span>
                 </div>
@@ -3306,7 +3306,7 @@ export default function App() {
                   <div className="dash-progress-fill blue" style={{ width: `${stats.paymentModes?.other?.percent || 0}%` }} />
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#1E40AF', marginTop: 4 }}>
-                  {stats.paymentModes?.other?.count || 0} à¤ªà¥à¤°à¤¤à¥à¤¯à¤•à¥à¤· à¤¬à¥ˆà¤‚à¤• / UTR à¤°à¤¸à¥€à¤¦à¥‡à¤‚
+                  {stats.paymentModes?.other?.count || 0} प्रत्यक्ष बैंक / UTR रसीदें
                 </div>
               </div>
             </div>
@@ -3318,14 +3318,14 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
             <div>
               <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Crown size={20} color="#D97706" /> à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤µ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤¨à¤¿à¤·à¥à¤ªà¤¾à¤¦à¤¨ à¤²à¥€à¤¡à¤°à¤¬à¥‹à¤°à¥à¤¡ (Staff Performance & Booking Graph)
+                <Crown size={20} color="#D97706" /> कर्मचारी व काउंटर निष्पादन लीडरबोर्ड (Staff Performance & Booking Graph)
               </h4>
               <div style={{ fontSize: '0.76rem', color: '#7C2D12', marginTop: 2 }}>
-                à¤•à¤¿à¤¸ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ / à¤²à¤¿à¤ªà¤¿à¤• à¤¨à¥‡ à¤•à¤¿à¤¤à¤¨à¥€ à¤Ÿà¤¿à¤•à¤Ÿà¥‡à¤‚ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤•à¥€à¤‚, à¤•à¤¿à¤¤à¤¨à¤¾ à¤¨à¤•à¤¦ à¤µ à¤¯à¥‚à¤ªà¥€à¤†à¤ˆ à¤¸à¤‚à¤—à¥à¤°à¤¹ à¤•à¤¿à¤¯à¤¾
+                किस कर्मचारी / लिपिक ने कितनी टिकटें आरक्षित कीं, कितना नकद व यूपीआई संग्रह किया
               </div>
             </div>
             <button className="btn btn-outline btn-sm" onClick={() => navigate('/admin/staff')}>
-              <Users size={15} /> à¤¸à¥à¤Ÿà¤¾à¤« à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨ âž”
+              <Users size={15} /> स्टाफ प्रबंधन ➔
             </button>
           </div>
 
@@ -3348,30 +3348,30 @@ export default function App() {
                           <span className="badge badge-bhakti" style={{ fontSize: '0.65rem', padding: '1px 6px' }}>
                             {st.role}
                           </span>
-                          <span>â€¢ {st.bookingsCount} à¤Ÿà¤¿à¤•à¤Ÿà¥‡à¤‚ ({st.passengersCount} à¤¯à¤¾à¤¤à¥à¤°à¥€)</span>
+                          <span>• {st.bookingsCount} टिकटें ({st.passengersCount} यात्री)</span>
                         </div>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>à¤¸à¤•à¤² à¤¸à¤‚à¤—à¥à¤°à¤¹</div>
+                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>सकल संग्रह</div>
                         <div style={{ fontWeight: 900, color: '#047857', fontSize: '1rem' }}>
-                          â‚¹ {(st.grossCollection || 0).toLocaleString()}
+                          ₹ {(st.grossCollection || 0).toLocaleString()}
                         </div>
                       </div>
 
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>à¤¨à¤•à¤¦ / à¤¯à¥‚à¤ªà¥€à¤†à¤ˆ</div>
+                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>नकद / यूपीआई</div>
                         <div style={{ fontSize: '0.78rem', color: '#431407', fontWeight: 700 }}>
-                          à¤¨à¤•à¤¦: â‚¹{(st.cashAmount || 0).toLocaleString()} | UPI: â‚¹{(st.upiAmount || 0).toLocaleString()}
+                          नकद: ₹{(st.cashAmount || 0).toLocaleString()} | UPI: ₹{(st.upiAmount || 0).toLocaleString()}
                         </div>
                       </div>
 
                       <div style={{ textAlign: 'right', minWidth: 90 }}>
-                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>à¤›à¥‚à¤Ÿ à¤¦à¥€ à¤—à¤ˆ</div>
+                        <div style={{ fontSize: '0.7rem', color: '#784D35', textTransform: 'uppercase', fontWeight: 700 }}>छूट दी गई</div>
                         <div style={{ fontSize: '0.84rem', color: '#D97706', fontWeight: 800 }}>
-                          â‚¹ {(st.discountGiven || 0).toLocaleString()}
+                          ₹ {(st.discountGiven || 0).toLocaleString()}
                         </div>
                       </div>
                     </div>
@@ -3381,7 +3381,7 @@ export default function App() {
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '30px', color: '#9A3412', fontSize: '0.88rem' }}>
-              à¤…à¤­à¥€ à¤•à¥‹à¤ˆ à¤¸à¥à¤Ÿà¤¾à¤« à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¡à¥‡à¤Ÿà¤¾ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
+              अभी कोई स्टाफ बुकिंग डेटा उपलब्ध नहीं है।
             </div>
           )}
         </div>
@@ -3391,35 +3391,35 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
             <div>
               <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Layers size={20} /> à¤•à¥‹à¤š-à¤µà¤¾à¤° à¤²à¤¾à¤‡à¤µ à¤‘à¤•à¥à¤¯à¥‚à¤ªà¥‡à¤‚à¤¸à¥€ à¤®à¥ˆà¤Ÿà¥à¤°à¤¿à¤•à¥à¤¸ (Coach Utilization Heatmap)
+                <Layers size={20} /> कोच-वार लाइव ऑक्यूपेंसी मैट्रिक्स (Coach Utilization Heatmap)
               </h4>
               <div style={{ fontSize: '0.76rem', color: '#7C2D12', marginTop: 2 }}>
-                à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤¬à¥‹à¤—à¥€ à¤•à¥€ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤µ à¤°à¤¿à¤•à¥à¤¤ à¤¸à¥€à¤Ÿà¥‡à¤‚ â€” à¤•à¥‹à¤š à¤ªà¤° à¤•à¥à¤²à¤¿à¤• à¤•à¤°à¤•à¥‡ à¤‰à¤¸à¤•à¤¾ à¤¸à¥€à¤Ÿà¤¿à¤‚à¤— à¤šà¤¾à¤°à¥à¤Ÿ à¤–à¥‹à¤²à¥‡à¤‚
+                प्रत्येक बोगी की आरक्षित व रिक्त सीटें — कोच पर क्लिक करके उसका सीटिंग चार्ट खोलें
               </div>
             </div>
             <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
-              16 à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚
+              16 आरक्षित बोगियां
             </span>
           </div>
 
           <div className="dash-coach-grid">
             {(stats.coachMatrix && stats.coachMatrix.length > 0 ? stats.coachMatrix : [
-              { coachCode: 'S1', coachName: 'à¤¸à¥à¤²à¥€à¤ªà¤° S1', capacity: 72, booked: stats.coachStats?.S1 || 0, occupancy: 0 },
-              { coachCode: 'S2', coachName: 'à¤¸à¥à¤²à¥€à¤ªà¤° S2', capacity: 72, booked: stats.coachStats?.S2 || 0, occupancy: 0 },
-              { coachCode: 'S3', coachName: 'à¤¸à¥à¤²à¥€à¤ªà¤° S3', capacity: 72, booked: stats.coachStats?.S3 || 0, occupancy: 0 },
-              { coachCode: 'S4', coachName: 'à¤¸à¥à¤²à¥€à¤ªà¤° S4', capacity: 72, booked: stats.coachStats?.S4 || 0, occupancy: 0 },
-              { coachCode: 'S5', coachName: 'à¤¸à¥à¤²à¥€à¤ªà¤° S5', capacity: 72, booked: stats.coachStats?.S5 || 0, occupancy: 0 },
-              { coachCode: 'S6', coachName: 'à¤¸à¥à¤²à¥€à¤ªà¤° S6', capacity: 72, booked: stats.coachStats?.S6 || 0, occupancy: 0 },
-              { coachCode: 'B1', coachName: 'à¤¥à¤°à¥à¤¡ à¤à¤¸à¥€ B1', capacity: 72, booked: stats.coachStats?.B1 || 0, occupancy: 0 },
-              { coachCode: 'B2', coachName: 'à¤¥à¤°à¥à¤¡ à¤à¤¸à¥€ B2', capacity: 72, booked: stats.coachStats?.B2 || 0, occupancy: 0 },
-              { coachCode: 'B3', coachName: 'à¤¥à¤°à¥à¤¡ à¤à¤¸à¥€ B3', capacity: 72, booked: stats.coachStats?.B3 || 0, occupancy: 0 },
-              { coachCode: 'A1', coachName: 'à¤¸à¥‡à¤•à¤‚à¤¡ à¤à¤¸à¥€ A1', capacity: 54, booked: stats.coachStats?.A1 || 0, occupancy: 0 },
-              { coachCode: 'A2', coachName: 'à¤¸à¥‡à¤•à¤‚à¤¡ à¤à¤¸à¥€ A2', capacity: 54, booked: stats.coachStats?.A2 || 0, occupancy: 0 },
-              { coachCode: 'A3', coachName: 'à¤¸à¥‡à¤•à¤‚à¤¡ à¤à¤¸à¥€ A3', capacity: 54, booked: stats.coachStats?.A3 || 0, occupancy: 0 },
-              { coachCode: 'GS1', coachName: 'à¤œà¤¨à¤°à¤² GS1', capacity: 80, booked: stats.coachStats?.GS1 || 0, occupancy: 0 },
-              { coachCode: 'GS2', coachName: 'à¤œà¤¨à¤°à¤² GS2', capacity: 80, booked: stats.coachStats?.GS2 || 0, occupancy: 0 },
-              { coachCode: 'SLR1', coachName: 'à¤à¤¸à¤à¤²à¤†à¤° 1', capacity: 20, booked: stats.coachStats?.SLR1 || 0, occupancy: 0 },
-              { coachCode: 'SLR2', coachName: 'à¤à¤¸à¤à¤²à¤†à¤° 2', capacity: 20, booked: stats.coachStats?.SLR2 || 0, occupancy: 0 }
+              { coachCode: 'S1', coachName: 'स्लीपर S1', capacity: 72, booked: stats.coachStats?.S1 || 0, occupancy: 0 },
+              { coachCode: 'S2', coachName: 'स्लीपर S2', capacity: 72, booked: stats.coachStats?.S2 || 0, occupancy: 0 },
+              { coachCode: 'S3', coachName: 'स्लीपर S3', capacity: 72, booked: stats.coachStats?.S3 || 0, occupancy: 0 },
+              { coachCode: 'S4', coachName: 'स्लीपर S4', capacity: 72, booked: stats.coachStats?.S4 || 0, occupancy: 0 },
+              { coachCode: 'S5', coachName: 'स्लीपर S5', capacity: 72, booked: stats.coachStats?.S5 || 0, occupancy: 0 },
+              { coachCode: 'S6', coachName: 'स्लीपर S6', capacity: 72, booked: stats.coachStats?.S6 || 0, occupancy: 0 },
+              { coachCode: 'B1', coachName: 'थर्ड एसी B1', capacity: 72, booked: stats.coachStats?.B1 || 0, occupancy: 0 },
+              { coachCode: 'B2', coachName: 'थर्ड एसी B2', capacity: 72, booked: stats.coachStats?.B2 || 0, occupancy: 0 },
+              { coachCode: 'B3', coachName: 'थर्ड एसी B3', capacity: 72, booked: stats.coachStats?.B3 || 0, occupancy: 0 },
+              { coachCode: 'A1', coachName: 'सेकंड एसी A1', capacity: 54, booked: stats.coachStats?.A1 || 0, occupancy: 0 },
+              { coachCode: 'A2', coachName: 'सेकंड एसी A2', capacity: 54, booked: stats.coachStats?.A2 || 0, occupancy: 0 },
+              { coachCode: 'A3', coachName: 'सेकंड एसी A3', capacity: 54, booked: stats.coachStats?.A3 || 0, occupancy: 0 },
+              { coachCode: 'GS1', coachName: 'जनरल GS1', capacity: 80, booked: stats.coachStats?.GS1 || 0, occupancy: 0 },
+              { coachCode: 'GS2', coachName: 'जनरल GS2', capacity: 80, booked: stats.coachStats?.GS2 || 0, occupancy: 0 },
+              { coachCode: 'SLR1', coachName: 'एसएलआर 1', capacity: 20, booked: stats.coachStats?.SLR1 || 0, occupancy: 0 },
+              { coachCode: 'SLR2', coachName: 'एसएलआर 2', capacity: 20, booked: stats.coachStats?.SLR2 || 0, occupancy: 0 }
             ]).map((c, idx) => {
               const booked = c.booked || (stats.coachStats && stats.coachStats[c.coachCode]) || 0;
               const cap = c.capacity || 72;
@@ -3435,7 +3435,7 @@ export default function App() {
                     setChartCoach(c.coachCode);
                     navigate('/admin/chart');
                   }}
-                  title={`à¤•à¥‹à¤š ${c.coachCode} à¤•à¤¾ à¤šà¤¾à¤°à¥à¤Ÿ à¤¦à¥‡à¤–à¥‡à¤‚`}
+                  title={`कोच ${c.coachCode} का चार्ट देखें`}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontWeight: 900, color: '#431407', fontSize: '0.98rem' }}>{c.coachCode}</span>
@@ -3453,8 +3453,8 @@ export default function App() {
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#784D35', fontWeight: 700 }}>
-                    <span>à¤­à¤°à¥€: {booked}</span>
-                    <span>à¤¶à¥‡à¤·: {Math.max(0, cap - booked)}</span>
+                    <span>भरी: {booked}</span>
+                    <span>शेष: {Math.max(0, cap - booked)}</span>
                   </div>
                 </div>
               );
@@ -3469,11 +3469,11 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Train size={18} /> à¤ªà¥à¤°à¤®à¥à¤– à¤¬à¥‹à¤°à¥à¤¡à¤¿à¤‚à¤— à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤µà¤¿à¤¤à¤°à¤£ (Boarding Hubs)
+                  <Train size={18} /> प्रमुख बोर्डिंग स्टेशन वितरण (Boarding Hubs)
                 </h4>
-                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¤¿à¤¸ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤¸à¥‡ à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤¸à¤µà¤¾à¤° à¤¹à¥‹à¤‚à¤—à¥‡</div>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>श्रद्धालु किस स्टेशन से ट्रेन में सवार होंगे</div>
               </div>
-              <span className="badge badge-bhakti" style={{ fontSize: '0.72rem' }}>à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤¶à¥‡à¤¯à¤°</span>
+              <span className="badge badge-bhakti" style={{ fontSize: '0.72rem' }}>स्टेशन शेयर</span>
             </div>
 
             {stats.boardingStations && stats.boardingStations.length > 0 ? (
@@ -3481,8 +3481,8 @@ export default function App() {
                 {stats.boardingStations.slice(0, 6).map((stn, idx) => (
                   <div key={idx}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, color: '#431407', marginBottom: 4 }}>
-                      <span>ðŸ“ {stn.station}</span>
-                      <span>{stn.passengers} à¤¯à¤¾à¤¤à¥à¤°à¥€ ({stn.percentage}%)</span>
+                      <span>📍 {stn.station}</span>
+                      <span>{stn.passengers} यात्री ({stn.percentage}%)</span>
                     </div>
                     <div className="dash-progress-track" style={{ height: 7 }}>
                       <div className="dash-progress-fill orange" style={{ width: `${stn.percentage}%` }} />
@@ -3492,7 +3492,7 @@ export default function App() {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '24px', color: '#9A3412', fontSize: '0.84rem' }}>
-                à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤¡à¥‡à¤Ÿà¤¾ à¤ªà¥à¤°à¥‹à¤¸à¥‡à¤¸ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...
+                स्टेशन डेटा प्रोसेस हो रहा है...
               </div>
             )}
           </div>
@@ -3502,12 +3502,12 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <h4 style={{ margin: 0, color: '#9A3412', fontWeight: 800, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <BadgeCheck size={18} /> à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ (Attendance Status)
+                  <BadgeCheck size={18} /> यात्रा उपस्थिति एवं सत्यापन (Attendance Status)
                 </h4>
-                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤šà¤² à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¤°à¥€à¤•à¥à¤·à¤• (TTE) à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤¸à¥à¤¥à¤¿à¤¤à¤¿</div>
+                <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>चल टिकट परीक्षक (TTE) द्वारा उपस्थिति स्थिति</div>
               </div>
               <button className="btn btn-outline btn-xs" onClick={() => navigate('/admin/checkin')}>
-                à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸ âž”
+                ऑन-ट्रेन अटेंडेंस ➔
               </button>
             </div>
 
@@ -3515,8 +3515,8 @@ export default function App() {
               {/* Boarded / Present */}
               <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 800, color: '#065F46', fontSize: '0.88rem' }}>ðŸŸ¢ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ / à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤¸à¤µà¤¾à¤° (Boarded)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#047857' }}>TTE à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤­à¥Œà¤¤à¤¿à¤• à¤°à¥‚à¤ª à¤¸à¥‡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤</div>
+                  <div style={{ fontWeight: 800, color: '#065F46', fontSize: '0.88rem' }}>🟢 उपस्थित / ट्रेन में सवार (Boarded)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#047857' }}>TTE द्वारा भौतिक रूप से सत्यापित</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857' }}>{stats.checkinStats?.present || 0}</div>
@@ -3527,24 +3527,24 @@ export default function App() {
               {/* Absent */}
               <div style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 800, color: '#991B1B', fontSize: '0.88rem' }}>ðŸ”´ à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤ (Absent / Missed)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#DC2626' }}>à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤</div>
+                  <div style={{ fontWeight: 800, color: '#991B1B', fontSize: '0.88rem' }}>🔴 अनुपस्थित (Absent / Missed)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#DC2626' }}>ट्रेन में उपस्थित नहीं हुए</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#DC2626' }}>{stats.checkinStats?.absent || 0}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#991B1B', fontWeight: 700 }}>à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
+                  <div style={{ fontSize: '0.7rem', color: '#991B1B', fontWeight: 700 }}>यात्री</div>
                 </div>
               </div>
 
               {/* Pending */}
               <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 800, color: '#92400E', fontSize: '0.88rem' }}>ðŸŸ¡ à¤ªà¥à¤°à¤¤à¥€à¤•à¥à¤·à¤¾à¤°à¤¤ (Pending Boarding)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#D97706' }}>à¤†à¤—à¤¾à¤®à¥€ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨à¥‹à¤‚ à¤¸à¥‡ à¤¸à¤µà¤¾à¤° à¤¹à¥‹à¤¨à¥‡ à¤µà¤¾à¤²à¥‡</div>
+                  <div style={{ fontWeight: 800, color: '#92400E', fontSize: '0.88rem' }}>🟡 प्रतीक्षारत (Pending Boarding)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#D97706' }}>आगामी स्टेशनों से सवार होने वाले</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#D97706' }}>{stats.checkinStats?.pending || 0}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#92400E', fontWeight: 700 }}>à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
+                  <div style={{ fontSize: '0.7rem', color: '#92400E', fontWeight: 700 }}>यात्री</div>
                 </div>
               </div>
             </div>
@@ -3555,11 +3555,11 @@ export default function App() {
         <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
             <h3 style={{ color: '#9A3412', margin: 0, fontWeight: 900, fontSize: '1.22rem' }}>
-              à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤¨à¤¿à¤¯à¤‚à¤¤à¥à¤°à¤£ à¤•à¤•à¥à¤· â€” à¤¸à¤®à¤¸à¥à¤¤ à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤®à¥‰à¤¡à¥à¤¯à¥‚à¤²
+              संपूर्ण नियंत्रण कक्ष — समस्त प्रोजेक्ट मॉड्यूल
             </h3>
             <div style={{ fontSize: '0.78rem', color: '#7C2D12', marginTop: 2 }}>All Project Features & Control Desks</div>
           </div>
-          <span className="badge badge-bhakti" style={{ fontSize: '0.82rem', padding: '4px 12px' }}>12 à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤®à¥‰à¤¡à¥à¤¯à¥‚à¤²</span>
+          <span className="badge badge-bhakti" style={{ fontSize: '0.82rem', padding: '4px 12px' }}>12 अधिकृत मॉड्यूल</span>
         </div>
 
         <div className="module-hub-grid">
@@ -3570,8 +3570,8 @@ export default function App() {
                 <Ticket size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">1. à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°</h4>
-                <p className="module-card-desc">à¤¨à¤¯à¤¾ à¤Ÿà¤¿à¤•à¤Ÿ à¤†à¤°à¤•à¥à¤·à¤£, à¤¤à¤¤à¥à¤•à¤¾à¤² à¤¸à¥€à¤Ÿ à¤†à¤µà¤‚à¤Ÿà¤¨ à¤µ à¤¥à¤°à¥à¤®à¤² à¤ªà¤°à¥à¤šà¥€ à¤œà¤¾à¤°à¥€ à¤•à¤°à¥‡à¤‚à¥¤</p>
+                <h4 className="module-card-title">1. नया आरक्षण काउंटर</h4>
+                <p className="module-card-desc">नया टिकट आरक्षण, तत्काल सीट आवंटन व थर्मल पर्ची जारी करें।</p>
               </div>
             </div>
           </div>
@@ -3583,8 +3583,8 @@ export default function App() {
                 <ClipboardList size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">2. à¤†à¤°à¤•à¥à¤·à¤£ à¤¡à¤¾à¤¯à¤°à¥‡à¤•à¥à¤Ÿà¤°à¥€</h4>
-                <p className="module-card-desc">à¤¸à¤­à¥€ à¤µà¤°à¥à¤·à¥‹à¤‚ à¤•à¥€ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤Ÿà¤¿à¤•à¤Ÿà¥‡à¤‚ à¤–à¥‹à¤œà¥‡à¤‚, à¤ªà¤°à¥à¤šà¥€ à¤¦à¥‡à¤–à¥‡à¤‚ à¤µ à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚à¥¤</p>
+                <h4 className="module-card-title">2. आरक्षण डायरेक्टरी</h4>
+                <p className="module-card-desc">सभी वर्षों की आरक्षित टिकटें खोजें, पर्ची देखें व डाउनलोड करें।</p>
               </div>
             </div>
           </div>
@@ -3596,8 +3596,8 @@ export default function App() {
                 <FileText size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">3. à¤°à¤¸à¥€à¤¦ à¤à¤µà¤‚ à¤ªà¤°à¥à¤šà¥€ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°</h4>
-                <p className="module-card-desc">PNR, à¤¨à¤¾à¤® à¤¯à¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¸à¥‡ à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¥€ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤°à¤¸à¥€à¤¦à¥‡à¤‚ à¤–à¥‹à¤œà¥‡à¤‚ à¤µ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚à¥¤</p>
+                <h4 className="module-card-title">3. रसीद एवं पर्ची काउंटर</h4>
+                <p className="module-card-desc">PNR, नाम या मोबाइल से किसी भी श्रद्धालु की भुगतान रसीदें खोजें व प्रिंट करें।</p>
               </div>
             </div>
           </div>
@@ -3609,8 +3609,8 @@ export default function App() {
                 <Printer size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">4. IRCTC à¤¸à¥€à¤Ÿà¤¿à¤‚à¤— à¤šà¤¾à¤°à¥à¤Ÿ</h4>
-                <p className="module-card-desc">à¤°à¥‡à¤²à¤µà¥‡ à¤•à¥‹à¤š S1-S6, B1-B3, GS1 à¤•à¤¾ à¤¸à¥€à¤Ÿà¤¿à¤‚à¤— à¤šà¤¾à¤°à¥à¤Ÿ à¤¦à¥‡à¤–à¥‡à¤‚ à¤à¤µà¤‚ A4 à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤²à¥‡à¤‚à¥¤</p>
+                <h4 className="module-card-title">4. IRCTC सीटिंग चार्ट</h4>
+                <p className="module-card-desc">रेलवे कोच S1-S6, B1-B3, GS1 का सीटिंग चार्ट देखें एवं A4 प्रिंट लें।</p>
               </div>
             </div>
           </div>
@@ -3622,8 +3622,8 @@ export default function App() {
                 <BadgeCheck size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">5. à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸</h4>
-                <p className="module-card-desc">à¤šà¤² à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¤°à¥€à¤•à¥à¤·à¤• (TTE) à¤²à¤¾à¤‡à¤µ à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤…à¤‚à¤•à¤¨à¥¤</p>
+                <h4 className="module-card-title">5. ऑन-ट्रेन अटेंडेंस</h4>
+                <p className="module-card-desc">चल टिकट परीक्षक (TTE) लाइव यात्री सत्यापन व उपस्थिति अंकन।</p>
               </div>
             </div>
           </div>
@@ -3635,8 +3635,8 @@ export default function App() {
                 <IndianRupee size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">6. à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤µ à¤¸à¤®à¤¾à¤§à¤¾à¤¨</h4>
-                <p className="module-card-desc">à¤¤à¤¿à¤¥à¤¿-à¤µà¤¾à¤° à¤¸à¤®à¤¸à¥à¤¤ à¤Ÿà¥€à¤Ÿà¥€à¤ˆ à¤µ à¤¸à¥à¤Ÿà¤¾à¤« à¤µà¤¸à¥‚à¤²à¥€, à¤¨à¤•à¤¦, à¤¯à¥‚à¤ªà¥€à¤†à¤ˆ à¤µ à¤ªà¤¾à¤ˆ-à¤ªà¤¾à¤ˆ à¤•à¤¾ à¤¹à¤¿à¤¸à¤¾à¤¬à¥¤</p>
+                <h4 className="module-card-title">6. दैनिक वसूली व समाधान</h4>
+                <p className="module-card-desc">तिथि-वार समस्त टीटीई व स्टाफ वसूली, नकद, यूपीआई व पाई-पाई का हिसाब।</p>
               </div>
             </div>
           </div>
@@ -3648,8 +3648,8 @@ export default function App() {
                 <Search size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">7. à¤à¤‚à¤Ÿà¥€-à¤«à¥à¤°à¥‰à¤¡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ UTR</h4>
-                <p className="module-card-desc">à¤«à¤°à¥à¤œà¥€ à¤Ÿà¤¿à¤•à¤Ÿà¥‹à¤‚ à¤•à¥€ à¤²à¤¾à¤‡à¤µ à¤ªà¤¹à¤šà¤¾à¤¨, à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥€à¤² à¤¹à¥ˆà¤¶ à¤µ UTR à¤…à¤¨à¥à¤®à¥‹à¤¦à¤¨à¥¤</p>
+                <h4 className="module-card-title">7. एंटी-फ्रॉड सत्यापन व UTR</h4>
+                <p className="module-card-desc">फर्जी टिकटों की लाइव पहचान, सुरक्षा सील हैश व UTR अनुमोदन।</p>
               </div>
             </div>
           </div>
@@ -3661,8 +3661,8 @@ export default function App() {
                 <Users size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">8. à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ RBAC à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨</h4>
-                <p className="module-card-desc">à¤¨à¤¯à¤¾ à¤Ÿà¥€à¤Ÿà¥€à¤ˆ, à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤•à¥à¤²à¤°à¥à¤•, à¤à¤•à¤¾à¤‰à¤‚à¤Ÿà¥à¤¸ à¤¸à¥à¤Ÿà¤¾à¤« à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ (Gmail ID à¤¸à¤¹à¤¿à¤¤) à¤µ à¤…à¤§à¤¿à¤•à¤¾à¤° à¤¨à¤¿à¤¯à¤‚à¤¤à¥à¤°à¤¿à¤¤ à¤•à¤°à¥‡à¤‚à¥¤</p>
+                <h4 className="module-card-title">8. कर्मचारी RBAC प्रबंधन</h4>
+                <p className="module-card-desc">नया टीटीई, काउंटर क्लर्क, एकाउंट्स स्टाफ जोड़ें (Gmail ID सहित) व अधिकार नियंत्रित करें।</p>
               </div>
             </div>
           </div>
@@ -3674,8 +3674,8 @@ export default function App() {
                 <ShieldCheck size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">9. à¤‘à¤¡à¤¿à¤Ÿ à¤Ÿà¥à¤°à¥‡à¤²à¥à¤¸ à¤µ à¤¸à¥à¤°à¤•à¥à¤·à¤¾</h4>
-                <p className="module-card-desc">à¤¸à¤­à¥€ à¤²à¥‰à¤—à¤¿à¤¨, à¤¬à¥à¤•à¤¿à¤‚à¤—, à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤”à¤° à¤¸à¤¿à¤¸à¥à¤Ÿà¤® à¤ªà¤°à¤¿à¤µà¤°à¥à¤¤à¤¨à¥‹à¤‚ à¤•à¤¾ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤Ÿà¤¾à¤‡à¤®à¤¸à¥à¤Ÿà¥ˆà¤®à¥à¤ªà¥à¤¡ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡à¥¤</p>
+                <h4 className="module-card-title">9. ऑडिट ट्रेल्स व सुरक्षा</h4>
+                <p className="module-card-desc">सभी लॉगिन, बुकिंग, भुगतान और सिस्टम परिवर्तनों का सुरक्षित टाइमस्टैम्प्ड रिकॉर्ड।</p>
               </div>
             </div>
           </div>
@@ -3687,8 +3687,8 @@ export default function App() {
                 <Printer size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">10. à¤¬à¤•à¤¾à¤¯à¤¾à¤¦à¤¾à¤°à¥‹à¤‚ à¤•à¥€ à¤¸à¥‚à¤šà¥€</h4>
-                <p className="module-card-desc">à¤œà¤¿à¤¨ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥à¤“à¤‚ à¤•à¤¾ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¶à¥‡à¤· (Remaining Due) à¤¹à¥ˆ, à¤‰à¤¨à¤•à¥€ à¤ªà¥‚à¤°à¥à¤£ A4 à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿà¥¤</p>
+                <h4 className="module-card-title">10. बकायादारों की सूची</h4>
+                <p className="module-card-desc">जिन श्रद्धालुओं का किराया शेष (Remaining Due) है, उनकी पूर्ण A4 रिपोर्ट।</p>
               </div>
             </div>
           </div>
@@ -3700,8 +3700,8 @@ export default function App() {
                 <Upload size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">11. à¤à¤•à¥à¤¸à¥‡à¤² à¤¬à¤²à¥à¤• à¤¬à¥à¤•à¤¿à¤‚à¤—</h4>
-                <p className="module-card-desc">à¤¸à¥ˆà¤•à¤¡à¤¼à¥‹à¤‚ à¤¯à¤¾à¤¤à¥à¤°à¤¿à¤¯à¥‹à¤‚ à¤•à¥€ à¤à¤•à¥à¤¸à¥‡à¤² à¤«à¤¾à¤‡à¤² à¤à¤• à¤•à¥à¤²à¤¿à¤• à¤®à¥‡à¤‚ à¤…à¤ªà¤²à¥‹à¤¡ à¤µ à¤‘à¤Ÿà¥‹-à¤ªà¥à¤°à¥‹à¤¸à¥‡à¤¸ à¤•à¤°à¥‡à¤‚à¥¤</p>
+                <h4 className="module-card-title">11. एक्सेल बल्क बुकिंग</h4>
+                <p className="module-card-desc">सैकड़ों यात्रियों की एक्सेल फाइल एक क्लिक में अपलोड व ऑटो-प्रोसेस करें।</p>
               </div>
             </div>
           </div>
@@ -3713,8 +3713,8 @@ export default function App() {
                 <Settings size={22} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 className="module-card-title">12. à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤à¤µà¤‚ à¤¸à¥à¤°à¤•à¥à¤·à¤¾</h4>
-                <p className="module-card-desc">à¤à¤¡à¤®à¤¿à¤¨ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤ªà¤°à¤¿à¤µà¤°à¥à¤¤à¤¨, à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤ªà¥à¤°à¥‹à¤«à¤¼à¤¾à¤‡à¤² à¤µ à¤¸à¤¤à¥à¤° à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨à¥¤</p>
+                <h4 className="module-card-title">12. सेटिंग्स एवं सुरक्षा</h4>
+                <p className="module-card-desc">एडमिन पासवर्ड परिवर्तन, ट्रस्ट प्रोफ़ाइल व सत्र प्रबंधन।</p>
               </div>
             </div>
           </div>
@@ -3724,10 +3724,10 @@ export default function App() {
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h4 style={{ color: '#9A3412', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
-              à¤¹à¤¾à¤² à¤¹à¥€ à¤®à¥‡à¤‚ à¤œà¤¾à¤°à¥€ à¤†à¤°à¤•à¥à¤·à¤£ (Recent Bookings)
+              हाल ही में जारी आरक्षण (Recent Bookings)
             </h4>
             <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin/bookings')}>
-              à¤¸à¤®à¤¸à¥à¤¤ Directoy à¤–à¥‹à¤²à¥‡à¤‚ âž”
+              समस्त Directoy खोलें ➔
             </button>
           </div>
           <div className="table-responsive">
@@ -3735,12 +3735,12 @@ export default function App() {
               <thead>
                 <tr>
                   <th>PNR</th>
-                  <th>à¤µà¤°à¥à¤·</th>
-                  <th>à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤</th>
-                  <th>à¤°à¥‚à¤Ÿ</th>
-                  <th>à¤•à¥‹à¤š / à¤¸à¥€à¤Ÿ</th>
-                  <th>à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                  <th style={{ textAlign: 'right' }}>à¤ªà¤°à¥à¤šà¥€</th>
+                  <th>वर्ष</th>
+                  <th>मुख्य भक्त</th>
+                  <th>रूट</th>
+                  <th>कोच / सीट</th>
+                  <th>किराया स्थिति</th>
+                  <th style={{ textAlign: 'right' }}>पर्ची</th>
                 </tr>
               </thead>
               <tbody>
@@ -3752,7 +3752,7 @@ export default function App() {
                       <strong>{b.bookedBy}</strong>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{b.mobile}</div>
                     </td>
-                    <td style={{ fontSize: '0.85rem' }}>{b.fromStation} âž” {b.toStation}</td>
+                    <td style={{ fontSize: '0.85rem' }}>{b.fromStation} ➔ {b.toStation}</td>
                     <td><strong style={{ color: '#047857' }}>{b.coachName}</strong> ({Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber})</td>
                     <td>
                       <span className={`badge ${b.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-partial'}`}>
@@ -3761,7 +3761,7 @@ export default function App() {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <button className="btn btn-outline btn-sm" onClick={() => setTicketModal(b)}>
-                        <FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤ªà¤°à¥à¤šà¥€
+                        <FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> पर्ची
                       </button>
                     </td>
                   </tr>
@@ -3782,61 +3782,61 @@ export default function App() {
     if (!staffUser) return [];
     const role = staffUser.role;
     if (role === 'SuperAdmin') return [
-      { path: '/admin/dashboard', icon: <LayoutDashboard size={18} />, label: 'à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡ (Overview)' },
-      { path: '/admin/booking', icon: <Ticket size={18} />, label: '1. à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£' },
-      { path: '/admin/bookings', icon: <ClipboardList size={18} />, label: '2. à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¡à¤¾à¤¯à¤°à¥‡à¤•à¥à¤Ÿà¤°à¥€' },
-      { path: '/admin/receipts', icon: <FileText size={18} />, label: '3. à¤°à¤¸à¥€à¤¦ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°' },
-      { path: '/admin/refunds', icon: <AlertTriangle size={18} />, label: '4. à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡' },
-      { path: '/admin/verifier', icon: <Search size={18} />, label: '5. à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ UTR' },
-      { path: '/admin/chart', icon: <Printer size={18} />, label: '6. IRCTC à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤šà¤¾à¤°à¥à¤Ÿ' },
-      { path: '/admin/coaches', icon: <Train size={18} />, label: '7. à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¥‹à¤—à¥€ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨' },
-      { path: '/admin/checkin', icon: <BadgeCheck size={18} />, label: '8. à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸' },
-      { path: '/admin/reconcile', icon: <IndianRupee size={18} />, label: '9. à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤µ à¤¹à¤¿à¤¸à¤¾à¤¬' },
-      { path: '/admin/guide', icon: <Lightbulb size={18} />, label: '10. à¤¯à¥‚à¤œà¤¼à¤° à¤—à¤¾à¤‡à¤¡ à¤µ SOP' },
-      { path: '/admin/staff', icon: <Users size={18} />, label: 'à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ RBAC' },
-      { path: '/admin/audit', icon: <ShieldCheck size={18} />, label: 'à¤‘à¤¡à¤¿à¤Ÿ à¤²à¥‰à¤—à¥à¤¸' },
-      { path: '/admin/settings', icon: <Settings size={18} />, label: 'à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
+      { path: '/admin/dashboard', icon: <LayoutDashboard size={18} />, label: 'डैशबोर्ड (Overview)' },
+      { path: '/admin/booking', icon: <Ticket size={18} />, label: '1. नया आरक्षण' },
+      { path: '/admin/bookings', icon: <ClipboardList size={18} />, label: '2. यात्री डायरेक्टरी' },
+      { path: '/admin/receipts', icon: <FileText size={18} />, label: '3. रसीद काउंटर' },
+      { path: '/admin/refunds', icon: <AlertTriangle size={18} />, label: '4. रद्दीकरण व रिफंड' },
+      { path: '/admin/verifier', icon: <Search size={18} />, label: '5. सत्यापन व UTR' },
+      { path: '/admin/chart', icon: <Printer size={18} />, label: '6. IRCTC यात्रा चार्ट' },
+      { path: '/admin/coaches', icon: <Train size={18} />, label: '7. ट्रेन बोगी प्रबंधन' },
+      { path: '/admin/checkin', icon: <BadgeCheck size={18} />, label: '8. ऑन-ट्रेन अटेंडेंस' },
+      { path: '/admin/reconcile', icon: <IndianRupee size={18} />, label: '9. दैनिक वसूली व हिसाब' },
+      { path: '/admin/guide', icon: <Lightbulb size={18} />, label: '10. यूज़र गाइड व SOP' },
+      { path: '/admin/staff', icon: <Users size={18} />, label: 'कर्मचारी RBAC' },
+      { path: '/admin/audit', icon: <ShieldCheck size={18} />, label: 'ऑडिट लॉग्स' },
+      { path: '/admin/settings', icon: <Settings size={18} />, label: 'प्रोजेक्ट सेटिंग्स' },
     ];
     if (role === 'TTE') return [
-      { path: '/tt/home', icon: <BadgeCheck size={18} />, label: '1. à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸' },
-      { path: '/tt/chart', icon: <Printer size={18} />, label: '2. IRCTC à¤•à¥‹à¤š à¤šà¤¾à¤°à¥à¤Ÿ' },
-      { path: '/coach-position', icon: <Train size={18} />, label: '3. à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { path: '/tt/verify', icon: <Search size={18} />, label: '4. à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { path: '/tt/collections', icon: <IndianRupee size={18} />, label: '5. à¤®à¥‡à¤°à¤¾ à¤•à¤²à¥‡à¤•à¥à¤¶à¤¨' },
-      { path: '/tt/guide', icon: <Lightbulb size={18} />, label: '6. à¤¯à¥‚à¤œà¤¼à¤° à¤—à¤¾à¤‡à¤¡' },
-      { path: '/tt/settings', icon: <Settings size={18} />, label: 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
+      { path: '/tt/home', icon: <BadgeCheck size={18} />, label: '1. ऑन-ट्रेन अटेंडेंस' },
+      { path: '/tt/chart', icon: <Printer size={18} />, label: '2. IRCTC कोच चार्ट' },
+      { path: '/coach-position', icon: <Train size={18} />, label: '3. बोगी स्थिति' },
+      { path: '/tt/verify', icon: <Search size={18} />, label: '4. टिकट सत्यापन' },
+      { path: '/tt/collections', icon: <IndianRupee size={18} />, label: '5. मेरा कलेक्शन' },
+      { path: '/tt/guide', icon: <Lightbulb size={18} />, label: '6. यूज़र गाइड' },
+      { path: '/tt/settings', icon: <Settings size={18} />, label: 'सेटिंग्स' },
     ];
     if (role === 'BookingClerk') return [
-      { path: '/counter/booking', icon: <Ticket size={18} />, label: '1. à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°' },
-      { path: '/counter/history', icon: <ClipboardList size={18} />, label: '2. à¤†à¤°à¤•à¥à¤·à¤£ à¤¸à¥‚à¤šà¥€' },
-      { path: '/counter/receipts', icon: <FileText size={18} />, label: '3. à¤°à¤¸à¥€à¤¦ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°' },
-      { path: '/counter/refunds', icon: <AlertTriangle size={18} />, label: '4. à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡' },
-      { path: '/coach-position', icon: <Train size={18} />, label: '5. à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { path: '/counter/chart', icon: <Printer size={18} />, label: '6. à¤•à¥‹à¤š à¤šà¤¾à¤°à¥à¤Ÿ' },
-      { path: '/counter/collections', icon: <IndianRupee size={18} />, label: '7. à¤®à¥‡à¤°à¤¾ à¤•à¤²à¥‡à¤•à¥à¤¶à¤¨' },
-      { path: '/counter/verify', icon: <Search size={18} />, label: '8. à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { path: '/counter/guide', icon: <Lightbulb size={18} />, label: '9. à¤¯à¥‚à¤œà¤¼à¤° à¤—à¤¾à¤‡à¤¡' },
-      { path: '/counter/settings', icon: <Settings size={18} />, label: 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
+      { path: '/counter/booking', icon: <Ticket size={18} />, label: '1. नया आरक्षण काउंटर' },
+      { path: '/counter/history', icon: <ClipboardList size={18} />, label: '2. आरक्षण सूची' },
+      { path: '/counter/receipts', icon: <FileText size={18} />, label: '3. रसीद काउंटर' },
+      { path: '/counter/refunds', icon: <AlertTriangle size={18} />, label: '4. रद्दीकरण व रिफंड' },
+      { path: '/coach-position', icon: <Train size={18} />, label: '5. बोगी स्थिति' },
+      { path: '/counter/chart', icon: <Printer size={18} />, label: '6. कोच चार्ट' },
+      { path: '/counter/collections', icon: <IndianRupee size={18} />, label: '7. मेरा कलेक्शन' },
+      { path: '/counter/verify', icon: <Search size={18} />, label: '8. टिकट सत्यापन' },
+      { path: '/counter/guide', icon: <Lightbulb size={18} />, label: '9. यूज़र गाइड' },
+      { path: '/counter/settings', icon: <Settings size={18} />, label: 'सेटिंग्स' },
     ];
     if (role === 'AccountsOfficer' || role === 'FinanceOfficer') return [
-      { path: '/finance/ledger', icon: <IndianRupee size={18} />, label: '1. à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¬à¤¹à¥€ à¤µ MIS' },
-      { path: '/finance/bookings', icon: <ClipboardList size={18} />, label: '2. à¤†à¤°à¤•à¥à¤·à¤£ à¤¸à¥‚à¤šà¥€' },
-      { path: '/finance/receipts', icon: <FileText size={18} />, label: '3. à¤°à¤¸à¥€à¤¦ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°' },
-      { path: '/admin/refunds', icon: <AlertTriangle size={18} />, label: '4. à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ' },
-      { path: '/coach-position', icon: <Train size={18} />, label: '5. à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { path: '/finance/verify', icon: <Search size={18} />, label: '6. à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ UTR' },
-      { path: '/finance/guide', icon: <Lightbulb size={18} />, label: '7. à¤¯à¥‚à¤œà¤¼à¤° à¤—à¤¾à¤‡à¤¡' },
-      { path: '/finance/settings', icon: <Settings size={18} />, label: 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
+      { path: '/finance/ledger', icon: <IndianRupee size={18} />, label: '1. वित्तीय बही व MIS' },
+      { path: '/finance/bookings', icon: <ClipboardList size={18} />, label: '2. आरक्षण सूची' },
+      { path: '/finance/receipts', icon: <FileText size={18} />, label: '3. रसीद काउंटर' },
+      { path: '/admin/refunds', icon: <AlertTriangle size={18} />, label: '4. रिफंड रिपोर्ट' },
+      { path: '/coach-position', icon: <Train size={18} />, label: '5. बोगी स्थिति' },
+      { path: '/finance/verify', icon: <Search size={18} />, label: '6. सत्यापन व UTR' },
+      { path: '/finance/guide', icon: <Lightbulb size={18} />, label: '7. यूज़र गाइड' },
+      { path: '/finance/settings', icon: <Settings size={18} />, label: 'सेटिंग्स' },
     ];
     if (role === 'StationMaster') return [
-      { path: '/station/chart', icon: <Printer size={18} />, label: '1. à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤šà¤¾à¤°à¥à¤Ÿ' },
-      { path: '/coach-position', icon: <Train size={18} />, label: '2. à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { path: '/station/verify', icon: <Search size={18} />, label: '3. à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { path: '/station/guide', icon: <Lightbulb size={18} />, label: '4. à¤¯à¥‚à¤œà¤¼à¤° à¤—à¤¾à¤‡à¤¡' },
-      { path: '/station/settings', icon: <Settings size={18} />, label: 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
+      { path: '/station/chart', icon: <Printer size={18} />, label: '1. स्टेशन चार्ट' },
+      { path: '/coach-position', icon: <Train size={18} />, label: '2. बोगी स्थिति' },
+      { path: '/station/verify', icon: <Search size={18} />, label: '3. टिकट सत्यापन' },
+      { path: '/station/guide', icon: <Lightbulb size={18} />, label: '4. यूज़र गाइड' },
+      { path: '/station/settings', icon: <Settings size={18} />, label: 'सेटिंग्स' },
     ];
     return [
-      { path: '/settings', icon: <Settings size={18} />, label: 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
+      { path: '/settings', icon: <Settings size={18} />, label: 'सेटिंग्स' },
     ];
   };
 
@@ -3845,51 +3845,51 @@ export default function App() {
     if (!staffUser) return [];
     const role = staffUser.role;
     if (role === 'SuperAdmin') return [
-      { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡' },
-      { path: '/admin/booking', icon: <Ticket size={20} />, label: 'à¤¨à¤ˆ à¤Ÿà¤¿à¤•à¤Ÿ' },
-      { path: '/admin/bookings', icon: <ClipboardList size={20} />, label: 'à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¥‚à¤šà¥€' },
-      { path: '/admin/verifier', icon: <QrCode size={20} />, label: 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'à¤¸à¤­à¥€ à¤®à¥‡à¤¨à¥à¤¯à¥‚' },
+      { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'डैशबोर्ड' },
+      { path: '/admin/booking', icon: <Ticket size={20} />, label: 'नई टिकट' },
+      { path: '/admin/bookings', icon: <ClipboardList size={20} />, label: 'यात्री सूची' },
+      { path: '/admin/verifier', icon: <QrCode size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
     ];
     if (role === 'TTE') return [
-      { path: '/tt/home', icon: <BadgeCheck size={20} />, label: 'à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸' },
-      { path: '/tt/chart', icon: <Printer size={20} />, label: 'à¤•à¥‹à¤š à¤šà¤¾à¤°à¥à¤Ÿ' },
-      { path: '/coach-position', icon: <Train size={20} />, label: 'à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { path: '/tt/verify', icon: <QrCode size={20} />, label: 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'à¤¸à¤­à¥€ à¤®à¥‡à¤¨à¥à¤¯à¥‚' },
+      { path: '/tt/home', icon: <BadgeCheck size={20} />, label: 'अटेंडेंस' },
+      { path: '/tt/chart', icon: <Printer size={20} />, label: 'कोच चार्ट' },
+      { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+      { path: '/tt/verify', icon: <QrCode size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
     ];
     if (role === 'BookingClerk') return [
-      { path: '/counter/booking', icon: <Ticket size={20} />, label: 'à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£' },
-      { path: '/counter/history', icon: <ClipboardList size={20} />, label: 'à¤†à¤°à¤•à¥à¤·à¤£ à¤¸à¥‚à¤šà¥€' },
-      { path: '/counter/receipts', icon: <FileText size={20} />, label: 'à¤°à¤¸à¥€à¤¦à¥‡à¤‚' },
-      { path: '/coach-position', icon: <Train size={20} />, label: 'à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'à¤¸à¤­à¥€ à¤®à¥‡à¤¨à¥à¤¯à¥‚' },
+      { path: '/counter/booking', icon: <Ticket size={20} />, label: 'नया आरक्षण' },
+      { path: '/counter/history', icon: <ClipboardList size={20} />, label: 'आरक्षण सूची' },
+      { path: '/counter/receipts', icon: <FileText size={20} />, label: 'रसीदें' },
+      { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
     ];
     if (role === 'AccountsOfficer' || role === 'FinanceOfficer') return [
-      { path: '/finance/ledger', icon: <IndianRupee size={20} />, label: 'à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¬à¤¹à¥€' },
-      { path: '/finance/bookings', icon: <ClipboardList size={20} />, label: 'à¤†à¤°à¤•à¥à¤·à¤£' },
-      { path: '/finance/receipts', icon: <FileText size={20} />, label: 'à¤°à¤¸à¥€à¤¦à¥‡à¤‚' },
-      { path: '/finance/verify', icon: <Search size={20} />, label: 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'à¤¸à¤­à¥€ à¤®à¥‡à¤¨à¥à¤¯à¥‚' },
+      { path: '/finance/ledger', icon: <IndianRupee size={20} />, label: 'वित्तीय बही' },
+      { path: '/finance/bookings', icon: <ClipboardList size={20} />, label: 'आरक्षण' },
+      { path: '/finance/receipts', icon: <FileText size={20} />, label: 'रसीदें' },
+      { path: '/finance/verify', icon: <Search size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
     ];
     if (role === 'StationMaster') return [
-      { path: '/station/chart', icon: <Printer size={20} />, label: 'à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤šà¤¾à¤°à¥à¤Ÿ' },
-      { path: '/coach-position', icon: <Train size={20} />, label: 'à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-      { path: '/station/verify', icon: <QrCode size={20} />, label: 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' },
-      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'à¤¸à¤­à¥€ à¤®à¥‡à¤¨à¥à¤¯à¥‚' },
+      { path: '/station/chart', icon: <Printer size={20} />, label: 'स्टेशन चार्ट' },
+      { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+      { path: '/station/verify', icon: <QrCode size={20} />, label: 'सत्यापन' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'सभी मेन्यू' },
     ];
     return [
-      { path: '/settings', icon: <Settings size={20} />, label: 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸' },
-      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'à¤®à¥‡à¤¨à¥à¤¯à¥‚' },
+      { path: '/settings', icon: <Settings size={20} />, label: 'सेटिंग्स' },
+      { isMoreTrigger: true, icon: <Menu size={20} />, label: 'मेन्यू' },
     ];
   };
 
   const getPublicBottomNavItems = () => [
-    { path: '/', icon: <Search size={20} />, label: 'PNR à¤œà¤¾à¤‚à¤š' },
-    { path: '/coach-position', icon: <Train size={20} />, label: 'à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿' },
-    { path: '/receipts', icon: <FileText size={20} />, label: 'à¤°à¤¸à¥€à¤¦ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°' },
-    { path: '/verify-ticket', icon: <QrCode size={20} />, label: 'à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¥à¤•à¥ˆà¤¨' },
-    { path: '/login', icon: <Lock size={20} />, label: 'à¤¸à¥à¤Ÿà¤¾à¤« à¤²à¥‰à¤—à¤¿à¤¨' },
+    { path: '/', icon: <Search size={20} />, label: 'PNR जांच' },
+    { path: '/coach-position', icon: <Train size={20} />, label: 'बोगी स्थिति' },
+    { path: '/receipts', icon: <FileText size={20} />, label: 'रसीद काउंटर' },
+    { path: '/verify-ticket', icon: <QrCode size={20} />, label: 'टिकट स्कैन' },
+    { path: '/login', icon: <Lock size={20} />, label: 'स्टाफ लॉगिन' },
   ];
 
   const allStaffNavItems = getAllStaffNavItems();
@@ -3906,7 +3906,7 @@ export default function App() {
         {/* ----------------- ROUTE ACCESS GUARD: NOT LOGGED IN ----------------- */}
         {!routeAccess.allowed && routeAccess.reason === 'NOT_LOGGED_IN' && (
           <div>
-            {renderLoginScreen(<><AlertTriangle size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤‡à¤¸ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤•à¥à¤·à¥‡à¤¤à¥à¤° ({currentPath}) à¤®à¥‡à¤‚ à¤ªà¥à¤°à¤µà¥‡à¤¶ à¤¹à¥‡à¤¤à¥ à¤•à¥ƒà¤ªà¤¯à¤¾ à¤ªà¤¹à¤²à¥‡ à¤…à¤ªà¤¨à¥‡ à¤¸à¥à¤Ÿà¤¾à¤« à¤•à¥à¤°à¥‡à¤¡à¥‡à¤‚à¤¶à¤¿à¤¯à¤²à¥à¤¸ à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤°à¥‡à¤‚à¥¤</>)}
+            {renderLoginScreen(<><AlertTriangle size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> इस अधिकृत क्षेत्र ({currentPath}) में प्रवेश हेतु कृपया पहले अपने स्टाफ क्रेडेंशियल्स से लॉगिन करें।</>)}
           </div>
         )}
 
@@ -3914,18 +3914,18 @@ export default function App() {
         {!routeAccess.allowed && routeAccess.reason === 'ROLE_MISMATCH' && (
           <div className="glass-card" style={{ maxWidth: 650, margin: '40px auto', textAlign: 'center', border: '2px solid #F87171', padding: 32 }}>
             <div style={{ fontSize: 50, marginBottom: 12 }}></div>
-            <span className="badge badge-unpaid" style={{ fontSize: '0.85rem', marginBottom: 8 }}>à¤…à¤¨à¤¾à¤§à¤¿à¤•à¥ƒà¤¤ à¤•à¥à¤·à¥‡à¤¤à¥à¤° (Access Restricted)</span>
-            <h2 style={{ color: '#991B1B', fontWeight: 800, margin: '8px 0 12px' }}>à¤ªà¤¹à¥à¤‚à¤š à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤</h2>
+            <span className="badge badge-unpaid" style={{ fontSize: '0.85rem', marginBottom: 8 }}>अनाधिकृत क्षेत्र (Access Restricted)</span>
+            <h2 style={{ color: '#991B1B', fontWeight: 800, margin: '8px 0 12px' }}>पहुंच अस्वीकृत</h2>
             <p style={{ color: '#7F1D1D', fontSize: '1rem', lineHeight: 1.5 }}>
-              à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ à¤®à¥‡à¤‚ à¤†à¤ª <strong>{staffUser?.name}</strong> (à¤°à¥‹à¤²: <strong>{staffUser?.role}</strong>) à¤•à¥‡ à¤°à¥‚à¤ª à¤®à¥‡à¤‚ à¤²à¥‰à¤—à¤¿à¤¨ à¤¹à¥ˆà¤‚à¥¤
-              à¤¯à¤¹ à¤®à¤¾à¤°à¥à¤— à¤•à¥‡à¤µà¤² <strong>{routeAccess.required}</strong> à¤¹à¥‡à¤¤à¥ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤¹à¥ˆà¥¤
+              वर्तमान में आप <strong>{staffUser?.name}</strong> (रोल: <strong>{staffUser?.role}</strong>) के रूप में लॉगिन हैं।
+              यह मार्ग केवल <strong>{routeAccess.required}</strong> हेतु अधिकृत है।
             </p>
             <div style={{ marginTop: 22, display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button className="btn btn-primary" onClick={() => navigate(getRoleDefaultPath(staffUser.role))}>
-                <BadgeCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤…à¤ªà¤¨à¥‡ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤ªà¥‹à¤°à¥à¤Ÿà¤² ({getRoleDefaultPath(staffUser.role)}) à¤ªà¤° à¤œà¤¾à¤à¤‚
+                <BadgeCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> अपने अधिकृत पोर्टल ({getRoleDefaultPath(staffUser.role)}) पर जाएं
               </button>
               <button className="btn btn-outline" onClick={handleStaffLogout}>
-                <LogOut size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤•à¤¿à¤¸à¥€ à¤…à¤¨à¥à¤¯ à¤–à¤¾à¤¤à¥‡ à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¤°à¥‡à¤‚
+                <LogOut size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> किसी अन्य खाते से लॉगिन करें
               </button>
             </div>
           </div>
@@ -3938,11 +3938,11 @@ export default function App() {
             {activeView === 'public_home' && (
               <div className="ent-home-wrap">
 
-                {/* â”€â”€ HERO: Vande Bharat Train Card â”€â”€ */}
+                {/* ── HERO: Vande Bharat Train Card ── */}
                 <div className="ent-hero-card">
                   <img
                     src="/vande_bharat_real.jpg"
-                    alt="à¤µà¤‚à¤¦à¥‡ à¤­à¤¾à¤°à¤¤ à¤à¤•à¥à¤¸à¤ªà¥à¤°à¥‡à¤¸ â€” à¤¨à¤ˆ à¤¦à¤¿à¤²à¥à¤²à¥€ / à¤ªà¥à¤°à¤¯à¤¾à¤—à¤°à¤¾à¤œ à¤¸à¥‡ à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤•à¤Ÿà¤¡à¤¼à¤¾"
+                    alt="वंदे भारत एक्सप्रेस — नई दिल्ली / प्रयागराज से श्री माता वैष्णो देवी कटड़ा"
                     className="ent-hero-img"
                   />
                   <div className="ent-hero-overlay" />
@@ -3950,59 +3950,59 @@ export default function App() {
                     <div className="ent-hero-badge-row">
                       <span className="ent-badge ent-badge-dark">
                         <Train size={12} strokeWidth={2} />
-                        à¤µà¤‚à¤¦à¥‡ à¤­à¤¾à¤°à¤¤ à¤¸à¥à¤ªà¤°à¤«à¤¾à¤¸à¥à¤Ÿ à¤¸à¥à¤ªà¥‡à¤¶à¤² à¤à¤•à¥à¤¸à¤ªà¥à¤°à¥‡à¤¸ â€” {projectSettings.activeYatraYear || 2026}
+                        वंदे भारत सुपरफास्ट स्पेशल एक्सप्रेस — {projectSettings.activeYatraYear || 2026}
                       </span>
                       <span className="ent-badge ent-badge-saffron">
-                        160 KMPH â€” Semi-High Speed
+                        160 KMPH — Semi-High Speed
                       </span>
                       <span className="ent-badge ent-badge-amber">
                         Real Train 18
                       </span>
                     </div>
                     <h1 className="ent-hero-title">
-                      à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤•à¤Ÿà¤¡à¤¼à¤¾ â€” à¤µà¤¾à¤°à¥à¤·à¤¿à¤• à¤¤à¥€à¤°à¥à¤¥ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤¿à¤¶à¥‡à¤·
+                      श्री माता वैष्णो देवी कटड़ा — वार्षिक तीर्थ यात्रा विशेष
                     </h1>
                     <div className="ent-hero-route-row">
                       <MapPin size={13} strokeWidth={2} />
-                      <span>à¤¨à¤ˆ à¤¦à¤¿à¤²à¥à¤²à¥€ / à¤ªà¥à¤°à¤¯à¤¾à¤—à¤°à¤¾à¤œ</span>
+                      <span>नई दिल्ली / प्रयागराज</span>
                       <div className="ent-hero-route-sep" />
-                      <span>à¤…à¤®à¥à¤¬à¤¾à¤²à¤¾</span>
+                      <span>अम्बाला</span>
                       <div className="ent-hero-route-sep" />
-                      <span>à¤œà¤®à¥à¤®à¥‚ à¤¤à¤µà¥€ (JAT)</span>
+                      <span>जम्मू तवी (JAT)</span>
                       <div className="ent-hero-route-sep" />
-                      <span style={{ color: '#FFCBA4', fontWeight: 700 }}>à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤•à¤Ÿà¤¡à¤¼à¤¾ (SVDK)</span>
+                      <span style={{ color: '#FFCBA4', fontWeight: 700 }}>श्री माता वैष्णो देवी कटड़ा (SVDK)</span>
                     </div>
                   </div>
                 </div>
 
-                {/* â”€â”€ DASHBOARD ROW: Departure Schedule + Live Berth Availability â”€â”€ */}
+                {/* ── DASHBOARD ROW: Departure Schedule + Live Berth Availability ── */}
                 <div className="ent-dashboard-row">
 
                   {/* Departure Schedule Card */}
                   <div className="ent-countdown-card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, gap: 10 }}>
                       <div style={{ flex: 1 }}>
-                        <div className="ent-countdown-label">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨ à¤¸à¤®à¤¯</div>
+                        <div className="ent-countdown-label">यात्रा प्रस्थान समय</div>
                         <h2 className="ent-countdown-heading">
-                          à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¥à¤°à¥‡à¤¨ à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨
+                          कटड़ा विशेष ट्रेन प्रस्थान
                         </h2>
                         <div className="ent-countdown-route">
                           <CalendarDays size={12} strokeWidth={2} style={{ opacity: 0.6 }} />
                           <span>
-                            {projectSettings.defaultTravelDate || '2026-10-15'} â€” à¤¸à¥à¤¬à¤¹ 06:00 à¤¬à¤œà¥‡
+                            {projectSettings.defaultTravelDate || '2026-10-15'} — सुबह 06:00 बजे
                           </span>
                           <span style={{ opacity: 0.35 }}>|</span>
-                          <span>à¤šà¤¾à¤°à¤¬à¤¾à¤— à¤°à¥‡à¤²à¤µà¥‡ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨, à¤²à¤–à¤¨à¤Š</span>
+                          <span>चारबाग रेलवे स्टेशन, लखनऊ</span>
                         </div>
                       </div>
-                      <span className="ent-live-dot" style={{ flexShrink: 0, marginTop: 4 }}>à¤²à¤¾à¤‡à¤µ à¤¸à¤¿à¤‚à¤•</span>
+                      <span className="ent-live-dot" style={{ flexShrink: 0, marginTop: 4 }}>लाइव सिंक</span>
                     </div>
                     <div className="ent-countdown-digits">
                       {[
-                        { val: countdown.days,    unit: 'à¤¦à¤¿à¤¨',    unitEn: 'Days'  },
-                        { val: countdown.hours,   unit: 'à¤˜à¤‚à¤Ÿà¥‡',   unitEn: 'Hrs'   },
-                        { val: countdown.minutes, unit: 'à¤®à¤¿à¤¨à¤Ÿ',   unitEn: 'Mins'  },
-                        { val: countdown.seconds, unit: 'à¤¸à¥‡à¤•à¤‚à¤¡',  unitEn: 'Secs'  },
+                        { val: countdown.days,    unit: 'दिन',    unitEn: 'Days'  },
+                        { val: countdown.hours,   unit: 'घंटे',   unitEn: 'Hrs'   },
+                        { val: countdown.minutes, unit: 'मिनट',   unitEn: 'Mins'  },
+                        { val: countdown.seconds, unit: 'सेकंड',  unitEn: 'Secs'  },
                       ].map(({ val, unit, unitEn }) => (
                         <div key={unitEn} className="ent-digit-box">
                           <span className="ent-digit-val">{String(val).padStart(2, '0')}</span>
@@ -4013,7 +4013,7 @@ export default function App() {
                     {projectSettings.returnTravelDate && (
                       <div style={{ marginTop: 14, padding: '8px 12px', background: 'rgba(255,255,255,0.06)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.78rem', color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>
                         <RefreshCw size={12} strokeWidth={2} />
-                        <span>à¤µà¤¾à¤ªà¤¸à¥€ à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨: <strong style={{ color: '#86EFAC' }}>{projectSettings.returnTravelDate}</strong></span>
+                        <span>वापसी प्रस्थान: <strong style={{ color: '#86EFAC' }}>{projectSettings.returnTravelDate}</strong></span>
                       </div>
                     )}
                   </div>
@@ -4022,8 +4022,8 @@ export default function App() {
                   <div className="ent-berth-card">
                     <div className="ent-card-header">
                       <div>
-                        <div className="ent-card-title">à¤²à¤¾à¤‡à¤µ à¤¸à¥€à¤Ÿ à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¤à¤¾</div>
-                        <div className="ent-card-heading">à¤•à¥à¤² à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¬à¤°à¥à¤¥</div>
+                        <div className="ent-card-title">लाइव सीट उपलब्धता</div>
+                        <div className="ent-card-heading">कुल उपलब्ध बर्थ</div>
                       </div>
                       <div className="ent-card-icon-box">
                         <Armchair size={20} strokeWidth={1.75} />
@@ -4037,8 +4037,8 @@ export default function App() {
                           : 986}
                       </div>
                       <div className="ent-berth-sub">
-                        à¤•à¥à¤² {trainCompositionData?.totalCapacity || 986} à¤¬à¤°à¥à¤¥à¥‹à¤‚ à¤®à¥‡à¤‚ à¤¸à¥‡ â€” 18 à¤•à¥‹à¤š à¤°à¥‡à¤•,
-                        à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· {projectSettings.activeYatraYear || 2026}
+                        कुल {trainCompositionData?.totalCapacity || 986} बर्थों में से — 18 कोच रेक,
+                        यात्रा वर्ष {projectSettings.activeYatraYear || 2026}
                       </div>
                     </div>
 
@@ -4046,10 +4046,10 @@ export default function App() {
                       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
                         <span className="ent-badge ent-badge-green">
                           <CheckCircle2 size={11} strokeWidth={2.5} />
-                          à¤¬à¥à¤•à¤¿à¤‚à¤— à¤œà¤¾à¤°à¥€
+                          बुकिंग जारी
                         </span>
                         <span className="ent-badge ent-badge-gold">
-                          à¤†à¤°à¤•à¥à¤·à¤£ à¤–à¥à¤²à¤¾ à¤¹à¥ˆ
+                          आरक्षण खुला है
                         </span>
                       </div>
                       <button
@@ -4058,19 +4058,19 @@ export default function App() {
                         style={{ width: '100%', justifyContent: 'center', padding: '10px 16px', fontSize: '0.84rem' }}
                       >
                         <Train size={15} strokeWidth={2} />
-                        à¤¸à¥€à¤Ÿ à¤²à¥‡à¤†à¤‰à¤Ÿ à¤µ à¤šà¤¾à¤°à¥à¤Ÿ à¤¦à¥‡à¤–à¥‡à¤‚
+                        सीट लेआउट व चार्ट देखें
                         <ChevronRight size={14} strokeWidth={2.5} />
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* â”€â”€ FARE & CLASS CARDS GRID â”€â”€ */}
+                {/* ── FARE & CLASS CARDS GRID ── */}
                 <div className="ent-card" style={{ marginBottom: 16 }}>
                   <div className="ent-card-header">
                     <div>
-                      <div className="ent-card-title">à¤¶à¥à¤°à¥‡à¤£à¥€ à¤à¤µà¤‚ à¤•à¤¿à¤°à¤¾à¤¯à¤¾</div>
-                      <div className="ent-card-heading">à¤Ÿà¥à¤°à¥‡à¤¨ à¤µà¤¿à¤µà¤°à¤£ à¤à¤µà¤‚ à¤†à¤°à¤•à¥à¤·à¤£ à¤¶à¥à¤°à¥‡à¤£à¤¿à¤¯à¤¾à¤</div>
+                      <div className="ent-card-title">श्रेणी एवं किराया</div>
+                      <div className="ent-card-heading">ट्रेन विवरण एवं आरक्षण श्रेणियाँ</div>
                     </div>
                     <div className="ent-card-icon-box">
                       <IndianRupee size={20} strokeWidth={1.75} />
@@ -4079,75 +4079,75 @@ export default function App() {
                   <div className="ent-class-grid">
                     {/* AC 3-Tier */}
                     <div className="ent-class-card ac">
-                      <span className="ent-class-type">AC 3-Tier â€” à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤</span>
+                      <span className="ent-class-type">AC 3-Tier — वातानुकूलित</span>
                       <span className="ent-class-seats">
                         {trainCompositionData?.coaches
                           ? trainCompositionData.coaches.filter(c => c.coachClass === 'AC').reduce((s, c) => s + (c.availableBerths || 0), 0)
                           : 384}
                       </span>
-                      <span className="ent-class-seats-label">à¤¬à¤°à¥à¤¥ à¤‰à¤ªà¤²à¤¬à¥à¤§</span>
-                      <div className="ent-class-fare">â‚¹ 4,000 / à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
-                      <div className="ent-class-desc">à¤•à¥‹à¤š B1â€“B6 Â· à¤•à¥à¤² 384 à¤¬à¤°à¥à¤¥ Â· à¤šà¤¾à¤¦à¤°, à¤•à¤‚à¤¬à¤², AC</div>
+                      <span className="ent-class-seats-label">बर्थ उपलब्ध</span>
+                      <div className="ent-class-fare">₹ 4,000 / यात्री</div>
+                      <div className="ent-class-desc">कोच B1–B6 · कुल 384 बर्थ · चादर, कंबल, AC</div>
                     </div>
                     {/* Sleeper */}
                     <div className="ent-class-card sl">
-                      <span className="ent-class-type">Sleeper Class â€” à¤¶à¤¯à¤¨à¤¯à¤¾à¤¨</span>
+                      <span className="ent-class-type">Sleeper Class — शयनयान</span>
                       <span className="ent-class-seats">
                         {trainCompositionData?.coaches
                           ? trainCompositionData.coaches.filter(c => c.coachClass === 'Sleeper').reduce((s, c) => s + (c.availableBerths || 0), 0)
                           : 432}
                       </span>
-                      <span className="ent-class-seats-label">à¤¬à¤°à¥à¤¥ à¤‰à¤ªà¤²à¤¬à¥à¤§</span>
-                      <div className="ent-class-fare">â‚¹ 3,000 / à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
-                      <div className="ent-class-desc">à¤•à¥‹à¤š S1â€“S6 Â· à¤•à¥à¤² 432 à¤¬à¤°à¥à¤¥ Â· à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¶à¤¯à¤¨à¤¯à¤¾à¤¨</div>
+                      <span className="ent-class-seats-label">बर्थ उपलब्ध</span>
+                      <div className="ent-class-fare">₹ 3,000 / यात्री</div>
+                      <div className="ent-class-desc">कोच S1–S6 · कुल 432 बर्थ · आरक्षित शयनयान</div>
                     </div>
                     {/* General / SLR */}
                     <div className="ent-class-card gen">
-                      <span className="ent-class-type">General / SLR â€” à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯</span>
+                      <span className="ent-class-type">General / SLR — सामान्य</span>
                       <span className="ent-class-seats">
                         {trainCompositionData?.coaches
                           ? trainCompositionData.coaches.filter(c => c.coachClass === 'General').reduce((s, c) => s + (c.availableBerths || 0), 0)
                           : 170}
                       </span>
-                      <span className="ent-class-seats-label">à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤‰à¤ªà¤²à¤¬à¥à¤§</span>
-                      <div className="ent-class-fare">â‚¹ 2,000 / à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
-                      <div className="ent-class-desc">à¤•à¥‹à¤š G1â€“G4 Â· à¤•à¥à¤² 170 à¤¸à¥€à¤Ÿà¥‡à¤‚ Â· à¤¸à¥à¤—à¤® à¤¬à¥ˆà¤ à¤• à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾</div>
+                      <span className="ent-class-seats-label">सीटें उपलब्ध</span>
+                      <div className="ent-class-fare">₹ 2,000 / यात्री</div>
+                      <div className="ent-class-desc">कोच G1–G4 · कुल 170 सीटें · सुगम बैठक व्यवस्था</div>
                     </div>
                   </div>
                   {/* Route Schedule Bar */}
                   <div className="ent-schedule-bar">
                     <div className="ent-route-pill">
                       <Train size={15} strokeWidth={2} color="#E65100" />
-                      <span>à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¤¾à¤°à¥à¤— à¤à¤µà¤‚ à¤¸à¤®à¤¯ à¤¸à¤¾à¤°à¤£à¥€</span>
+                      <span>ट्रेन मार्ग एवं समय सारणी</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: '0.82rem', fontWeight: 600, color: '#3D2010' }}>
-                      <span>à¤²à¤–à¤¨à¤Š à¤šà¤¾à¤°à¤¬à¤¾à¤— (LKO)</span>
+                      <span>लखनऊ चारबाग (LKO)</span>
                       <div className="ent-route-arrow" />
-                      <span>à¤¨à¤ˆ à¤¦à¤¿à¤²à¥à¤²à¥€ (NDLS)</span>
+                      <span>नई दिल्ली (NDLS)</span>
                       <div className="ent-route-arrow" />
-                      <span>à¤…à¤®à¥à¤¬à¤¾à¤²à¤¾</span>
+                      <span>अम्बाला</span>
                       <div className="ent-route-arrow" />
-                      <span>à¤œà¤®à¥à¤®à¥‚ à¤¤à¤µà¥€ (JAT)</span>
+                      <span>जम्मू तवी (JAT)</span>
                       <div className="ent-route-arrow" />
-                      <span style={{ color: '#E65100', fontWeight: 800 }}>à¤•à¤Ÿà¤¡à¤¼à¤¾ (SVDK)</span>
+                      <span style={{ color: '#E65100', fontWeight: 800 }}>कटड़ा (SVDK)</span>
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       <span className="ent-badge ent-badge-gold">
                         <CalendarDays size={11} strokeWidth={2} />
-                        à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨: {projectSettings.defaultTravelDate || '2026-10-15'}
+                        प्रस्थान: {projectSettings.defaultTravelDate || '2026-10-15'}
                       </span>
-                      <span className="ent-badge ent-badge-blue">38 à¤ à¤¹à¤°à¤¾à¤µ</span>
+                      <span className="ent-badge ent-badge-blue">38 ठहराव</span>
                     </div>
                   </div>
                 </div>
 
-                {/* â”€â”€ PNR STATUS SEARCH SECTION â”€â”€ */}
+                {/* ── PNR STATUS SEARCH SECTION ── */}
                 <div className="ent-pnr-section">
-                  <div className="ent-section-label">à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¥‡à¤µà¤¾ â€” Passenger Services</div>
-                  <h2 className="ent-section-title">PNR à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨</h2>
+                  <div className="ent-section-label">यात्री सेवा — Passenger Services</div>
+                  <h2 className="ent-section-title">PNR स्थिति एवं टिकट सत्यापन</h2>
                   <p className="ent-section-desc">
-                    à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ â€” à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤ªà¥‹à¤°à¥à¤Ÿà¤²à¥¤
-                    PNR à¤¨à¤‚à¤¬à¤° à¤¯à¤¾ à¤°à¤œà¤¿à¤¸à¥à¤Ÿà¤°à¥à¤¡ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¦à¤°à¥à¤œ à¤•à¤° à¤…à¤ªà¤¨à¥€ à¤¬à¤°à¥à¤¥ à¤”à¤° à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤•à¥€ à¤ªà¥‚à¤°à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤
+                    श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट — आधिकारिक डिजिटल पोर्टल।
+                    PNR नंबर या रजिस्टर्ड मोबाइल दर्ज कर अपनी बर्थ और यात्रा की पूरी जानकारी प्राप्त करें।
                   </p>
 
                   <div className="ent-pnr-input-wrap">
@@ -4155,11 +4155,11 @@ export default function App() {
                     <input
                       id="pnr-search-input"
                       type="text"
-                      placeholder="PNR à¤¨à¤‚à¤¬à¤° à¤¯à¤¾ à¤°à¤œà¤¿à¤¸à¥à¤Ÿà¤°à¥à¤¡ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚..."
+                      placeholder="PNR नंबर या रजिस्टर्ड मोबाइल नंबर दर्ज करें..."
                       value={pnrInput}
                       onChange={(e) => { setPnrInput(e.target.value); setPnrSearchError(''); }}
                       onKeyDown={(e) => e.key === 'Enter' && searchPNR()}
-                      aria-label="PNR à¤–à¥‹à¤œ à¤‡à¤¨à¤ªà¥à¤Ÿ"
+                      aria-label="PNR खोज इनपुट"
                     />
                     <button
                       className="ent-pnr-btn"
@@ -4167,20 +4167,20 @@ export default function App() {
                       disabled={pnrLoading}
                     >
                       {pnrLoading
-                        ? <><span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin .7s linear infinite', display: 'inline-block' }} /> à¤œà¤¾à¤‚à¤š à¤œà¤¾à¤°à¥€...</>
-                        : <><Search size={14} strokeWidth={2.5} /> à¤¸à¥à¤Ÿà¥‡à¤Ÿà¤¸ à¤œà¤¾à¤‚à¤šà¥‡à¤‚</>
+                        ? <><span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin .7s linear infinite', display: 'inline-block' }} /> जांच जारी...</>
+                        : <><Search size={14} strokeWidth={2.5} /> स्टेटस जांचें</>
                       }
                     </button>
                   </div>
 
                   <div className="ent-pnr-formats">
                     <span className="ent-pnr-format-chip">
-                      PNR à¤ªà¥à¤°à¤¾à¤°à¥‚à¤ª:
+                      PNR प्रारूप:
                       <span className="ent-pnr-format-code">MVD-2026-000001</span>
                     </span>
                     <span style={{ width: 1, height: 14, background: '#D1C7BC', flexShrink: 0 }} />
                     <span className="ent-pnr-format-chip">
-                      à¤°à¤¸à¥€à¤¦:
+                      रसीद:
                       <span className="ent-pnr-format-code receipt">R2026000001</span>
                     </span>
                   </div>
@@ -4188,13 +4188,13 @@ export default function App() {
                   <div className="ent-security-notice" style={{ maxWidth: 680, margin: '16px auto 0', textAlign: 'left' }}>
                     <ShieldCheck size={16} strokeWidth={2} style={{ flexShrink: 0, color: '#92400E', marginTop: 1 }} />
                     <span>
-                      <strong>à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤¯à¤¾à¤¤à¥à¤°à¤¿à¤¯à¥‹à¤‚ à¤¹à¥‡à¤¤à¥:</strong> PNR à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤¬à¤°à¥à¤¥ à¤œà¤¾à¤‚à¤š à¤¸à¤¾à¤°à¥à¤µà¤œà¤¨à¤¿à¤• à¤°à¥‚à¤ª à¤¸à¥‡ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¹à¥ˆà¥¤
-                      à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£, à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤…à¤¦à¥à¤¯à¤¤à¤¨ à¤à¤µà¤‚ à¤šà¥‡à¤•à¤¿à¤‚à¤— à¤•à¥‡à¤µà¤² à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤•à¤°à¥à¤®à¤¿à¤¯à¥‹à¤‚ à¤¦à¥à¤µà¤¾à¤°à¤¾à¥¤
+                      <strong>सामान्य यात्रियों हेतु:</strong> PNR स्थिति एवं बर्थ जांच सार्वजनिक रूप से उपलब्ध है।
+                      नया आरक्षण, भुगतान अद्यतन एवं चेकिंग केवल अधिकृत ट्रस्ट कर्मियों द्वारा।
                     </span>
                   </div>
                 </div>
 
-                {/* â”€â”€ PNR Search Error â”€â”€ */}
+                {/* ── PNR Search Error ── */}
                 {pnrSearchError && (
                   <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '12px 18px', borderRadius: 10, marginBottom: 14, fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <AlertTriangle size={15} strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -4202,38 +4202,38 @@ export default function App() {
                   </div>
                 )}
 
-                {/* â”€â”€ Searched Ticket Result Card â”€â”€ */}
+                {/* ── Searched Ticket Result Card ── */}
                 {searchedTicket && (
                   <div className="ent-ticket-card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, borderBottom: '1px solid #EFEAE3', paddingBottom: 14, marginBottom: 16 }}>
                       <div>
                         <span className="ent-badge ent-badge-gold" style={{ marginBottom: 6 }}>
                           <Ticket size={11} strokeWidth={2.5} />
-                          à¤µà¥ˆà¤§ à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¤°à¥à¤šà¥€
+                          वैध डिजिटल यात्रा पर्ची
                         </span>
                         <div className="ent-ticket-pnr">PNR: {searchedTicket.bookingId}</div>
                       </div>
                       <span className={`badge ${searchedTicket.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-partial'}`}>
                         {searchedTicket.paymentStatus === 'Paid'
-                          ? <><CheckCircle2 size={12} style={{ display: 'inline', marginRight: 4 }} />à¤ªà¥‚à¤°à¥à¤£ à¤­à¥à¤—à¤¤à¤¾à¤¨ (Confirmed)</>
-                          : `à¤†à¤‚à¤¶à¤¿à¤• à¤­à¥à¤—à¤¤à¤¾à¤¨ â€” à¤¦à¥‡à¤¯: â‚¹${searchedTicket.remainingAmount}`}
+                          ? <><CheckCircle2 size={12} style={{ display: 'inline', marginRight: 4 }} />पूर्ण भुगतान (Confirmed)</>
+                          : `आंशिक भुगतान — देय: ₹${searchedTicket.remainingAmount}`}
                       </span>
                     </div>
 
                     <div className="ent-ticket-row">
                       <div>
-                        <span className="ent-ticket-field-label">à¤®à¥à¤–à¥à¤¯ à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤®</span>
+                        <span className="ent-ticket-field-label">मुख्य यात्री का नाम</span>
                         <span className="ent-ticket-field-val">{searchedTicket.bookedBy}</span>
-                        <div style={{ fontSize: '0.8rem', color: '#9A6642', marginTop: 2 }}>à¤®à¥‹à¤¬à¤¾à¤‡à¤²: {searchedTicket.mobile}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#9A6642', marginTop: 2 }}>मोबाइल: {searchedTicket.mobile}</div>
                       </div>
                       <div>
-                        <span className="ent-ticket-field-label">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤°à¥‚à¤Ÿ à¤à¤µà¤‚ à¤•à¥‹à¤š</span>
+                        <span className="ent-ticket-field-label">यात्रा रूट एवं कोच</span>
                         <span className="ent-ticket-field-val" style={{ color: '#14532D' }}>
-                          {searchedTicket.fromStation} â€” {searchedTicket.toStation}
+                          {searchedTicket.fromStation} — {searchedTicket.toStation}
                         </span>
                         <div style={{ fontSize: '0.82rem', marginTop: 2 }}>
-                          à¤•à¥‹à¤š: <strong style={{ color: '#BF360C' }}>{searchedTicket.coachName}</strong>
-                          {' '}| à¤¶à¥à¤°à¥‡à¤£à¥€: <strong>{searchedTicket.travelClass}</strong>
+                          कोच: <strong style={{ color: '#BF360C' }}>{searchedTicket.coachName}</strong>
+                          {' '}| श्रेणी: <strong>{searchedTicket.travelClass}</strong>
                         </div>
                       </div>
                     </div>
@@ -4241,22 +4241,22 @@ export default function App() {
                     {/* Passenger List */}
                     <div style={{ background: '#FDFBF7', borderRadius: 8, padding: '10px 14px', border: '1px solid #EFEAE3', marginBottom: 14 }}>
                       <div style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A6642', marginBottom: 8 }}>
-                        à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¥€ â€” Berth Allocation
+                        आरक्षित यात्री — Berth Allocation
                       </div>
                       {(searchedTicket.passengers || []).map((p, idx) => (
                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #EFEAE3', fontSize: '0.86rem', color: '#3D2010' }}>
-                          <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} à¤µà¤°à¥à¤·, {p.gender || '-'})</span>
-                          <strong style={{ color: '#BF360C' }}>à¤¸à¥€à¤Ÿ: {p.seatAssigned || p.seatNumber || '-'}</strong>
+                          <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} वर्ष, {p.gender || '-'})</span>
+                          <strong style={{ color: '#BF360C' }}>सीट: {p.seatAssigned || p.seatNumber || '-'}</strong>
                         </div>
                       ))}
                     </div>
 
                     {/* Fare Summary */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, background: '#FDFBF7', padding: '10px 14px', borderRadius: 8, border: '1px solid #EFEAE3', marginBottom: 16, fontSize: '0.85rem' }}>
-                      <span>à¤•à¥à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾: <strong>â‚¹ {searchedTicket.totalAmount}</strong></span>
-                      <span style={{ color: '#14532D' }}>à¤…à¤—à¥à¤°à¤¿à¤® à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤: <strong>â‚¹ {searchedTicket.advance}</strong></span>
+                      <span>कुल किराया: <strong>₹ {searchedTicket.totalAmount}</strong></span>
+                      <span style={{ color: '#14532D' }}>अग्रिम प्राप्त: <strong>₹ {searchedTicket.advance}</strong></span>
                       <span style={{ color: searchedTicket.remainingAmount > 0 ? '#DC2626' : '#14532D', fontWeight: 800 }}>
-                        à¤¶à¥‡à¤· à¤¦à¥‡à¤¯: â‚¹ {searchedTicket.remainingAmount}
+                        शेष देय: ₹ {searchedTicket.remainingAmount}
                       </span>
                     </div>
 
@@ -4264,22 +4264,22 @@ export default function App() {
                     {((searchedTicket.paymentHistory && searchedTicket.paymentHistory.length > 0) || searchedTicket.advance > 0) && (
                       <div style={{ marginBottom: 16 }}>
                         <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#14532D', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          <Printer size={14} strokeWidth={2} /> à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤°à¤¸à¥€à¤¦à¥‡à¤‚ â€” Payment Receipts
+                          <Printer size={14} strokeWidth={2} /> भुगतान रसीदें — Payment Receipts
                         </div>
                         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '8px 10px' }}>
                           {((searchedTicket.paymentHistory && searchedTicket.paymentHistory.length > 0)
                             ? searchedTicket.paymentHistory
-                            : [{ id: 'R' + (searchedTicket.yatraYear || '2026') + '000001', date: searchedTicket.createdAt || new Date().toISOString(), amount: searchedTicket.advance, method: searchedTicket.paymentMode || 'Cash', type: 'Advance Booking (à¤…à¤—à¥à¤°à¤¿à¤® à¤¬à¥à¤•à¤¿à¤‚à¤—)', cashierName: 'Counter Staff', utr: searchedTicket.utrNumber || '' }]
+                            : [{ id: 'R' + (searchedTicket.yatraYear || '2026') + '000001', date: searchedTicket.createdAt || new Date().toISOString(), amount: searchedTicket.advance, method: searchedTicket.paymentMode || 'Cash', type: 'Advance Booking (अग्रिम बुकिंग)', cashierName: 'Counter Staff', utr: searchedTicket.utrNumber || '' }]
                           ).map((txn, sIdx) => (
                             <div key={txn.id || sIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, padding: '7px 4px', borderBottom: '1px solid #DCFCE7', fontSize: '0.83rem' }}>
                               <div>
-                                <strong style={{ color: '#14532D' }}>â‚¹ {parseFloat(txn.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+                                <strong style={{ color: '#14532D' }}>₹ {parseFloat(txn.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
                                 <span style={{ color: '#4B5563', marginLeft: 6 }}>via {txn.method} {txn.utr ? `(UTR: ${txn.utr})` : ''}</span>
                                 <div style={{ color: '#059669', fontSize: '0.72rem' }}>{new Date(txn.date).toLocaleString('en-IN')} | {txn.type}</div>
                               </div>
                               <div style={{ display: 'flex', gap: 6 }}>
                                 <button className="btn btn-sm btn-primary" onClick={() => setReceiptModal({ booking: searchedTicket, txn })} style={{ padding: '4px 10px', fontSize: '0.73rem' }}>
-                                  <Printer size={12} strokeWidth={2} /> à¤°à¤¸à¥€à¤¦
+                                  <Printer size={12} strokeWidth={2} /> रसीद
                                 </button>
                                 <a href={`/api/bookings/${searchedTicket.bookingId}/receipt/${txn.id}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ padding: '4px 8px', fontSize: '0.73rem', borderColor: '#86EFAC', color: '#14532D' }}>
                                   <FileText size={12} strokeWidth={2} /> PDF
@@ -4294,56 +4294,56 @@ export default function App() {
                     {/* Action Buttons */}
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                       <a href={`/api/bookings/${searchedTicket.bookingId}/pdf`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ flex: 1, borderColor: '#BBF7D0', color: '#14532D', background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                        <FileText size={15} strokeWidth={2} /> PDF à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¤°à¥à¤šà¥€ à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡
+                        <FileText size={15} strokeWidth={2} /> PDF यात्रा पर्ची डाउनलोड
                       </a>
                       {searchedTicket.remainingAmount > 0 && (
                         <button className="btn btn-gold btn-sm" style={{ flex: 1 }} onClick={() => openUpiQR(searchedTicket.bookingId)}>
-                          <Smartphone size={15} strokeWidth={2} /> UPI à¤¸à¥‡ à¤¶à¥‡à¤· â‚¹{searchedTicket.remainingAmount} à¤œà¤®à¤¾ à¤•à¤°à¥‡à¤‚
+                          <Smartphone size={15} strokeWidth={2} /> UPI से शेष ₹{searchedTicket.remainingAmount} जमा करें
                         </button>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* â”€â”€ CTA Buttons â”€â”€ */}
+                {/* ── CTA Buttons ── */}
                 <div className="ent-cta-row">
                   <button className="btn btn-primary" style={{ padding: '12px 28px', fontSize: '0.93rem' }} onClick={() => navigate('/coach-position')}>
                     <Train size={18} strokeWidth={2} />
-                    à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤°à¥‡à¤• à¤¸à¤‚à¤°à¤šà¤¨à¤¾
+                    बोगी स्थिति एवं रेक संरचना
                   </button>
                   <button className="btn btn-gold" style={{ padding: '12px 28px', fontSize: '0.93rem' }} onClick={() => setActiveTab('staff')}>
                     <Lock size={18} strokeWidth={2} />
-                    à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤à¤µà¤‚ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤…à¤§à¤¿à¤•à¤¾à¤°à¥€ à¤²à¥‰à¤—à¤¿à¤¨
+                    कर्मचारी एवं ट्रस्ट अधिकारी लॉगिन
                   </button>
                 </div>
 
                 <hr className="ent-section-divider" />
 
-                {/* â”€â”€ POSTER & PANORAMA â”€â”€ */}
+                {/* ── POSTER & PANORAMA ── */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ marginBottom: 14 }}>
-                    <div className="ent-section-label">à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤ªà¥à¤°à¤šà¤¾à¤° à¤¸à¤¾à¤®à¤—à¥à¤°à¥€</div>
+                    <div className="ent-section-label">आधिकारिक प्रचार सामग्री</div>
                     <h3 style={{ fontFamily: "'Inter', 'Poppins', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#1C0A00', letterSpacing: '-0.01em', margin: '4px 0' }}>
-                      à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥‹à¤¸à¥à¤Ÿà¤° {projectSettings.activeYatraYear || 2026}
+                      यात्रा पोस्टर {projectSettings.activeYatraYear || 2026}
                     </h3>
                   </div>
                   <div className="ent-poster-grid">
-                    <div className="ent-img-card" onClick={() => setPosterModal(true)} title="à¤ªà¥‚à¤°à¥à¤£ à¤ªà¥‹à¤¸à¥à¤Ÿà¤° HD à¤®à¥‡à¤‚ à¤¦à¥‡à¤–à¥‡à¤‚">
-                      <img src="/poster.png" alt="à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥‹à¤¸à¥à¤Ÿà¤°" style={{ height: 280, objectFit: 'contain', background: '#FFF8F2' }} />
+                    <div className="ent-img-card" onClick={() => setPosterModal(true)} title="पूर्ण पोस्टर HD में देखें">
+                      <img src="/poster.png" alt="श्री माता वैष्णो देवी यात्रा पोस्टर" style={{ height: 280, objectFit: 'contain', background: '#FFF8F2' }} />
                       <div className="ent-img-caption">
-                        <div className="ent-img-caption-sub">à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤ªà¥‹à¤¸à¥à¤Ÿà¤° â€” à¤•à¥à¤²à¤¿à¤• à¤•à¤°à¥‡à¤‚ HD à¤¦à¥‡à¤–à¥‡à¤‚</div>
-                        <div className="ent-img-caption-title">à¤µà¤¿à¤¶à¥‡à¤· à¤¤à¥€à¤°à¥à¤¥ à¤à¤•à¥à¤¸à¤ªà¥à¤°à¥‡à¤¸ Â· à¤²à¤–à¤¨à¤Š à¤¸à¥‡ à¤•à¤Ÿà¤¡à¤¼à¤¾</div>
+                        <div className="ent-img-caption-sub">आधिकारिक पोस्टर — क्लिक करें HD देखें</div>
+                        <div className="ent-img-caption-title">विशेष तीर्थ एक्सप्रेस · लखनऊ से कटड़ा</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <div style={{ background: '#FDFBF7', border: '1px solid #EFEAE3', borderRadius: 12, padding: '16px 18px' }}>
-                        <div className="ent-section-label" style={{ marginBottom: 10 }}>à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤¸à¤¾à¤°à¤¾à¤‚à¤¶</div>
+                        <div className="ent-section-label" style={{ marginBottom: 10 }}>यात्रा सारांश</div>
                         {[
-                          { label: 'à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤·', val: projectSettings.activeYatraYear || 2026 },
-                          { label: 'à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨ à¤¤à¤¿à¤¥à¤¿', val: projectSettings.defaultTravelDate || '2026-10-15', green: true },
-                          { label: 'à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤°', val: 'à¤šà¤¾à¤°à¤¬à¤¾à¤— à¤°à¥‡à¤²à¤µà¥‡ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨, à¤²à¤–à¤¨à¤Š' },
-                          { label: 'à¤—à¤‚à¤¤à¤µà¥à¤¯', val: 'à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤•à¤Ÿà¤¡à¤¼à¤¾ (SVDK)', highlight: true },
-                          { label: 'à¤•à¥à¤² à¤ à¤¹à¤°à¤¾à¤µ', val: '38 à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨' },
+                          { label: 'यात्रा वर्ष', val: projectSettings.activeYatraYear || 2026 },
+                          { label: 'प्रस्थान तिथि', val: projectSettings.defaultTravelDate || '2026-10-15', green: true },
+                          { label: 'प्रस्थान केंद्र', val: 'चारबाग रेलवे स्टेशन, लखनऊ' },
+                          { label: 'गंतव्य', val: 'श्री माता वैष्णो देवी कटड़ा (SVDK)', highlight: true },
+                          { label: 'कुल ठहराव', val: '38 अधिकृत स्टेशन' },
                         ].map(({ label, val, green, highlight }) => (
                           <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #EFEAE3', fontSize: '0.83rem' }}>
                             <span style={{ color: '#9A6642', fontWeight: 600 }}>{label}</span>
@@ -4353,43 +4353,43 @@ export default function App() {
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button className="btn btn-gold btn-sm" onClick={() => setPosterModal(true)} style={{ flex: 1, justifyContent: 'center' }}>
-                          <Eye size={14} strokeWidth={2} /> à¤ªà¥‹à¤¸à¥à¤Ÿà¤° à¤œà¤¼à¥‚à¤® à¤•à¤°à¥‡à¤‚
+                          <Eye size={14} strokeWidth={2} /> पोस्टर ज़ूम करें
                         </button>
                         <a href="/poster.png" download="Vaishno_Devi_Yatra_Poster_2026.png" className="btn btn-primary btn-sm" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                          <Download size={14} strokeWidth={2} /> à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡
+                          <Download size={14} strokeWidth={2} /> डाउनलोड
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* â”€â”€ SACRED SHRINE PANORAMA â”€â”€ */}
+                {/* ── SACRED SHRINE PANORAMA ── */}
                 {['/shrine_hero.jpg'].map(src => (
                   <div key={src} className="ent-img-card" style={{ marginBottom: 16, cursor: 'default' }}>
-                    <img src={src} alt="à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¾à¤µà¤¨ à¤§à¤¾à¤® â€” à¤¤à¥à¤°à¤¿à¤•à¥à¤Ÿà¤¾ à¤ªà¤°à¥à¤µà¤¤" style={{ height: 320 }} />
+                    <img src={src} alt="श्री माता वैष्णो देवी पावन धाम — त्रिकुटा पर्वत" style={{ height: 320 }} />
                     <div className="ent-img-caption" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                       <div>
-                        <div className="ent-img-caption-sub">à¤¤à¥à¤°à¤¿à¤•à¥à¤Ÿà¤¾ à¤ªà¤°à¥à¤µà¤¤ à¤ªà¤¾à¤µà¤¨ à¤§à¤¾à¤® Â· à¤•à¤Ÿà¤¡à¤¼à¤¾ (SVDK)</div>
-                        <div className="ent-img-caption-title">à¤ªà¤µà¤¿à¤¤à¥à¤° à¤—à¥à¤«à¤¾ à¤¦à¤°à¥à¤¶à¤¨ à¤¯à¤¾à¤¤à¥à¤°à¤¾ â€” à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¥à¤°à¥‡à¤¨</div>
+                        <div className="ent-img-caption-sub">त्रिकुटा पर्वत पावन धाम · कटड़ा (SVDK)</div>
+                        <div className="ent-img-caption-title">पवित्र गुफा दर्शन यात्रा — विशेष ट्रेन</div>
                       </div>
-                      <span className="ent-badge ent-badge-gold">à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤¸à¥‡ 14 à¤•à¤¿à¤®à¥€ à¤ªà¤¦à¤¯à¤¾à¤¤à¥à¤°à¤¾</span>
+                      <span className="ent-badge ent-badge-gold">कटड़ा से 14 किमी पदयात्रा</span>
                     </div>
                   </div>
                 ))}
 
-                {/* â”€â”€ GALLERY GRID â”€â”€ */}
+                {/* ── GALLERY GRID ── */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ marginBottom: 14 }}>
-                    <div className="ent-section-label">à¤¦à¤°à¥à¤¶à¤¨ à¤¦à¥€à¤°à¥à¤˜à¤¾</div>
+                    <div className="ent-section-label">दर्शन दीर्घा</div>
                     <h3 style={{ fontFamily: "'Inter', 'Poppins', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#1C0A00', letterSpacing: '-0.01em', margin: '4px 0' }}>
-                      à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤§à¤¾à¤® à¤à¤µà¤‚ à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¥à¤°à¥‡à¤¨
+                      माता वैष्णो देवी धाम एवं विशेष ट्रेन
                     </h3>
                   </div>
                   <div className="ent-gallery-grid">
                     {[
-                      { src: '/shrine_night.jpg', sub: 'à¤¤à¥à¤°à¤¿à¤•à¥à¤Ÿà¤¾ à¤¶à¤¿à¤–à¤° Â· à¤ªà¤¾à¤µà¤¨ à¤§à¤¾à¤®', title: 'à¤°à¤¾à¤¤à¥à¤°à¤¿ à¤†à¤²à¥‹à¤•à¤¿à¤¤ à¤¦à¤¿à¤µà¥à¤¯ à¤­à¤µà¤¨', desc: 'à¤¸à¥à¤µà¤°à¥à¤£à¤¿à¤® à¤ªà¥à¤°à¤•à¤¾à¤¶ à¤®à¥‡à¤‚ à¤œà¤—à¤®à¤—à¤¾à¤¤à¤¾ à¤®à¤¾à¤‚ à¤•à¤¾ à¤ªà¤¾à¤µà¤¨ à¤­à¤µà¤¨' },
-                      { src: '/yatra_train.jpg', sub: 'à¤µà¤¿à¤¶à¥‡à¤· à¤¤à¥€à¤°à¥à¤¥ à¤à¤•à¥à¤¸à¤ªà¥à¤°à¥‡à¤¸', title: 'à¤¸à¥à¤¸à¤œà¥à¤œà¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤Ÿà¥à¤°à¥‡à¤¨', desc: 'à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¸à¥à¤¸à¤œà¥à¤œà¤¿à¤¤ à¤µà¤¾à¤°à¥à¤·à¤¿à¤• à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¥à¤°à¥‡à¤¨' },
-                      { src: '/katra_station.jpg', sub: 'à¤—à¤‚à¤¤à¤µà¥à¤¯ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨', title: 'à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤°à¥‡à¤²à¤µà¥‡ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ (SVDK)', desc: 'à¤®à¤¾à¤¤à¤¾ à¤•à¥‡ à¤¦à¥à¤µà¤¾à¤° à¤¤à¤• à¤ªà¤¹à¥à¤à¤šà¤¾à¤¨à¥‡ à¤µà¤¾à¤²à¤¾ à¤…à¤‚à¤¤à¤¿à¤® à¤°à¥‡à¤²à¤µà¥‡ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨' },
+                      { src: '/shrine_night.jpg', sub: 'त्रिकुटा शिखर · पावन धाम', title: 'रात्रि आलोकित दिव्य भवन', desc: 'स्वर्णिम प्रकाश में जगमगाता मां का पावन भवन' },
+                      { src: '/yatra_train.jpg', sub: 'विशेष तीर्थ एक्सप्रेस', title: 'सुसज्जित यात्रा ट्रेन', desc: 'ट्रस्ट द्वारा सुसज्जित वार्षिक विशेष ट्रेन' },
+                      { src: '/katra_station.jpg', sub: 'गंतव्य स्टेशन', title: 'कटड़ा रेलवे स्टेशन (SVDK)', desc: 'माता के द्वार तक पहुँचाने वाला अंतिम रेलवे स्टेशन' },
                     ].map(({ src, sub, title, desc }) => (
                       <div key={src} className="ent-img-card">
                         <img src={src} alt={title} />
@@ -4405,19 +4405,19 @@ export default function App() {
 
                 <hr className="ent-section-divider" />
 
-                {/* â”€â”€ FEATURES GRID â”€â”€ */}
+                {/* ── FEATURES GRID ── */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ marginBottom: 16, textAlign: 'center' }}>
-                    <div className="ent-section-label">à¤ªà¥‹à¤°à¥à¤Ÿà¤² à¤¸à¥à¤µà¤¿à¤§à¤¾à¤à¤ â€” Portal Capabilities</div>
+                    <div className="ent-section-label">पोर्टल सुविधाएँ — Portal Capabilities</div>
                     <h3 style={{ fontFamily: "'Inter', 'Poppins', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#1C0A00', letterSpacing: '-0.01em', margin: '4px 0' }}>
-                      à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤¬à¥à¤•à¤¿à¤‚à¤— à¤à¤µà¤‚ à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¥‡à¤µà¤¾à¤à¤
+                      डिजिटल बुकिंग एवं यात्री सेवाएँ
                     </h3>
                   </div>
                   <div className="ent-feature-grid">
                     {[
-                      { icon: <CalendarDays size={22} strokeWidth={1.75} />, title: 'à¤¬à¤¹à¥-à¤µà¤°à¥à¤·à¥€à¤¯ à¤¯à¤¾à¤¤à¥à¤°à¤¾ (Multi-Year)', desc: 'à¤µà¤°à¥à¤· 2024 à¤¸à¥‡ 2028 à¤¤à¤• à¤•à¥‡ à¤¸à¤­à¥€ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ â€” à¤à¤• à¤¹à¥€ à¤ªà¥‹à¤°à¥à¤Ÿà¤² à¤ªà¤° à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤µ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¿à¤¤à¥¤' },
-                      { icon: <Armchair size={22} strokeWidth={1.75} />, title: 'à¤‡à¤‚à¤Ÿà¤°à¥ˆà¤•à¥à¤Ÿà¤¿à¤µ à¤¸à¥€à¤Ÿ à¤šà¤¯à¤¨', desc: 'à¤•à¥‹à¤š à¤•à¤¾ à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤¨à¤•à¥à¤¶à¤¾ à¤¦à¥‡à¤–à¤•à¤° à¤²à¥‹à¤…à¤°, à¤®à¤¿à¤¡à¤¿à¤², à¤…à¤ªà¤° à¤¯à¤¾ à¤¸à¤¾à¤‡à¤¡ à¤¬à¤°à¥à¤¥ à¤•à¤¾ à¤šà¤¯à¤¨ à¤•à¤°à¥‡à¤‚à¥¤' },
-                      { icon: <Smartphone size={22} strokeWidth={1.75} />, title: 'UPI à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤à¤µà¤‚ à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤ªà¤¾à¤¸', desc: 'GPay, PhonePe, Paytm à¤¸à¥‡ à¤¸à¥€à¤§à¥‡ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ à¤­à¥à¤—à¤¤à¤¾à¤¨ â€” à¤¤à¤¤à¥à¤•à¤¾à¤² QR à¤à¤µà¤‚ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¤°à¥à¤šà¥€à¥¤' },
+                      { icon: <CalendarDays size={22} strokeWidth={1.75} />, title: 'बहु-वर्षीय यात्रा (Multi-Year)', desc: 'वर्ष 2024 से 2028 तक के सभी यात्रा रिकॉर्ड — एक ही पोर्टल पर सुरक्षित व व्यवस्थित।' },
+                      { icon: <Armchair size={22} strokeWidth={1.75} />, title: 'इंटरैक्टिव सीट चयन', desc: 'कोच का वास्तविक नक्शा देखकर लोअर, मिडिल, अपर या साइड बर्थ का चयन करें।' },
+                      { icon: <Smartphone size={22} strokeWidth={1.75} />, title: 'UPI भुगतान एवं डिजिटल पास', desc: 'GPay, PhonePe, Paytm से सीधे ट्रस्ट खाते में भुगतान — तत्काल QR एवं यात्रा पर्ची।' },
                     ].map(({ icon, title, desc }) => (
                       <div key={title} className="ent-feature-card">
                         <div className="ent-feature-icon">{icon}</div>
@@ -4428,14 +4428,14 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* â”€â”€ ORGANIZER + GUIDELINES â”€â”€ */}
+                {/* ── ORGANIZER + GUIDELINES ── */}
                 <div className="ent-info-two-col">
                   {/* Organizer */}
                   <div className="ent-card">
                     <div className="ent-card-header">
                       <div>
-                        <div className="ent-card-title">à¤®à¥à¤–à¥à¤¯ à¤†à¤¯à¥‹à¤œà¤•</div>
-                        <div className="ent-card-heading">à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ</div>
+                        <div className="ent-card-title">मुख्य आयोजक</div>
+                        <div className="ent-card-heading">श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट</div>
                       </div>
                       <div className="ent-card-icon-box"><Users size={20} strokeWidth={1.75} /></div>
                     </div>
@@ -4443,12 +4443,12 @@ export default function App() {
                       <img src="/logo.png" alt="MVD Trust Logo" style={{ width: 68, height: 68, borderRadius: 10, border: '1.5px solid #EFEAE3', objectFit: 'cover', flexShrink: 0 }} />
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '0.85rem', color: '#6B4226', lineHeight: 1.6, margin: '0 0 12px' }}>
-                          à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤µà¤°à¥à¤· à¤†à¤¯à¥‹à¤œà¤¿à¤¤ à¤¯à¤¹ à¤ªà¤¾à¤µà¤¨ à¤¤à¥€à¤°à¥à¤¥ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤¹à¤œà¤¾à¤°à¥‹à¤‚ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥à¤“à¤‚ à¤•à¥‹ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤à¤µà¤‚ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¿à¤¤ à¤¤à¤°à¥€à¤•à¥‡ à¤¸à¥‡ à¤®à¤¾à¤¤à¤¾ à¤•à¥‡ à¤¦à¤°à¤¬à¤¾à¤° à¤¤à¤• à¤ªà¤¹à¥à¤à¤šà¤¾à¤¤à¥€ à¤¹à¥ˆà¥¤
+                          माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट द्वारा प्रत्येक वर्ष आयोजित यह पावन तीर्थ यात्रा हजारों श्रद्धालुओं को सुरक्षित एवं व्यवस्थित तरीके से माता के दरबार तक पहुँचाती है।
                         </p>
                         {[
-                          { label: 'à¤¸à¤®à¥à¤ªà¤°à¥à¤•', val: projectSettings.organizerPhone || '+91-XXXXX-XXXXX' },
-                          { label: 'à¤ˆà¤®à¥‡à¤²', val: projectSettings.organizerEmail || 'info@mvdtrust.org' },
-                          { label: 'à¤¸à¥à¤¥à¤¾à¤¨', val: 'à¤²à¤–à¤¨à¤Š, à¤‰à¤¤à¥à¤¤à¤° à¤ªà¥à¤°à¤¦à¥‡à¤¶' },
+                          { label: 'सम्पर्क', val: projectSettings.organizerPhone || '+91-XXXXX-XXXXX' },
+                          { label: 'ईमेल', val: projectSettings.organizerEmail || 'info@mvdtrust.org' },
+                          { label: 'स्थान', val: 'लखनऊ, उत्तर प्रदेश' },
                         ].map(({ label, val }) => (
                           <div key={label} style={{ display: 'flex', gap: 10, fontSize: '0.82rem', marginBottom: 5 }}>
                             <span style={{ color: '#9A6642', fontWeight: 700, minWidth: 55 }}>{label}:</span>
@@ -4463,19 +4463,19 @@ export default function App() {
                   <div className="ent-card">
                     <div className="ent-card-header">
                       <div>
-                        <div className="ent-card-title">à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¦à¤¿à¤¶à¤¾à¤¨à¤¿à¤°à¥à¤¦à¥‡à¤¶</div>
+                        <div className="ent-card-title">यात्री दिशानिर्देश</div>
                         <div className="ent-card-heading">Travel Guidelines</div>
                       </div>
                       <div className="ent-card-icon-box"><ShieldCheck size={20} strokeWidth={1.75} /></div>
                     </div>
                     <ul style={{ paddingLeft: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {[
-                        'à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥à¤°à¤¾à¤°à¤‚à¤­ à¤¸à¥‡ 45 à¤®à¤¿à¤¨à¤Ÿ à¤ªà¥‚à¤°à¥à¤µ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤ªà¤° à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ à¤°à¤¹à¥‡à¤‚à¥¤',
-                        'à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¤°à¥à¤šà¥€ à¤¯à¤¾ à¤®à¥à¤¦à¥à¤°à¤¿à¤¤ à¤Ÿà¤¿à¤•à¤Ÿ à¤…à¤µà¤¶à¥à¤¯ à¤¸à¤¾à¤¥ à¤°à¤–à¥‡à¤‚à¥¤',
-                        'TTE à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¬à¤°à¥à¤¥ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¹à¥‡à¤¤à¥ ID à¤ªà¥à¤°à¤®à¤¾à¤£ à¤ªà¥à¤°à¤¸à¥à¤¤à¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤',
-                        'à¤¬à¥à¤œà¥à¤°à¥à¤—à¥‹à¤‚ à¤”à¤° à¤¦à¤¿à¤µà¥à¤¯à¤¾à¤‚à¤—à¤œà¤¨à¥‹à¤‚ à¤¹à¥‡à¤¤à¥ à¤²à¥‹à¤…à¤° à¤¬à¤°à¥à¤¥ à¤†à¤°à¤•à¥à¤·à¤£ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¹à¥ˆà¥¤',
-                        'à¤Ÿà¥à¤°à¥‡à¤¨ à¤ªà¤°à¤¿à¤¸à¤° à¤®à¥‡à¤‚ à¤®à¤¾à¤¦à¤• à¤ªà¤¦à¤¾à¤°à¥à¤¥ à¤µ à¤…à¤¨à¥à¤šà¤¿à¤¤ à¤µà¥à¤¯à¤µà¤¹à¤¾à¤° à¤¸à¤–à¥à¤¤ à¤µà¤°à¥à¤œà¤¿à¤¤ à¤¹à¥ˆà¥¤',
-                        'à¤†à¤ªà¤¾à¤¤à¤•à¤¾à¤² à¤®à¥‡à¤‚ à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨ à¤¨à¤‚à¤¬à¤° à¤¸à¥‡ à¤¤à¤¤à¥à¤•à¤¾à¤² à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤',
+                        'यात्रा प्रारंभ से 45 मिनट पूर्व स्टेशन पर उपस्थित रहें।',
+                        'अधिकृत डिजिटल यात्रा पर्ची या मुद्रित टिकट अवश्य साथ रखें।',
+                        'TTE द्वारा बर्थ सत्यापन हेतु ID प्रमाण प्रस्तुत करें।',
+                        'बुजुर्गों और दिव्यांगजनों हेतु लोअर बर्थ आरक्षण उपलब्ध है।',
+                        'ट्रेन परिसर में मादक पदार्थ व अनुचित व्यवहार सख्त वर्जित है।',
+                        'आपातकाल में हेल्पलाइन नंबर से तत्काल सहायता प्राप्त करें।',
                       ].map((g, i) => (
                         <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.82rem', color: '#6B4226', lineHeight: 1.5 }}>
                           <CheckCircle2 size={13} strokeWidth={2.5} style={{ color: '#E65100', flexShrink: 0, marginTop: 2 }} />
@@ -4486,17 +4486,17 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* â”€â”€ ENTERPRISE FOOTER STRIP â”€â”€ */}
+                {/* ── ENTERPRISE FOOTER STRIP ── */}
                 <div className="ent-footer-card">
                   <div className="ent-footer-grid">
                     <div>
                       <div className="ent-footer-title">
                         <img src="/logo.png" alt="MVD Trust" style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(255,255,255,0.15)', objectFit: 'cover' }} />
-                        à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ
+                        श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट
                       </div>
                       <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, maxWidth: 360 }}>
-                        à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤•à¥‡ à¤¦à¤°à¥à¤¶à¤¨ à¤¹à¥‡à¤¤à¥ à¤²à¤–à¤¨à¤Š à¤¸à¥‡ à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤¤à¤• à¤µà¤¾à¤°à¥à¤·à¤¿à¤• à¤¸à¥à¤ªà¤°à¤«à¤¾à¤¸à¥à¤Ÿ à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¥à¤°à¥‡à¤¨ à¤•à¤¾ à¤¸à¤‚à¤šà¤¾à¤²à¤¨à¥¤
-                        à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤Ÿà¤¿à¤•à¤Ÿà¤¿à¤‚à¤—, PNR à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤à¤µà¤‚ à¤²à¤¾à¤‡à¤µ à¤¬à¤°à¥à¤¥ à¤Ÿà¥à¤°à¥ˆà¤•à¤¿à¤‚à¤— à¤ªà¥‹à¤°à¥à¤Ÿà¤²à¥¤
+                        माता वैष्णो देवी के दर्शन हेतु लखनऊ से कटड़ा तक वार्षिक सुपरफास्ट विशेष ट्रेन का संचालन।
+                        आधिकारिक डिजिटल टिकटिंग, PNR सत्यापन एवं लाइव बर्थ ट्रैकिंग पोर्टल।
                       </p>
                       <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <span className="ent-badge ent-badge-dark" style={{ fontSize: '0.7rem' }}>
@@ -4509,28 +4509,28 @@ export default function App() {
                     </div>
                     <div>
                       <div className="ent-footer-title">
-                        <Phone size={14} strokeWidth={2} /> à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¥‡à¤µà¤¾à¤à¤
+                        <Phone size={14} strokeWidth={2} /> यात्री सेवाएँ
                       </div>
                       <ul className="ent-footer-list">
                         {[
-                          'PNR à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤œà¤¾à¤à¤š â€” à¤¸à¤¾à¤°à¥à¤µà¤œà¤¨à¤¿à¤•',
-                          'à¤¬à¤°à¥à¤¥ à¤à¤µà¤‚ à¤•à¥‹à¤š à¤¸à¥à¤¥à¤¿à¤¤à¤¿ â€” à¤²à¤¾à¤‡à¤µ',
-                          'à¤Ÿà¤¿à¤•à¤Ÿ à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡ (PDF)',
-                          'UPI à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾',
-                          'TTE / à¤¸à¥à¤Ÿà¤¾à¤« à¤²à¥‰à¤—à¤¿à¤¨',
+                          'PNR स्थिति जाँच — सार्वजनिक',
+                          'बर्थ एवं कोच स्थिति — लाइव',
+                          'टिकट डाउनलोड (PDF)',
+                          'UPI भुगतान सहायता',
+                          'TTE / स्टाफ लॉगिन',
                         ].map(s => <li key={s}><ChevronRight size={10} style={{ color: '#E65100', flexShrink: 0 }} />{s}</li>)}
                       </ul>
                     </div>
                     <div>
                       <div className="ent-footer-title">
-                        <ShieldCheck size={14} strokeWidth={2} /> à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨
+                        <ShieldCheck size={14} strokeWidth={2} /> हेल्पलाइन
                       </div>
                       <ul className="ent-footer-list">
                         {[
-                          { label: 'à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤•à¤¾à¤°à¥à¤¯à¤¾à¤²à¤¯', val: projectSettings.organizerPhone || '+91-XXXXX-XXXXX' },
-                          { label: 'à¤°à¥‡à¤²à¤µà¥‡ à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨', val: '139' },
-                          { label: 'à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨', val: '01991-234XXX' },
-                          { label: 'à¤†à¤ªà¤¾à¤¤à¤•à¤¾à¤²', val: '112' },
+                          { label: 'ट्रस्ट कार्यालय', val: projectSettings.organizerPhone || '+91-XXXXX-XXXXX' },
+                          { label: 'रेलवे हेल्पलाइन', val: '139' },
+                          { label: 'कटड़ा स्टेशन', val: '01991-234XXX' },
+                          { label: 'आपातकाल', val: '112' },
                         ].map(({ label, val }) => (
                           <li key={label}>
                             <span style={{ minWidth: 90, display: 'inline-block', opacity: 0.55 }}>{label}</span>
@@ -4543,12 +4543,12 @@ export default function App() {
                   <hr className="ent-footer-divider" />
                   <div className="ent-footer-bottom">
                     <span>
-                      &copy; {projectSettings.activeYatraYear || 2026} à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ Â· à¤¸à¤°à¥à¤µà¤¾à¤§à¤¿à¤•à¤¾à¤° à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤
+                      &copy; {projectSettings.activeYatraYear || 2026} श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट · सर्वाधिकार सुरक्षित
                     </span>
                     <span style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                      <span>à¤—à¥‹à¤ªà¤¨à¥€à¤¯à¤¤à¤¾ à¤¨à¥€à¤¤à¤¿</span>
-                      <span>à¤¨à¤¿à¤¯à¤® à¤à¤µà¤‚ à¤¶à¤°à¥à¤¤à¥‡à¤‚</span>
-                      <span>à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤¦à¤¿à¤¶à¤¾à¤¨à¤¿à¤°à¥à¤¦à¥‡à¤¶</span>
+                      <span>गोपनीयता नीति</span>
+                      <span>नियम एवं शर्तें</span>
+                      <span>यात्रा दिशानिर्देश</span>
                     </span>
                   </div>
                 </div>
@@ -4561,17 +4561,17 @@ export default function App() {
               <div>
                 {staffUser ? (
                   <div className="glass-card" style={{ maxWidth: 520, margin: '40px auto', textAlign: 'center', border: '2px solid #FED7AA', padding: 32 }}>
-                    <div style={{ fontSize: 44, marginBottom: 10 }}>âœ…</div>
-                    <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤†à¤ª à¤ªà¤¹à¤²à¥‡ à¤¸à¥‡ à¤²à¥‰à¤—à¤¿à¤¨ à¤¹à¥ˆà¤‚!</h3>
+                    <div style={{ fontSize: 44, marginBottom: 10 }}>✅</div>
+                    <h3 style={{ color: '#9A3412', fontWeight: 800 }}>आप पहले से लॉगिन हैं!</h3>
                     <p style={{ color: '#7C2D12', fontSize: '0.94rem' }}>
-                      à¤¸à¥à¤µà¤¾à¤—à¤¤ à¤¹à¥ˆ <strong>{staffUser.name}</strong> ({staffUser.role} - {staffUser.department})à¥¤
+                      स्वागत है <strong>{staffUser.name}</strong> ({staffUser.role} - {staffUser.department})।
                     </p>
                     <div style={{ marginTop: 20, display: 'flex', gap: 12, justifyContent: 'center' }}>
                       <button className="btn btn-primary" onClick={() => navigate(getRoleDefaultPath(staffUser.role))}>
-                        <BadgeCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤…à¤ªà¤¨à¥‡ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤ªà¥‹à¤°à¥à¤Ÿà¤² ({getRoleDefaultPath(staffUser.role)}) à¤ªà¤° à¤œà¤¾à¤à¤‚
+                        <BadgeCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> अपने अधिकृत पोर्टल ({getRoleDefaultPath(staffUser.role)}) पर जाएं
                       </button>
                       <button className="btn btn-outline" onClick={handleStaffLogout}>
-                        à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ à¤•à¤°à¥‡à¤‚
+                        लॉगआउट करें
                       </button>
                     </div>
                   </div>
@@ -4586,12 +4586,12 @@ export default function App() {
               <div>
                 <div>
                     <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                      <span className="badge badge-bhakti">HMAC-SHA256 à¤•à¥à¤°à¤¿à¤ªà¥à¤Ÿà¥‹à¤—à¥à¤°à¤¾à¤«à¤¿à¤• à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤‡à¤‚à¤œà¤¨</span>
+                      <span className="badge badge-bhakti">HMAC-SHA256 क्रिप्टोग्राफिक सुरक्षा इंजन</span>
                       <h2 style={{ fontSize: '1.9rem', color: '#9A3412', marginTop: 4, fontWeight: 800 }}>
-                        <Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤à¤‚à¤Ÿà¥€-à¤«à¥à¤°à¥‰à¤¡ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤ªà¥à¤°à¤£à¤¾à¤²à¥€
+                        <Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> आधिकारिक एंटी-फ्रॉड टिकट सत्यापन प्रणाली
                       </h2>
                       <p style={{ color: '#7C2D12', fontSize: '0.92rem' }}>
-                        à¤«à¥‹à¤Ÿà¥‹à¤¶à¥‰à¤ª à¤¯à¤¾ à¤¸à¤‚à¤ªà¤¾à¤¦à¤¿à¤¤ à¤«à¤°à¥à¤œà¥€ à¤Ÿà¤¿à¤•à¤Ÿà¥‹à¤‚ à¤•à¥€ à¤¤à¥à¤°à¤‚à¤¤ à¤ªà¤¹à¤šà¤¾à¤¨ â€¢ à¤°à¥‡à¤²à¤µà¥‡ à¤à¤µà¤‚ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤•à¥‡ à¤•à¥‡à¤‚à¤¦à¥à¤°à¥€à¤¯ à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸ à¤¸à¥‡ à¤²à¤¾à¤‡à¤µ à¤®à¤¿à¤²à¤¾à¤¨
+                        फोटोशॉप या संपादित फर्जी टिकटों की तुरंत पहचान • रेलवे एवं ट्रस्ट के केंद्रीय डेटाबेस से लाइव मिलान
                       </p>
                     </div>
 
@@ -4610,19 +4610,19 @@ export default function App() {
                       </div>
 
                       <h3 style={{ fontSize: '1.2rem', color: '#9A3412', marginBottom: '16px', fontWeight: 700 }}>
-                        à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¥‡ à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾ QR à¤•à¥‹à¤¡ à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤°à¥‡à¤‚
+                        यात्री के टिकट का QR कोड स्कैन करें
                       </h3>
 
                       <form onSubmit={(e) => { e.preventDefault(); handleVerifyTicketSubmit(); }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
                           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                            à¤¯à¤¾ à¤®à¥ˆà¤¨à¥à¤¯à¥à¤…à¤² à¤°à¥‚à¤ª à¤¸à¥‡ PNR à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚
+                            या मैन्युअल रूप से PNR दर्ज करें
                           </p>
                           <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 400 }}>
                             <input
                               type="text"
                               className="form-control"
-                              placeholder="PNR Number (à¤‰à¤¦à¤¾. MVD-2026-...)"
+                              placeholder="PNR Number (उदा. MVD-2026-...)"
                               value={verifierPnr}
                               onChange={(e) => setVerifierPnr(e.target.value)}
                               style={{ width: '100%', textAlign: 'center', letterSpacing: '1px', fontWeight: 600, padding: '10px' }}
@@ -4636,7 +4636,7 @@ export default function App() {
                             className="btn btn-primary"
                             style={{ width: '100%', maxWidth: 400, padding: '12px', fontSize: '1.05rem', marginTop: 10, boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)' }}
                           >
-                            {verifierLoading ? 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...' : <><ShieldCheck size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> à¤®à¥ˆà¤¨à¥à¤¯à¥à¤…à¤² à¤°à¥‚à¤ª à¤¸à¥‡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ à¤•à¤°à¥‡à¤‚</>}
+                            {verifierLoading ? 'सत्यापन हो रहा है...' : <><ShieldCheck size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> मैन्युअल रूप से सत्यापित करें</>}
                           </button>
                         </div>
                       </form>
@@ -4648,7 +4648,7 @@ export default function App() {
                         {verifierResult.status === 'GENUINE' ? (
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#D1FAE5', color: '#065F46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>âœ…</div>
+                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#D1FAE5', color: '#065F46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✅</div>
                               <div>
                                 <h3 style={{ margin: 0, color: '#065F46', fontSize: '1.3rem', fontWeight: 800 }}>{verifierResult.title}</h3>
                                 <p style={{ margin: '2px 0 0', color: '#047857', fontSize: '0.88rem' }}>{verifierResult.message}</p>
@@ -4657,39 +4657,39 @@ export default function App() {
 
                             <div className="grid-2" style={{ gap: 12, marginBottom: 16 }}>
                               <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PNR / à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¸à¤‚à¤–à¥à¤¯à¤¾</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PNR / बुकिंग संख्या</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#9A3412' }}>{verifierResult.booking.bookingId}</div>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ / à¤†à¤µà¥‡à¤¦à¤•</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>मुख्य भक्त / आवेदक</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#9A3412' }}>{verifierResult.booking.bookedBy} ({verifierResult.booking.mobile})</div>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¥‹à¤š à¤µ à¤¸à¥€à¤Ÿ</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>आवंटित कोच व सीट</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857' }}>
-                                  à¤•à¥‹à¤š {verifierResult.booking.coachName} â€¢ à¤¸à¥€à¤Ÿ: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
+                                  कोच {verifierResult.booking.coachName} • सीट: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
                                 </div>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤µ à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>भुगतान स्थिति व देय राशि</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: verifierResult.booking.remainingAmount > 0 ? '#DC2626' : '#047857' }}>
-                                  {verifierResult.booking.paymentStatus} (à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤®à¥‡à¤‚ à¤¶à¥‡à¤· à¤¦à¥‡à¤¯: â‚¹ {verifierResult.booking.remainingAmount})
+                                  {verifierResult.booking.paymentStatus} (कटड़ा में शेष देय: ₹ {verifierResult.booking.remainingAmount})
                                 </div>
                               </div>
                             </div>
 
                             <div style={{ background: '#FFF8F2', borderRadius: 8, padding: 12, border: '1px solid #FED7AA' }}>
-                              <strong style={{ color: '#9A3412', fontSize: '0.88rem' }}>à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸ à¤®à¥‡à¤‚ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¸à¤¹à¤¯à¤¾à¤¤à¥à¤°à¥€:</strong>
+                              <strong style={{ color: '#9A3412', fontSize: '0.88rem' }}>डेटाबेस में आरक्षित सहयात्री:</strong>
                               {(verifierResult.booking.passengers || []).map((p, idx) => (
                                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #FFEDD5', fontSize: '0.85rem' }}>
-                                  <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} à¤µà¤°à¥à¤·, {p.gender || '-'})</span>
-                                  <span style={{ color: '#C2410C', fontWeight: 700 }}>à¤¸à¥€à¤Ÿ: {p.seatAssigned || p.seatNumber || '-'}</span>
+                                  <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} वर्ष, {p.gender || '-'})</span>
+                                  <span style={{ color: '#C2410C', fontWeight: 700 }}>सीट: {p.seatAssigned || p.seatNumber || '-'}</span>
                                 </div>
                               ))}
                             </div>
 
                             <div style={{ marginTop: 14, textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                              à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥€à¤² à¤¹à¥ˆà¤¶: <code>{verifierResult.securityHash}</code>
+                              सुरक्षा सील हैश: <code>{verifierResult.securityHash}</code>
                             </div>
                           </div>
                         ) : verifierResult.status === 'TAMPERED' ? (
@@ -4703,31 +4703,31 @@ export default function App() {
                             </div>
 
                             <div style={{ background: '#FEF2F2', border: '1.5px solid #F87171', borderRadius: 8, padding: 12, color: '#991B1B', fontSize: '0.85rem', marginBottom: 16 }}>
-                              <div><strong>à¤…à¤µà¥ˆà¤§ / à¤œà¤¾à¤²à¥€ à¤¹à¥ˆà¤¶:</strong> <code>{verifierResult.providedSecurityHash}</code></div>
-                              <div><strong>à¤¸à¤°à¥à¤µà¤° à¤•à¤¾ à¤…à¤ªà¥‡à¤•à¥à¤·à¤¿à¤¤ à¤µà¥ˆà¤§ à¤¹à¥ˆà¤¶:</strong> <code>{verifierResult.expectedSecurityHash}</code></div>
-                              <div style={{ marginTop: 4 }}><strong>à¤›à¥‡à¤¡à¤¼à¤›à¤¾à¤¡à¤¼ à¤µà¤¾à¤²à¥‡ à¤•à¥à¤·à¥‡à¤¤à¥à¤°:</strong> {verifierResult.tamperedFields}</div>
+                              <div><strong>अवैध / जाली हैश:</strong> <code>{verifierResult.providedSecurityHash}</code></div>
+                              <div><strong>सर्वर का अपेक्षित वैध हैश:</strong> <code>{verifierResult.expectedSecurityHash}</code></div>
+                              <div style={{ marginTop: 4 }}><strong>छेड़छाड़ वाले क्षेत्र:</strong> {verifierResult.tamperedFields}</div>
                             </div>
 
-                            <h4 style={{ color: '#9A3412', marginBottom: 8, fontSize: '0.95rem' }}><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤¸à¤°à¥à¤µà¤° à¤•à¤¾ à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤ªà¥à¤°à¤¾à¤®à¤¾à¤£à¤¿à¤• à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡:</h4>
+                            <h4 style={{ color: '#9A3412', marginBottom: 8, fontSize: '0.95rem' }}><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> सर्वर का वास्तविक प्रामाणिक रिकॉर्ड:</h4>
                             <div className="grid-2" style={{ gap: 10, fontSize: '0.88rem' }}>
                               <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤­à¤•à¥à¤¤: <strong>{verifierResult.authenticData.bookedBy}</strong> ({verifierResult.authenticData.mobile})
+                                वास्तविक भक्त: <strong>{verifierResult.authenticData.bookedBy}</strong> ({verifierResult.authenticData.mobile})
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤¸à¥€à¤Ÿ: <strong style={{ color: '#DC2626' }}>à¤•à¥‹à¤š {verifierResult.authenticData.coachName}, à¤¸à¥€à¤Ÿ {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
+                                वास्तविक सीट: <strong style={{ color: '#DC2626' }}>कोच {verifierResult.authenticData.coachName}, सीट {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿: <strong style={{ color: '#DC2626' }}>â‚¹ {verifierResult.authenticData.remainingAmount} ({verifierResult.authenticData.paymentStatus})</strong>
+                                वास्तविक देय राशि: <strong style={{ color: '#DC2626' }}>₹ {verifierResult.authenticData.remainingAmount} ({verifierResult.authenticData.paymentStatus})</strong>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¤‚à¤–à¥à¤¯à¤¾: <strong>{(verifierResult.authenticData.passengers || []).length} à¤¯à¤¾à¤¤à¥à¤°à¥€</strong>
+                                यात्री संख्या: <strong>{(verifierResult.authenticData.passengers || []).length} यात्री</strong>
                               </div>
                             </div>
                           </div>
                         ) : (
                           <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                            <div style={{ fontSize: 36, marginBottom: 8 }}>âŒ</div>
-                            <h3 style={{ color: '#991B1B', fontWeight: 800 }}>{verifierResult.title || 'à¤…à¤®à¤¾à¤¨à¥à¤¯ / à¤«à¤°à¥à¤œà¥€ PNR'}</h3>
+                            <div style={{ fontSize: 36, marginBottom: 8 }}>❌</div>
+                            <h3 style={{ color: '#991B1B', fontWeight: 800 }}>{verifierResult.title || 'अमान्य / फर्जी PNR'}</h3>
                             <p style={{ color: '#B91C1C', fontSize: '0.9rem', marginTop: 4 }}>{verifierResult.message}</p>
                           </div>
                         )}
@@ -4756,13 +4756,13 @@ export default function App() {
                     <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 850, textAlign: 'center', padding: '60px 40px', background: 'linear-gradient(135deg, #FFF1F2, #FFE4E6)', border: '4px solid #E11D48', borderRadius: 24, boxShadow: '0 25px 50px -12px rgba(225, 29, 72, 0.4)' }}>
                       <AlertTriangle size={100} color="#E11D48" style={{ marginBottom: 24 }} />
                       <h1 style={{ fontSize: '3rem', color: '#9F1239', fontWeight: 900, marginBottom: 24, lineHeight: 1.2 }}>
-                        à¤¬à¤¿à¤¨à¤¾ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤•à¥‡ à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¸à¤‚à¤­à¤µ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆ!
+                        बिना भुगतान के बुकिंग संभव नहीं है!
                       </h1>
                       <h2 style={{ fontSize: '1.8rem', color: '#BE123C', fontWeight: 700, marginBottom: 30, lineHeight: 1.4 }}>
-                        à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¸à¥à¤Ÿà¤¾à¤« à¤ªà¤° à¤¨à¤¿à¤ƒà¤¶à¥à¤²à¥à¤• (Free) à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¥‡ à¤²à¤¿à¤ à¤¦à¤¬à¤¾à¤µ à¤¨ à¤¡à¤¾à¤²à¥‡à¤‚ à¤”à¤° à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¤¾à¤°à¥à¤¯ à¤®à¥‡à¤‚ à¤¬à¤¾à¤§à¤¾ à¤‰à¤¤à¥à¤ªà¤¨à¥à¤¨ à¤¨ à¤•à¤°à¥‡à¤‚à¥¤
+                        कृपया स्टाफ पर निःशुल्क (Free) टिकट के लिए दबाव न डालें और बुकिंग कार्य में बाधा उत्पन्न न करें।
                       </h2>
                       <div style={{ fontSize: '1.2rem', color: '#4C0519', fontWeight: 600, padding: '20px', background: '#FDA4AF', borderRadius: 12, display: 'inline-block' }}>
-                        ðŸ™ à¤†à¤ªà¤•à¥‡ à¤¸à¤¹à¤¯à¥‹à¤— à¤•à¥‡ à¤²à¤¿à¤ à¤¹à¤® à¤†à¤­à¤¾à¤°à¥€ à¤¹à¥ˆà¤‚à¥¤ ðŸ™
+                        🙏 आपके सहयोग के लिए हम आभारी हैं। 🙏
                       </div>
                       <div style={{ marginTop: 40 }}>
                         <button 
@@ -4770,7 +4770,7 @@ export default function App() {
                           style={{ padding: '16px 40px', fontSize: '1.2rem', background: '#E11D48', borderColor: '#E11D48' }}
                           onClick={() => setShowNoFreeTicketPopup(false)}
                         >
-                          à¤¬à¤‚à¤¦ à¤•à¤°à¥‡à¤‚ (Close)
+                          बंद करें (Close)
                         </button>
                       </div>
                     </div>
@@ -4782,9 +4782,9 @@ export default function App() {
                   <div>
                     <div>
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                      <span className="badge badge-bhakti">à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤°à¥‡à¤²à¤µà¥‡ à¤†à¤°à¤•à¥à¤·à¤£ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°</span>
-                      <h2 style={{ fontSize: '2.1rem', color: '#9A3412', marginTop: 6, fontWeight: 800 }}>à¤Ÿà¥à¤°à¥‡à¤¨ à¤Ÿà¤¿à¤•à¤Ÿ à¤¬à¥à¤•à¤¿à¤‚à¤— à¤«à¥‰à¤°à¥à¤®</h2>
-                      <p style={{ color: '#7C2D12', fontWeight: 600 }}>à¤²à¤¾à¤‡à¤µ à¤¸à¥€à¤Ÿ à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¤à¤¾ à¤®à¥ˆà¤ª â€¢ à¤¤à¤¤à¥à¤•à¤¾à¤² à¤•à¥à¤¯à¥‚à¤†à¤° à¤Ÿà¥‹à¤•à¤¨ à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ â€¢ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¤°à¥à¤šà¥€</p>
+                      <span className="badge badge-bhakti">आधिकारिक रेलवे आरक्षण काउंटर</span>
+                      <h2 style={{ fontSize: '2.1rem', color: '#9A3412', marginTop: 6, fontWeight: 800 }}>ट्रेन टिकट बुकिंग फॉर्म</h2>
+                      <p style={{ color: '#7C2D12', fontWeight: 600 }}>लाइव सीट उपलब्धता मैप • तत्काल क्यूआर टोकन पेमेंट • आधिकारिक यात्रा पर्ची</p>
                       
                       <div style={{ marginTop: 12 }}>
                         <button 
@@ -4794,7 +4794,7 @@ export default function App() {
                           onClick={() => setShowNoFreeTicketPopup(true)}
                         >
                           <AlertTriangle size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> 
-                          à¤«à¥à¤°à¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤µà¤¾à¤°à¥à¤¨à¤¿à¤‚à¤— à¤¦à¤¿à¤–à¤¾à¤à¤‚ (Show Warning)
+                          फ्री टिकट वार्निंग दिखाएं (Show Warning)
                         </button>
                       </div>
                     </div>
@@ -4805,32 +4805,32 @@ export default function App() {
                         <div>
                           <div className="glass-card" style={{ marginBottom: 20 }}>
                             <h3 style={{ color: '#9A3412', fontSize: '1.25rem', marginBottom: 16, fontWeight: 800 }}>
-                              <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 1. à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· à¤à¤µà¤‚ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤šà¤¯à¤¨
+                              <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 1. यात्रा वर्ष एवं स्टेशन चयन
                             </h3>
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· (à¤¹à¤° à¤¸à¤¾à¤² à¤Ÿà¥à¤°à¥‡à¤¨):</label>
+                                <label className="form-label">यात्रा वर्ष (हर साल ट्रेन):</label>
                                 <select className="form-control" value={bookingYear} onChange={(e) => setBookingYear(e.target.value)}>
-                                  <option value="2026">à¤¯à¤¾à¤¤à¥à¤°à¤¾ 2026 (à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤¬à¥ˆà¤š)</option>
-                                  <option value="2027">à¤¯à¤¾à¤¤à¥à¤°à¤¾ 2027 (à¤…à¤—à¥à¤°à¤¿à¤® à¤¬à¥à¤•à¤¿à¤‚à¤—)</option>
-                                  <option value="2025">à¤¯à¤¾à¤¤à¥à¤°à¤¾ 2025 (à¤ªà¥à¤°à¤¾à¤¨à¤¾ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡)</option>
-                                  <option value="2024">à¤¯à¤¾à¤¤à¥à¤°à¤¾ 2024 (à¤ªà¥à¤°à¤¾à¤¨à¤¾ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡)</option>
+                                  <option value="2026">यात्रा 2026 (सक्रिय बैच)</option>
+                                  <option value="2027">यात्रा 2027 (अग्रिम बुकिंग)</option>
+                                  <option value="2025">यात्रा 2025 (पुराना रिकॉर्ड)</option>
+                                  <option value="2024">यात्रा 2024 (पुराना रिकॉर्ड)</option>
                                 </select>
                               </div>
 
                               <div className="form-group">
-                                <label className="form-label">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤•à¥€ à¤¤à¤¿à¤¥à¤¿ (Travel Date):</label>
+                                <label className="form-label">यात्रा की तिथि (Travel Date):</label>
                                 <input type="date" className="form-control" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} required />
                                 <div style={{ marginTop: '6px', color: '#DC2626', fontWeight: 800, fontSize: '0.82rem', animation: 'pulse 2s infinite' }}>
-                                  ðŸ”¥ 1,245+ Tickets Booked! Limited Seats Available.
+                                  🔥 1,245+ Tickets Booked! Limited Seats Available.
                                 </div>
                               </div>
                             </div>
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ (Boarding Station - Lucknow to Katra Route):</label>
+                                <label className="form-label">प्रस्थान स्टेशन (Boarding Station - Lucknow to Katra Route):</label>
                                 <select className="form-control" value={fromStation} onChange={(e) => setFromStation(e.target.value)}>
                                   {stationsList.map((stn, idx) => (
                                     <option key={idx} value={stn}>{stn}</option>
@@ -4839,23 +4839,23 @@ export default function App() {
                               </div>
 
                               <div className="form-group">
-                                <label className="form-label">à¤—à¤‚à¤¤à¤µà¥à¤¯ à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ (Destination):</label>
+                                <label className="form-label">गंतव्य स्टेशन (Destination):</label>
                                 <input type="text" className="form-control" value="Shri Mata Vaishno Devi Katra (SVDK)" readOnly style={{ background: '#FFF8F2', color: '#047857', fontWeight: 800 }} />
                               </div>
                             </div>
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤¶à¥à¤°à¥‡à¤£à¥€ (Class):</label>
+                                <label className="form-label">श्रेणी (Class):</label>
                                 <select className="form-control" value={travelClass} onChange={(e) => setTravelClass(e.target.value)}>
-                                  <option value="Sleeper">à¤¸à¥à¤²à¥€à¤ªà¤° à¤•à¥à¤²à¤¾à¤¸ (SL) - â‚¹ 3,000</option>
-                                  <option value="AC">à¤à¤¸à¥€ à¤•à¥‹à¤š (AC 3A/2A) - â‚¹ 4,000</option>
-                                  <option value="General">à¤œà¤¨à¤°à¤² / à¤¸à¥€à¤Ÿà¤¿à¤‚à¤— (2S) - â‚¹ 2,000</option>
+                                  <option value="Sleeper">स्लीपर क्लास (SL) - ₹ 3,000</option>
+                                  <option value="AC">एसी कोच (AC 3A/2A) - ₹ 4,000</option>
+                                  <option value="General">जनरल / सीटिंग (2S) - ₹ 2,000</option>
                                 </select>
                               </div>
 
                               <div className="form-group">
-                                <label className="form-label">à¤•à¥‹à¤š à¤¨à¤‚à¤¬à¤° (Coach):</label>
+                                <label className="form-label">कोच नंबर (Coach):</label>
                                 <select className="form-control" value={coachName} onChange={(e) => setCoachName(e.target.value)}>
                                   {(COACHES[travelClass] || COACHES.Sleeper).map(c => (
                                     <option key={c} value={c}>Coach {c}</option>
@@ -4869,8 +4869,8 @@ export default function App() {
                           <div className="glass-card">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
                               <div>
-                                <h4 style={{ fontSize: '1.15rem', color: '#9A3412', fontWeight: 800, margin: 0 }}>à¤•à¥‹à¤š {coachName} à¤¸à¥€à¤Ÿ à¤®à¥ˆà¤ª (à¤¯à¤¾à¤¤à¥à¤°à¤¾ {bookingYear})</h4>
-                                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¸à¥€à¤Ÿ à¤ªà¤° à¤•à¥à¤²à¤¿à¤• à¤•à¤°à¤•à¥‡ à¤šà¥à¤¨à¥‡à¤‚ à¤…à¤¥à¤µà¤¾ à¤¸à¥à¤µà¤¤à¤ƒ à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¤°à¥‡à¤‚</div>
+                                <h4 style={{ fontSize: '1.15rem', color: '#9A3412', fontWeight: 800, margin: 0 }}>कोच {coachName} सीट मैप (यात्रा {bookingYear})</h4>
+                                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>उपलब्ध सीट पर क्लिक करके चुनें अथवा स्वतः आवंटित करें</div>
                               </div>
                               <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                                 <button
@@ -4878,12 +4878,12 @@ export default function App() {
                                   className="btn btn-sm btn-gold"
                                   onClick={handleAutoAssignSeats}
                                   style={{ padding: '5px 10px', fontSize: '0.8rem', fontWeight: 700 }}
-                                  title="à¤¸à¥à¤µà¤šà¤¾à¤²à¤¿à¤¤ à¤°à¥‚à¤ª à¤¸à¥‡ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤šà¥à¤¨à¥‡à¤‚"
+                                  title="स्वचालित रूप से उपलब्ध सीटें चुनें"
                                 >
-                                  à¤¸à¥à¤µà¤¤à¤ƒ à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤šà¥à¤¨à¥‡à¤‚ ({passengers.length} Seat{passengers.length > 1 ? 's' : ''})
+                                  स्वतः सीटें चुनें ({passengers.length} Seat{passengers.length > 1 ? 's' : ''})
                                 </button>
-                                <span className="badge badge-paid">{coachLayout.availableCount} à¤–à¤¾à¤²à¥€</span>
-                                <span className="badge badge-unpaid">{coachLayout.bookedCount} à¤†à¤°à¤•à¥à¤·à¤¿à¤¤</span>
+                                <span className="badge badge-paid">{coachLayout.availableCount} खाली</span>
+                                <span className="badge badge-unpaid">{coachLayout.bookedCount} आरक्षित</span>
                               </div>
                             </div>
 
@@ -4895,10 +4895,10 @@ export default function App() {
                                     key={seat.seatNumber}
                                     className={`seat-box ${seat.isBooked ? 'seat-booked' : (isSelected ? 'seat-selected' : 'seat-available')}`}
                                     onClick={() => handleSeatClick(seat.seatNumber, seat.isBooked)}
-                                    title={`Seat ${seat.seatNumber} (${seat.berthType})${isSelected ? ' - à¤šà¤¯à¤¨à¤¿à¤¤' : ''}`}
+                                    title={`Seat ${seat.seatNumber} (${seat.berthType})${isSelected ? ' - चयनित' : ''}`}
                                   >
                                     <div style={{ fontSize: '0.95rem', fontWeight: 900 }}>
-                                      {isSelected ? 'âœ“ ' : ''}{seat.seatNumber}
+                                      {isSelected ? '✓ ' : ''}{seat.seatNumber}
                                     </div>
                                     <div style={{ fontSize: '0.65rem', fontWeight: isSelected ? 800 : 500 }}>
                                       {seat.berthType.slice(0, 2)}
@@ -4910,13 +4910,13 @@ export default function App() {
 
                             <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 14, fontSize: '0.8rem' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 14, height: 14, background: '#DC2626', borderRadius: 3 }} /> à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ (Booked)
+                                <div style={{ width: 14, height: 14, background: '#DC2626', borderRadius: 3 }} /> आरक्षित (Booked)
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 14, height: 14, background: '#16A34A', borderRadius: 3 }} /> à¤šà¥à¤¨à¥€ à¤¹à¥à¤ˆ (Selected)
+                                <div style={{ width: 14, height: 14, background: '#16A34A', borderRadius: 3 }} /> चुनी हुई (Selected)
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 14, height: 14, background: '#FFFFFF', border: '1.5px solid #FED7AA', borderRadius: 3 }} /> à¤‰à¤ªà¤²à¤¬à¥à¤§ (Available)
+                                <div style={{ width: 14, height: 14, background: '#FFFFFF', border: '1.5px solid #FED7AA', borderRadius: 3 }} /> उपलब्ध (Available)
                               </div>
                             </div>
                           </div>
@@ -4927,27 +4927,27 @@ export default function App() {
                           {/* Lead Devotee Details */}
                           <div className="glass-card" style={{ marginBottom: 20 }}>
                             <h3 style={{ color: '#9A3412', fontSize: '1.25rem', marginBottom: 16, fontWeight: 800 }}>
-                              2. à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ à¤µà¤¿à¤µà¤°à¤£ (Lead Devotee)
+                              2. मुख्य भक्त विवरण (Lead Devotee)
                             </h3>
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ à¤•à¤¾ à¤ªà¥‚à¤°à¤¾ à¤¨à¤¾à¤® *</label>
+                                <label className="form-label">मुख्य भक्त का पूरा नाम *</label>
                                 <input type="text" className="form-control" value={bookedBy} onChange={(e) => setBookedBy(e.target.value)} required autoFocus />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° (WhatsApp) *</label>
+                                <label className="form-label">मोबाइल नंबर (WhatsApp) *</label>
                                 <input type="tel" className="form-control" value={mobile} onChange={(e) => setMobile(e.target.value)} maxLength="10" required />
                               </div>
                             </div>
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤ˆà¤®à¥‡à¤² à¤ªà¤¤à¤¾ (à¤µà¥ˆà¤•à¤²à¥à¤ªà¤¿à¤•):</label>
+                                <label className="form-label">ईमेल पता (वैकल्पिक):</label>
                                 <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤†à¤§à¤¾à¤° à¤¨à¤‚à¤¬à¤° *</label>
+                                <label className="form-label">आधार नंबर *</label>
                                 <input type="text" className="form-control" value={aadhar} onChange={(e) => setAadhar(e.target.value)} maxLength="12" required />
                               </div>
                             </div>
@@ -4957,10 +4957,10 @@ export default function App() {
                           <div className="glass-card" style={{ marginBottom: 20 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                               <h3 style={{ color: '#9A3412', fontSize: '1.25rem', margin: 0, fontWeight: 800 }}>
-                                <Users size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 3. à¤¸à¤¹à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤µà¤¿à¤µà¤°à¤£ ({passengers.length} Yatri)
+                                <Users size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 3. सहयात्री विवरण ({passengers.length} Yatri)
                               </h3>
                               <button type="button" className="btn btn-outline btn-sm" onClick={addPassenger}>
-                                + à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚
+                                + यात्री जोड़ें
                               </button>
                             </div>
 
@@ -4971,9 +4971,9 @@ export default function App() {
                               <div key={idx} style={{ background: '#FFF8F2', padding: 14, borderRadius: 8, border: '1px solid #FED7AA', marginBottom: 12 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <strong style={{ color: '#9A3412', fontSize: '0.9rem' }}>à¤¯à¤¾à¤¤à¥à¤°à¥€ #{idx + 1}</strong>
+                                    <strong style={{ color: '#9A3412', fontSize: '0.9rem' }}>यात्री #{idx + 1}</strong>
                                     <span className="badge badge-bhakti" style={{ fontSize: '0.74rem', padding: '2px 8px' }}>
-                                      à¤¸à¥€à¤Ÿ: {assignedSeat} ({detectedBerth})
+                                      सीट: {assignedSeat} ({detectedBerth})
                                     </span>
                                   </div>
                                   {idx === 0 && (
@@ -4984,32 +4984,32 @@ export default function App() {
                                         onChange={(e) => handleSameAsLeadToggle(e.target.checked)}
                                         style={{ accentColor: '#E65100', width: 16, height: 16 }}
                                       />
-                                      à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ à¤¹à¥€ à¤¯à¤¾à¤¤à¥à¤°à¥€ #1 à¤¹à¥ˆà¤‚ (Auto-Fill)
+                                      मुख्य भक्त ही यात्री #1 हैं (Auto-Fill)
                                     </label>
                                   )}
                                   {idx > 0 && (
                                     <button type="button" onClick={() => removePassenger(idx)} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 'bold' }}>
-                                      à¤¹à¤Ÿà¤¾à¤à¤‚ âœ•
+                                      हटाएं ✕
                                     </button>
                                   )}
                                 </div>
 
                                 <div className="grid-2">
                                   <div className="form-group">
-                                    <input type="text" className="form-control" placeholder="à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤®" value={p.name} onChange={(e) => handlePassengerChange(idx, 'name', e.target.value)} required />
+                                    <input type="text" className="form-control" placeholder="यात्री का नाम" value={p.name} onChange={(e) => handlePassengerChange(idx, 'name', e.target.value)} required />
                                   </div>
                                   <div style={{ display: 'flex', gap: 8 }}>
-                                    <input type="number" className="form-control" placeholder="à¤†à¤¯à¥" value={p.age} onChange={(e) => handlePassengerChange(idx, 'age', e.target.value)} min="1" max="100" style={{ width: '45%' }} required />
+                                    <input type="number" className="form-control" placeholder="आयु" value={p.age} onChange={(e) => handlePassengerChange(idx, 'age', e.target.value)} min="1" max="100" style={{ width: '45%' }} required />
                                     <select className="form-control" value={p.gender} onChange={(e) => handlePassengerChange(idx, 'gender', e.target.value)} style={{ width: '55%' }}>
-                                      <option value="Male">à¤ªà¥à¤°à¥à¤·</option>
-                                      <option value="Female">à¤®à¤¹à¤¿à¤²à¤¾</option>
-                                      <option value="Other">à¤…à¤¨à¥à¤¯</option>
+                                      <option value="Male">पुरुष</option>
+                                      <option value="Female">महिला</option>
+                                      <option value="Other">अन्य</option>
                                     </select>
                                   </div>
                                 </div>
 
                                 <div className="grid-2">
-                                  <input type="text" className="form-control" placeholder="à¤†à¤§à¤¾à¤° à¤•à¥à¤°à¤®à¤¾à¤‚à¤• / à¤ªà¤¹à¤šà¤¾à¤¨" value={p.aadhar} onChange={(e) => handlePassengerChange(idx, 'aadhar', e.target.value)} />
+                                  <input type="text" className="form-control" placeholder="आधार क्रमांक / पहचान" value={p.aadhar} onChange={(e) => handlePassengerChange(idx, 'aadhar', e.target.value)} />
                                   <select className="form-control" value={p.berthPreference} onChange={(e) => handlePassengerChange(idx, 'berthPreference', e.target.value)}>
                                     <option value="Lower">Lower Berth</option>
                                     <option value="Middle">Middle Berth</option>
@@ -5026,31 +5026,31 @@ export default function App() {
                           {/* Fare Calculation & Token Advance */}
                           <div className="glass-card">
                             <h3 style={{ color: '#9A3412', fontSize: '1.25rem', marginBottom: 14, fontWeight: 800 }}>
-                              <IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 4. à¤°à¤¿à¤¯à¤¾à¤¯à¤¤à¥€ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤à¤µà¤‚ à¤…à¤—à¥à¤°à¤¿à¤® à¤Ÿà¥‹à¤•à¤¨
+                              <IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 4. रियायती किराया एवं अग्रिम टोकन
                             </h3>
 
                             <div style={{ background: '#FFF8F2', padding: 14, borderRadius: 8, marginBottom: 14, border: '1.5px solid #FED7AA' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                                <span>à¤ªà¥à¤°à¤¤à¤¿ à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¿à¤°à¤¾à¤¯à¤¾:</span>
-                                <strong>â‚¹ {unitFare?.toLocaleString()}</strong>
+                                <span>प्रति यात्री किराया:</span>
+                                <strong>₹ {unitFare?.toLocaleString()}</strong>
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                                <span>à¤•à¥à¤² à¤¯à¤¾à¤¤à¥à¤°à¥€:</span>
+                                <span>कुल यात्री:</span>
                                 <strong>{passengers.length}</strong>
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9A3412', fontSize: '1.2rem', fontWeight: 800 }}>
-                                <span>à¤•à¥à¤² à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿:</span>
-                                <span>â‚¹ {netPayable?.toLocaleString()}</span>
+                                <span>कुल देय राशि:</span>
+                                <span>₹ {netPayable?.toLocaleString()}</span>
                               </div>
                             </div>
 
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤…à¤—à¥à¤°à¤¿à¤® à¤Ÿà¥‹à¤•à¤¨ à¤°à¤¾à¤¶à¤¿ (Advance â‚¹):</label>
+                                <label className="form-label">अग्रिम टोकन राशि (Advance ₹):</label>
                                 <input type="number" className="form-control" value={advancePayment} onChange={(e) => setAdvancePayment(e.target.value)} min="0" required />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤›à¥‚à¤Ÿ / à¤°à¤¿à¤¯à¤¾à¤¯à¤¤ (Discount â‚¹):</label>
+                                <label className="form-label">छूट / रियायत (Discount ₹):</label>
                                 <input type="number" className="form-control" value={discount} onChange={(e) => setDiscount(e.target.value)} min="0" />
                               </div>
                             </div>
@@ -5061,16 +5061,16 @@ export default function App() {
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                             }}>
                               <div>
-                                <div style={{ fontSize: '0.85rem', color: '#7C2D12', fontWeight: 700 }}>à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤†à¤—à¤®à¤¨ à¤ªà¤° à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿:</div>
-                                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#C2410C' }}>â‚¹ {remainingDue?.toLocaleString()}</div>
+                                <div style={{ fontSize: '0.85rem', color: '#7C2D12', fontWeight: 700 }}>कटड़ा आगमन पर शेष देय राशि:</div>
+                                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#C2410C' }}>₹ {remainingDue?.toLocaleString()}</div>
                               </div>
                               <span className={`badge ${remainingDue <= 0 ? 'badge-paid' : 'badge-partial'}`}>
-                                {remainingDue <= 0 ? 'à¤ªà¥‚à¤°à¥à¤£ à¤­à¥à¤—à¤¤à¤¾à¤¨' : 'à¤Ÿà¥‹à¤•à¤¨ à¤­à¥à¤—à¤¤à¤¾à¤¨'}
+                                {remainingDue <= 0 ? 'पूर्ण भुगतान' : 'टोकन भुगतान'}
                               </span>
                             </div>
 
                             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '16px', fontSize: '1.05rem' }} disabled={isSubmitting}>
-                              {isSubmitting ? 'à¤†à¤°à¤•à¥à¤·à¤£ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...' : <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤†à¤°à¤•à¥à¤·à¤£ à¤ªà¤•à¥à¤•à¤¾ à¤•à¤°à¥‡à¤‚ à¤à¤µà¤‚ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¤°à¥à¤šà¥€ à¤œà¤¾à¤°à¥€ à¤•à¤°à¥‡à¤‚</>}
+                              {isSubmitting ? 'आरक्षण हो रहा है...' : <><Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> आरक्षण पक्का करें एवं यात्रा पर्ची जारी करें</>}
                             </button>
                           </div>
                         </div>
@@ -5088,27 +5088,27 @@ export default function App() {
                     {adminStats && (
                       <div className="grid-4" style={{ marginBottom: 24 }}>
                         <div className="glass-card" style={{ padding: 20 }}>
-                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>à¤•à¥à¤² à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸</div>
+                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>कुल बुकिंग्स</div>
                           <div style={{ fontSize: '2rem', fontWeight: 900, color: '#C2410C', margin: '4px 0' }}>{adminStats.totalBookings}</div>
-                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>{adminStats.totalPassengers} à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤</div>
+                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>{adminStats.totalPassengers} यात्री आरक्षित</div>
                         </div>
 
                         <div className="glass-card" style={{ padding: 20 }}>
-                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>à¤•à¥à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¸à¤‚à¤—à¥à¤°à¤¹</div>
-                          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#047857', margin: '4px 0' }}>â‚¹ {adminStats?.totalCollection?.toLocaleString()}</div>
-                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>à¤¸à¤•à¤² à¤°à¤¿à¤¯à¤¾à¤¯à¤¤à¥€ à¤°à¤¾à¤¶à¤¿</div>
+                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>कुल किराया संग्रह</div>
+                          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#047857', margin: '4px 0' }}>₹ {adminStats?.totalCollection?.toLocaleString()}</div>
+                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>सकल रियायती राशि</div>
                         </div>
 
                         <div className="glass-card" style={{ padding: 20 }}>
-                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>à¤…à¤—à¥à¤°à¤¿à¤® à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ (Token)</div>
-                          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#B45309', margin: '4px 0' }}>â‚¹ {adminStats?.totalAdvance?.toLocaleString()}</div>
-                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ à¤œà¤®à¤¾ à¤…à¤—à¥à¤°à¤¿à¤®</div>
+                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>अग्रिम प्राप्त (Token)</div>
+                          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#B45309', margin: '4px 0' }}>₹ {adminStats?.totalAdvance?.toLocaleString()}</div>
+                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>खाते में जमा अग्रिम</div>
                         </div>
 
                         <div className="glass-card" style={{ padding: 20 }}>
-                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ (Remaining)</div>
-                          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#DC2626', margin: '4px 0' }}>â‚¹ {adminStats?.totalRemaining?.toLocaleString()}</div>
-                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤®à¥‡à¤‚ à¤¦à¥‡à¤¯</div>
+                          <div style={{ fontSize: '0.82rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 700 }}>शेष देय (Remaining)</div>
+                          <div style={{ fontSize: '2rem', fontWeight: 900, color: '#DC2626', margin: '4px 0' }}>₹ {adminStats?.totalRemaining?.toLocaleString()}</div>
+                          <div style={{ fontSize: '0.82rem', color: '#784D35' }}>कटड़ा में देय</div>
                         </div>
                       </div>
                     )}
@@ -5117,9 +5117,9 @@ export default function App() {
                     <div className="glass-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <h3 style={{ fontSize: '1.25rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤†à¤°à¤•à¥à¤·à¤£ à¤¡à¤¾à¤¯à¤°à¥‡à¤•à¥à¤Ÿà¤°à¥€</h3>
+                          <h3 style={{ fontSize: '1.25rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>यात्री आरक्षण डायरेक्टरी</h3>
                           <select className="form-control" style={{ padding: '4px 8px', width: 'auto' }} value={adminYearFilter} onChange={(e) => setAdminYearFilter(e.target.value)}>
-                            <option value="">à¤¸à¤­à¥€ à¤µà¤°à¥à¤· (All)</option>
+                            <option value="">सभी वर्ष (All)</option>
                             <option value="2026">2026</option>
                             <option value="2027">2027</option>
                             <option value="2025">2025</option>
@@ -5129,7 +5129,7 @@ export default function App() {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="PNR, à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ à¤¯à¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤–à¥‹à¤œà¥‡à¤‚..."
+                          placeholder="PNR, मुख्य भक्त या मोबाइल खोजें..."
                           style={{ width: 280 }}
                           value={adminSearch}
                           onChange={(e) => setAdminSearch(e.target.value)}
@@ -5141,14 +5141,14 @@ export default function App() {
                           <thead>
                             <tr>
                               <th>PNR</th>
-                              <th>à¤µà¤°à¥à¤·</th>
-                              <th>à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤</th>
-                              <th>à¤°à¥‚à¤Ÿ</th>
-                              <th>à¤•à¥‹à¤š / à¤¸à¥€à¤Ÿ</th>
-                              <th>à¤¯à¤¾à¤¤à¥à¤°à¥€</th>
-                              <th>à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                              <th>à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                              <th style={{ textAlign: 'right' }}>à¤•à¤¾à¤°à¥à¤¯</th>
+                              <th>वर्ष</th>
+                              <th>मुख्य भक्त</th>
+                              <th>रूट</th>
+                              <th>कोच / सीट</th>
+                              <th>यात्री</th>
+                              <th>किराया स्थिति</th>
+                              <th>स्थिति</th>
+                              <th style={{ textAlign: 'right' }}>कार्य</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -5168,22 +5168,22 @@ export default function App() {
                                   </td>
                                   <td style={{ fontSize: '0.85rem' }}>
                                     <div>{b.fromStation}</div>
-                                    <div style={{ color: '#047857', fontWeight: 600 }}>âž” {b.toStation}</div>
+                                    <div style={{ color: '#047857', fontWeight: 600 }}>➔ {b.toStation}</div>
                                   </td>
                                   <td>
                                     <span style={{ color: '#9A3412', fontWeight: 'bold' }}>{b.coachName}</span>
-                                    <div style={{ fontSize: '0.75rem' }}>à¤¸à¥€à¤Ÿ: {Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</div>
+                                    <div style={{ fontSize: '0.75rem' }}>सीट: {Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</div>
                                   </td>
                                   <td><strong>{b.numberOfPassengers || (b.passengers ? b.passengers.length : 1)}</strong></td>
                                   <td style={{ fontSize: '0.85rem' }}>
-                                    <div>à¤•à¥à¤²: â‚¹ {b.totalAmount}</div>
-                                    <div style={{ color: '#047857' }}>à¤…à¤—à¥à¤°à¤¿à¤®: â‚¹ {b.advance}</div>
-                                    <div style={{ color: b.remainingAmount > 0 ? '#DC2626' : '#047857', fontWeight: 'bold' }}>à¤¶à¥‡à¤·: â‚¹ {b.remainingAmount}</div>
+                                    <div>कुल: ₹ {b.totalAmount}</div>
+                                    <div style={{ color: '#047857' }}>अग्रिम: ₹ {b.advance}</div>
+                                    <div style={{ color: b.remainingAmount > 0 ? '#DC2626' : '#047857', fontWeight: 'bold' }}>शेष: ₹ {b.remainingAmount}</div>
                                     {b.utrNumber && (
                                       <div style={{ marginTop: 4, padding: 2, background: b.utrStatus === 'Verified' ? '#D1FAE5' : '#FEF3C7', borderRadius: 4, border: '1px solid #FDE68A' }}>
                                         <span style={{ fontWeight: 600 }}>UTR:</span> {b.utrNumber}
                                         <div style={{ fontSize: '0.75rem', color: b.utrStatus === 'Verified' ? '#047857' : '#D97706' }}>
-                                          {b.utrStatus === 'Verified' ? 'âœ“ Verified' : 'Pending'}
+                                          {b.utrStatus === 'Verified' ? '✓ Verified' : 'Pending'}
                                         </div>
                                       </div>
                                     )}
@@ -5197,19 +5197,19 @@ export default function App() {
                                     <div className="action-btn-group">
                                       {b.utrNumber && b.utrStatus !== 'Verified' && (
                                         <button className="btn btn-xs btn-gold" onClick={() => verifyUtr(b.bookingId, b.utrNumber)} title="Verify UTR">
-                                          âœ“ Verify
+                                          ✓ Verify
                                         </button>
                                       )}
                                       {b.remainingAmount > 0 && b.utrStatus !== 'Pending' && (
                                         <button className="btn btn-xs btn-success" onClick={() => markBookingPaid(b.bookingId)} title="Clear Dues">
-                                          âœ“ Paid
+                                          ✓ Paid
                                         </button>
                                       )}
-                                      <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="à¤°à¤¸à¥€à¤¦à¥‡à¤‚">
-                                        <Printer size={13} /> à¤°à¤¸à¥€à¤¦
+                                      <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="रसीदें">
+                                        <Printer size={13} /> रसीद
                                       </button>
-                                      <button className="btn btn-xs btn-outline" onClick={() => setTicketModal(b)} title="à¤ªà¤°à¥à¤šà¥€ à¤¦à¥‡à¤–à¥‡à¤‚">
-                                        <Eye size={13} /> à¤ªà¤°à¥à¤šà¥€
+                                      <button className="btn btn-xs btn-outline" onClick={() => setTicketModal(b)} title="पर्ची देखें">
+                                        <Eye size={13} /> पर्ची
                                       </button>
                                       <button className="btn btn-icon-xs btn-outline" onClick={() => openUpiQR(b.bookingId)} title="UPI QR">
                                         <Smartphone size={13} />
@@ -5225,16 +5225,16 @@ export default function App() {
                                             totalAmount: b.totalAmount
                                           });
                                           setPaymentEditModal(true);
-                                        }} title="à¤•à¤¿à¤°à¤¾à¤¯à¤¾ / à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤à¤¡à¤¿à¤Ÿ">
+                                        }} title="किराया / भुगतान एडिट">
                                           <IndianRupee size={13} />
                                         </button>
                                       )}
-                                      <a href={`/api/bookings/${b.bookingId}/pdf`} target="_blank" rel="noreferrer" className="btn btn-icon-xs btn-outline" title="PDF à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡">
+                                      <a href={`/api/bookings/${b.bookingId}/pdf`} target="_blank" rel="noreferrer" className="btn btn-icon-xs btn-outline" title="PDF डाउनलोड">
                                         <FileText size={13} />
                                       </a>
                                       {isSuperAdmin && (
                                         <button className="btn btn-icon-xs btn-danger" onClick={() => deleteBooking(b.bookingId)} title="Delete">
-                                          âœ•
+                                          ✕
                                         </button>
                                       )}
                                     </div>
@@ -5256,19 +5256,19 @@ export default function App() {
                     <div className="glass-card" style={{ marginBottom: 24, border: '2px solid #FED7AA' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
                         <div>
-                          <span className="badge badge-bhakti" style={{ marginBottom: 6 }}>à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤°à¥‡à¤² / à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤†à¤°à¤•à¥à¤·à¤£ à¤šà¤¾à¤°à¥à¤Ÿ</span>
+                          <span className="badge badge-bhakti" style={{ marginBottom: 6 }}>भारतीय रेल / ट्रस्ट आरक्षण चार्ट</span>
                           <h2 style={{ fontSize: '1.8rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
-                            à¤•à¥‹à¤š à¤†à¤°à¤•à¥à¤·à¤£ à¤šà¤¾à¤°à¥à¤Ÿ (IRCTC Seating Chart)
+                            कोच आरक्षण चार्ट (IRCTC Seating Chart)
                           </h2>
                           <div style={{ color: '#7C2D12', fontSize: '0.9rem', marginTop: 4 }}>
-                            à¤•à¥‹à¤š à¤…à¤¨à¥à¤¸à¤¾à¤° à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤¬à¤°à¥à¤¥ à¤†à¤µà¤‚à¤Ÿà¤¨, à¤ªà¥€à¤à¤¨à¤†à¤° à¤à¤µà¤‚ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤ªà¥à¤°à¤¾à¤°à¥‚à¤ª
+                            कोच अनुसार वास्तविक बर्थ आवंटन, पीएनआर एवं आधिकारिक प्रिंट प्रारूप
                           </div>
                         </div>
 
                         {/* Coach & Year Switcher Controls */}
                         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFF8F2', padding: '6px 12px', borderRadius: 8, border: '1.5px solid #FDBA74' }}>
-                            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>à¤•à¥‹à¤š:</label>
+                            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>कोच:</label>
                             <select
                               className="form-control"
                               style={{ padding: '4px 8px', width: 'auto' }}
@@ -5285,7 +5285,7 @@ export default function App() {
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFF8F2', padding: '6px 12px', borderRadius: 8, border: '1.5px solid #FDBA74' }}>
-                            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>à¤µà¤°à¥à¤·:</label>
+                            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>वर्ष:</label>
                             <select
                               className="form-control"
                               style={{ padding: '4px 8px', width: 'auto' }}
@@ -5303,7 +5303,7 @@ export default function App() {
                           </div>
 
                           <button className="btn btn-primary" onClick={() => openPrintChart(chartCoach, chartYear)} style={{ boxShadow: '0 4px 15px rgba(230,81,0,0.35)' }}>
-                            <Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC à¤šà¤¾à¤°à¥à¤Ÿ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚
+                            <Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC चार्ट प्रिंट करें
                           </button>
                         </div>
                       </div>
@@ -5312,24 +5312,24 @@ export default function App() {
                       {coachChartData && (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginTop: 18, borderTop: '1px solid #FED7AA', paddingTop: 16 }}>
                           <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 700 }}>à¤•à¥à¤² à¤¬à¤°à¥à¤¥ à¤•à¥à¤·à¤®à¤¤à¤¾</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 700 }}>कुल बर्थ क्षमता</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#9A3412' }}>{coachChartData.totalCapacity}</div>
                           </div>
                           <div style={{ background: '#ECFDF5', padding: '10px 14px', borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#065F46', fontWeight: 700 }}>à¤•à¤¨à¥à¤«à¤°à¥à¤® à¤¸à¥€à¤Ÿà¥‡à¤‚ (CNF)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#065F46', fontWeight: 700 }}>कन्फर्म सीटें (CNF)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>{coachChartData.bookedCount}</div>
                           </div>
                           <div style={{ background: '#FFFBEB', padding: '10px 14px', borderRadius: 8, border: '1px solid #FDE68A', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#92400E', fontWeight: 700 }}>à¤°à¤¿à¤•à¥à¤¤ à¤¸à¥€à¤Ÿà¥‡à¤‚ (Vacant)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#92400E', fontWeight: 700 }}>रिक्त सीटें (Vacant)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#B45309' }}>{coachChartData.vacantCount}</div>
                           </div>
                           <div style={{ background: '#EFF6FF', padding: '10px 14px', borderRadius: 8, border: '1px solid #BFDBFE', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#1E40AF', fontWeight: 700 }}>à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
+                            <div style={{ fontSize: '0.78rem', color: '#1E40AF', fontWeight: 700 }}>उपस्थित यात्री</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563EB' }}>{coachChartData.presentCount}</div>
                           </div>
                           <div style={{ background: '#FEF2F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FECACA', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#991B1B', fontWeight: 700 }}>à¤•à¥‹à¤š à¤®à¥‡à¤‚ à¤¬à¤•à¤¾à¤¯à¤¾ à¤¦à¥‡à¤¯</div>
-                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#DC2626' }}>â‚¹ {coachChartData?.totalDuesInCoach?.toLocaleString()}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#991B1B', fontWeight: 700 }}>कोच में बकाया देय</div>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#DC2626' }}>₹ {coachChartData?.totalDuesInCoach?.toLocaleString()}</div>
                           </div>
                         </div>
                       )}
@@ -5345,10 +5345,10 @@ export default function App() {
                               className={`btn btn-sm ${chartFilter === f ? 'btn-primary' : 'btn-outline'}`}
                               onClick={() => setChartFilter(f)}
                             >
-                              {f === 'all' && `à¤¸à¤­à¥€ à¤¸à¥€à¤Ÿà¥‡à¤‚ (${coachChartData?.totalCapacity || 0})`}
-                              {f === 'cnf' && `à¤•à¤¨à¥à¤«à¤°à¥à¤® à¤¸à¥€à¤Ÿà¥‡à¤‚ (${coachChartData?.bookedCount || 0})`}
-                              {f === 'vacant' && `à¤°à¤¿à¤•à¥à¤¤ à¤¸à¥€à¤Ÿà¥‡à¤‚ (${coachChartData?.vacantCount || 0})`}
-                              {f === 'dues' && `à¤¬à¤•à¤¾à¤¯à¤¾ à¤•à¤¿à¤°à¤¾à¤¯à¤¾`}
+                              {f === 'all' && `सभी सीटें (${coachChartData?.totalCapacity || 0})`}
+                              {f === 'cnf' && `कन्फर्म सीटें (${coachChartData?.bookedCount || 0})`}
+                              {f === 'vacant' && `रिक्त सीटें (${coachChartData?.vacantCount || 0})`}
+                              {f === 'dues' && `बकाया किराया`}
                             </button>
                           ))}
                         </div>
@@ -5356,7 +5356,7 @@ export default function App() {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="à¤¸à¥€à¤Ÿ à¤¨à¤‚, à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤®, PNR à¤–à¥‹à¤œà¥‡à¤‚..."
+                          placeholder="सीट नं, यात्री का नाम, PNR खोजें..."
                           style={{ width: 280 }}
                           value={chartSearch}
                           onChange={(e) => setChartSearch(e.target.value)}
@@ -5365,22 +5365,22 @@ export default function App() {
 
                       {chartLoading ? (
                         <div style={{ textAlign: 'center', padding: '40px', color: '#E65100', fontWeight: 'bold' }}>
-                          à¤šà¤¾à¤°à¥à¤Ÿ à¤²à¥‹à¤¡ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ... à¤•à¥ƒà¤ªà¤¯à¤¾ à¤ªà¥à¤°à¤¤à¥€à¤•à¥à¤·à¤¾ à¤•à¤°à¥‡à¤‚
+                          चार्ट लोड हो रहा है... कृपया प्रतीक्षा करें
                         </div>
                       ) : coachChartData ? (
                         <div className="table-responsive">
                           <table className="custom-table" style={{ fontSize: '0.88rem' }}>
                             <thead>
                               <tr>
-                                <th style={{ width: 60, textAlign: 'center' }}>à¤¸à¥€à¤Ÿ à¤¨à¤‚</th>
-                                <th style={{ width: 80 }}>à¤¬à¤°à¥à¤¥ à¤ªà¥à¤°à¤•à¤¾à¤°</th>
-                                <th style={{ width: 130 }}>PNR à¤•à¥à¤°à¤®à¤¾à¤‚à¤•</th>
-                                <th>à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤® (Passenger)</th>
-                                <th style={{ width: 90, textAlign: 'center' }}>à¤†à¤¯à¥ / à¤²à¤¿à¤‚à¤—</th>
-                                <th>à¤•à¤¹à¤¾à¤ à¤¸à¥‡ - à¤•à¤¹à¤¾à¤ à¤¤à¤•</th>
-                                <th style={{ width: 90, textAlign: 'center' }}>à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                                <th style={{ width: 110 }}>à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                                <th style={{ width: 100, textAlign: 'center' }}>à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
+                                <th style={{ width: 60, textAlign: 'center' }}>सीट नं</th>
+                                <th style={{ width: 80 }}>बर्थ प्रकार</th>
+                                <th style={{ width: 130 }}>PNR क्रमांक</th>
+                                <th>यात्री का नाम (Passenger)</th>
+                                <th style={{ width: 90, textAlign: 'center' }}>आयु / लिंग</th>
+                                <th>कहाँ से - कहाँ तक</th>
+                                <th style={{ width: 90, textAlign: 'center' }}>स्थिति</th>
+                                <th style={{ width: 110 }}>किराया स्थिति</th>
+                                <th style={{ width: 100, textAlign: 'center' }}>उपस्थिति</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -5416,17 +5416,17 @@ export default function App() {
                                       {r.isBooked ? (
                                         <div>
                                           <div style={{ fontWeight: 800, color: '#431407' }}>{r.passengerName}</div>
-                                          <div style={{ fontSize: '0.75rem', color: '#7C2D12' }}>à¤®à¥à¤–à¥à¤¯: {r.bookedBy} (à¤®à¥‹: {r.mobile})</div>
+                                          <div style={{ fontSize: '0.75rem', color: '#7C2D12' }}>मुख्य: {r.bookedBy} (मो: {r.mobile})</div>
                                         </div>
                                       ) : (
-                                        <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>--- à¤–à¤¾à¤²à¥€ (Vacant) ---</span>
+                                        <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>--- खाली (Vacant) ---</span>
                                       )}
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                       {r.isBooked ? `${r.age || '-'} / ${r.gender === 'Female' ? 'F' : 'M'}` : '-'}
                                     </td>
                                     <td style={{ fontSize: '0.82rem' }}>
-                                      {r.fromStation ? `${r.fromStation.split(' ')[0]} âž” SVDK` : '-'}
+                                      {r.fromStation ? `${r.fromStation.split(' ')[0]} ➔ SVDK` : '-'}
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                       {r.isBooked ? (
@@ -5438,16 +5438,16 @@ export default function App() {
                                     <td>
                                       {r.isBooked ? (
                                         r.remainingAmount > 0 ? (
-                                          <span className="badge badge-partial" style={{ fontSize: '0.72rem' }}>à¤¦à¥‡à¤¯: â‚¹{r.remainingAmount}</span>
+                                          <span className="badge badge-partial" style={{ fontSize: '0.72rem' }}>देय: ₹{r.remainingAmount}</span>
                                         ) : (
-                                          <span className="badge badge-paid" style={{ fontSize: '0.72rem' }}>à¤ªà¥à¤°à¤¦à¤¤à¥à¤¤</span>
+                                          <span className="badge badge-paid" style={{ fontSize: '0.72rem' }}>प्रदत्त</span>
                                         )
                                       ) : '-'}
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                       {r.isBooked ? (
                                         <span className={`badge ${r.checkInStatus === 'Present' ? 'badge-paid' : (r.checkInStatus === 'Absent' ? 'badge-unpaid' : 'badge-bhakti')}`} style={{ fontSize: '0.72rem' }}>
-                                          {r.checkInStatus === 'Present' ? 'à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤' : (r.checkInStatus === 'Absent' ? 'à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤' : 'à¤²à¤‚à¤¬à¤¿à¤¤')}
+                                          {r.checkInStatus === 'Present' ? 'उपस्थित' : (r.checkInStatus === 'Absent' ? 'अनुपस्थित' : 'लंबित')}
                                         </span>
                                       ) : '-'}
                                     </td>
@@ -5478,17 +5478,17 @@ export default function App() {
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.4rem', fontWeight: 800 }}>{staffUser.name} (TTE On-Duty)</h3>
-                              <span className="badge badge-paid" style={{ fontSize: '0.75rem' }}>à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤šà¥‡à¤•à¤¿à¤‚à¤—</span>
+                              <span className="badge badge-paid" style={{ fontSize: '0.75rem' }}>ऑन-ट्रेन चेकिंग</span>
                             </div>
                             <div style={{ fontSize: '0.85rem', color: '#7C2D12', marginTop: 2 }}>
-                              à¤Ÿà¥à¤°à¥‡à¤¨: 04201 / 04202 à¤µà¤¿à¤¶à¥‡à¤· à¤¸à¥à¤ªà¤°à¤«à¤¾à¤¸à¥à¤Ÿ â€¢ à¤¬à¥ˆà¤š {chartYear} â€¢ à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤®à¤¾à¤°à¥à¤—
+                              ट्रेन: 04201 / 04202 विशेष सुपरफास्ट • बैच {chartYear} • कटड़ा मार्ग
                             </div>
                           </div>
                         </div>
 
                         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFFFFF', padding: '6px 12px', borderRadius: 8, border: '1.5px solid #FDBA74' }}>
-                            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>à¤•à¥‹à¤š à¤šà¥à¤¨à¥‡à¤‚:</label>
+                            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>कोच चुनें:</label>
                             <select
                               className="form-control"
                               style={{ padding: '4px 8px', width: 'auto' }}
@@ -5505,7 +5505,7 @@ export default function App() {
                           </div>
 
                           <button className="btn btn-primary btn-sm" onClick={() => openPrintChart(chartCoach, chartYear)}>
-                            <Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC à¤šà¤¾à¤°à¥à¤Ÿ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ
+                            <Printer size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> IRCTC चार्ट प्रिंट
                           </button>
                         </div>
                       </div>
@@ -5514,24 +5514,24 @@ export default function App() {
                       {coachChartData && (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginTop: 16, borderTop: '1px solid #FED7AA', paddingTop: 14 }}>
                           <div style={{ background: '#FFFFFF', padding: '8px 12px', borderRadius: 6, border: '1px solid #FED7AA', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>à¤•à¥à¤² à¤¯à¤¾à¤¤à¥à¤°à¥€ (Booked)</div>
+                            <div style={{ fontSize: '0.74rem', color: '#7C2D12' }}>कुल यात्री (Booked)</div>
                             <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#9A3412' }}>{coachChartData.bookedCount}</div>
                           </div>
                           <div style={{ background: '#ECFDF5', padding: '8px 12px', borderRadius: 6, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#065F46' }}>âœ“ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ (Present)</div>
+                            <div style={{ fontSize: '0.74rem', color: '#065F46' }}>✓ उपस्थित (Present)</div>
                             <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#047857' }}>{coachChartData.presentCount}</div>
                           </div>
                           <div style={{ background: '#FEF2F2', padding: '8px 12px', borderRadius: 6, border: '1px solid #FECACA', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#991B1B' }}>âœ— à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤ (Absent)</div>
+                            <div style={{ fontSize: '0.74rem', color: '#991B1B' }}>✗ अनुपस्थित (Absent)</div>
                             <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#DC2626' }}>{coachChartData.absentCount}</div>
                           </div>
                           <div style={{ background: '#FFFBEB', padding: '8px 12px', borderRadius: 6, border: '1px solid #FDE68A', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#92400E' }}>à¤²à¤‚à¤¬à¤¿à¤¤ à¤šà¥‡à¤•à¤¿à¤‚à¤—</div>
+                            <div style={{ fontSize: '0.74rem', color: '#92400E' }}>लंबित चेकिंग</div>
                             <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#B45309' }}>{coachChartData.pendingCheckInCount}</div>
                           </div>
                           <div style={{ background: '#FFF7ED', padding: '8px 12px', borderRadius: 6, border: '1px solid #FFEDD5', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#C2410C' }}>à¤•à¥à¤² à¤¬à¤¾à¤•à¥€ à¤•à¤¿à¤°à¤¾à¤¯à¤¾</div>
-                            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#C2410C' }}>â‚¹ {coachChartData.totalDuesInCoach.toLocaleString()}</div>
+                            <div style={{ fontSize: '0.74rem', color: '#C2410C' }}>कुल बाकी किराया</div>
+                            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#C2410C' }}>₹ {coachChartData.totalDuesInCoach.toLocaleString()}</div>
                           </div>
                         </div>
                       )}
@@ -5541,13 +5541,13 @@ export default function App() {
                     <div className="glass-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
                         <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.25rem', fontWeight: 800 }}>
-                          à¤•à¥‹à¤š {chartCoach} à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤šà¥‡à¤•à¤¿à¤‚à¤— à¤¸à¥‚à¤šà¥€
+                          कोच {chartCoach} ऑन-ट्रेन चेकिंग सूची
                         </h3>
 
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="à¤¸à¥€à¤Ÿ à¤¨à¤‚à¤¬à¤°, à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¯à¤¾ PNR à¤–à¥‹à¤œà¥‡à¤‚..."
+                          placeholder="सीट नंबर, यात्री या PNR खोजें..."
                           style={{ width: 280 }}
                           value={chartSearch}
                           onChange={(e) => setChartSearch(e.target.value)}
@@ -5559,13 +5559,13 @@ export default function App() {
                           <table className="custom-table" style={{ fontSize: '0.88rem' }}>
                             <thead>
                               <tr>
-                                <th style={{ width: 65, textAlign: 'center' }}>à¤¸à¥€à¤Ÿ à¤¨à¤‚</th>
-                                <th style={{ width: 85 }}>à¤¬à¤°à¥à¤¥ à¤ªà¥à¤°à¤•à¤¾à¤°</th>
-                                <th>à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤µà¤¿à¤µà¤°à¤£ (Passenger Details)</th>
-                                <th style={{ width: 120 }}>PNR à¤•à¥à¤°à¤®à¤¾à¤‚à¤•</th>
-                                <th style={{ width: 110 }}>à¤¬à¥‹à¤°à¥à¤¡à¤¿à¤‚à¤—</th>
-                                <th style={{ width: 140 }}>à¤•à¤¿à¤°à¤¾à¤¯à¤¾ / à¤‘à¤¨-à¤¸à¥à¤ªà¥‰à¤Ÿ à¤µà¤¸à¥‚à¤²à¥€</th>
-                                <th style={{ width: 210, textAlign: 'center' }}>à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸ à¤•à¤¾à¤°à¥à¤°à¤µà¤¾à¤ˆ</th>
+                                <th style={{ width: 65, textAlign: 'center' }}>सीट नं</th>
+                                <th style={{ width: 85 }}>बर्थ प्रकार</th>
+                                <th>यात्री विवरण (Passenger Details)</th>
+                                <th style={{ width: 120 }}>PNR क्रमांक</th>
+                                <th style={{ width: 110 }}>बोर्डिंग</th>
+                                <th style={{ width: 140 }}>किराया / ऑन-स्पॉट वसूली</th>
+                                <th style={{ width: 210, textAlign: 'center' }}>अटेंडेंस कार्रवाई</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -5590,18 +5590,18 @@ export default function App() {
                                         <div>
                                           <div style={{ fontWeight: 800, color: '#431407' }}>{r.passengerName}</div>
                                           <div style={{ fontSize: '0.78rem', color: '#7C2D12' }}>
-                                            {r.age || '-'} à¤µà¤°à¥à¤· â€¢ {r.gender === 'Female' ? 'à¤®à¤¹à¤¿à¤²à¤¾' : 'à¤ªà¥à¤°à¥à¤·'} â€¢ à¤†à¤§à¤¾à¤°: {r.aadhar || 'à¤ªà¥à¤°à¤®à¤¾à¤£à¥€à¤•à¥ƒà¤¤'}
+                                            {r.age || '-'} वर्ष • {r.gender === 'Female' ? 'महिला' : 'पुरुष'} • आधार: {r.aadhar || 'प्रमाणीकृत'}
                                           </div>
                                         </div>
                                       ) : (
-                                        <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>--- à¤°à¤¿à¤•à¥à¤¤ (à¤–à¤¾à¤²à¥€ à¤¸à¥€à¤Ÿ) ---</span>
+                                        <span style={{ color: '#9CA3AF', fontStyle: 'italic' }}>--- रिक्त (खाली सीट) ---</span>
                                       )}
                                     </td>
                                     <td>
                                       {r.pnr ? <strong style={{ color: '#E65100' }}>{r.pnr}</strong> : '-'}
                                     </td>
                                     <td>
-                                      {r.fromStation ? `${r.fromStation.split(' ')[0]} âž” SVDK` : '-'}
+                                      {r.fromStation ? `${r.fromStation.split(' ')[0]} ➔ SVDK` : '-'}
                                     </td>
                                     <td>
                                       {r.isBooked ? (
@@ -5609,18 +5609,18 @@ export default function App() {
                                           {r.remainingAmount > 0 ? (
                                             <div>
                                               <div style={{ color: '#DC2626', fontWeight: 800, fontSize: '0.85rem' }}>
-                                                à¤¬à¤•à¤¾à¤¯à¤¾: â‚¹ {r.remainingAmount}
+                                                बकाया: ₹ {r.remainingAmount}
                                               </div>
                                               <button
                                                 className="btn btn-sm btn-gold"
                                                 style={{ marginTop: 4, padding: '3px 8px', fontSize: '0.74rem' }}
                                                 onClick={() => handleTteCollectDue(r.bookingId, r.remainingAmount)}
                                               >
-                                                <IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤°à¤¾à¤¶à¤¿ à¤µà¤¸à¥‚à¤²à¥‡à¤‚
+                                                <IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> राशि वसूलें
                                               </button>
                                             </div>
                                           ) : (
-                                            <span style={{ color: '#059669', fontWeight: 800 }}>âœ“ à¤ªà¥‚à¤°à¥à¤£ à¤ªà¥à¤°à¤¦à¤¤à¥à¤¤</span>
+                                            <span style={{ color: '#059669', fontWeight: 800 }}>✓ पूर्ण प्रदत्त</span>
                                           )}
                                         </div>
                                       ) : '-'}
@@ -5633,18 +5633,18 @@ export default function App() {
                                             style={{ padding: '4px 10px', fontSize: '0.78rem' }}
                                             onClick={() => handleTteCheckIn(r.seatNumber, 'Present')}
                                           >
-                                            âœ“ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤
+                                            ✓ उपस्थित
                                           </button>
                                           <button
                                             className={`btn btn-sm ${r.checkInStatus === 'Absent' ? 'btn-danger' : 'btn-outline'}`}
                                             style={{ padding: '4px 10px', fontSize: '0.78rem' }}
                                             onClick={() => handleTteCheckIn(r.seatNumber, 'Absent')}
                                           >
-                                            âœ• à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤
+                                            ✕ अनुपस्थित
                                           </button>
                                         </div>
                                       ) : (
-                                        <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>à¤°à¤¿à¤•à¥à¤¤ à¤¸à¥€à¤Ÿ</span>
+                                        <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>रिक्त सीट</span>
                                       )}
                                     </td>
                                   </tr>
@@ -5667,16 +5667,16 @@ export default function App() {
                         <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                             <div>
-                              <span className="badge badge-bhakti" style={{ marginBottom: 6 }}><ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 100% à¤à¤‚à¤Ÿà¥€-à¤«à¥à¤°à¥‰à¤¡ à¤°à¤¿à¤¯à¤²-à¤Ÿà¤¾à¤‡à¤® à¤®à¤¿à¤²à¤¾à¤¨</span>
+                              <span className="badge badge-bhakti" style={{ marginBottom: 6 }}><ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 100% एंटी-फ्रॉड रियल-टाइम मिलान</span>
                               <h3 style={{ fontSize: '1.4rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
-                                à¤ªà¤¾à¤ˆ-à¤ªà¤¾à¤ˆ à¤•à¤¾ à¤¸à¤®à¤¾à¤§à¤¾à¤¨ à¤à¤µà¤‚ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤¹à¤¿à¤¸à¤¾à¤¬-à¤•à¤¿à¤¤à¤¾à¤¬
+                                पाई-पाई का समाधान एवं वित्तीय हिसाब-किताब
                               </h3>
                               <div style={{ color: '#7C2D12', fontSize: '0.88rem', marginTop: 4 }}>
-                                à¤•à¥à¤² à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸, à¤¨à¤•à¤¦ à¤µ à¤¯à¥‚à¤ªà¥€à¤†à¤ˆ à¤¸à¤‚à¤—à¥à¤°à¤¹, à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿, à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤¬à¤•à¤¾à¤¯à¤¾ à¤¦à¥‡à¤¯ à¤•à¤¾ à¤¸à¤®à¤—à¥à¤° à¤¬à¥à¤¯à¥Œà¤°à¤¾
+                                कुल बुकिंग्स, नकद व यूपीआई संग्रह, उपस्थिति, अनुपस्थिति एवं बकाया देय का समग्र ब्यौरा
                               </div>
                             </div>
                             <button className="btn btn-outline btn-sm" onClick={loadReconciliation}>
-                              ðŸ”„ à¤¤à¤¾à¤œà¤¼à¤¾ à¤•à¤°à¥‡à¤‚ (Refresh Ledger)
+                              🔄 ताज़ा करें (Refresh Ledger)
                             </button>
                           </div>
                         </div>
@@ -5684,96 +5684,96 @@ export default function App() {
                         {/* 8 Metric KPI Cards */}
                         <div className="grid-4" style={{ marginBottom: 24 }}>
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #C2410C' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤•à¥à¤² à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸ / à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>कुल बुकिंग्स / यात्री</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#C2410C', margin: '4px 0' }}>
                               {reconcileData.summary.totalBookings || 0}
                             </div>
                             <div style={{ fontSize: '0.8rem', color: '#784D35' }}>
-                              {reconcileData.summary.totalYatris || reconcileData.summary.totalPassengers || 0} à¤ªà¤‚à¤œà¥€à¤•à¥ƒà¤¤ à¤¯à¤¾à¤¤à¥à¤°à¥€
+                              {reconcileData.summary.totalYatris || reconcileData.summary.totalPassengers || 0} पंजीकृत यात्री
                             </div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #047857' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤•à¥à¤² à¤¸à¤•à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾ (Gross)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>कुल सकल किराया (Gross)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#047857', margin: '4px 0' }}>
-                              â‚¹ {(reconcileData?.summary?.totalGrossCollection || 0)?.toLocaleString()}
+                              ₹ {(reconcileData?.summary?.totalGrossCollection || 0)?.toLocaleString()}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤ªà¥‚à¤°à¥à¤£ à¤…à¤¨à¥à¤®à¤¾à¤¨à¤¿à¤¤ à¤†à¤¯</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>पूर्ण अनुमानित आय</div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #0284C7' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤…à¤—à¥à¤°à¤¿à¤® (Online Advance)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>प्राप्त अग्रिम (Online Advance)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0284C7', margin: '4px 0' }}>
-                              â‚¹ {(reconcileData?.summary?.totalAdvanceCollected || 0)?.toLocaleString()}
+                              ₹ {(reconcileData?.summary?.totalAdvanceCollected || 0)?.toLocaleString()}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤¬à¥ˆà¤‚à¤•/à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ à¤¸à¥€à¤§à¥‡ à¤œà¤®à¤¾</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>बैंक/ट्रस्ट खाते में सीधे जमा</div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #10B981' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤µà¤¸à¥‚à¤²à¤¾ à¤—à¤¯à¤¾ à¤¬à¤•à¤¾à¤¯à¤¾ (Due Recv)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>ट्रेन में वसूला गया बकाया (Due Recv)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10B981', margin: '4px 0' }}>
-                              â‚¹ {(reconcileData?.summary?.totalDueCollectedOnTrain || Math.max(0, (reconcileData?.summary?.totalGrossCollection || 0) - (reconcileData?.summary?.totalAdvanceCollected || 0) - (reconcileData?.summary?.totalRemainingDues || 0)))?.toLocaleString()}
+                              ₹ {(reconcileData?.summary?.totalDueCollectedOnTrain || Math.max(0, (reconcileData?.summary?.totalGrossCollection || 0) - (reconcileData?.summary?.totalAdvanceCollected || 0) - (reconcileData?.summary?.totalRemainingDues || 0)))?.toLocaleString()}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¤¿à¤¯à¥‹à¤‚ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¸à¤‚à¤•à¤²à¤¿à¤¤</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>कर्मचारियों द्वारा संकलित</div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #DC2626' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤¶à¥‡à¤· à¤¦à¥‡à¤¯ à¤¬à¤•à¤¾à¤¯à¤¾ (Remaining Due)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>शेष देय बकाया (Remaining Due)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#DC2626', margin: '4px 0' }}>
-                              â‚¹ {(reconcileData?.summary?.totalRemainingDues || reconcileData?.summary?.totalRemainingDue || 0)?.toLocaleString()}
+                              ₹ {(reconcileData?.summary?.totalRemainingDues || reconcileData?.summary?.totalRemainingDue || 0)?.toLocaleString()}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤¯à¤¾à¤¤à¥à¤°à¤¿à¤¯à¥‹à¤‚ à¤¸à¥‡ à¤µà¤¸à¥‚à¤²à¤¨à¤¾ à¤¶à¥‡à¤·</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>यात्रियों से वसूलना शेष</div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #059669' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤•à¥à¤² à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¥€ (Present)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>कुल उपस्थित यात्री (Present)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#059669', margin: '4px 0' }}>
                               {reconcileData.summary.totalPresentYatris || 0}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤¸à¥€à¤Ÿ à¤ªà¤° à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>सीट पर सत्यापित</div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #EF4444' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤•à¥à¤² à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¥€ (Absent)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>कुल अनुपस्थित यात्री (Absent)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#EF4444', margin: '4px 0' }}>
                               {reconcileData.summary.totalAbsentYatris || 0}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤®à¥‡à¤‚ à¤¶à¤¾à¤®à¤¿à¤² à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>यात्रा में शामिल नहीं हुए</div>
                           </div>
 
                           <div className="glass-card" style={{ padding: 18, borderLeft: '4px solid #F59E0B' }}>
-                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¶à¥‡à¤· (Pending Check-in)</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7C2D12', fontWeight: 800 }}>सत्यापन शेष (Pending Check-in)</div>
                             <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#F59E0B', margin: '4px 0' }}>
                               {reconcileData.summary.totalPendingCheckIn ?? reconcileData.summary.totalPendingYatris ?? 0}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>à¤œà¤¾à¤‚à¤š à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾à¤§à¥€à¤¨</div>
+                            <div style={{ fontSize: '0.8rem', color: '#784D35' }}>जांच प्रक्रियाधीन</div>
                           </div>
                         </div>
 
                         {/* Staff / Collector Wise Collection Breakdown */}
                         <div className="glass-card">
                           <h4 style={{ color: '#9A3412', marginBottom: 14, fontSize: '1.15rem', fontWeight: 800 }}>
-                            <Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€-à¤µà¤¾à¤° à¤à¤µà¤‚ à¤Ÿà¥€à¤Ÿà¥€-à¤µà¤¾à¤° à¤µà¤¸à¥‚à¤²à¥€ à¤‘à¤¡à¤¿à¤Ÿ (Staff Collection Breakdown)
+                            <Briefcase size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> कर्मचारी-वार एवं टीटी-वार वसूली ऑडिट (Staff Collection Breakdown)
                           </h4>
                           <div className="table-responsive">
                             <table className="custom-table">
                               <thead>
                                 <tr>
-                                  <th>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ ID</th>
-                                  <th>à¤¨à¤¾à¤®</th>
-                                  <th>à¤µà¤¿à¤­à¤¾à¤—</th>
-                                  <th>à¤ªà¤¦ / à¤°à¥‹à¤²</th>
-                                  <th>à¤²à¥‡à¤¨-à¤¦à¥‡à¤¨ à¤¸à¤‚à¤–à¥à¤¯à¤¾</th>
-                                  <th>à¤¨à¤•à¤¦ à¤µà¤¸à¥‚à¤²à¥€ (Cash)</th>
-                                  <th>UPI à¤µà¤¸à¥‚à¤²à¥€ (UPI)</th>
-                                  <th>à¤•à¥à¤² à¤µà¤¸à¥‚à¤²à¥€ (Total)</th>
+                                  <th>कर्मचारी ID</th>
+                                  <th>नाम</th>
+                                  <th>विभाग</th>
+                                  <th>पद / रोल</th>
+                                  <th>लेन-देन संख्या</th>
+                                  <th>नकद वसूली (Cash)</th>
+                                  <th>UPI वसूली (UPI)</th>
+                                  <th>कुल वसूली (Total)</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {(!reconcileData.staffBreakdown || reconcileData.staffBreakdown.length === 0) ? (
                                   <tr>
                                     <td colSpan="8" style={{ textAlign: 'center', padding: 20, color: '#784D35' }}>
-                                      à¤•à¥‹à¤ˆ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤¡à¥‡à¤Ÿà¤¾ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
+                                      कोई कर्मचारी डेटा उपलब्ध नहीं है।
                                     </td>
                                   </tr>
                                 ) : (
@@ -5784,10 +5784,10 @@ export default function App() {
                                       <td><span className="badge badge-bhakti">{s.department}</span></td>
                                       <td><strong style={{ color: '#9A3412' }}>{s.role}</strong></td>
                                       <td>{s.transactionCount || 0}</td>
-                                      <td style={{ color: '#047857', fontWeight: 700 }}>â‚¹ {(s.cashCollected || 0)?.toLocaleString()}</td>
-                                      <td style={{ color: '#0284C7', fontWeight: 700 }}>â‚¹ {(s.upiCollected || 0)?.toLocaleString()}</td>
+                                      <td style={{ color: '#047857', fontWeight: 700 }}>₹ {(s.cashCollected || 0)?.toLocaleString()}</td>
+                                      <td style={{ color: '#0284C7', fontWeight: 700 }}>₹ {(s.upiCollected || 0)?.toLocaleString()}</td>
                                       <td style={{ fontWeight: 900, color: '#9A3412', fontSize: '1rem' }}>
-                                        â‚¹ {(s.totalCollected || 0)?.toLocaleString()}
+                                        ₹ {(s.totalCollected || 0)?.toLocaleString()}
                                       </td>
                                     </tr>
                                   ))
@@ -5819,16 +5819,16 @@ export default function App() {
                     <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                         <div>
-                          <span className="badge badge-bhakti" style={{ marginBottom: 6 }}><Users size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¤µà¤¿à¤­à¤¾à¤— à¤à¤µà¤‚ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤°à¥‹à¤² à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨</span>
+                          <span className="badge badge-bhakti" style={{ marginBottom: 6 }}><Users size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> विभाग एवं कर्मचारी रोल प्रबंधन</span>
                           <h3 style={{ fontSize: '1.4rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
-                            à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤¸à¥‚à¤šà¥€ à¤à¤µà¤‚ à¤…à¤§à¤¿à¤•à¤¾à¤° à¤¨à¤¿à¤°à¥à¤§à¤¾à¤°à¤£ (Staff RBAC)
+                            कर्मचारी सूची एवं अधिकार निर्धारण (Staff RBAC)
                           </h3>
                           <div style={{ color: '#7C2D12', fontSize: '0.88rem', marginTop: 4 }}>
-                            à¤à¤¡à¤®à¤¿à¤¨ à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤•à¥‹ à¤œà¥‹à¤¡à¤¼, à¤¨à¤¿à¤²à¤‚à¤¬à¤¿à¤¤ à¤¯à¤¾ à¤¹à¤Ÿà¤¾ à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆ à¤¤à¤¥à¤¾ à¤‰à¤¨à¤•à¥‡ à¤µà¤¿à¤­à¤¾à¤— à¤”à¤° à¤°à¥‹à¤² à¤¤à¤¯ à¤•à¤° à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆ
+                            एडमिन किसी भी कर्मचारी को जोड़, निलंबित या हटा सकता है तथा उनके विभाग और रोल तय कर सकता है
                           </div>
                         </div>
                         <button className="btn btn-primary btn-sm" onClick={() => setNewStaffModal(true)}>
-                          + à¤¨à¤¯à¤¾ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ (Add Staff)
+                          + नया कर्मचारी जोड़ें (Add Staff)
                         </button>
                       </div>
                     </div>
@@ -5838,15 +5838,15 @@ export default function App() {
                         <table className="custom-table">
                           <thead>
                             <tr>
-                              <th>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ ID</th>
-                              <th>à¤¨à¤¾à¤® à¤µ à¤‰à¤ªà¤¯à¥‹à¤—à¤•à¤°à¥à¤¤à¤¾</th>
-                              <th>à¤œà¥€à¤®à¥‡à¤² / Email ID</th>
-                              <th>à¤µà¤¿à¤­à¤¾à¤— (Department)</th>
-                              <th>à¤°à¥‹à¤² (Role)</th>
-                              <th>à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤°</th>
-                              <th>à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¥‹à¤š</th>
-                              <th>à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                              <th style={{ textAlign: 'right' }}>à¤•à¤¾à¤°à¥à¤¯</th>
+                              <th>कर्मचारी ID</th>
+                              <th>नाम व उपयोगकर्ता</th>
+                              <th>जीमेल / Email ID</th>
+                              <th>विभाग (Department)</th>
+                              <th>रोल (Role)</th>
+                              <th>मोबाइल नंबर</th>
+                              <th>आवंटित कोच</th>
+                              <th>स्थिति</th>
+                              <th style={{ textAlign: 'right' }}>कार्य</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -5880,14 +5880,14 @@ export default function App() {
                                     } else if (typeof coaches === 'string' && coaches.trim().length > 0) {
                                       return <span style={{ color: '#047857', fontWeight: 600 }}>{coaches}</span>;
                                     }
-                                    return <span style={{ color: '#784D35' }}>à¤¸à¤­à¥€ à¤•à¥‹à¤š (All)</span>;
+                                    return <span style={{ color: '#784D35' }}>सभी कोच (All)</span>;
                                   })() : (
                                     <span style={{ color: '#9CA3AF' }}>-</span>
                                   )}
                                 </td>
                                 <td>
                                   <span className={`badge ${st.status === 'Active' ? 'badge-paid' : 'badge-unpaid'}`}>
-                                    {st.status === 'Active' ? 'à¤¸à¤•à¥à¤°à¤¿à¤¯ (Active)' : 'à¤¨à¤¿à¤²à¤‚à¤¬à¤¿à¤¤ (Suspended)'}
+                                    {st.status === 'Active' ? 'सक्रिय (Active)' : 'निलंबित (Suspended)'}
                                   </span>
                                 </td>
                                 <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -5895,16 +5895,16 @@ export default function App() {
                                     className={`btn btn-sm ${st.status === 'Active' ? 'btn-outline' : 'btn-success'}`}
                                     style={{ marginRight: 6 }}
                                     onClick={() => handleToggleStaffStatus(st)}
-                                    title={st.status === 'Active' ? 'à¤¨à¤¿à¤²à¤‚à¤¬à¤¿à¤¤ à¤•à¤°à¥‡à¤‚' : 'à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤•à¤°à¥‡à¤‚'}
+                                    title={st.status === 'Active' ? 'निलंबित करें' : 'सक्रिय करें'}
                                   >
-                                    {st.status === 'Active' ? 'à¤…à¤µà¤°à¥à¤¦à¥à¤§ à¤•à¤°à¥‡à¤‚' : 'à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤•à¤°à¥‡à¤‚'}
+                                    {st.status === 'Active' ? 'अवरुद्ध करें' : 'सक्रिय करें'}
                                   </button>
                                   <button
                                     className="btn btn-sm btn-danger"
                                     onClick={() => handleDeleteStaff(st.id, st.name)}
-                                    title="à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤¹à¤Ÿà¤¾à¤à¤‚"
+                                    title="कर्मचारी हटाएं"
                                   >
-                                    à¤¹à¤Ÿà¤¾à¤à¤‚
+                                    हटाएं
                                   </button>
                                 </td>
                               </tr>
@@ -5924,16 +5924,16 @@ export default function App() {
                     <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                         <div>
-                          <span className="badge badge-bhakti" style={{ marginBottom: 6 }}><ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 100% à¤›à¥‡à¤¡à¤¼à¤›à¤¾à¤¡à¤¼-à¤®à¥à¤•à¥à¤¤ à¤‘à¤¡à¤¿à¤Ÿ à¤Ÿà¥à¤°à¥‡à¤²</span>
+                          <span className="badge badge-bhakti" style={{ marginBottom: 6 }}><ShieldCheck size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> 100% छेड़छाड़-मुक्त ऑडिट ट्रेल</span>
                           <h3 style={{ fontSize: '1.4rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
-                            à¤à¤‚à¤Ÿà¥€-à¤«à¥à¤°à¥‰à¤¡ à¤‘à¤¡à¤¿à¤Ÿ à¤²à¥‰à¤— (Audit Trail Ledger)
+                            एंटी-फ्रॉड ऑडिट लॉग (Audit Trail Ledger)
                           </h3>
                           <div style={{ color: '#7C2D12', fontSize: '0.88rem', marginTop: 4 }}>
-                            à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤•à¤¾ à¤²à¥‰à¤—à¤¿à¤¨, à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤…à¤‚à¤•à¤¨, à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿ à¤µà¤¸à¥‚à¤²à¥€ à¤”à¤° à¤¬à¥à¤•à¤¿à¤‚à¤— à¤—à¤¤à¤¿à¤µà¤¿à¤§à¤¿ à¤•à¤¾ à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡
+                            प्रत्येक कर्मचारी का लॉगिन, उपस्थिति अंकन, देय राशि वसूली और बुकिंग गतिविधि का संपूर्ण रिकॉर्ड
                           </div>
                         </div>
                         <button className="btn btn-outline btn-sm" onClick={loadAuditLogs}>
-                          ðŸ”„ à¤¤à¤¾à¤œà¤¼à¤¾ à¤•à¤°à¥‡à¤‚ (Refresh Logs)
+                          🔄 ताज़ा करें (Refresh Logs)
                         </button>
                       </div>
                     </div>
@@ -5943,21 +5943,21 @@ export default function App() {
                         <table className="custom-table">
                           <thead>
                             <tr>
-                              <th>à¤¸à¤®à¤¯ (Timestamp)</th>
-                              <th>à¤•à¤¾à¤°à¥à¤¯à¤µà¤¾à¤¹à¥€ (Action)</th>
-                              <th>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ (Performed By)</th>
-                              <th>à¤°à¥‹à¤² / à¤µà¤¿à¤­à¤¾à¤—</th>
-                              <th>PNR / à¤•à¥‹à¤š</th>
-                              <th>à¤°à¤¾à¤¶à¤¿ (à¤µà¤¸à¥‚à¤²à¥€/à¤­à¥à¤—à¤¤à¤¾à¤¨)</th>
-                              <th>à¤®à¤¾à¤§à¥à¤¯à¤®</th>
-                              <th>à¤µà¤¿à¤µà¤°à¤£ (Details)</th>
+                              <th>समय (Timestamp)</th>
+                              <th>कार्यवाही (Action)</th>
+                              <th>कर्मचारी (Performed By)</th>
+                              <th>रोल / विभाग</th>
+                              <th>PNR / कोच</th>
+                              <th>राशि (वसूली/भुगतान)</th>
+                              <th>माध्यम</th>
+                              <th>विवरण (Details)</th>
                             </tr>
                           </thead>
                           <tbody>
                             {auditLogsList.length === 0 ? (
                               <tr>
                                 <td colSpan="8" style={{ textAlign: 'center', padding: 24, color: '#784D35' }}>
-                                  à¤•à¥‹à¤ˆ à¤‘à¤¡à¤¿à¤Ÿ à¤²à¥‰à¤— à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
+                                  कोई ऑडिट लॉग उपलब्ध नहीं है।
                                 </td>
                               </tr>
                             ) : (
@@ -5981,10 +5981,10 @@ export default function App() {
                                   </td>
                                   <td>
                                     {lg.bookingId ? <strong style={{ color: '#C2410C' }}>{lg.bookingId}</strong> : '-'}
-                                    {lg.coach ? <div style={{ fontSize: '0.75rem' }}>à¤•à¥‹à¤š: {lg.coach}</div> : null}
+                                    {lg.coach ? <div style={{ fontSize: '0.75rem' }}>कोच: {lg.coach}</div> : null}
                                   </td>
                                   <td style={{ fontWeight: 'bold', color: lg.amount > 0 ? '#047857' : '#784D35' }}>
-                                    {lg.amount > 0 ? `â‚¹ ${lg.amount}` : '-'}
+                                    {lg.amount > 0 ? `₹ ${lg.amount}` : '-'}
                                   </td>
                                   <td>
                                     {lg.paymentMode ? (
@@ -6013,13 +6013,13 @@ export default function App() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
                         <div>
                           <span className="badge badge-bhakti" style={{ marginBottom: 6 }}>
-                            <ShieldCheck size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 100% à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤µ à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¨à¤¿à¤¯à¤‚à¤¤à¥à¤°à¤£ à¤•à¥‡à¤‚à¤¦à¥à¤°
+                            <ShieldCheck size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 100% ऑनलाइन लेनदेन व सुरक्षा नियंत्रण केंद्र
                           </span>
                           <h3 style={{ fontSize: '1.45rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>
-                            à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ UPI à¤µ UTR à¤®à¤¿à¤²à¤¾à¤¨ à¤²à¥‡à¤œà¤° à¤à¤µà¤‚ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨
+                            ऑनलाइन UPI व UTR मिलान लेजर एवं टिकट सत्यापन
                           </h3>
                           <div style={{ color: '#7C2D12', fontSize: '0.86rem', marginTop: 4 }}>
-                            à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¤¿à¤¯à¥‹à¤‚ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¦à¤°à¥à¤œ à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤­à¥à¤—à¤¤à¤¾à¤¨à¥‹à¤‚ à¤•à¤¾ UTR à¤®à¤¿à¤²à¤¾à¤¨ (Approve/Reject) à¤à¤µà¤‚ à¤œà¤¾à¤²à¥€ à¤Ÿà¤¿à¤•à¤Ÿà¥‹à¤‚ à¤•à¥€ à¤ªà¤¹à¤šà¤¾à¤¨
+                            कर्मचारियों द्वारा दर्ज ऑनलाइन भुगतानों का UTR मिलान (Approve/Reject) एवं जाली टिकटों की पहचान
                           </div>
                         </div>
 
@@ -6032,7 +6032,7 @@ export default function App() {
                               disabled={onlineTxnsLoading}
                             >
                               <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} />
-                              {onlineTxnsLoading ? 'à¤²à¥‹à¤¡à¤¿à¤‚à¤—...' : 'à¤¤à¤¾à¤œà¤¼à¤¾ à¤•à¤°à¥‡à¤‚ (Refresh)'}
+                              {onlineTxnsLoading ? 'लोडिंग...' : 'ताज़ा करें (Refresh)'}
                             </button>
                           )}
                         </div>
@@ -6051,7 +6051,7 @@ export default function App() {
                             }}
                           >
                             <Smartphone size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
-                            1. à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ UPI à¤µ UTR à¤®à¤¿à¤²à¤¾à¤¨ à¤²à¥‡à¤œà¤° ({onlineTxnsList.length || 'Desk'})
+                            1. ऑनलाइन UPI व UTR मिलान लेजर ({onlineTxnsList.length || 'Desk'})
                           </button>
                         )}
                         <button
@@ -6061,7 +6061,7 @@ export default function App() {
                           onClick={() => setVerifierTab('ticket_scanner')}
                         >
                           <Scan size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
-                          2. à¤²à¤¾à¤‡à¤µ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥à¤•à¥ˆà¤¨à¤° (HMAC QR Check)
+                          2. लाइव टिकट सुरक्षा स्कैनर (HMAC QR Check)
                         </button>
                       </div>
                     </div>
@@ -6072,27 +6072,27 @@ export default function App() {
                         {/* 4 Summary KPI Cards */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }} className="grid-kpi-mobile">
                           <div className="glass-card" style={{ background: '#FFF8F2', border: '1.5px solid #FED7AA', padding: 14 }}>
-                            <div style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>à¤•à¥à¤² à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨</div>
+                            <div style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>कुल ऑनलाइन लेनदेन</div>
                             <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#9A3412', margin: '4px 0' }}>{onlineTxnsSummary.total}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#047857', fontWeight: 700 }}>à¤•à¥à¤² à¤°à¤¾à¤¶à¤¿: â‚¹ {onlineTxnsSummary.totalAmount.toLocaleString()}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#047857', fontWeight: 700 }}>कुल राशि: ₹ {onlineTxnsSummary.totalAmount.toLocaleString()}</div>
                           </div>
 
                           <div className="glass-card" style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', padding: 14 }}>
-                            <div style={{ fontSize: '0.76rem', color: '#92400E', fontWeight: 700 }}>à¤²à¤‚à¤¬à¤¿à¤¤ UTR à¤®à¤¿à¤²à¤¾à¤¨ (Pending)</div>
+                            <div style={{ fontSize: '0.76rem', color: '#92400E', fontWeight: 700 }}>लंबित UTR मिलान (Pending)</div>
                             <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#B45309', margin: '4px 0' }}>{onlineTxnsSummary.pending}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#78350F' }}>à¤¬à¥ˆà¤‚à¤• à¤¸à¥‡ à¤®à¥ˆà¤š à¤•à¤°à¤¨à¤¾ à¤¬à¤¾à¤•à¥€</div>
+                            <div style={{ fontSize: '0.78rem', color: '#78350F' }}>बैंक से मैच करना बाकी</div>
                           </div>
 
                           <div className="glass-card" style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', padding: 14 }}>
-                            <div style={{ fontSize: '0.76rem', color: '#065F46', fontWeight: 700 }}>âœ“ à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ / à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ (Verified)</div>
+                            <div style={{ fontSize: '0.76rem', color: '#065F46', fontWeight: 700 }}>✓ स्वीकृत / सत्यापित (Verified)</div>
                             <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#047857', margin: '4px 0' }}>{onlineTxnsSummary.verified}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#065F46' }}>à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤µ à¤ªà¥à¤·à¥à¤Ÿ</div>
+                            <div style={{ fontSize: '0.78rem', color: '#065F46' }}>खाते में प्राप्त व पुष्ट</div>
                           </div>
 
                           <div className="glass-card" style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', padding: 14 }}>
-                            <div style={{ fontSize: '0.76rem', color: '#991B1B', fontWeight: 700 }}>âœ• à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ (Rejected)</div>
+                            <div style={{ fontSize: '0.76rem', color: '#991B1B', fontWeight: 700 }}>✕ अस्वीकृत (Rejected)</div>
                             <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#DC2626', margin: '4px 0' }}>{onlineTxnsSummary.rejected}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#7F1D1D' }}>à¤…à¤®à¤¾à¤¨à¥à¤¯ / à¤«à¤°à¥à¤œà¥€ UTR</div>
+                            <div style={{ fontSize: '0.78rem', color: '#7F1D1D' }}>अमान्य / फर्जी UTR</div>
                           </div>
                         </div>
 
@@ -6101,7 +6101,7 @@ export default function App() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                             {/* Filter Chips */}
                             <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#9A3412' }}>à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤«à¤¼à¤¿à¤²à¥à¤Ÿà¤°:</span>
+                              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#9A3412' }}>स्थिति फ़िल्टर:</span>
                               <button
                                 className={`btn btn-sm ${onlineTxnsStatusFilter === 'All' ? 'btn-primary' : 'btn-outline'}`}
                                 onClick={() => {
@@ -6109,7 +6109,7 @@ export default function App() {
                                   loadOnlineTransactions('All', onlineTxnsSearch);
                                 }}
                               >
-                                à¤¸à¤­à¥€ ({onlineTxnsSummary.total})
+                                सभी ({onlineTxnsSummary.total})
                               </button>
                               <button
                                 className={`btn btn-sm ${onlineTxnsStatusFilter === 'Pending' ? 'btn-primary' : 'btn-outline'}`}
@@ -6119,7 +6119,7 @@ export default function App() {
                                   loadOnlineTransactions('Pending', onlineTxnsSearch);
                                 }}
                               >
-                                à¤²à¤‚à¤¬à¤¿à¤¤ ({onlineTxnsSummary.pending})
+                                लंबित ({onlineTxnsSummary.pending})
                               </button>
                               <button
                                 className={`btn btn-sm ${onlineTxnsStatusFilter === 'Verified' ? 'btn-primary' : 'btn-outline'}`}
@@ -6129,7 +6129,7 @@ export default function App() {
                                   loadOnlineTransactions('Verified', onlineTxnsSearch);
                                 }}
                               >
-                                âœ“ à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ ({onlineTxnsSummary.verified})
+                                ✓ स्वीकृत ({onlineTxnsSummary.verified})
                               </button>
                               <button
                                 className={`btn btn-sm ${onlineTxnsStatusFilter === 'Rejected' ? 'btn-primary' : 'btn-outline'}`}
@@ -6139,7 +6139,7 @@ export default function App() {
                                   loadOnlineTransactions('Rejected', onlineTxnsSearch);
                                 }}
                               >
-                                âœ• à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ ({onlineTxnsSummary.rejected})
+                                ✕ अस्वीकृत ({onlineTxnsSummary.rejected})
                               </button>
                             </div>
 
@@ -6148,7 +6148,7 @@ export default function App() {
                               <input
                                 type="text"
                                 className="form-control"
-                                placeholder="PNR, à¤¨à¤¾à¤®, 12-à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¤¾ UTR à¤¯à¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤°..."
+                                placeholder="PNR, नाम, 12-अंकों का UTR या मोबाइल नंबर..."
                                 value={onlineTxnsSearch}
                                 onChange={(e) => {
                                   setOnlineTxnsSearch(e.target.value);
@@ -6158,7 +6158,7 @@ export default function App() {
                               />
                               {onlineTxnsSearch && (
                                 <button className="btn btn-outline btn-sm" onClick={() => { setOnlineTxnsSearch(''); loadOnlineTransactions(onlineTxnsStatusFilter, ''); }}>
-                                  âœ•
+                                  ✕
                                 </button>
                               )}
                             </div>
@@ -6171,15 +6171,15 @@ export default function App() {
                             <table className="custom-table" style={{ fontSize: '0.88rem', margin: 0 }}>
                               <thead>
                                 <tr>
-                                  <th style={{ width: 45 }}>à¤•à¥à¤°.</th>
-                                  <th>PNR à¤à¤µà¤‚ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤µà¤¿à¤µà¤°à¤£</th>
-                                  <th>à¤œà¤®à¤¾ à¤°à¤¾à¤¶à¤¿ (â‚¹)</th>
-                                  <th>à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤®à¤¾à¤§à¥à¤¯à¤®</th>
-                                  <th>UTR / à¤¬à¥ˆà¤‚à¤• à¤¸à¤‚à¤¦à¤°à¥à¤­ à¤•à¥à¤°à¤®à¤¾à¤‚à¤•</th>
-                                  <th>à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤à¤•à¤°à¥à¤¤à¤¾ à¤¸à¥à¤Ÿà¤¾à¤«</th>
-                                  <th>à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
+                                  <th style={{ width: 45 }}>क्र.</th>
+                                  <th>PNR एवं श्रद्धालु विवरण</th>
+                                  <th>जमा राशि (₹)</th>
+                                  <th>भुगतान माध्यम</th>
+                                  <th>UTR / बैंक संदर्भ क्रमांक</th>
+                                  <th>प्राप्तकर्ता स्टाफ</th>
+                                  <th>सत्यापन स्थिति</th>
                                   <th style={{ textAlign: 'center', width: 220 }}>
-                                    {isSuperAdmin ? 'à¤à¤¡à¤®à¤¿à¤¨ à¤®à¤¿à¤²à¤¾à¤¨ à¤•à¤¾à¤°à¥à¤¯à¤µà¤¾à¤¹à¥€' : 'à¤¸à¥à¤¥à¤¿à¤¤à¤¿'}
+                                    {isSuperAdmin ? 'एडमिन मिलान कार्यवाही' : 'स्थिति'}
                                   </th>
                                 </tr>
                               </thead>
@@ -6187,15 +6187,15 @@ export default function App() {
                                 {onlineTxnsLoading ? (
                                   <tr>
                                     <td colSpan="8" style={{ textAlign: 'center', padding: 30, color: '#7C2D12' }}>
-                                      à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤¡à¥‡à¤Ÿà¤¾ à¤²à¥‹à¤¡ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...
+                                      ऑनलाइन लेनदेन डेटा लोड हो रहा है...
                                     </td>
                                   </tr>
                                 ) : onlineTxnsList.length === 0 ? (
                                   <tr>
                                     <td colSpan="8" style={{ textAlign: 'center', padding: 36, color: '#784D35' }}>
-                                      <div style={{ fontSize: 32, marginBottom: 6 }}>ðŸ”</div>
-                                      <strong>à¤•à¥‹à¤ˆ à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¤¾à¥¤</strong>
-                                      <div style={{ fontSize: '0.82rem', marginTop: 4 }}>à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤…à¤¥à¤µà¤¾ à¤­à¤•à¥à¤¤ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤‘à¤¨à¤²à¤¾à¤‡à¤¨/UPI à¤ªà¥‡à¤®à¥‡à¤‚à¤Ÿ à¤•à¤°à¤¨à¥‡ à¤ªà¤° à¤µà¤¹ à¤¤à¥à¤°à¤‚à¤¤ à¤‡à¤¸ à¤²à¥‡à¤œà¤° à¤®à¥‡à¤‚ à¤¦à¤¿à¤–à¤¾à¤ˆ à¤¦à¥‡à¤—à¤¾à¥¤</div>
+                                      <div style={{ fontSize: 32, marginBottom: 6 }}>🔍</div>
+                                      <strong>कोई ऑनलाइन लेनदेन रिकॉर्ड नहीं मिला।</strong>
+                                      <div style={{ fontSize: '0.82rem', marginTop: 4 }}>किसी भी कर्मचारी अथवा भक्त द्वारा ऑनलाइन/UPI पेमेंट करने पर वह तुरंत इस लेजर में दिखाई देगा।</div>
                                     </td>
                                   </tr>
                                 ) : (
@@ -6206,12 +6206,12 @@ export default function App() {
                                         <div style={{ fontWeight: 800, color: '#C2410C' }}>{tx.pnr}</div>
                                         <div style={{ fontWeight: 700, color: '#1F2937' }}>{tx.devoteeName}</div>
                                         <div style={{ fontSize: '0.76rem', color: '#6B7280' }}>
-                                          {tx.mobile} | à¤•à¥‹à¤š {tx.coachName} (à¤¸à¥€à¤Ÿ: {tx.seatNumber})
+                                          {tx.mobile} | कोच {tx.coachName} (सीट: {tx.seatNumber})
                                         </div>
                                       </td>
                                       <td>
                                         <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>
-                                          â‚¹ {Number(tx.amount || 0).toLocaleString()}
+                                          ₹ {Number(tx.amount || 0).toLocaleString()}
                                         </div>
                                         <div style={{ fontSize: '0.72rem', color: '#6B7280' }}>
                                           {new Date(tx.date).toLocaleDateString('hi-IN')} {new Date(tx.date).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' })}
@@ -6230,34 +6230,34 @@ export default function App() {
                                             </code>
                                             {tx.remarks && (
                                               <div style={{ fontSize: '0.74rem', color: '#7C2D12', marginTop: 3 }}>
-                                                à¤¨à¥‹à¤Ÿ: {tx.remarks}
+                                                नोट: {tx.remarks}
                                               </div>
                                             )}
                                           </div>
                                         ) : (
-                                          <span style={{ color: '#9CA3AF', fontStyle: 'italic', fontSize: '0.8rem' }}>--- UTR à¤¦à¤°à¥à¤œ à¤¨à¤¹à¥€à¤‚ ---</span>
+                                          <span style={{ color: '#9CA3AF', fontStyle: 'italic', fontSize: '0.8rem' }}>--- UTR दर्ज नहीं ---</span>
                                         )}
                                       </td>
                                       <td>
                                         <div style={{ fontWeight: 700, color: '#374151' }}>{tx.cashierName || 'Staff'}</div>
                                         {tx.verifiedBy && (
                                           <div style={{ fontSize: '0.72rem', color: '#047857' }}>
-                                            à¤œà¤¾à¤‚à¤šà¤•à¤°à¥à¤¤à¤¾: {tx.verifiedBy}
+                                            जांचकर्ता: {tx.verifiedBy}
                                           </div>
                                         )}
                                       </td>
                                       <td>
                                         {tx.status === 'Verified' ? (
                                           <span className="badge badge-paid" style={{ fontSize: '0.78rem' }}>
-                                            âœ“ à¤¬à¥ˆà¤‚à¤• à¤¸à¥‡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤
+                                            ✓ बैंक से सत्यापित
                                           </span>
                                         ) : tx.status === 'Rejected' ? (
                                           <span className="badge badge-unpaid" style={{ fontSize: '0.78rem' }}>
-                                            âœ• à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ UTR
+                                            ✕ अस्वीकृत UTR
                                           </span>
                                         ) : (
                                           <span className="badge badge-partial" style={{ fontSize: '0.78rem' }}>
-                                            à¤®à¤¿à¤²à¤¾à¤¨ à¤²à¤‚à¤¬à¤¿à¤¤
+                                            मिलान लंबित
                                           </span>
                                         )}
                                       </td>
@@ -6269,9 +6269,9 @@ export default function App() {
                                                 className="btn btn-sm btn-success"
                                                 style={{ padding: '4px 8px', fontSize: '0.76rem', fontWeight: 700 }}
                                                 onClick={() => handleVerifyUtrAction(tx.bookingId, tx.id, 'Verified', tx.utrNumber, 'Matched with Trust Bank Account')}
-                                                title="à¤¬à¥ˆà¤‚à¤• à¤–à¤¾à¤¤à¥‡ à¤¸à¥‡ UTR à¤•à¤¾ à¤®à¤¿à¤²à¤¾à¤¨ à¤•à¤° à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ à¤•à¤°à¥‡à¤‚"
+                                                title="बैंक खाते से UTR का मिलान कर स्वीकृत करें"
                                               >
-                                                âœ“ à¤®à¥ˆà¤š (Approve)
+                                                ✓ मैच (Approve)
                                               </button>
                                             )}
                                             {tx.status !== 'Rejected' && (
@@ -6279,14 +6279,14 @@ export default function App() {
                                                 className="btn btn-sm btn-danger"
                                                 style={{ padding: '4px 8px', fontSize: '0.76rem', fontWeight: 700 }}
                                                 onClick={() => {
-                                                  const r = window.prompt('à¤…à¤¸à¥à¤µà¥€à¤•à¤¾à¤° à¤•à¤°à¤¨à¥‡ à¤•à¤¾ à¤•à¤¾à¤°à¤£ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚ (à¤‰à¤¦à¤¾. à¤¬à¥ˆà¤‚à¤• à¤®à¥‡à¤‚ à¤¨à¤¹à¥€à¤‚ à¤†à¤¯à¤¾ / à¤…à¤®à¤¾à¤¨à¥à¤¯):', 'à¤¬à¥ˆà¤‚à¤• à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ à¤°à¤¾à¤¶à¤¿ à¤¨à¤¹à¥€à¤‚ à¤¦à¤¿à¤–à¥€');
+                                                  const r = window.prompt('अस्वीकार करने का कारण दर्ज करें (उदा. बैंक में नहीं आया / अमान्य):', 'बैंक खाते में राशि नहीं दिखी');
                                                   if (r !== null) {
                                                     handleVerifyUtrAction(tx.bookingId, tx.id, 'Rejected', tx.utrNumber, r);
                                                   }
                                                 }}
-                                                title="UTR à¤…à¤¸à¥à¤µà¥€à¤•à¤¾à¤° à¤•à¤°à¥‡à¤‚"
+                                                title="UTR अस्वीकार करें"
                                               >
-                                                âœ• à¤°à¤¿à¤œà¥‡à¤•à¥à¤Ÿ
+                                                ✕ रिजेक्ट
                                               </button>
                                             )}
                                             <button
@@ -6299,14 +6299,14 @@ export default function App() {
                                                 status: tx.status || 'Pending',
                                                 remarks: tx.remarks || ''
                                               })}
-                                              title="UTR à¤¨à¤‚à¤¬à¤° à¤¯à¤¾ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤¸à¤‚à¤¶à¥‹à¤§à¤¿à¤¤ à¤•à¤°à¥‡à¤‚"
+                                              title="UTR नंबर या स्थिति संशोधित करें"
                                             >
-                                              à¤¬à¤¦à¤²à¥‡à¤‚
+                                              बदलें
                                             </button>
                                           </div>
                                         ) : (
                                           <div style={{ fontSize: '0.8rem', color: '#6B7280', fontStyle: 'italic', padding: '8px' }}>
-                                            à¤•à¥‡à¤µà¤² à¤¦à¥‡à¤–à¤¨à¥‡ à¤¹à¥‡à¤¤à¥ (View Only)
+                                            केवल देखने हेतु (View Only)
                                           </div>
                                         )}
                                       </td>
@@ -6336,19 +6336,19 @@ export default function App() {
                           </div>
 
                           <h3 style={{ fontSize: '1.2rem', color: '#9A3412', marginBottom: '16px', fontWeight: 700 }}>
-                            à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¥‡ à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾ QR à¤•à¥‹à¤¡ à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤°à¥‡à¤‚
+                            यात्री के टिकट का QR कोड स्कैन करें
                           </h3>
 
                           <form onSubmit={(e) => { e.preventDefault(); handleVerifyTicketSubmit(); }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
                               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                                à¤¯à¤¾ à¤®à¥ˆà¤¨à¥à¤¯à¥à¤…à¤² à¤°à¥‚à¤ª à¤¸à¥‡ PNR à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚
+                                या मैन्युअल रूप से PNR दर्ज करें
                               </p>
                               <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 400 }}>
                                 <input
                                   type="text"
                                   className="form-control"
-                                  placeholder="PNR Number (à¤‰à¤¦à¤¾. MVD-2026-...)"
+                                  placeholder="PNR Number (उदा. MVD-2026-...)"
                                   value={verifierPnr}
                                   onChange={(e) => setVerifierPnr(e.target.value)}
                                   style={{ width: '100%', textAlign: 'center', letterSpacing: '1px', fontWeight: 600, padding: '10px' }}
@@ -6362,7 +6362,7 @@ export default function App() {
                                 className="btn btn-primary"
                                 style={{ width: '100%', maxWidth: 400, padding: '12px', fontSize: '1.05rem', marginTop: 10, boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)' }}
                               >
-                                {verifierLoading ? 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...' : <><ShieldCheck size={18} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> à¤®à¥ˆà¤¨à¥à¤¯à¥à¤…à¤² à¤°à¥‚à¤ª à¤¸à¥‡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ à¤•à¤°à¥‡à¤‚</>}
+                                {verifierLoading ? 'सत्यापन हो रहा है...' : <><ShieldCheck size={18} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> मैन्युअल रूप से सत्यापित करें</>}
                               </button>
                             </div>
                           </form>
@@ -6374,7 +6374,7 @@ export default function App() {
                             {verifierResult.status === 'GENUINE' ? (
                               <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#D1FAE5', color: '#065F46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>âœ…</div>
+                                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#D1FAE5', color: '#065F46', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✅</div>
                                   <div>
                                     <h3 style={{ margin: 0, color: '#065F46', fontSize: '1.3rem', fontWeight: 800 }}>{verifierResult.title}</h3>
                                     <p style={{ margin: '2px 0 0', color: '#047857', fontSize: '0.88rem' }}>{verifierResult.message}</p>
@@ -6383,39 +6383,39 @@ export default function App() {
 
                                 <div className="grid-2" style={{ gap: 12, marginBottom: 16 }}>
                                   <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PNR / à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¸à¤‚à¤–à¥à¤¯à¤¾</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PNR / बुकिंग संख्या</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#9A3412' }}>{verifierResult.booking.bookingId}</div>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>à¤®à¥à¤–à¥à¤¯ à¤­à¤•à¥à¤¤ / à¤†à¤µà¥‡à¤¦à¤•</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>मुख्य भक्त / आवेदक</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#9A3412' }}>{verifierResult.booking.bookedBy} ({verifierResult.booking.mobile})</div>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¥‹à¤š à¤µ à¤¸à¥€à¤Ÿ</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>आवंटित कोच व सीट</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857' }}>
-                                      à¤•à¥‹à¤š {verifierResult.booking.coachName} â€¢ à¤¸à¥€à¤Ÿ: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
+                                      कोच {verifierResult.booking.coachName} • सीट: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
                                     </div>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤µ à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>भुगतान स्थिति व देय राशि</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: verifierResult.booking.remainingAmount > 0 ? '#DC2626' : '#047857' }}>
-                                      {verifierResult.booking.paymentStatus} (à¤•à¤Ÿà¤¡à¤¼à¤¾ à¤®à¥‡à¤‚ à¤¶à¥‡à¤· à¤¦à¥‡à¤¯: â‚¹ {verifierResult.booking.remainingAmount})
+                                      {verifierResult.booking.paymentStatus} (कटड़ा में शेष देय: ₹ {verifierResult.booking.remainingAmount})
                                     </div>
                                   </div>
                                 </div>
 
                                 <div style={{ background: '#FFF8F2', borderRadius: 8, padding: 12, border: '1px solid #FED7AA' }}>
-                                  <strong style={{ color: '#9A3412', fontSize: '0.88rem' }}>à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸ à¤®à¥‡à¤‚ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¸à¤¹à¤¯à¤¾à¤¤à¥à¤°à¥€:</strong>
+                                  <strong style={{ color: '#9A3412', fontSize: '0.88rem' }}>डेटाबेस में आरक्षित सहयात्री:</strong>
                                   {(verifierResult.booking.passengers || []).map((p, idx) => (
                                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #FFEDD5', fontSize: '0.85rem' }}>
-                                      <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} à¤µà¤°à¥à¤·, {p.gender || '-'})</span>
-                                      <span style={{ color: '#C2410C', fontWeight: 700 }}>à¤¸à¥€à¤Ÿ: {p.seatAssigned || p.seatNumber || '-'}</span>
+                                      <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} वर्ष, {p.gender || '-'})</span>
+                                      <span style={{ color: '#C2410C', fontWeight: 700 }}>सीट: {p.seatAssigned || p.seatNumber || '-'}</span>
                                     </div>
                                   ))}
                                 </div>
 
                                 <div style={{ marginTop: 14, textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                  à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥€à¤² à¤¹à¥ˆà¤¶: <code>{verifierResult.securityHash}</code>
+                                  सुरक्षा सील हैश: <code>{verifierResult.securityHash}</code>
                                 </div>
                               </div>
                             ) : verifierResult.status === 'TAMPERED' ? (
@@ -6429,31 +6429,31 @@ export default function App() {
                                 </div>
 
                                 <div style={{ background: '#FEF2F2', border: '1.5px solid #F87171', borderRadius: 8, padding: 12, color: '#991B1B', fontSize: '0.85rem', marginBottom: 16 }}>
-                                  <div><strong>à¤…à¤µà¥ˆà¤§ / à¤œà¤¾à¤²à¥€ à¤¹à¥ˆà¤¶:</strong> <code>{verifierResult.providedSecurityHash}</code></div>
-                                  <div><strong>à¤¸à¤°à¥à¤µà¤° à¤•à¤¾ à¤…à¤ªà¥‡à¤•à¥à¤·à¤¿à¤¤ à¤µà¥ˆà¤§ à¤¹à¥ˆà¤¶:</strong> <code>{verifierResult.expectedSecurityHash}</code></div>
-                                  <div style={{ marginTop: 4 }}><strong>à¤›à¥‡à¤¡à¤¼à¤›à¤¾à¤¡à¤¼ à¤µà¤¾à¤²à¥‡ à¤•à¥à¤·à¥‡à¤¤à¥à¤°:</strong> {verifierResult.tamperedFields}</div>
+                                  <div><strong>अवैध / जाली हैश:</strong> <code>{verifierResult.providedSecurityHash}</code></div>
+                                  <div><strong>सर्वर का अपेक्षित वैध हैश:</strong> <code>{verifierResult.expectedSecurityHash}</code></div>
+                                  <div style={{ marginTop: 4 }}><strong>छेड़छाड़ वाले क्षेत्र:</strong> {verifierResult.tamperedFields}</div>
                                 </div>
 
-                                <h4 style={{ color: '#9A3412', marginBottom: 8, fontSize: '0.95rem' }}><ClipboardList size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤¸à¤°à¥à¤µà¤° à¤•à¤¾ à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤ªà¥à¤°à¤¾à¤®à¤¾à¤£à¤¿à¤• à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡:</h4>
+                                <h4 style={{ color: '#9A3412', marginBottom: 8, fontSize: '0.95rem' }}><ClipboardList size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> सर्वर का वास्तविक प्रामाणिक रिकॉर्ड:</h4>
                                 <div className="grid-2" style={{ gap: 10, fontSize: '0.88rem' }}>
                                   <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                    à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤­à¤•à¥à¤¤: <strong>{verifierResult.authenticData.bookedBy}</strong> ({verifierResult.authenticData.mobile})
+                                    वास्तविक भक्त: <strong>{verifierResult.authenticData.bookedBy}</strong> ({verifierResult.authenticData.mobile})
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                    à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤¸à¥€à¤Ÿ: <strong style={{ color: '#DC2626' }}>à¤•à¥‹à¤š {verifierResult.authenticData.coachName}, à¤¸à¥€à¤Ÿ {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
+                                    वास्तविक सीट: <strong style={{ color: '#DC2626' }}>कोच {verifierResult.authenticData.coachName}, सीट {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                    à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿: <strong style={{ color: '#DC2626' }}>â‚¹ {verifierResult.authenticData.remainingAmount} ({verifierResult.authenticData.paymentStatus})</strong>
+                                    वास्तविक देय राशि: <strong style={{ color: '#DC2626' }}>₹ {verifierResult.authenticData.remainingAmount} ({verifierResult.authenticData.paymentStatus})</strong>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                    à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤¸à¤‚à¤–à¥à¤¯à¤¾: <strong>{(verifierResult.authenticData.passengers || []).length} à¤¯à¤¾à¤¤à¥à¤°à¥€</strong>
+                                    यात्री संख्या: <strong>{(verifierResult.authenticData.passengers || []).length} यात्री</strong>
                                   </div>
                                 </div>
                               </div>
                             ) : (
                               <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                                <div style={{ fontSize: 36, marginBottom: 8 }}>âŒ</div>
-                                <h3 style={{ color: '#991B1B', fontWeight: 800 }}>{verifierResult.title || 'à¤…à¤®à¤¾à¤¨à¥à¤¯ / à¤«à¤°à¥à¤œà¥€ PNR'}</h3>
+                                <div style={{ fontSize: 36, marginBottom: 8 }}>❌</div>
+                                <h3 style={{ color: '#991B1B', fontWeight: 800 }}>{verifierResult.title || 'अमान्य / फर्जी PNR'}</h3>
                                 <p style={{ color: '#B91C1C', fontSize: '0.9rem', marginTop: 4 }}>{verifierResult.message}</p>
                               </div>
                             )}
@@ -6477,15 +6477,15 @@ export default function App() {
                             </div>
                             <div>
                               <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.3rem', fontWeight: 800 }}>
-                                à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤à¤µà¤‚ UPI à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ (Project & UPI Configuration)
+                                प्रोजेक्ट वित्तीय एवं UPI सेटिंग्स (Project & UPI Configuration)
                               </h3>
                               <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.86rem' }}>
-                                à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ UPI ID, à¤•à¥à¤¯à¥‚à¤†à¤° à¤•à¥‹à¤¡, à¤ªà¥à¤°à¤¤à¤¿ à¤¸à¥€à¤Ÿ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¦à¤°à¥‡à¤‚ à¤à¤µà¤‚ à¤¸à¤‚à¤ªà¤°à¥à¤• à¤µà¤¿à¤µà¤°à¤£ à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚
+                                आधिकारिक ट्रस्ट UPI ID, क्यूआर कोड, प्रति सीट किराया दरें एवं संपर्क विवरण अपडेट करें
                               </p>
                             </div>
                           </div>
                           <span className="badge badge-bhakti" style={{ fontSize: '0.82rem', padding: '6px 12px' }}>
-                            <Crown size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤šà¥€à¤« à¤à¤¡à¤®à¤¿à¤¨ à¤•à¤‚à¤Ÿà¥à¤°à¥‹à¤²
+                            <Crown size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> चीफ एडमिन कंट्रोल
                           </span>
                         </div>
 
@@ -6506,14 +6506,14 @@ export default function App() {
                             <div style={{ maxWidth: 440 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                                 <Smartphone size={18} color="#C2410C" />
-                                <strong style={{ color: '#9A3412', fontSize: '1.05rem' }}>à¤²à¤¾à¤‡à¤µ UPI QR à¤•à¥‹à¤¡ à¤ªà¥à¤°à¤¿à¤µà¥à¤¯à¥‚</strong>
+                                <strong style={{ color: '#9A3412', fontSize: '1.05rem' }}>लाइव UPI QR कोड प्रिव्यू</strong>
                               </div>
                               <p style={{ margin: '0 0 8px', fontSize: '0.85rem', color: '#7C2D12' }}>
-                                à¤¸à¤­à¥€ à¤¬à¥à¤•à¤¿à¤‚à¤— à¤à¤µà¤‚ à¤°à¤¸à¥€à¤¦à¥‹à¤‚ à¤®à¥‡à¤‚ à¤¯à¤¹à¥€ à¤•à¥à¤¯à¥‚à¤†à¤° à¤•à¥‹à¤¡ à¤”à¤° à¤®à¤°à¥à¤šà¥‡à¤‚à¤Ÿ à¤¨à¤¾à¤® à¤¸à¥à¤µà¤¤à¤ƒ à¤²à¤¾à¤—à¥‚ à¤¹à¥‹à¤—à¤¾à¥¤
+                                सभी बुकिंग एवं रसीदों में यही क्यूआर कोड और मर्चेंट नाम स्वतः लागू होगा।
                               </p>
                               <div style={{ fontSize: '0.85rem', background: '#FFFFFF', padding: '8px 12px', borderRadius: 6, border: '1px solid #FED7AA' }}>
                                 <div><strong>UPI ID:</strong> <code style={{ color: '#C2410C' }}>{projectSettings.upiId || '7398959993@okbizaxis'}</code></div>
-                                <div style={{ marginTop: 3 }}><strong>à¤ªà¥‡à¤ˆ à¤¨à¤¾à¤®:</strong> <span style={{ color: '#1F2937' }}>{projectSettings.upiPayeeName || 'à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ'}</span></div>
+                                <div style={{ marginTop: 3 }}><strong>पेई नाम:</strong> <span style={{ color: '#1F2937' }}>{projectSettings.upiPayeeName || 'श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट'}</span></div>
                               </div>
                             </div>
 
@@ -6524,7 +6524,7 @@ export default function App() {
                                 style={{ width: 130, height: 130, display: 'block', margin: '0 auto' }}
                               />
                               <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#047857', marginTop: 6 }}>
-                                âœ“ à¤¸à¥à¤•à¥ˆà¤¨ à¤µ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¹à¥‡à¤¤à¥ à¤¤à¥ˆà¤¯à¤¾à¤°
+                                ✓ स्कैन व भुगतान हेतु तैयार
                               </div>
                             </div>
                           </div>
@@ -6532,27 +6532,27 @@ export default function App() {
                           {/* UPI & Merchant Details */}
                           <div style={{ marginBottom: 16 }}>
                             <h4 style={{ color: '#9A3412', fontSize: '1rem', fontWeight: 800, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <Smartphone size={16} color="#C2410C" /> 1. à¤¡à¤¿à¤œà¤¿à¤Ÿà¤² à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤à¤µà¤‚ UPI VPA à¤µà¤¿à¤µà¤°à¤£
+                              <Smartphone size={16} color="#C2410C" /> 1. डिजिटल भुगतान एवं UPI VPA विवरण
                             </h4>
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ UPI ID (VPA) <span style={{ color: 'red' }}>*</span></label>
+                                <label className="form-label">आधिकारिक ट्रस्ट UPI ID (VPA) <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                   type="text"
                                   required
                                   className="form-control"
-                                  placeholder="à¤‰à¤¦à¤¾. 7398959993@okbizaxis, trust@sbi"
+                                  placeholder="उदा. 7398959993@okbizaxis, trust@sbi"
                                   value={projectSettings.upiId || ''}
                                   onChange={e => setProjectSettings({ ...projectSettings, upiId: e.target.value.trim() })}
                                 />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">UPI à¤ªà¥‡à¤ˆ / à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤•à¤¾ à¤¨à¤¾à¤® (Payee Name) <span style={{ color: 'red' }}>*</span></label>
+                                <label className="form-label">UPI पेई / ट्रस्ट का नाम (Payee Name) <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                   type="text"
                                   required
                                   className="form-control"
-                                  placeholder="à¤‰à¤¦à¤¾. Shri Mata Vaishno Devi Public Charitable Trust"
+                                  placeholder="उदा. Shri Mata Vaishno Devi Public Charitable Trust"
                                   value={projectSettings.upiPayeeName || ''}
                                   onChange={e => setProjectSettings({ ...projectSettings, upiPayeeName: e.target.value })}
                                 />
@@ -6561,7 +6561,7 @@ export default function App() {
 
                             <div className="grid-3">
                               <div className="form-group">
-                                <label className="form-label">à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤· (Yatra Year)</label>
+                                <label className="form-label">सक्रिय यात्रा वर्ष (Yatra Year)</label>
                                 <input
                                   type="number"
                                   className="form-control"
@@ -6572,7 +6572,7 @@ export default function App() {
                               </div>
                               <div className="form-group">
                                 <label className="form-label" style={{ color: '#C2410C', fontWeight: 800 }}>
-                                  à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥à¤°à¤¸à¥à¤¥à¤¾à¤¨ à¤¤à¤¿à¤¥à¤¿ (Journey Date) <span style={{ color: 'red' }}>*</span>
+                                  यात्रा प्रस्थान तिथि (Journey Date) <span style={{ color: 'red' }}>*</span>
                                 </label>
                                 <input
                                   type="date"
@@ -6582,11 +6582,11 @@ export default function App() {
                                   onChange={e => setProjectSettings({ ...projectSettings, defaultTravelDate: e.target.value, journeyDate: e.target.value })}
                                 />
                                 <div style={{ fontSize: '0.72rem', color: '#9A3412', marginTop: 3 }}>
-                                  * à¤¹à¥‹à¤® à¤ªà¥‡à¤œ à¤à¤µà¤‚ à¤Ÿà¤¿à¤•à¤Ÿ à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤ªà¤° à¤¯à¤¹à¥€ à¤¤à¤¿à¤¥à¤¿ à¤¸à¥à¤µà¤¤à¤ƒ à¤²à¤¾à¤—à¥‚ à¤¹à¥‹à¤—à¥€à¥¤
+                                  * होम पेज एवं टिकट बुकिंग काउंटर पर यही तिथि स्वतः लागू होगी।
                                 </div>
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤¾à¤ªà¤¸à¥€ à¤¤à¤¿à¤¥à¤¿ (Return Date)</label>
+                                <label className="form-label">यात्रा वापसी तिथि (Return Date)</label>
                                 <input
                                   type="date"
                                   className="form-control"
@@ -6600,11 +6600,11 @@ export default function App() {
                           {/* Fares Configuration */}
                           <div style={{ marginBottom: 16 }}>
                             <h4 style={{ color: '#9A3412', fontSize: '1rem', fontWeight: 800, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <IndianRupee size={16} color="#C2410C" /> 2. à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¦à¤°à¥‡à¤‚ (Fares)
+                              <IndianRupee size={16} color="#C2410C" /> 2. आधिकारिक टिकट किराया दरें (Fares)
                             </h4>
                             <div className="grid-3" style={{ gap: 10 }}>
                               <div className="form-group">
-                                <label className="form-label">à¤¸à¥à¤²à¥€à¤ªà¤° à¤•à¥à¤²à¤¾à¤¸ (Sleeper â‚¹)</label>
+                                <label className="form-label">स्लीपर क्लास (Sleeper ₹)</label>
                                 <input
                                   type="number"
                                   min="0"
@@ -6614,7 +6614,7 @@ export default function App() {
                                 />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤à¤¸à¥€ à¤•à¥à¤²à¤¾à¤¸ (AC 3A/2A â‚¹)</label>
+                                <label className="form-label">एसी क्लास (AC 3A/2A ₹)</label>
                                 <input
                                   type="number"
                                   min="0"
@@ -6624,7 +6624,7 @@ export default function App() {
                                 />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤œà¤¨à¤°à¤² à¤•à¥à¤²à¤¾à¤¸ (General â‚¹)</label>
+                                <label className="form-label">जनरल क्लास (General ₹)</label>
                                 <input
                                   type="number"
                                   min="0"
@@ -6639,11 +6639,11 @@ export default function App() {
                           {/* Contact & Trust Info */}
                           <div style={{ marginBottom: 16 }}>
                             <h4 style={{ color: '#9A3412', fontSize: '1rem', fontWeight: 800, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <Globe size={16} color="#C2410C" /> 3. à¤¸à¤‚à¤ªà¤°à¥à¤•, à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨ à¤à¤µà¤‚ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤µà¤¿à¤µà¤°à¤£
+                              <Globe size={16} color="#C2410C" /> 3. संपर्क, हेल्पलाइन एवं ट्रस्ट विवरण
                             </h4>
                             <div className="grid-2">
                               <div className="form-group">
-                                <label className="form-label">à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨ à¤«à¥‹à¤¨ à¤¨à¤‚à¤¬à¤°</label>
+                                <label className="form-label">हेल्पलाइन फोन नंबर</label>
                                 <input
                                   type="text"
                                   className="form-control"
@@ -6653,7 +6653,7 @@ export default function App() {
                                 />
                               </div>
                               <div className="form-group">
-                                <label className="form-label">à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤ˆà¤®à¥‡à¤² à¤†à¤ˆà¤¡à¥€</label>
+                                <label className="form-label">आधिकारिक ईमेल आईडी</label>
                                 <input
                                   type="email"
                                   className="form-control"
@@ -6665,7 +6665,7 @@ export default function App() {
                             </div>
 
                             <div className="form-group">
-                              <label className="form-label">à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤•à¤¾à¤°à¥à¤¯à¤¾à¤²à¤¯ à¤•à¤¾ à¤ªà¤¤à¤¾ (Office Address)</label>
+                              <label className="form-label">ट्रस्ट कार्यालय का पता (Office Address)</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -6676,11 +6676,11 @@ export default function App() {
                             </div>
 
                             <div className="form-group">
-                              <label className="form-label">à¤ªà¤µà¤¿à¤¤à¥à¤° à¤¶à¥à¤²à¥‹à¤• / à¤Ÿà¥ˆà¤—à¤²à¤¾à¤‡à¤¨</label>
+                              <label className="form-label">पवित्र श्लोक / टैगलाइन</label>
                               <input
                                 type="text"
                                 className="form-control"
-                                placeholder="à¤œà¤¯ à¤®à¤¾à¤¤à¤¾ à¤¦à¥€ â€¢ à¥ à¤¶à¥à¤°à¥€ à¤µà¥ˆà¤·à¥à¤£à¤µà¥€ à¤¨à¤®à¤ƒ â€¢ à¤¨à¤¿à¤·à¥à¤•à¤¾à¤® à¤¸à¥‡à¤µà¤¾"
+                                placeholder="जय माता दी • ॐ श्री वैष्णवी नमः • निष्काम सेवा"
                                 value={projectSettings.sacredShlok || ''}
                                 onChange={e => setProjectSettings({ ...projectSettings, sacredShlok: e.target.value })}
                               />
@@ -6697,7 +6697,7 @@ export default function App() {
                                 style={{ width: 20, height: 20, cursor: 'pointer' }}
                               />
                               <label htmlFor="hideBerthNumber" className="form-label" style={{ margin: 0, cursor: 'pointer', color: '#9A3412', fontWeight: 800 }}>
-                                à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¤° à¤¬à¤°à¥à¤¥/à¤¸à¥€à¤Ÿ à¤¨à¤‚à¤¬à¤° à¤›à¤¿à¤ªà¤¾à¤à¤‚ (à¤¸à¤¿à¤°à¥à¤« à¤•à¥‹à¤š à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤¹à¥‹à¤—à¤¾)
+                                टिकट पर बर्थ/सीट नंबर छिपाएं (सिर्फ कोच प्रिंट होगा)
                               </label>
                             </div>
                           </div>
@@ -6709,7 +6709,7 @@ export default function App() {
                             disabled={projectSettingsSaving}
                           >
                             <Settings size={18} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} />
-                            {projectSettingsSaving ? 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥‹ à¤°à¤¹à¥€ à¤¹à¥ˆà¤‚...' : 'à¤ªà¥à¤°à¥‹à¤œà¥‡à¤•à¥à¤Ÿ à¤à¤µà¤‚ UPI à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤•à¤°à¥‡à¤‚ (Save Settings)'}
+                            {projectSettingsSaving ? 'सेटिंग्स सुरक्षित हो रही हैं...' : 'प्रोजेक्ट एवं UPI सेटिंग्स सुरक्षित करें (Save Settings)'}
                           </button>
                         </form>
                       </div>
@@ -6726,7 +6726,7 @@ export default function App() {
                             <div>
                               <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.3rem', fontWeight: 800 }}>{staffUser.name}</h3>
                               <div style={{ fontSize: '0.85rem', color: '#7C2D12', marginTop: 2 }}>
-                                @{staffUser.username} {staffUser.email ? `â€¢ ${staffUser.email}` : ''}
+                                @{staffUser.username} {staffUser.email ? `• ${staffUser.email}` : ''}
                               </div>
                             </div>
                           </div>
@@ -6737,22 +6737,22 @@ export default function App() {
 
                         <div className="grid-2" style={{ gap: 12, fontSize: '0.88rem' }}>
                           <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FED7AA' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤µà¤¿à¤­à¤¾à¤— (Department):</div>
-                            <strong style={{ color: '#1F2937' }}>{staffUser.department || 'à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤ªà¥à¤°à¤¶à¤¾à¤¸à¤¨'}</strong>
+                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>विभाग (Department):</div>
+                            <strong style={{ color: '#1F2937' }}>{staffUser.department || 'ट्रस्ट सामान्य प्रशासन'}</strong>
                           </div>
                           <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FED7AA' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤–à¤¾à¤¤à¤¾ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (Account Status):</div>
-                            <strong style={{ color: '#047857' }}>âœ“ Active & Verified (à¤¸à¤•à¥à¤°à¤¿à¤¯)</strong>
+                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>खाता स्थिति (Account Status):</div>
+                            <strong style={{ color: '#047857' }}>✓ Active & Verified (सक्रिय)</strong>
                           </div>
                           {staffUser.assignedCoach && (
                             <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FED7AA' }}>
-                              <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¥‹à¤š (Assigned Coaches):</div>
+                              <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>आवंटित कोच (Assigned Coaches):</div>
                               <strong style={{ color: '#C2410C' }}>{staffUser.assignedCoach}</strong>
                             </div>
                           )}
                           {staffUser.assignedStation && (
                             <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FED7AA' }}>
-                              <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ (Assigned Station):</div>
+                              <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>स्टेशन (Assigned Station):</div>
                               <strong style={{ color: '#1F2937' }}>{staffUser.assignedStation}</strong>
                             </div>
                           )}
@@ -6764,49 +6764,49 @@ export default function App() {
                     <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA', background: '#FFFFFF' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                         <Lock size={22} color="#C2410C" />
-                        <h3 style={{ fontSize: '1.2rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤à¤µà¤‚ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤¬à¤¦à¤²à¥‡à¤‚ (Change Password)</h3>
+                        <h3 style={{ fontSize: '1.2rem', color: '#9A3412', margin: 0, fontWeight: 800 }}>सुरक्षा एवं पासवर्ड बदलें (Change Password)</h3>
                       </div>
                       
                       {settingsMessage && (
                         <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: '0.9rem', fontWeight: 600 }}>
-                          âœ“ {settingsMessage}
+                          ✓ {settingsMessage}
                         </div>
                       )}
                       {settingsError && (
                         <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#991B1B', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: '0.9rem', fontWeight: 600 }}>
-                          âŒ {settingsError}
+                          ❌ {settingsError}
                         </div>
                       )}
 
                       <form onSubmit={handlePasswordUpdate}>
                         <div className="form-group">
-                          <label className="form-label">à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ (Old Password) <span style={{color: 'red'}}>*</span></label>
-                          <input type="password" required className="form-control" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={settingsOldPass} onChange={e => setSettingsOldPass(e.target.value)} />
+                          <label className="form-label">वर्तमान पासवर्ड (Old Password) <span style={{color: 'red'}}>*</span></label>
+                          <input type="password" required className="form-control" placeholder="••••••••" value={settingsOldPass} onChange={e => setSettingsOldPass(e.target.value)} />
                         </div>
                         <div className="grid-2">
                           <div className="form-group">
-                            <label className="form-label">à¤¨à¤¯à¤¾ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ (New Password) <span style={{color: 'red'}}>*</span></label>
-                            <input type="password" required minLength={6} className="form-control" placeholder="à¤¨à¥à¤¯à¥‚à¤¨à¤¤à¤® 6 à¤…à¤•à¥à¤·à¤°" value={settingsNewPass} onChange={e => setSettingsNewPass(e.target.value)} />
+                            <label className="form-label">नया पासवर्ड (New Password) <span style={{color: 'red'}}>*</span></label>
+                            <input type="password" required minLength={6} className="form-control" placeholder="न्यूनतम 6 अक्षर" value={settingsNewPass} onChange={e => setSettingsNewPass(e.target.value)} />
                           </div>
                           <div className="form-group">
-                            <label className="form-label">à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤•à¤°à¥‡à¤‚ (Confirm Password) <span style={{color: 'red'}}>*</span></label>
-                            <input type="password" required minLength={6} className="form-control" placeholder="à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤ªà¥à¤¨à¤ƒ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚" value={settingsConfirmPass} onChange={e => setSettingsConfirmPass(e.target.value)} />
+                            <label className="form-label">पुष्टि करें (Confirm Password) <span style={{color: 'red'}}>*</span></label>
+                            <input type="password" required minLength={6} className="form-control" placeholder="पासवर्ड पुनः दर्ज करें" value={settingsConfirmPass} onChange={e => setSettingsConfirmPass(e.target.value)} />
                           </div>
                         </div>
                         <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', marginTop: 6, fontSize: '0.95rem' }}>
-                          <Key size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> à¤¨à¤¯à¤¾ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤¸à¤¹à¥‡à¤œà¥‡à¤‚ (Update Password)
+                          <Key size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> नया पासवर्ड सहेजें (Update Password)
                         </button>
                       </form>
                     </div>
 
                     {/* Account Logout Action Card */}
                     <div className="glass-card" style={{ border: '2px solid #FCA5A5', background: '#FFF5F5', textAlign: 'center', padding: 20 }}>
-                      <h4 style={{ color: '#991B1B', margin: '0 0 6px', fontWeight: 800 }}>à¤¸à¤¤à¥à¤° à¤¸à¤®à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚ (Staff Logout)</h4>
+                      <h4 style={{ color: '#991B1B', margin: '0 0 6px', fontWeight: 800 }}>सत्र समाप्त करें (Staff Logout)</h4>
                       <p style={{ color: '#7F1D1D', fontSize: '0.85rem', margin: '0 0 14px' }}>
-                        à¤•à¤¾à¤® à¤¸à¤®à¤¾à¤ªà¥à¤¤ à¤¹à¥‹à¤¨à¥‡ à¤•à¥‡ à¤¬à¤¾à¤¦ à¤…à¤ªà¤¨à¥‡ à¤–à¤¾à¤¤à¥‡ à¤•à¥‹ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤°à¤–à¤¨à¥‡ à¤¹à¥‡à¤¤à¥ à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ à¤•à¤°à¥‡à¤‚à¥¤
+                        काम समाप्त होने के बाद अपने खाते को सुरक्षित रखने हेतु लॉगआउट करें।
                       </p>
                       <button className="btn btn-danger" onClick={handleStaffLogout} style={{ padding: '10px 24px', fontSize: '0.95rem', fontWeight: 700 }}>
-                        <LogOut size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ à¤•à¤°à¥‡à¤‚ (Logout Now)
+                        <LogOut size={16} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> सुरक्षित लॉगआउट करें (Logout Now)
                       </button>
                     </div>
                   </div>
@@ -6824,10 +6824,10 @@ export default function App() {
                           </div>
                           <div>
                             <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.4rem', fontWeight: 800 }}>
-                              à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤°à¥‡à¤• à¤¸à¤‚à¤°à¤šà¤¨à¤¾ (Live Train Composition)
+                              ट्रेन बोगी स्थिति एवं रेक संरचना (Live Train Composition)
                             </h2>
                             <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.88rem' }}>
-                              à¤‡à¤‚à¤œà¤¨ à¤¸à¥‡ à¤—à¤¾à¤°à¥à¤¡ à¤µà¥ˆà¤¨ à¤¤à¤• à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ 18+ à¤¬à¥‹à¤—à¥€ à¤¸à¤‚à¤°à¤šà¤¨à¤¾, à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤ªà¥à¤²à¥‡à¤¸à¤®à¥‡à¤‚à¤Ÿ à¤à¤µà¤‚ à¤¬à¤°à¥à¤¥ à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¤à¤¾
+                              इंजन से गार्ड वैन तक संपूर्ण 18+ बोगी संरचना, प्लेटफ़ॉर्म प्लेसमेंट एवं बर्थ उपलब्धता
                             </p>
                           </div>
                         </div>
@@ -6835,7 +6835,7 @@ export default function App() {
                         {/* Filter Bar */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFF8F2', padding: '6px 12px', borderRadius: 8, border: '1px solid #FED7AA' }}>
-                            <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7C2D12' }}>à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤·:</label>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7C2D12' }}>यात्रा वर्ष:</label>
                             <select
                               className="form-control"
                               style={{ padding: '4px 8px', fontSize: '0.85rem', width: 'auto', minWidth: 100 }}
@@ -6845,7 +6845,7 @@ export default function App() {
                                 loadTrainComposition(e.target.value);
                               }}
                             >
-                              <option value="2026">2026 (à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨)</option>
+                              <option value="2026">2026 (वर्तमान)</option>
                               <option value="2025">2025</option>
                               <option value="2024">2024</option>
                             </select>
@@ -6856,7 +6856,7 @@ export default function App() {
                             onClick={() => loadTrainComposition(compositionYearFilter)}
                             disabled={trainCompositionLoading}
                           >
-                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> {trainCompositionLoading ? 'à¤²à¥‹à¤¡ à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...' : 'à¤°à¤¿à¤«à¥à¤°à¥‡à¤¶'}
+                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> {trainCompositionLoading ? 'लोड हो रहा है...' : 'रिफ्रेश'}
                           </button>
 
                           {isSuperAdmin && (
@@ -6864,7 +6864,7 @@ export default function App() {
                               className="btn btn-primary btn-sm"
                               onClick={() => navigate('/admin/coaches')}
                             >
-                              <Settings size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤¬à¥‹à¤—à¥€ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨ (Admin)
+                              <Settings size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> बोगी प्रबंधन (Admin)
                             </button>
                           )}
                         </div>
@@ -6874,37 +6874,37 @@ export default function App() {
                       {trainCompositionData && trainCompositionData.stats && (
                         <div className="grid-4" style={{ gap: 12, marginBottom: 16 }}>
                           <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.75rem', color: '#7C2D12', fontWeight: 700 }}>à¤•à¥à¤² à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚ (Total Bogies)</div>
+                            <div style={{ fontSize: '0.75rem', color: '#7C2D12', fontWeight: 700 }}>कुल बोगियां (Total Bogies)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#9A3412' }}>
                               {trainCompositionData.stats.totalCoaches || 18}
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#9A3412' }}>à¤‡à¤‚à¤œà¤¨ + 18 à¤¡à¤¿à¤¬à¥à¤¬à¥‡</div>
+                            <div style={{ fontSize: '0.72rem', color: '#9A3412' }}>इंजन + 18 डिब्बे</div>
                           </div>
 
                           <div style={{ background: '#EFF6FF', padding: 12, borderRadius: 8, border: '1px solid #BFDBFE', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.75rem', color: '#1E40AF', fontWeight: 700 }}>à¤¸à¥à¤²à¥€à¤ªà¤° à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚ (Sleeper)</div>
+                            <div style={{ fontSize: '0.75rem', color: '#1E40AF', fontWeight: 700 }}>स्लीपर बोगियां (Sleeper)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1D4ED8' }}>
-                              {trainCompositionData.stats.sleeperCoaches || 6} à¤¬à¥‹à¤—à¥€
+                              {trainCompositionData.stats.sleeperCoaches || 6} बोगी
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#2563EB' }}>{trainCompositionData.stats.sleeperBerths || 432} à¤¸à¥€à¤Ÿà¥‡à¤‚</div>
+                            <div style={{ fontSize: '0.72rem', color: '#2563EB' }}>{trainCompositionData.stats.sleeperBerths || 432} सीटें</div>
                           </div>
 
                           <div style={{ background: '#F5F3FF', padding: 12, borderRadius: 8, border: '1px solid #DDD6FE', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.75rem', color: '#5B21B6', fontWeight: 700 }}>à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ (AC 3T / 2T)</div>
+                            <div style={{ fontSize: '0.75rem', color: '#5B21B6', fontWeight: 700 }}>वातानुकूलित (AC 3T / 2T)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#6D28D9' }}>
-                              {trainCompositionData.stats.acCoaches || 6} à¤¬à¥‹à¤—à¥€
+                              {trainCompositionData.stats.acCoaches || 6} बोगी
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#7C3AED' }}>{trainCompositionData.stats.acBerths || 384} à¤¸à¥€à¤Ÿà¥‡à¤‚</div>
+                            <div style={{ fontSize: '0.72rem', color: '#7C3AED' }}>{trainCompositionData.stats.acBerths || 384} सीटें</div>
                           </div>
 
                           {staffUser && (
                             <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                              <div style={{ fontSize: '0.75rem', color: '#065F46', fontWeight: 700 }}>à¤•à¥à¤² à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¥€</div>
+                              <div style={{ fontSize: '0.75rem', color: '#065F46', fontWeight: 700 }}>कुल आरक्षित यात्री</div>
                               <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
                                 {trainCompositionData.stats.totalBooked || 0} / {trainCompositionData.stats.totalBerthCapacity || 816}
                               </div>
                               <div style={{ fontSize: '0.72rem', color: '#059669' }}>
-                                à¤‰à¤ªà¤²à¤¬à¥à¤§: {(trainCompositionData.stats.totalBerthCapacity || 816) - (trainCompositionData.stats.totalBooked || 0)}
+                                उपलब्ध: {(trainCompositionData.stats.totalBerthCapacity || 816) - (trainCompositionData.stats.totalBooked || 0)}
                               </div>
                             </div>
                           )}
@@ -6917,7 +6917,7 @@ export default function App() {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="à¤•à¥‹à¤š à¤•à¥‹à¤¡ à¤¸à¥‡ à¤–à¥‹à¤œà¥‡à¤‚ (à¤‰à¤¦à¤¾. S1, S4, B2, A1, PC) à¤¯à¤¾ à¤¶à¥à¤°à¥‡à¤£à¥€..."
+                          placeholder="कोच कोड से खोजें (उदा. S1, S4, B2, A1, PC) या श्रेणी..."
                           value={coachSearchQuery}
                           onChange={(e) => setCoachSearchQuery(e.target.value)}
                           style={{ border: 'none', background: 'transparent', padding: '4px 0', fontSize: '0.92rem', boxShadow: 'none' }}
@@ -6927,7 +6927,7 @@ export default function App() {
                             onClick={() => setCoachSearchQuery('')}
                             style={{ background: 'none', border: 'none', color: '#9A3412', cursor: 'pointer', fontWeight: 'bold' }}
                           >
-                            âœ•
+                            ✕
                           </button>
                         )}
                       </div>
@@ -6937,11 +6937,11 @@ export default function App() {
                     <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
                         <div style={{ fontWeight: 800, color: '#9A3412', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span>à¤°à¥‡à¤• à¤¸à¤‚à¤°à¤šà¤¨à¤¾ (Live Rake Layout - 18 Bogies)</span>
+                          <span>रेक संरचना (Live Rake Layout - 18 Bogies)</span>
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#7C2D12', display: 'flex', gap: 12, alignItems: 'center' }}>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#3B82F6', display: 'inline-block' }}></span> à¤¸à¥à¤²à¥€à¤ªà¤° (SL)
+                            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#3B82F6', display: 'inline-block' }}></span> स्लीपर (SL)
                           </span>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                             <span style={{ width: 10, height: 10, borderRadius: 2, background: '#8B5CF6', display: 'inline-block' }}></span> 3 AC (3A)
@@ -6968,9 +6968,9 @@ export default function App() {
                         fontWeight: 700,
                         letterSpacing: '0.03em'
                       }}>
-                        <span>â¬…ï¸ à¤‡à¤‚à¤œà¤¨ / à¤†à¤—à¥‡ à¤•à¤¾ à¤›à¥‹à¤° (Front of Platform / Engine End)</span>
-                        <span style={{ color: '#7C2D12', background: '#FFF', padding: '2px 8px', borderRadius: 12, fontSize: '0.72rem' }}>à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤Ÿà¥à¤°à¥ˆà¤•</span>
-                        <span>à¤—à¤¾à¤°à¥à¤¡ à¤µà¥ˆà¤¨ / à¤ªà¤¿à¤›à¤²à¤¾ à¤›à¥‹à¤° (Rear of Platform / Guard End) âž¡ï¸</span>
+                        <span>⬅️ इंजन / आगे का छोर (Front of Platform / Engine End)</span>
+                        <span style={{ color: '#7C2D12', background: '#FFF', padding: '2px 8px', borderRadius: 12, fontSize: '0.72rem' }}>प्लेटफ़ॉर्म ट्रैक</span>
+                        <span>गार्ड वैन / पिछला छोर (Rear of Platform / Guard End) ➡️</span>
                       </div>
 
                       {/* Horizontally Scrollable Train Rake Track */}
@@ -7004,7 +7004,7 @@ export default function App() {
                             position: 'relative'
                           }}
                         >
-                          <div style={{ fontSize: 24, marginBottom: 2 }}>ðŸš‚</div>
+                          <div style={{ fontSize: 24, marginBottom: 2 }}>🚂</div>
                           <div style={{ fontSize: '0.88rem', fontWeight: 900 }}>LOCO / ENG</div>
                           <div style={{ fontSize: '0.68rem', opacity: 0.9 }}>WAP-7 High Power</div>
                           <div style={{ fontSize: '0.62rem', background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: 4, marginTop: 4 }}>
@@ -7110,14 +7110,14 @@ export default function App() {
                                           {coach.bookedPassengers || 0}/{coach.capacity || 72}
                                         </div>
                                         <div style={{ fontSize: '0.64rem', color: '#6B7280' }}>
-                                          â‚¹ {coach.baseFare || 0}
+                                          ₹ {coach.baseFare || 0}
                                         </div>
                                       </>
                                     )}
                                   </>
                                 ) : (
                                   <div style={{ fontSize: '0.65rem', color: '#6B7280', fontStyle: 'italic' }}>
-                                    à¤¸à¥‡à¤µà¤¾ / à¤²à¤—à¥‡à¤œ
+                                    सेवा / लगेज
                                   </div>
                                 )}
                               </div>
@@ -7160,10 +7160,10 @@ export default function App() {
                             </div>
                             <div>
                               <h3 style={{ margin: 0, color: '#92400E', fontSize: '1.25rem', fontWeight: 800 }}>
-                                à¤•à¥‹à¤š {selectedCoachForPosition.coachName} ({selectedCoachForPosition.coachCode})
+                                कोच {selectedCoachForPosition.coachName} ({selectedCoachForPosition.coachCode})
                               </h3>
                               <div style={{ fontSize: '0.84rem', color: '#78350F' }}>
-                                à¤¶à¥à¤°à¥‡à¤£à¥€: <strong>{selectedCoachForPosition.coachClass}</strong> â€¢ à¤•à¥à¤°à¤® à¤¸à¤‚à¤–à¥à¤¯à¤¾: #{selectedCoachForPosition.positionSequence}
+                                श्रेणी: <strong>{selectedCoachForPosition.coachClass}</strong> • क्रम संख्या: #{selectedCoachForPosition.positionSequence}
                               </div>
                             </div>
                           </div>
@@ -7173,13 +7173,13 @@ export default function App() {
                             className="btn btn-outline btn-sm"
                             style={{ padding: '4px 10px', fontSize: '0.8rem' }}
                           >
-                            âœ• à¤¬à¤‚à¤¦ à¤•à¤°à¥‡à¤‚
+                            ✕ बंद करें
                           </button>
                         </div>
 
                         <div className="grid-3" style={{ gap: 12, marginBottom: 16 }}>
                           <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (Platform Location)</div>
+                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>प्लेटफ़ॉर्म स्थिति (Platform Location)</div>
                             <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#9A3412', marginTop: 2 }}>
                               {selectedCoachForPosition.platformPlacement || 'Center of Platform'}
                             </div>
@@ -7188,19 +7188,19 @@ export default function App() {
                           {staffUser && (
                             <>
                               <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤¬à¤°à¥à¤¥ à¤•à¥à¤·à¤®à¤¤à¤¾ à¤µ à¤†à¤°à¤•à¥à¤·à¤£ à¤¸à¥à¤¥à¤¿à¤¤à¤¿</div>
+                                <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>बर्थ क्षमता व आरक्षण स्थिति</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857', marginTop: 2 }}>
-                                  {selectedCoachForPosition.bookedPassengers || 0} / {selectedCoachForPosition.capacity || 72} à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤†à¤°à¤•à¥à¤·à¤¿à¤¤
+                                  {selectedCoachForPosition.bookedPassengers || 0} / {selectedCoachForPosition.capacity || 72} सीटें आरक्षित
                                 </div>
                                 <div style={{ fontSize: '0.72rem', color: '#059669' }}>
-                                  à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤°à¤¿à¤•à¥à¤¤: {(selectedCoachForPosition.capacity || 72) - (selectedCoachForPosition.bookedPassengers || 0)}
+                                  उपलब्ध रिक्त: {(selectedCoachForPosition.capacity || 72) - (selectedCoachForPosition.bookedPassengers || 0)}
                                 </div>
                               </div>
 
                               <div style={{ background: '#FFF', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
-                                <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤¬à¥‡à¤¸ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ (Base Fare)</div>
+                                <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>बेस किराया (Base Fare)</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#C2410C', marginTop: 2 }}>
-                                  â‚¹ {selectedCoachForPosition.baseFare || 0} / à¤¯à¤¾à¤¤à¥à¤°à¥€
+                                  ₹ {selectedCoachForPosition.baseFare || 0} / यात्री
                                 </div>
                               </div>
                             </>
@@ -7209,18 +7209,18 @@ export default function App() {
 
                         {selectedCoachForPosition.notes && (
                           <div style={{ background: '#FFFBEB', padding: '10px 14px', borderRadius: 8, border: '1px solid #FDE68A', fontSize: '0.85rem', color: '#92400E' }}>
-                            <strong>à¤•à¥‹à¤š à¤µà¤¿à¤µà¤°à¤£ / à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¤¿à¤ªà¥à¤ªà¤£à¥€:</strong> {selectedCoachForPosition.notes}
+                            <strong>कोच विवरण / विशेष टिप्पणी:</strong> {selectedCoachForPosition.notes}
                           </div>
                         )}
 
                         {/* Berth Arrangement Explanation */}
                         {selectedCoachForPosition.isBookable && (
                           <div style={{ marginTop: 14, background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', fontSize: '0.82rem', color: '#7C2D12' }}>
-                            <strong>à¤¬à¤°à¥à¤¥ à¤²à¥‡à¤†à¤‰à¤Ÿ à¤¦à¤¿à¤¶à¤¾à¤¨à¤¿à¤°à¥à¤¦à¥‡à¤¶:</strong>
+                            <strong>बर्थ लेआउट दिशानिर्देश:</strong>
                             {selectedCoachForPosition.coachClass === 'Sleeper' ? (
-                              <span> 1 à¤¸à¥‡ 72 à¤¤à¤• à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• 8 à¤¸à¥€à¤Ÿà¥‹à¤‚ à¤•à¤¾ à¤•à¥‚à¤ªà¥‡ (Lower: 1,4, Middle: 2,5, Upper: 3,6, Side Lower: 7, Side Upper: 8)à¥¤</span>
+                              <span> 1 से 72 तक प्रत्येक 8 सीटों का कूपे (Lower: 1,4, Middle: 2,5, Upper: 3,6, Side Lower: 7, Side Upper: 8)।</span>
                             ) : (
-                              <span> 1 à¤¸à¥‡ 64/72 à¤¤à¤• à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ à¤•à¥‚à¤ªà¥‡ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾ à¤à¤µà¤‚ à¤²à¤¿à¤¨à¤¨ à¤¸à¥à¤µà¤¿à¤§à¤¾ à¤‰à¤ªà¤²à¤¬à¥à¤§à¥¤</span>
+                              <span> 1 से 64/72 तक वातानुकूलित कूपे व्यवस्था एवं लिनन सुविधा उपलब्ध।</span>
                             )}
                           </div>
                         )}
@@ -7230,23 +7230,23 @@ export default function App() {
                     {/* Tabular Full Rake Reference */}
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.15rem', marginBottom: 14 }}>
-                        à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤°à¥‡à¤• à¤—à¤ à¤¨ à¤¤à¤¾à¤²à¤¿à¤•à¤¾ (Complete Train Formation Chart)
+                        संपूर्ण रेक गठन तालिका (Complete Train Formation Chart)
                       </h3>
 
                       <div className="table-responsive">
                         <table className="custom-table" style={{ width: '100%', fontSize: '0.88rem' }}>
                           <thead>
                             <tr style={{ background: '#FFF7ED', color: '#9A3412' }}>
-                              <th>à¤•à¥à¤°à¤® #</th>
-                              <th>à¤¬à¥‹à¤—à¥€ à¤•à¥‹à¤¡</th>
-                              <th>à¤¬à¥‹à¤—à¥€ à¤•à¤¾ à¤¨à¤¾à¤®</th>
-                              <th>à¤¶à¥à¤°à¥‡à¤£à¥€</th>
-                              {staffUser && <th>à¤•à¥à¤² à¤¸à¥€à¤Ÿà¥‡à¤‚</th>}
-                              {staffUser && <th>à¤†à¤°à¤•à¥à¤·à¤¿à¤¤</th>}
-                              {staffUser && <th>à¤‰à¤ªà¤²à¤¬à¥à¤§</th>}
-                              {staffUser && <th>à¤•à¤¿à¤°à¤¾à¤¯à¤¾</th>}
-                              <th>à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                              <th>à¤¬à¥à¤•à¤¿à¤‚à¤—</th>
+                              <th>क्रम #</th>
+                              <th>बोगी कोड</th>
+                              <th>बोगी का नाम</th>
+                              <th>श्रेणी</th>
+                              {staffUser && <th>कुल सीटें</th>}
+                              {staffUser && <th>आरक्षित</th>}
+                              {staffUser && <th>उपलब्ध</th>}
+                              {staffUser && <th>किराया</th>}
+                              <th>प्लेटफ़ॉर्म स्थिति</th>
+                              <th>बुकिंग</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -7254,14 +7254,14 @@ export default function App() {
                             <tr style={{ background: '#FEF2F2' }}>
                               <td><strong>0</strong></td>
                               <td><span className="badge badge-danger">LOCO</span></td>
-                              <td><strong>à¤‡à¤‚à¤œà¤¨ (WAP-7 Locomotive)</strong></td>
-                              <td>à¤²à¥‹à¤•à¥‹à¤®à¥‹à¤Ÿà¤¿à¤µ</td>
+                              <td><strong>इंजन (WAP-7 Locomotive)</strong></td>
+                              <td>लोकोमोटिव</td>
                               {staffUser && <td>-</td>}
                               {staffUser && <td>-</td>}
                               {staffUser && <td>-</td>}
                               {staffUser && <td>-</td>}
-                              <td>à¤‡à¤‚à¤œà¤¨ à¤›à¥‹à¤° (Front End)</td>
-                              <td><span className="badge" style={{ background: '#CBD5E1', color: '#334155' }}>à¤¸à¤‚à¤šà¤¾à¤²à¤¨</span></td>
+                              <td>इंजन छोर (Front End)</td>
+                              <td><span className="badge" style={{ background: '#CBD5E1', color: '#334155' }}>संचालन</span></td>
                             </tr>
 
                             {(trainCompositionData?.coaches || []).map((c, i) => (
@@ -7290,13 +7290,13 @@ export default function App() {
                                     {c.isBookable ? ((c.capacity || 72) - (c.bookedPassengers || 0)) : '-'}
                                   </td>
                                 )}
-                                {staffUser && <td>{c.baseFare ? `â‚¹ ${c.baseFare}` : '-'}</td>}
+                                {staffUser && <td>{c.baseFare ? `₹ ${c.baseFare}` : '-'}</td>}
                                 <td>{c.platformPlacement || 'Center'}</td>
                                 <td>
                                   {c.isBookable ? (
-                                    <span className="badge badge-active" style={{ fontSize: '0.72rem' }}>à¤¸à¤•à¥à¤°à¤¿à¤¯</span>
+                                    <span className="badge badge-active" style={{ fontSize: '0.72rem' }}>सक्रिय</span>
                                   ) : (
-                                    <span className="badge" style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.72rem' }}>à¤¸à¥‡à¤µà¤¾</span>
+                                    <span className="badge" style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.72rem' }}>सेवा</span>
                                   )}
                                 </td>
                               </tr>
@@ -7320,10 +7320,10 @@ export default function App() {
                           </div>
                           <div>
                             <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.4rem', fontWeight: 800 }}>
-                              à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¥‹à¤—à¥€ à¤à¤µà¤‚ à¤•à¥‹à¤š à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨ (Train Coach & Rake Master)
+                              ट्रेन बोगी एवं कोच प्रबंधन (Train Coach & Rake Master)
                             </h2>
                             <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.88rem' }}>
-                              à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤¨à¤ˆ à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚ à¤œà¥‹à¥œà¥‡à¤‚, à¤‡à¤‚à¤œà¤¨ à¤¸à¥‡ à¤—à¤¾à¤°à¥à¤¡ à¤µà¥ˆà¤¨ à¤¤à¤• à¤•à¥à¤°à¤®/à¤ªà¥‹à¤œà¥€à¤¶à¤¨ à¤¬à¤¦à¤²à¥‡à¤‚ à¤¤à¤¥à¤¾ à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤µ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤¨à¤¿à¤°à¥à¤§à¤¾à¤°à¤¿à¤¤ à¤•à¤°à¥‡à¤‚
+                              ट्रेन में नई बोगियां जोड़ें, इंजन से गार्ड वैन तक क्रम/पोजीशन बदलें तथा सीटें व किराया निर्धारित करें
                             </p>
                           </div>
                         </div>
@@ -7347,16 +7347,16 @@ export default function App() {
                               setNewCoachModal(true);
                             }}
                           >
-                            <Plus size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> + à¤¨à¤ˆ à¤¬à¥‹à¤—à¥€ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ (Add Bogie)
+                            <Plus size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> + नई बोगी जोड़ें (Add Bogie)
                           </button>
 
                           <button
                             className="btn btn-outline btn-sm"
                             onClick={handleResetDefaultRake}
                             style={{ borderColor: '#F59E0B', color: '#B45309' }}
-                            title="18 à¤¬à¥‹à¤—à¤¿à¤¯à¥‹à¤‚ à¤•à¥‡ à¤®à¤¾à¤¨à¤• à¤°à¥‡à¤• à¤ªà¤° à¤°à¥€à¤¸à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚"
+                            title="18 बोगियों के मानक रेक पर रीसेट करें"
                           >
-                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤¡à¤¿à¤«à¤¼à¥‰à¤²à¥à¤Ÿ 18-à¤¬à¥‹à¤—à¥€ à¤°à¥‡à¤• à¤°à¥€à¤¸à¥‡à¤Ÿ
+                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> डिफ़ॉल्ट 18-बोगी रेक रीसेट
                           </button>
 
                           <button
@@ -7364,14 +7364,14 @@ export default function App() {
                             onClick={loadAdminCoaches}
                             disabled={adminCoachesLoading}
                           >
-                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> {adminCoachesLoading ? 'à¤²à¥‹à¤¡à¤¿à¤‚à¤—...' : 'à¤°à¤¿à¤«à¥à¤°à¥‡à¤¶'}
+                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> {adminCoachesLoading ? 'लोडिंग...' : 'रिफ्रेश'}
                           </button>
 
                           <button
                             className="btn btn-gold btn-sm"
                             onClick={() => navigate('/coach-position')}
                           >
-                            <Train size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤¬à¥‹à¤—à¥€ à¤¦à¥ƒà¤¶à¥à¤¯ (Visualizer)
+                            <Train size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> बोगी दृश्य (Visualizer)
                           </button>
                         </div>
                       </div>
@@ -7379,30 +7379,30 @@ export default function App() {
                       {/* Coach Stats Cards */}
                       <div className="grid-4" style={{ gap: 12 }}>
                         <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤•à¥à¤² à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚ (Rake Size)</div>
+                          <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>कुल बोगियां (Rake Size)</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#9A3412' }}>
-                            {adminCoachesList.length} à¤¡à¤¿à¤¬à¥à¤¬à¥‡
+                            {adminCoachesList.length} डिब्बे
                           </div>
                         </div>
 
                         <div style={{ background: '#EFF6FF', padding: 12, borderRadius: 8, border: '1px solid #BFDBFE', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#1E40AF', fontWeight: 700 }}>à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚</div>
+                          <div style={{ fontSize: '0.74rem', color: '#1E40AF', fontWeight: 700 }}>सक्रिय बुकिंग बोगियां</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1D4ED8' }}>
-                            {adminCoachesList.filter(c => c.isBookable).length} à¤¬à¥‹à¤—à¥€
+                            {adminCoachesList.filter(c => c.isBookable).length} बोगी
                           </div>
                         </div>
 
                         <div style={{ background: '#F5F3FF', padding: 12, borderRadius: 8, border: '1px solid #DDD6FE', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#5B21B6', fontWeight: 700 }}>à¤•à¥à¤² à¤¬à¤°à¥à¤¥ à¤•à¥à¤·à¤®à¤¤à¤¾ (Total Seats)</div>
+                          <div style={{ fontSize: '0.74rem', color: '#5B21B6', fontWeight: 700 }}>कुल बर्थ क्षमता (Total Seats)</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#6D28D9' }}>
-                            {adminCoachesList.reduce((acc, c) => acc + (parseInt(c.capacity) || 0), 0)} à¤¸à¥€à¤Ÿà¥‡à¤‚
+                            {adminCoachesList.reduce((acc, c) => acc + (parseInt(c.capacity) || 0), 0)} सीटें
                           </div>
                         </div>
 
                         <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#065F46', fontWeight: 700 }}>à¤²à¤¾à¤‡à¤µ à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¸à¤¿à¤‚à¤•</div>
+                          <div style={{ fontSize: '0.74rem', color: '#065F46', fontWeight: 700 }}>लाइव बुकिंग सिंक</div>
                           <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#047857' }}>
-                            âœ“ Active Realtime
+                            ✓ Active Realtime
                           </div>
                         </div>
                       </div>
@@ -7412,10 +7412,10 @@ export default function App() {
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                         <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.15rem', margin: 0 }}>
-                          à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¥‹à¤—à¥€ à¤•à¥à¤°à¤® à¤à¤µà¤‚ à¤µà¤¿à¤µà¤°à¤£ à¤¤à¤¾à¤²à¤¿à¤•à¤¾ (Rake Sequence & Configuration)
+                          ट्रेन बोगी क्रम एवं विवरण तालिका (Rake Sequence & Configuration)
                         </h3>
                         <span style={{ fontSize: '0.8rem', color: '#7C2D12' }}>
-                          â¬†ï¸ / â¬‡ï¸ à¤¬à¤Ÿà¤¨ à¤¸à¥‡ à¤¬à¥‹à¤—à¥€ à¤•à¤¾ à¤•à¥à¤°à¤® (à¤‡à¤‚à¤œà¤¨ à¤¸à¥‡ à¤¦à¥‚à¤°à¥€) à¤¬à¤¦à¤²à¥‡à¤‚
+                          ⬆️ / ⬇️ बटन से बोगी का क्रम (इंजन से दूरी) बदलें
                         </span>
                       </div>
 
@@ -7423,23 +7423,23 @@ export default function App() {
                         <table className="custom-table" style={{ width: '100%', fontSize: '0.88rem' }}>
                           <thead>
                             <tr style={{ background: '#FFF7ED', color: '#9A3412' }}>
-                              <th>à¤•à¥à¤°à¤®</th>
-                              <th>à¤¬à¥‹à¤—à¥€ à¤•à¥‹à¤¡</th>
-                              <th>à¤¬à¥‹à¤—à¥€ à¤¨à¤¾à¤®</th>
-                              <th>à¤¶à¥à¤°à¥‡à¤£à¥€ (Class)</th>
-                              <th>à¤¸à¥€à¤Ÿà¥‡à¤‚</th>
-                              <th>à¤•à¤¿à¤°à¤¾à¤¯à¤¾ â‚¹</th>
-                              <th>à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤¸à¥à¤¥à¤¿à¤¤à¤¿</th>
-                              <th>à¤¬à¥à¤•à¤¿à¤‚à¤— à¤šà¤¾à¤²à¥‚?</th>
-                              <th>à¤•à¥à¤°à¤® à¤¬à¤¦à¤²à¥‡à¤‚</th>
-                              <th>à¤•à¥à¤°à¤¿à¤¯à¤¾à¤à¤‚</th>
+                              <th>क्रम</th>
+                              <th>बोगी कोड</th>
+                              <th>बोगी नाम</th>
+                              <th>श्रेणी (Class)</th>
+                              <th>सीटें</th>
+                              <th>किराया ₹</th>
+                              <th>प्लेटफ़ॉर्म स्थिति</th>
+                              <th>बुकिंग चालू?</th>
+                              <th>क्रम बदलें</th>
+                              <th>क्रियाएं</th>
                             </tr>
                           </thead>
                           <tbody>
                             {adminCoachesList.length === 0 ? (
                               <tr>
                                 <td colSpan="10" style={{ textAlign: 'center', padding: 24, color: '#7C2D12' }}>
-                                  à¤•à¥‹à¤ˆ à¤¬à¥‹à¤—à¥€ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¥€à¥¤ à¤•à¥ƒà¤ªà¤¯à¤¾ "à¤¡à¤¿à¤«à¤¼à¥‰à¤²à¥à¤Ÿ 18-à¤¬à¥‹à¤—à¥€ à¤°à¥‡à¤• à¤°à¥€à¤¸à¥‡à¤Ÿ" à¤¦à¤¬à¤¾à¤à¤‚à¥¤
+                                  कोई बोगी नहीं मिली। कृपया "डिफ़ॉल्ट 18-बोगी रेक रीसेट" दबाएं।
                                 </td>
                               </tr>
                             ) : (
@@ -7467,13 +7467,13 @@ export default function App() {
                                     </span>
                                   </td>
                                   <td><strong>{coach.totalSeats || coach.capacity || 72}</strong></td>
-                                  <td><strong>â‚¹ {Number(coach.fare || coach.baseFare || 3000).toLocaleString('en-IN')}</strong></td>
+                                  <td><strong>₹ {Number(coach.fare || coach.baseFare || 3000).toLocaleString('en-IN')}</strong></td>
                                   <td style={{ fontSize: '0.82rem', color: '#7C2D12' }}>{coach.platformPosition || coach.platformPlacement || 'Center'}</td>
                                   <td>
                                     {coach.isBookable ? (
-                                      <span className="badge badge-active" style={{ fontSize: '0.72rem' }}>à¤¸à¤•à¥à¤°à¤¿à¤¯ (Bookable)</span>
+                                      <span className="badge badge-active" style={{ fontSize: '0.72rem' }}>सक्रिय (Bookable)</span>
                                     ) : (
-                                      <span className="badge" style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.72rem' }}>à¤…à¤•à¥à¤°à¤¿à¤¯ / à¤¸à¤°à¥à¤µà¤¿à¤¸</span>
+                                      <span className="badge" style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.72rem' }}>अक्रिय / सर्विस</span>
                                     )}
                                   </td>
                                   <td>
@@ -7483,7 +7483,7 @@ export default function App() {
                                         style={{ padding: '3px 7px', fontSize: '0.75rem' }}
                                         disabled={idx === 0}
                                         onClick={() => handleMoveCoachPosition(idx, 'up')}
-                                        title="à¤¬à¥‹à¤—à¥€ à¤•à¥‹ à¤†à¤—à¥‡ à¤²à¥‡ à¤œà¤¾à¤à¤‚ (Move Up)"
+                                        title="बोगी को आगे ले जाएं (Move Up)"
                                       >
                                         <ArrowUp size={14} />
                                       </button>
@@ -7492,7 +7492,7 @@ export default function App() {
                                         style={{ padding: '3px 7px', fontSize: '0.75rem' }}
                                         disabled={idx === adminCoachesList.length - 1}
                                         onClick={() => handleMoveCoachPosition(idx, 'down')}
-                                        title="à¤¬à¥‹à¤—à¥€ à¤•à¥‹ à¤ªà¥€à¤›à¥‡ à¤²à¥‡ à¤œà¤¾à¤à¤‚ (Move Down)"
+                                        title="बोगी को पीछे ले जाएं (Move Down)"
                                       >
                                         <ArrowDown size={14} />
                                       </button>
@@ -7514,15 +7514,15 @@ export default function App() {
                                           });
                                           setEditCoachModal(true);
                                         }}
-                                        title="à¤¬à¥‹à¤—à¥€ à¤µà¤¿à¤µà¤°à¤£ à¤¸à¤‚à¤¶à¥‹à¤§à¤¿à¤¤ à¤•à¤°à¥‡à¤‚"
+                                        title="बोगी विवरण संशोधित करें"
                                       >
-                                        <Edit size={14} style={{ display: 'inline', marginRight: 3, verticalAlign: 'text-bottom' }} /> à¤à¤¡à¤¿à¤Ÿ
+                                        <Edit size={14} style={{ display: 'inline', marginRight: 3, verticalAlign: 'text-bottom' }} /> एडिट
                                       </button>
                                       <button
                                         className="btn btn-danger btn-sm"
                                         style={{ padding: '4px 8px', fontSize: '0.78rem' }}
                                         onClick={() => handleDeleteCoach(coach.id, coach.coachCode)}
-                                        title="à¤¬à¥‹à¤—à¥€ à¤¹à¤Ÿà¤¾à¤à¤‚"
+                                        title="बोगी हटाएं"
                                       >
                                         <Trash2 size={14} />
                                       </button>
@@ -7549,43 +7549,43 @@ export default function App() {
                           </div>
                           <div>
                             <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.35rem', fontWeight: 800 }}>
-                               à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡ à¤¡à¥‡à¤¸à¥à¤• (Ticket Cancellation & Refund Master)
+                               टिकट रद्दीकरण व रिफंड डेस्क (Ticket Cancellation & Refund Master)
                             </h2>
                             <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.85rem' }}>
-                              à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦ à¤•à¤°à¥‡à¤‚, à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿ à¤¸à¤®à¤¾à¤¯à¥‹à¤œà¤¿à¤¤ à¤•à¤°à¥‡à¤‚ à¤¤à¤¥à¤¾ à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£à¤•à¤°à¥à¤¤à¤¾ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤•à¤¾ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤¦à¥‡à¤–à¥‡à¤‚
+                              यात्री टिकट रद्द करें, रिफंड राशि समायोजित करें तथा रद्दीकरणकर्ता कर्मचारी का रिकॉर्ड देखें
                             </p>
                           </div>
                         </div>
 
                         <button className="btn btn-outline btn-sm" onClick={loadAdminDashboard}>
-                          <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤°à¤¿à¤«à¥à¤°à¥‡à¤¶
+                          <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रिफ्रेश
                         </button>
                       </div>
 
                       {/* Refund KPI Stats */}
                       <div className="grid-4" style={{ gap: 12 }}>
                         <div style={{ background: '#FEF2F2', padding: 12, borderRadius: 8, border: '1px solid #FECACA', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#991B1B', fontWeight: 700 }}>à¤•à¥à¤² à¤°à¤¦à¥à¤¦ à¤Ÿà¤¿à¤•à¤Ÿ (Cancelled)</div>
+                          <div style={{ fontSize: '0.74rem', color: '#991B1B', fontWeight: 700 }}>कुल रद्द टिकट (Cancelled)</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#DC2626' }}>
-                            {adminBookings.filter(b => b.status === 'Cancelled').length} à¤Ÿà¤¿à¤•à¤Ÿ
+                            {adminBookings.filter(b => b.status === 'Cancelled').length} टिकट
                           </div>
                         </div>
                         <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>à¤•à¥à¤² à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿ (Total Refunded)</div>
+                          <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>कुल रिफंड राशि (Total Refunded)</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#EA580C' }}>
-                            â‚¹ {adminBookings.filter(b => b.status === 'Cancelled').reduce((sum, b) => sum + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0).toLocaleString('en-IN')}
+                            ₹ {adminBookings.filter(b => b.status === 'Cancelled').reduce((sum, b) => sum + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0).toLocaleString('en-IN')}
                           </div>
                         </div>
                         <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#065F46', fontWeight: 700 }}>à¤•à¤Ÿà¥Œà¤¤à¥€ / à¤¶à¥à¤²à¥à¤• (Charges Kept)</div>
+                          <div style={{ fontSize: '0.74rem', color: '#065F46', fontWeight: 700 }}>कटौती / शुल्क (Charges Kept)</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
-                            â‚¹ {adminBookings.filter(b => b.status === 'Cancelled').reduce((sum, b) => sum + (Number(b.cancellationCharges) || Number(b.cancellationDetails?.cancellationCharges) || 0), 0).toLocaleString('en-IN')}
+                            ₹ {adminBookings.filter(b => b.status === 'Cancelled').reduce((sum, b) => sum + (Number(b.cancellationCharges) || Number(b.cancellationDetails?.cancellationCharges) || 0), 0).toLocaleString('en-IN')}
                           </div>
                         </div>
                         <div style={{ background: '#F8FAFC', padding: 12, borderRadius: 8, border: '1px solid #E2E8F0', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 700 }}>à¤¸à¥€à¤Ÿà¥‡à¤‚ à¤¸à¥à¤µà¤¤à¤ƒ à¤®à¥à¤•à¥à¤¤ (Seats Released)</div>
+                          <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 700 }}>सीटें स्वतः मुक्त (Seats Released)</div>
                           <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A' }}>
-                            âœ“ 100% Realtime Available
+                            ✓ 100% Realtime Available
                           </div>
                         </div>
                       </div>
@@ -7594,45 +7594,45 @@ export default function App() {
                     {/* Cancelled Bookings Table */}
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
                       <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', margin: '0 0 14px 0' }}>
-                        à¤°à¤¦à¥à¤¦ à¤Ÿà¤¿à¤•à¤Ÿà¥‹à¤‚ à¤•à¤¾ à¤µà¤¿à¤¸à¥à¤¤à¥ƒà¤¤ à¤²à¥‡à¤œà¤° (Cancelled Tickets Roster)
+                        रद्द टिकटों का विस्तृत लेजर (Cancelled Tickets Roster)
                       </h3>
 
                       <div className="table-responsive">
                         <table className="custom-table" style={{ width: '100%', fontSize: '0.85rem' }}>
                           <thead>
                             <tr style={{ background: '#FEF2F2', color: '#991B1B' }}>
-                              <th>PNR à¤•à¥à¤°à¤®à¤¾à¤‚à¤•</th>
-                              <th>à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ / à¤¯à¤¾à¤¤à¥à¤°à¥€</th>
-                              <th>à¤®à¥‹à¤¬à¤¾à¤‡à¤²</th>
-                              <th>à¤•à¥‹à¤š à¤µ à¤®à¥‚à¤² à¤¸à¥€à¤Ÿà¥‡à¤‚</th>
-                              <th>à¤œà¤®à¤¾ à¤…à¤—à¥à¤°à¤¿à¤®</th>
-                              <th>à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿</th>
-                              <th>à¤®à¤¾à¤§à¥à¤¯à¤®</th>
-                              <th>à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£à¤•à¤°à¥à¤¤à¤¾ (Staff)</th>
-                              <th>à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤¸à¤®à¤¯ à¤µ à¤•à¤¾à¤°à¤£</th>
+                              <th>PNR क्रमांक</th>
+                              <th>श्रद्धालु / यात्री</th>
+                              <th>मोबाइल</th>
+                              <th>कोच व मूल सीटें</th>
+                              <th>जमा अग्रिम</th>
+                              <th>रिफंड राशि</th>
+                              <th>माध्यम</th>
+                              <th>रद्दीकरणकर्ता (Staff)</th>
+                              <th>रद्दीकरण समय व कारण</th>
                             </tr>
                           </thead>
                           <tbody>
                             {adminBookings.filter(b => b.status === 'Cancelled').length === 0 ? (
                               <tr>
                                 <td colSpan="9" style={{ textAlign: 'center', padding: 24, color: '#6B7280' }}>
-                                  à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ à¤®à¥‡à¤‚ à¤•à¥‹à¤ˆ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦ à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤† à¤¹à¥ˆà¥¤ à¤¸à¤®à¤¸à¥à¤¤ à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤µ à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤¹à¥ˆà¤‚à¥¤
+                                  वर्तमान में कोई टिकट रद्द नहीं हुआ है। समस्त बुकिंग्स सुरक्षित व सक्रिय हैं।
                                 </td>
                               </tr>
                             ) : (
                               adminBookings.filter(b => b.status === 'Cancelled').map((b, idx) => (
                                 <tr key={b.bookingId || idx}>
                                   <td><strong style={{ color: '#DC2626' }}>{b.bookingId}</strong></td>
-                                  <td><strong>{b.bookedBy}</strong> ({b.numberOfPassengers} à¤¯à¤¾à¤¤à¥à¤°à¥€)</td>
+                                  <td><strong>{b.bookedBy}</strong> ({b.numberOfPassengers} यात्री)</td>
                                   <td>{b.mobile}</td>
                                   <td>
                                     <span className="badge badge-bhakti">{b.coachName || b.cancellationDetails?.originalCoach}</span>
                                     <span style={{ fontSize: '0.75rem', color: '#6B7280', marginLeft: 4 }}>
-                                      (à¤¸à¥€à¤Ÿà¥‡à¤‚: {Array.isArray(b.releasedSeats || b.cancellationDetails?.originalSeats) ? (b.releasedSeats || b.cancellationDetails?.originalSeats).join(', ') : 'Free'})
+                                      (सीटें: {Array.isArray(b.releasedSeats || b.cancellationDetails?.originalSeats) ? (b.releasedSeats || b.cancellationDetails?.originalSeats).join(', ') : 'Free'})
                                     </span>
                                   </td>
-                                  <td>â‚¹ {b.cancellationDetails?.originalAdvance || b.advance || 0}</td>
-                                  <td><strong style={{ color: '#EA580C' }}>â‚¹ {b.refundAmount || b.cancellationDetails?.refundAmount || 0}</strong></td>
+                                  <td>₹ {b.cancellationDetails?.originalAdvance || b.advance || 0}</td>
+                                  <td><strong style={{ color: '#EA580C' }}>₹ {b.refundAmount || b.cancellationDetails?.refundAmount || 0}</strong></td>
                                   <td><span className="badge badge-paid">{b.cancellationDetails?.refundMode || 'Cash'}</span></td>
                                   <td>
                                     <strong style={{ color: '#1F2937' }}>{b.cancellationDetails?.cancelledBy || 'Admin'}</strong>
@@ -7640,7 +7640,7 @@ export default function App() {
                                   </td>
                                   <td style={{ fontSize: '0.78rem', color: '#4B5563' }}>
                                     {b.cancellationDetails?.cancelledAt ? new Date(b.cancellationDetails.cancelledAt).toLocaleString('en-IN') : 'N/A'}
-                                    <div style={{ color: '#B91C1C', fontStyle: 'italic', marginTop: 2 }}>{b.cancellationDetails?.cancellationReason || 'à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤…à¤¨à¥à¤°à¥‹à¤§'}</div>
+                                    <div style={{ color: '#B91C1C', fontStyle: 'italic', marginTop: 2 }}>{b.cancellationDetails?.cancellationReason || 'यात्री अनुरोध'}</div>
                                   </td>
                                 </tr>
                               ))
@@ -7662,10 +7662,10 @@ export default function App() {
                         </div>
                         <div>
                           <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.4rem', fontWeight: 800 }}>
-                            à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤¯à¥‚à¤œà¤¼à¤° à¤—à¤¾à¤‡à¤¡ à¤µ à¤¸à¤‚à¤šà¤¾à¤²à¤¨ à¤•à¤¾à¤°à¥à¤¯à¤ªà¥à¤°à¤£à¤¾à¤²à¥€ (User Manual & SOP)
+                            संपूर्ण यूज़र गाइड व संचालन कार्यप्रणाली (User Manual & SOP)
                           </h2>
                           <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.88rem' }}>
-                            à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤•, à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¥à¤²à¤°à¥à¤•, à¤Ÿà¥€à¤Ÿà¥€à¤ˆ à¤à¤µà¤‚ à¤²à¥‡à¤–à¤¾ à¤Ÿà¥€à¤® à¤¹à¥‡à¤¤à¥ à¤šà¤°à¤£à¤¬à¤¦à¥à¤§ à¤‰à¤ªà¤¯à¥‹à¤— à¤¨à¤¿à¤°à¥à¤¦à¥‡à¤¶
+                            ट्रस्ट व्यवस्थापक, बुकिंग क्लर्क, टीटीई एवं लेखा टीम हेतु चरणबद्ध उपयोग निर्देश
                           </p>
                         </div>
                       </div>
@@ -7676,31 +7676,31 @@ export default function App() {
                           className={`btn btn-sm ${userGuideTab === 'admin' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('admin')}
                         >
-                          1. à¤®à¥à¤–à¥à¤¯ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤• (SuperAdmin SOP)
+                          1. मुख्य व्यवस्थापक (SuperAdmin SOP)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'clerk' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('clerk')}
                         >
-                          2. à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤²à¤¿à¤ªà¤¿à¤• (Booking Clerk)
+                          2. टिकट काउंटर लिपिक (Booking Clerk)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'tte' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('tte')}
                         >
-                          3. à¤šà¤² à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¤°à¥€à¤•à¥à¤·à¤• (TTE Live Check)
+                          3. चल टिकट परीक्षक (TTE Live Check)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'accounts' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('accounts')}
                         >
-                          4. à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤µ à¤²à¥‡à¤–à¤¾ à¤®à¤¿à¤²à¤¾à¤¨ (Accounts/MIS)
+                          4. दैनिक वसूली व लेखा मिलान (Accounts/MIS)
                         </button>
                         <button
                           className={`btn btn-sm ${userGuideTab === 'refund_rules' ? 'btn-primary' : 'btn-outline'}`}
                           onClick={() => setUserGuideTab('refund_rules')}
                         >
-                           5. à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡ à¤¨à¤¿à¤¯à¤® (Cancellation Policy)
+                           5. रद्दीकरण व रिफंड नियम (Cancellation Policy)
                         </button>
                       </div>
                     </div>
@@ -7709,74 +7709,74 @@ export default function App() {
                     <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 24, lineHeight: 1.7 }}>
                       {userGuideTab === 'admin' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤®à¥à¤–à¥à¤¯ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤• (Chief Admin) à¤•à¤¾à¤°à¥à¤¯à¤ªà¥à¤°à¤£à¤¾à¤²à¥€</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>मुख्य व्यवस्थापक (Chief Admin) कार्यप्रणाली</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
-                            <li><strong>à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡:</strong> à¤²à¤¾à¤‡à¤µ à¤•à¥à¤² à¤†à¤°à¤•à¥à¤·à¤£, à¤¦à¥ˆà¤¨à¤¿à¤• à¤¬à¤¿à¤•à¥à¤°à¥€, à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿ à¤”à¤° à¤¶à¥à¤¦à¥à¤§ à¤°à¤¾à¤œà¤¸à¥à¤µ à¤•à¤¾ à¤µà¤¿à¤¶à¥à¤²à¥‡à¤·à¤£ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¥‹à¤—à¥€ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨:</strong> à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤¨à¤ˆ à¤¬à¥‹à¤—à¤¿à¤¯à¤¾à¤‚ à¤œà¥‹à¥œà¥‡à¤‚, 18-à¤¬à¥‹à¤—à¥€ à¤°à¥‡à¤• à¤°à¥€à¤¸à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚ à¤¯à¤¾ â¬†ï¸/â¬‡ï¸ à¤¬à¤Ÿà¤¨ à¤¸à¥‡ à¤•à¥à¤°à¤® à¤¬à¤¦à¤²à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤¸à¥‡ UPI ID à¤…à¤ªà¤¡à¥‡à¤Ÿ:</strong> à¤…à¤ªà¤¨à¥€ à¤¬à¥ˆà¤‚à¤• UPI ID à¤µ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¨à¤¾à¤® à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚ à¤œà¥‹ QR à¤•à¥‹à¤¡ à¤®à¥‡à¤‚ à¤¤à¥à¤°à¤‚à¤¤ à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤¹à¥‹à¤—à¥€à¥¤</li>
-                            <li><strong>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ RBAC:</strong> à¤¨à¤ TTE, à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¥à¤²à¤°à¥à¤• à¤µ à¤…à¤•à¤¾à¤‰à¤‚à¤Ÿà¥à¤¸ à¤¸à¥à¤Ÿà¤¾à¤« à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ à¤à¤µà¤‚ à¤‰à¤¨à¥à¤¹à¥‡à¤‚ à¤µà¤¿à¤¶à¤¿à¤·à¥à¤Ÿ à¤¬à¥‹à¤—à¥€ à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤‘à¤¡à¤¿à¤Ÿ à¤Ÿà¥à¤°à¥‡à¤²:</strong> à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤¬à¥à¤•à¤¿à¤‚à¤—, à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£, à¤°à¤¿à¤«à¤‚à¤¡ à¤¯à¤¾ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¬à¤¦à¤²à¤¾à¤µ à¤•à¥€ à¤¸à¤®à¤¯à¤¬à¤¦à¥à¤§ à¤œà¤¾à¤à¤š à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ UTR (à¤¨à¤¯à¤¾):</strong> '5. à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ UTR' à¤®à¥‡à¤‚ à¤œà¤¾à¤•à¤° à¤ªà¥‡à¤‚à¤¡à¤¿à¤‚à¤— UTR à¤•à¤¾ à¤¬à¥ˆà¤‚à¤• à¤–à¤¾à¤¤à¥‡ à¤¸à¥‡ à¤®à¤¿à¤²à¤¾à¤¨ à¤•à¤° à¤‰à¤¸à¥‡ 'Verified' (à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤) à¤¯à¤¾ 'Rejected' (à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤) à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥à¤•à¥ˆà¤¨à¤° (HMAC):</strong> à¤«à¤°à¥à¤œà¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¥‹à¤•à¤¨à¥‡ à¤¹à¥‡à¤¤à¥ 'à¤²à¤¾à¤‡à¤µ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¥à¤•à¥ˆà¤¨à¤°' à¤¸à¥‡ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾ QR à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤° à¤…à¤¸à¤²à¥€/à¤¨à¤•à¤²à¥€ à¤•à¥€ à¤ªà¤¹à¤šà¤¾à¤¨ à¤•à¤°à¥‡à¤‚à¥¤</li>
+                            <li><strong>डैशबोर्ड:</strong> लाइव कुल आरक्षण, दैनिक बिक्री, रिफंड राशि और शुद्ध राजस्व का विश्लेषण करें।</li>
+                            <li><strong>ट्रेन बोगी प्रबंधन:</strong> ट्रेन में नई बोगियां जोड़ें, 18-बोगी रेक रीसेट करें या ⬆️/⬇️ बटन से क्रम बदलें।</li>
+                            <li><strong>सेटिंग्स से UPI ID अपडेट:</strong> अपनी बैंक UPI ID व ट्रस्ट नाम अपडेट करें जो QR कोड में तुरंत सक्रिय होगी।</li>
+                            <li><strong>कर्मचारी RBAC:</strong> नए TTE, बुकिंग क्लर्क व अकाउंट्स स्टाफ जोड़ें एवं उन्हें विशिष्ट बोगी आवंटित करें।</li>
+                            <li><strong>ऑडिट ट्रेल:</strong> किसी भी टिकट बुकिंग, रद्दीकरण, रिफंड या भुगतान बदलाव की समयबद्ध जाँच करें।</li>
+                            <li><strong>सत्यापन व UTR (नया):</strong> '5. सत्यापन व UTR' में जाकर पेंडिंग UTR का बैंक खाते से मिलान कर उसे 'Verified' (स्वीकृत) या 'Rejected' (अस्वीकृत) करें।</li>
+                            <li><strong>सुरक्षा स्कैनर (HMAC):</strong> फर्जी टिकट रोकने हेतु 'लाइव टिकट स्कैनर' से श्रद्धालु की टिकट का QR स्कैन कर असली/नकली की पहचान करें।</li>
                           </ol>
                         </div>
                       )}
 
                       {userGuideTab === 'clerk' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤¬à¥à¤•à¤¿à¤‚à¤— à¤•à¥à¤²à¤°à¥à¤• SOP</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>टिकट काउंटर बुकिंग क्लर्क SOP</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
-                            <li><strong>à¤¨à¤¯à¤¾ à¤†à¤°à¤•à¥à¤·à¤£:</strong> à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤·, à¤¶à¥à¤°à¥‡à¤£à¥€ (Sleeper/AC) à¤à¤µà¤‚ à¤•à¥‹à¤š à¤šà¥à¤¨à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤¸à¥€à¤Ÿ à¤šà¤¯à¤¨:</strong> à¤¸à¥€à¤Ÿ à¤®à¥ˆà¤ª à¤®à¥‡à¤‚ à¤–à¤¾à¤²à¥€ à¤¸à¥€à¤Ÿ à¤ªà¤° à¤•à¥à¤²à¤¿à¤• à¤•à¤°à¥‡à¤‚ (à¤¹à¤°à¥€ à¤²à¤¾à¤‡à¤Ÿ à¤¸à¥‡ à¤šà¤¯à¤¨à¤¿à¤¤ à¤¸à¥€à¤Ÿ à¤¦à¤¿à¤–à¤¤à¥€ à¤¹à¥ˆ)à¥¤</li>
-                            <li><strong>à¤¸à¤¹à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤µà¤¿à¤µà¤°à¤£:</strong> à¤¨à¤¾à¤®, à¤†à¤¯à¥, à¤²à¤¿à¤‚à¤—, à¤†à¤§à¤¾à¤° à¤µ à¤¬à¤°à¥à¤¥ à¤ªà¥à¤°à¤¾à¤¥à¤®à¤¿à¤•à¤¤à¤¾ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤µ à¤°à¤¸à¥€à¤¦:</strong> à¤¨à¤•à¤¦ à¤¯à¤¾ UPI QR à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤²à¥‡à¤‚à¥¤ 'à¤•à¥à¤² à¤¦à¥‡à¤¯ à¤°à¤¾à¤¶à¤¿' à¤…à¤ªà¤¨à¥‡-à¤†à¤ª 'à¤…à¤—à¥à¤°à¤¿à¤® à¤Ÿà¥‹à¤•à¤¨ à¤°à¤¾à¤¶à¤¿' à¤®à¥‡à¤‚ à¤­à¤° à¤œà¤¾à¤à¤—à¥€à¥¤ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¥‹ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤ªà¤°à¥à¤šà¥€ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¤•à¥‡ à¤¦à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ (Cancellation):</strong> à¤¯à¤¦à¤¿ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤°à¤¦à¥à¤¦ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ à¤¤à¥‹ '4. à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡' à¤®à¥‡à¤‚ à¤œà¤¾à¤•à¤° à¤Ÿà¤¿à¤•à¤Ÿ à¤¨à¤¿à¤°à¤¸à¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤Ÿà¤¿à¤•à¤Ÿ à¤œà¤¾à¤à¤š (Verification):</strong> à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¤¾ à¤Ÿà¤¿à¤•à¤Ÿ à¤…à¤¸à¤²à¥€ à¤¹à¥ˆ à¤¯à¤¾ à¤¨à¤¹à¥€à¤‚, à¤‡à¤¸à¤•à¥‡ à¤²à¤¿à¤ '8. à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' à¤®à¥‡à¤‚ à¤œà¤¾à¤•à¤° PNR à¤¡à¤¾à¤²à¥‡à¤‚ à¤¯à¤¾ QR à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤°à¥‡à¤‚à¥¤</li>
+                            <li><strong>नया आरक्षण:</strong> यात्रा वर्ष, श्रेणी (Sleeper/AC) एवं कोच चुनें।</li>
+                            <li><strong>सीट चयन:</strong> सीट मैप में खाली सीट पर क्लिक करें (हरी लाइट से चयनित सीट दिखती है)।</li>
+                            <li><strong>सहयात्री विवरण:</strong> नाम, आयु, लिंग, आधार व बर्थ प्राथमिकता दर्ज करें।</li>
+                            <li><strong>भुगतान व रसीद:</strong> नकद या UPI QR द्वारा भुगतान लें। 'कुल देय राशि' अपने-आप 'अग्रिम टोकन राशि' में भर जाएगी। श्रद्धालु को आधिकारिक पर्ची प्रिंट करके दें।</li>
+                            <li><strong>रद्दीकरण (Cancellation):</strong> यदि श्रद्धालु यात्रा रद्द करता है तो '4. रद्दीकरण व रिफंड' में जाकर टिकट निरस्त करें।</li>
+                            <li><strong>टिकट जाँच (Verification):</strong> श्रद्धालु का टिकट असली है या नहीं, इसके लिए '8. टिकट सत्यापन' में जाकर PNR डालें या QR स्कैन करें।</li>
                           </ol>
                         </div>
                       )}
 
                       {userGuideTab === 'tte' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤šà¤² à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¤°à¥€à¤•à¥à¤·à¤• (TTE) à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤…à¤Ÿà¥‡à¤‚à¤¡à¥‡à¤‚à¤¸ SOP</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>चल टिकट परीक्षक (TTE) ऑन-ट्रेन अटेंडेंस SOP</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
-                            <li><strong>à¤²à¤¾à¤‡à¤µ à¤¸à¥€à¤Ÿ à¤—à¥à¤°à¤¿à¤¡:</strong> à¤…à¤ªà¤¨à¥‡ à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¥‹à¤š à¤•à¤¾ à¤šà¤¯à¤¨ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤œà¤¾à¤à¤š:</strong> à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤® à¤µ à¤†à¤§à¤¾à¤° à¤¦à¥‡à¤–à¤•à¤° <strong>âœ“ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ (Present)</strong> à¤¯à¤¾ <strong>âœ• à¤…à¤¨à¥à¤ªà¤¸à¥à¤¥à¤¿à¤¤ (Absent)</strong> à¤®à¤¾à¤°à¥à¤• à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤‘à¤¨-à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¤•à¤¾à¤¯à¤¾ à¤µà¤¸à¥‚à¤²à¥€:</strong> à¤¶à¥‡à¤· à¤°à¤¾à¤¶à¤¿ à¤¹à¥‹à¤¨à¥‡ à¤ªà¤° <strong>"à¤µà¤¸à¥‚à¤²à¥€ à¤•à¤°à¥‡à¤‚"</strong> à¤¦à¤¬à¤¾à¤•à¤° à¤¨à¤•à¤¦ à¤¯à¤¾ à¤‘à¤¨-à¤¸à¥à¤ªà¥‰à¤Ÿ UPI QR à¤¸à¥‡ à¤¶à¥‡à¤· à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤«à¤°à¥à¤œà¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¥‹à¤•à¤¥à¤¾à¤®:</strong> '4. à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨' à¤®à¥‡à¤‚ <strong>à¤²à¤¾à¤‡à¤µ à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤¸à¥à¤•à¥ˆà¤¨à¤° (HMAC)</strong> à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤°à¥‡à¤‚à¥¤ à¤…à¤—à¤° à¤Ÿà¤¿à¤•à¤Ÿ à¤¸à¥‡ à¤›à¥‡à¤¡à¤¼à¤›à¤¾à¤¡à¤¼ à¤¹à¥à¤ˆ à¤¹à¥ˆ (à¤œà¥ˆà¤¸à¥‡ à¤¨à¤¾à¤® à¤¯à¤¾ à¤°à¤¾à¤¶à¤¿ à¤¬à¤¦à¤²à¥€ à¤¹à¥ˆ) à¤¤à¥‹ à¤¸à¥à¤•à¥ˆà¤¨à¤° à¤¤à¥à¤°à¤‚à¤¤ à¤…à¤²à¤°à¥à¤Ÿ (à¤²à¤¾à¤² à¤°à¤‚à¤—) à¤¦à¥‡à¤—à¤¾à¥¤</li>
-                            <li><strong>UTR à¤¦à¤°à¥à¤œ à¤•à¤°à¤¨à¤¾:</strong> à¤¯à¤¦à¤¿ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ UPI à¤¸à¥‡ à¤¬à¤•à¤¾à¤¯à¤¾ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ, à¤¤à¥‹ UTR à¤¸à¥à¤•à¥ˆà¤¨à¤° à¤Ÿà¥ˆà¤¬ à¤®à¥‡à¤‚ à¤¡à¤¾à¤²à¤•à¤° à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ à¤•à¤°à¥‡à¤‚à¥¤</li>
+                            <li><strong>लाइव सीट ग्रिड:</strong> अपने आवंटित कोच का चयन करें।</li>
+                            <li><strong>उपस्थिति जाँच:</strong> प्रत्येक यात्री का नाम व आधार देखकर <strong>✓ उपस्थित (Present)</strong> या <strong>✕ अनुपस्थित (Absent)</strong> मार्क करें।</li>
+                            <li><strong>ऑन-ट्रेन बकाया वसूली:</strong> शेष राशि होने पर <strong>"वसूली करें"</strong> दबाकर नकद या ऑन-स्पॉट UPI QR से शेष किराया प्राप्त करें।</li>
+                            <li><strong>फर्जी टिकट रोकथाम:</strong> '4. टिकट सत्यापन' में <strong>लाइव टिकट सुरक्षा स्कैनर (HMAC)</strong> का उपयोग करें। अगर टिकट से छेड़छाड़ हुई है (जैसे नाम या राशि बदली है) तो स्कैनर तुरंत अलर्ट (लाल रंग) देगा।</li>
+                            <li><strong>UTR दर्ज करना:</strong> यदि श्रद्धालु ट्रेन में UPI से बकाया भुगतान करता है, तो UTR स्कैनर टैब में डालकर रिकॉर्ड करें।</li>
                           </ol>
                         </div>
                       )}
 
                       {userGuideTab === 'accounts' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤¦à¥ˆà¤¨à¤¿à¤• à¤µà¤¸à¥‚à¤²à¥€ à¤µ à¤²à¥‡à¤–à¤¾ à¤®à¤¿à¤²à¤¾à¤¨ (Daily MIS & Accounts)</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}>दैनिक वसूली व लेखा मिलान (Daily MIS & Accounts)</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
-                            <li><strong>à¤¦à¥ˆà¤¨à¤¿à¤• à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ:</strong> à¤¤à¤¿à¤¥à¤¿ à¤šà¥à¤¨à¥‡à¤‚ (à¤†à¤œ, à¤•à¤², à¤ªà¤¿à¤›à¤²à¥‡ 7 à¤¦à¤¿à¤¨ à¤¯à¤¾ à¤•à¤¸à¥à¤Ÿà¤® à¤¡à¥‡à¤Ÿ à¤°à¥‡à¤‚à¤œ)à¥¤</li>
-                            <li><strong>à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€à¤µà¤¾à¤° à¤¬à¤¹à¥€à¤–à¤¾à¤¤à¤¾:</strong> à¤•à¤¿à¤¸ à¤•à¥à¤²à¤°à¥à¤• à¤¯à¤¾ TTE à¤¨à¥‡ à¤•à¤¿à¤¤à¤¨à¤¾ à¤¨à¤•à¤¦ à¤µ UPI à¤•à¤²à¥‡à¤•à¥à¤Ÿ à¤•à¤¿à¤¯à¤¾, à¤‰à¤¸à¤•à¤¾ à¤ªà¥‚à¤°à¤¾ à¤¹à¤¿à¤¸à¤¾à¤¬ à¤¦à¥‡à¤–à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤°à¤¿à¤«à¤‚à¤¡ à¤¸à¤®à¤¾à¤¯à¥‹à¤œà¤¨:</strong> à¤°à¤¿à¤«à¤‚à¤¡ à¤•à¥€ à¤—à¤ˆ à¤°à¤¾à¤¶à¤¿ à¤¶à¥à¤¦à¥à¤§ à¤°à¤¾à¤œà¤¸à¥à¤µ (Net Balance) à¤¸à¥‡ à¤‘à¤Ÿà¥‹-à¤à¤¡à¤œà¤¸à¥à¤Ÿ à¤¹à¥‹à¤•à¤° à¤ªà¥à¤°à¤¦à¤°à¥à¤¶à¤¿à¤¤ à¤¹à¥‹à¤—à¥€à¥¤</li>
-                            <li><strong>UTR à¤®à¤¿à¤²à¤¾à¤¨ (Verification):</strong> '6. à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤µ UTR' à¤®à¥‡à¤‚ à¤œà¤¾à¤•à¤° à¤¬à¥ˆà¤‚à¤• à¤¸à¥à¤Ÿà¥‡à¤Ÿà¤®à¥‡à¤‚à¤Ÿ à¤¸à¥‡ à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥à¤“à¤‚ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤­à¤°à¥‡ à¤—à¤ 12-à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¥‡ UTR à¤•à¤¾ à¤®à¤¿à¤²à¤¾à¤¨ à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤µà¥‡à¤°à¥€à¤«à¤¾à¤ˆ à¤•à¤°à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤à¤•à¥à¤¸à¥‡à¤² à¤à¤•à¥à¤¸à¤ªà¥‹à¤°à¥à¤Ÿ:</strong> à¤¸à¤‚à¤ªà¥‚à¤°à¥à¤£ à¤µà¤¿à¤¤à¥à¤¤à¥€à¤¯ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡ (Financial Record) à¤à¤• à¤•à¥à¤²à¤¿à¤• à¤®à¥‡à¤‚ à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚à¥¤</li>
+                            <li><strong>दैनिक रिपोर्ट:</strong> तिथि चुनें (आज, कल, पिछले 7 दिन या कस्टम डेट रेंज)।</li>
+                            <li><strong>कर्मचारीवार बहीखाता:</strong> किस क्लर्क या TTE ने कितना नकद व UPI कलेक्ट किया, उसका पूरा हिसाब देखें।</li>
+                            <li><strong>रिफंड समायोजन:</strong> रिफंड की गई राशि शुद्ध राजस्व (Net Balance) से ऑटो-एडजस्ट होकर प्रदर्शित होगी।</li>
+                            <li><strong>UTR मिलान (Verification):</strong> '6. सत्यापन व UTR' में जाकर बैंक स्टेटमेंट से श्रद्धालुओं द्वारा भरे गए 12-अंकों के UTR का मिलान करें और लेनदेन वेरीफाई करें।</li>
+                            <li><strong>एक्सेल एक्सपोर्ट:</strong> संपूर्ण वित्तीय रिकॉर्ड (Financial Record) एक क्लिक में डाउनलोड करें।</li>
                           </ol>
                         </div>
                       )}
 
                       {userGuideTab === 'refund_rules' && (
                         <div>
-                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}> à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡ à¤¨à¤¿à¤¯à¤® (Cancellation & Refund Rules)</h3>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800 }}> टिकट रद्दीकरण व रिफंड नियम (Cancellation & Refund Rules)</h3>
                           <ol style={{ paddingLeft: 20, color: '#374151' }}>
-                            <li><strong>à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾:</strong> à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¡à¤¾à¤¯à¤°à¥‡à¤•à¥à¤Ÿà¤°à¥€ à¤®à¥‡à¤‚ à¤œà¤¾à¤•à¤° à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¥‡ à¤¸à¤¾à¤®à¤¨à¥‡ <strong>"âœ• à¤°à¤¦à¥à¤¦ / à¤°à¤¿à¤«à¤‚à¤¡"</strong> à¤¦à¤¬à¤¾à¤à¤‚à¥¤</li>
-                            <li><strong>à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿ à¤¨à¤¿à¤°à¥à¤§à¤¾à¤°à¤£:</strong> à¤œà¤®à¤¾ à¤…à¤—à¥à¤°à¤¿à¤® à¤®à¥‡à¤‚ à¤¸à¥‡ à¤¨à¤¿à¤¯à¤®à¤¾à¤¨à¥à¤¸à¤¾à¤° à¤•à¤Ÿà¥Œà¤¤à¥€ à¤•à¤° à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¥‹ à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿ à¤ªà¥à¤°à¤¦à¤¾à¤¨ à¤•à¤°à¥‡à¤‚à¥¤ à¤°à¤¿à¤«à¤‚à¤¡ à¤®à¥‹à¤¡ (UPI/Cash) à¤…à¤¨à¤¿à¤µà¤¾à¤°à¥à¤¯ à¤°à¥‚à¤ª à¤¸à¥‡ à¤šà¥à¤¨à¥‡à¤‚à¥¤</li>
-                            <li><strong>à¤¸à¥€à¤Ÿ à¤•à¥€ à¤¤à¤¤à¥à¤•à¤¾à¤² à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¤à¤¾:</strong> à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦ à¤¹à¥‹à¤¤à¥‡ à¤¹à¥€ à¤¸à¥€à¤Ÿ à¤®à¥ˆà¤ª à¤®à¥‡à¤‚ à¤µà¤¹ à¤¬à¤°à¥à¤¥ à¤ªà¥à¤¨à¤ƒ à¤¹à¤°à¥€ (Available) à¤¹à¥‹ à¤œà¤¾à¤¤à¥€ à¤¹à¥ˆà¥¤</li>
-                            <li><strong>à¤‘à¤¡à¤¿à¤Ÿ à¤°à¤¿à¤•à¥‰à¤°à¥à¤¡:</strong> à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£à¤•à¤°à¥à¤¤à¤¾ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤®, à¤¤à¤¿à¤¥à¤¿ à¤µ à¤°à¤¿à¤«à¤‚à¤¡ à¤®à¥‹à¤¡ à¤¸à¥à¤¥à¤¾à¤¯à¥€ à¤°à¥‚à¤ª à¤¸à¥‡ à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤°à¤¹à¤¤à¤¾ à¤¹à¥ˆ à¤”à¤° à¤‘à¤¡à¤¿à¤Ÿ à¤²à¥‰à¤—à¥à¤¸ à¤®à¥‡à¤‚ à¤¦à¤°à¥à¤œ à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆà¥¤</li>
+                            <li><strong>रद्दीकरण प्रक्रिया:</strong> बुकिंग डायरेक्टरी में जाकर टिकट के सामने <strong>"✕ रद्द / रिफंड"</strong> दबाएं।</li>
+                            <li><strong>रिफंड राशि निर्धारण:</strong> जमा अग्रिम में से नियमानुसार कटौती कर श्रद्धालु को रिफंड राशि प्रदान करें। रिफंड मोड (UPI/Cash) अनिवार्य रूप से चुनें।</li>
+                            <li><strong>सीट की तत्काल उपलब्धता:</strong> टिकट रद्द होते ही सीट मैप में वह बर्थ पुनः हरी (Available) हो जाती है।</li>
+                            <li><strong>ऑडिट रिकॉर्ड:</strong> रद्दीकरणकर्ता कर्मचारी का नाम, तिथि व रिफंड मोड स्थायी रूप से सुरक्षित रहता है और ऑडिट लॉग्स में दर्ज होता है।</li>
                           </ol>
                         </div>
                       )}
 
                       <div style={{ marginTop: 20, background: '#FFF8F2', padding: 14, borderRadius: 8, border: '1px solid #FED7AA', fontSize: '0.85rem', color: '#7C2D12' }}>
-                        <strong>à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨ à¤µ à¤¤à¤•à¤¨à¥€à¤•à¥€ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾:</strong> à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤•à¤ à¤¿à¤¨à¤¾à¤ˆ à¤•à¥‡ à¤²à¤¿à¤ à¤à¤¡à¤®à¤¿à¤¨ à¤¸à¤ªà¥‹à¤°à¥à¤Ÿ <code>iammshyam@gmail.com</code> à¤¯à¤¾ <code>info.aroventech@gmail.com</code> à¤ªà¤° à¤¸à¤‚à¤ªà¤°à¥à¤• à¤•à¤°à¥‡à¤‚à¥¤<br />
-                        <strong>à¤¸à¥‰à¤«à¥à¤Ÿà¤µà¥‡à¤¯à¤° à¤¡à¥‡à¤µà¤²à¤ªà¤°:</strong> ArovenTech (www.aroventech.site | +91 9598023701)
+                        <strong>हेल्पलाइन व तकनीकी सहायता:</strong> किसी भी कठिनाई के लिए एडमिन सपोर्ट <code>iammshyam@gmail.com</code> या <code>info.aroventech@gmail.com</code> पर संपर्क करें।<br />
+                        <strong>सॉफ्टवेयर डेवलपर:</strong> ArovenTech (www.aroventech.site | +91 9598023701)
                       </div>
                     </div>
                   </div>
@@ -7786,31 +7786,31 @@ export default function App() {
                 {activeView === 'rules' && (
                   <div className="glass-card rules-page" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 30px', background: '#FFFFFF', color: '#1F2937', fontFamily: 'serif' }}>
                     <div style={{ textAlign: 'center', borderBottom: '2px solid #9A3412', paddingBottom: 20, marginBottom: 30 }}>
-                      <h1 style={{ fontSize: '2.5rem', color: '#9A3412', fontWeight: 900, margin: '0 0 10px 0' }}>{projectSettings.trustName || 'à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ'}</h1>
-                      <h2 style={{ fontSize: '1.5rem', color: '#7C2D12', margin: 0 }}>à¤Ÿà¥à¤°à¥‡à¤¨ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤•à¥‡ à¤¨à¤¿à¤¯à¤® à¤à¤µà¤‚ à¤¶à¤°à¥à¤¤à¥‡à¤‚ (Terms & Conditions)</h2>
+                      <h1 style={{ fontSize: '2.5rem', color: '#9A3412', fontWeight: 900, margin: '0 0 10px 0' }}>{projectSettings.trustName || 'श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट'}</h1>
+                      <h2 style={{ fontSize: '1.5rem', color: '#7C2D12', margin: 0 }}>ट्रेन यात्रा के नियम एवं शर्तें (Terms & Conditions)</h2>
                       <div style={{ marginTop: 15 }}>
                         <button className="btn btn-outline hide-on-print" onClick={() => window.print()} style={{ borderColor: '#9A3412', color: '#9A3412' }}>
-                          <Printer size={16} style={{ display: 'inline', marginRight: 6 }} /> à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚ (Print)
+                          <Printer size={16} style={{ display: 'inline', marginRight: 6 }} /> प्रिंट करें (Print)
                         </button>
                       </div>
                     </div>
                     
                     <div style={{ lineHeight: 1.8, fontSize: '1.05rem' }}>
                       <ol style={{ paddingLeft: 24 }}>
-                        <li style={{ marginBottom: 12 }}><strong>à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¥€ à¤µà¥ˆà¤§à¤¤à¤¾ (Validity):</strong> à¤¯à¤¹ à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¥‡à¤µà¤² à¤‰à¤¸à¥€ à¤¤à¤¿à¤¥à¤¿, à¤Ÿà¥à¤°à¥‡à¤¨ à¤”à¤° à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¥‡ à¤²à¤¿à¤ à¤®à¤¾à¤¨à¥à¤¯ à¤¹à¥ˆ à¤œà¤¿à¤¸à¤•à¥‡ à¤¨à¤¾à¤® à¤ªà¤° à¤¯à¤¹ à¤œà¤¾à¤°à¥€ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾ à¤¹à¥ˆà¥¤ à¤Ÿà¤¿à¤•à¤Ÿ à¤…à¤¹à¤¸à¥à¤¤à¤¾à¤‚à¤¤à¤°à¤£à¥€à¤¯ (Non-transferable) à¤¹à¥ˆà¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° (ID Proof):</strong> à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤•à¥‡ à¤¦à¥Œà¤°à¤¾à¤¨ à¤¸à¤­à¥€ à¤¯à¤¾à¤¤à¥à¤°à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤…à¤ªà¤¨à¤¾ à¤®à¥‚à¤² (Original) à¤µà¥ˆà¤§ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° (à¤œà¥ˆà¤¸à¥‡ à¤†à¤§à¤¾à¤° à¤•à¤¾à¤°à¥à¤¡, à¤µà¥‹à¤Ÿà¤° à¤†à¤ˆà¤¡à¥€) à¤¸à¤¾à¤¥ à¤°à¤–à¤¨à¤¾ à¤…à¤¨à¤¿à¤µà¤¾à¤°à¥à¤¯ à¤¹à¥ˆà¥¤ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° à¤¨ à¤¹à¥‹à¤¨à¥‡ à¤ªà¤° à¤Ÿà¤¿à¤•à¤Ÿ à¤…à¤®à¤¾à¤¨à¥à¤¯ à¤®à¤¾à¤¨à¤¾ à¤œà¤¾à¤à¤—à¤¾à¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤à¤µà¤‚ à¤°à¤¿à¤«à¤‚à¤¡ (Cancellation & Refund):</strong> à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤¸à¥‡ 48 à¤˜à¤‚à¤Ÿà¥‡ à¤ªà¥‚à¤°à¥à¤µ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦ à¤•à¤°à¤¨à¥‡ à¤ªà¤° 25% à¤•à¤Ÿà¥Œà¤¤à¥€ à¤¹à¥‹à¤—à¥€à¥¤ 48 à¤¸à¥‡ 24 à¤˜à¤‚à¤Ÿà¥‡ à¤ªà¥‚à¤°à¥à¤µ 50% à¤•à¤Ÿà¥Œà¤¤à¥€ à¤¹à¥‹à¤—à¥€à¥¤ 24 à¤˜à¤‚à¤Ÿà¥‡ à¤¸à¥‡ à¤•à¤® à¤¸à¤®à¤¯ à¤®à¥‡à¤‚ à¤•à¥‹à¤ˆ à¤°à¤¿à¤«à¤‚à¤¡ à¤¨à¤¹à¥€à¤‚ à¤¦à¤¿à¤¯à¤¾ à¤œà¤¾à¤à¤—à¤¾à¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¥€ à¤œà¤¿à¤®à¥à¤®à¥‡à¤¦à¤¾à¤°à¥€ (Luggage):</strong> à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤…à¤ªà¤¨à¥‡ à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¥€ à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¥à¤µà¤¯à¤‚ à¤œà¤¿à¤®à¥à¤®à¥‡à¤¦à¤¾à¤° à¤¹à¥ˆà¤‚à¥¤ à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¯à¤¾ à¤°à¥‡à¤²à¤µà¥‡ à¤ªà¥à¤°à¤¶à¤¾à¤¸à¤¨ à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤ªà¥à¤°à¤•à¤¾à¤° à¤•à¥€ à¤šà¥‹à¤°à¥€ à¤¯à¤¾ à¤¨à¥à¤•à¤¸à¤¾à¤¨ à¤•à¥‡ à¤²à¤¿à¤ à¤‰à¤¤à¥à¤¤à¤°à¤¦à¤¾à¤¯à¥€ à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹à¤—à¤¾à¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤¨à¤¿à¤ƒà¤¶à¥à¤²à¥à¤• à¤¯à¤¾à¤¤à¥à¤°à¤¾ (Free Travel):</strong> à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤ªà¥à¤°à¤•à¤¾à¤° à¤•à¥€ à¤¨à¤¿à¤ƒà¤¶à¥à¤²à¥à¤• à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥‚à¤°à¥à¤£à¤¤à¤ƒ à¤ªà¥à¤°à¤¤à¤¿à¤¬à¤‚à¤§à¤¿à¤¤ à¤¹à¥ˆà¥¤ à¤¬à¤¿à¤¨à¤¾ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¯à¤¾ à¤«à¤°à¥à¤œà¥€ UTR à¤•à¥‡ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤•à¤°à¤¤à¥‡ à¤¹à¥à¤ à¤ªà¤¾à¤ à¤œà¤¾à¤¨à¥‡ à¤ªà¤° à¤¦à¤‚à¤¡à¤¾à¤¤à¥à¤®à¤• à¤•à¤¾à¤°à¥à¤°à¤µà¤¾à¤ˆ à¤•à¥€ à¤œà¤¾à¤à¤—à¥€à¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤§à¥‚à¤®à¥à¤°à¤ªà¤¾à¤¨ à¤à¤µà¤‚ à¤¨à¤¶à¤¾ (Smoking & Intoxicants):</strong> à¤Ÿà¥à¤°à¥‡à¤¨ à¤•à¥‡ à¤­à¥€à¤¤à¤° à¤§à¥‚à¤®à¥à¤°à¤ªà¤¾à¤¨, à¤¶à¤°à¤¾à¤¬ à¤¯à¤¾ à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤ªà¥à¤°à¤•à¤¾à¤° à¤•à¥‡ à¤®à¤¾à¤¦à¤• à¤ªà¤¦à¤¾à¤°à¥à¤¥à¥‹à¤‚ à¤•à¤¾ à¤¸à¥‡à¤µà¤¨ à¤ªà¥‚à¤°à¥à¤£à¤¤à¤ƒ à¤µà¤°à¥à¤œà¤¿à¤¤ à¤¹à¥ˆà¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤µà¤¿à¤µà¤¾à¤¦ (Disputes):</strong> à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤ªà¥à¤°à¤•à¤¾à¤° à¤•à¥‡ à¤µà¤¿à¤µà¤¾à¤¦ à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤•à¤¾ à¤¨à¤¿à¤°à¥à¤£à¤¯ à¤…à¤‚à¤¤à¤¿à¤® à¤à¤µà¤‚ à¤¸à¤°à¥à¤µà¤®à¤¾à¤¨à¥à¤¯ à¤¹à¥‹à¤—à¤¾à¥¤</li>
-                        <li style={{ marginBottom: 12 }}><strong>à¤†à¤ªà¤¾à¤¤à¤•à¤¾à¤² (Emergency):</strong> à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤†à¤ªà¤¾à¤¤ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤¯à¤¾ à¤šà¤¿à¤•à¤¿à¤¤à¥à¤¸à¤¾ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤•à¥ƒà¤ªà¤¯à¤¾ à¤Ÿà¥à¤°à¥‡à¤¨ à¤®à¥‡à¤‚ à¤‰à¤ªà¤¸à¥à¤¥à¤¿à¤¤ TTE à¤¯à¤¾ à¤¸à¥à¤°à¤•à¥à¤·à¤¾ à¤•à¤°à¥à¤®à¤¿à¤¯à¥‹à¤‚ à¤¸à¥‡ à¤¸à¤‚à¤ªà¤°à¥à¤• à¤•à¤°à¥‡à¤‚à¥¤</li>
+                        <li style={{ marginBottom: 12 }}><strong>टिकट की वैधता (Validity):</strong> यह टिकट केवल उसी तिथि, ट्रेन और यात्री के लिए मान्य है जिसके नाम पर यह जारी किया गया है। टिकट अहस्तांतरणीय (Non-transferable) है।</li>
+                        <li style={{ marginBottom: 12 }}><strong>पहचान पत्र (ID Proof):</strong> यात्रा के दौरान सभी यात्रियों को अपना मूल (Original) वैध पहचान पत्र (जैसे आधार कार्ड, वोटर आईडी) साथ रखना अनिवार्य है। पहचान पत्र न होने पर टिकट अमान्य माना जाएगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>रद्दीकरण एवं रिफंड (Cancellation & Refund):</strong> यात्रा से 48 घंटे पूर्व टिकट रद्द करने पर 25% कटौती होगी। 48 से 24 घंटे पूर्व 50% कटौती होगी। 24 घंटे से कम समय में कोई रिफंड नहीं दिया जाएगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>सामान की जिम्मेदारी (Luggage):</strong> यात्री अपने सामान की सुरक्षा के लिए स्वयं जिम्मेदार हैं। ट्रस्ट या रेलवे प्रशासन किसी भी प्रकार की चोरी या नुकसान के लिए उत्तरदायी नहीं होगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>निःशुल्क यात्रा (Free Travel):</strong> किसी भी प्रकार की निःशुल्क यात्रा पूर्णतः प्रतिबंधित है। बिना भुगतान या फर्जी UTR के यात्रा करते हुए पाए जाने पर दंडात्मक कार्रवाई की जाएगी।</li>
+                        <li style={{ marginBottom: 12 }}><strong>धूम्रपान एवं नशा (Smoking & Intoxicants):</strong> ट्रेन के भीतर धूम्रपान, शराब या किसी भी प्रकार के मादक पदार्थों का सेवन पूर्णतः वर्जित है।</li>
+                        <li style={{ marginBottom: 12 }}><strong>विवाद (Disputes):</strong> किसी भी प्रकार के विवाद की स्थिति में श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट का निर्णय अंतिम एवं सर्वमान्य होगा।</li>
+                        <li style={{ marginBottom: 12 }}><strong>आपातकाल (Emergency):</strong> किसी भी आपात स्थिति या चिकित्सा सहायता के लिए कृपया ट्रेन में उपस्थित TTE या सुरक्षा कर्मियों से संपर्क करें।</li>
                       </ol>
                     </div>
 
                     <div style={{ marginTop: 50, borderTop: '1px solid #E5E7EB', paddingTop: 20, textAlign: 'center', fontSize: '0.9rem', color: '#6B7280' }}>
-                      <p style={{ margin: '0 0 5px 0' }}>{projectSettings.sacredShlok || 'à¥¤à¥¤ à¥ à¤¸à¤°à¥à¤µà¤®à¤‚à¤—à¤² à¤®à¤¾à¤‚à¤—à¤²à¥à¤¯à¥‡ à¤¶à¤¿à¤µà¥‡ à¤¸à¤°à¥à¤µà¤¾à¤°à¥à¤¥ à¤¸à¤¾à¤§à¤¿à¤•à¥‡ â€¢ à¤¶à¤°à¤£à¥à¤¯à¥‡ à¤¤à¥à¤°à¥à¤¯à¤‚à¤¬à¤•à¥‡ à¤—à¥Œà¤°à¥€ à¤¨à¤¾à¤°à¤¾à¤¯à¤£à¤¿ à¤¨à¤®à¥‹à¤½à¤¸à¥à¤¤à¥ à¤¤à¥‡ à¥¤à¥¤'}</p>
-                      <p style={{ margin: 0 }}>à¤…à¤§à¤¿à¤• à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¤‚à¤ªà¤°à¥à¤• à¤•à¤°à¥‡à¤‚: {projectSettings.helplineNumber || '+91 9598023701'} | {projectSettings.officialEmail || 'iammshyam@gmail.com'}</p>
+                      <p style={{ margin: '0 0 5px 0' }}>{projectSettings.sacredShlok || '।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।।'}</p>
+                      <p style={{ margin: 0 }}>अधिक जानकारी के लिए संपर्क करें: {projectSettings.helplineNumber || '+91 9598023701'} | {projectSettings.officialEmail || 'iammshyam@gmail.com'}</p>
                     </div>
                   </div>
                 )}
@@ -7819,12 +7819,12 @@ export default function App() {
                 {activeView === '404' && (
                   <div className="glass-card" style={{ maxWidth: 650, margin: '60px auto', textAlign: 'center', padding: 40 }}>
                     <div style={{ fontSize: 64, color: '#F97316', marginBottom: 16 }}>404</div>
-                    <h2 style={{ color: '#9A3412', fontWeight: 800, marginBottom: 12 }}>à¤ªà¥ƒà¤·à¥à¤  à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¤¾ (Page Not Found)</h2>
+                    <h2 style={{ color: '#9A3412', fontWeight: 800, marginBottom: 12 }}>पृष्ठ नहीं मिला (Page Not Found)</h2>
                     <p style={{ color: '#7C2D12', marginBottom: 24 }}>
-                      à¤†à¤ª à¤œà¤¿à¤¸ à¤ªà¥ƒà¤·à¥à¤  à¤•à¥‹ à¤¢à¥‚à¤à¤¢ à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚, à¤µà¤¹ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆ à¤¯à¤¾ à¤¹à¤Ÿà¤¾ à¤¦à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾ à¤¹à¥ˆà¥¤
+                      आप जिस पृष्ठ को ढूँढ रहे हैं, वह उपलब्ध नहीं है या हटा दिया गया है।
                     </p>
                     <button className="btn btn-primary" onClick={() => navigate('/')}>
-                      <Home size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> à¤¹à¥‹à¤® à¤ªà¥‡à¤œ à¤ªà¤° à¤œà¤¾à¤à¤‚
+                      <Home size={18} style={{display:"inline", marginRight:"6px", verticalAlign:"text-bottom"}} /> होम पेज पर जाएं
                     </button>
                   </div>
                 )}
@@ -7843,45 +7843,45 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={22} color="#DC2626" />
                 <h3 style={{ color: '#991B1B', fontWeight: 800, margin: 0, fontSize: '1.15rem' }}>
-                  à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤µ à¤°à¤¿à¤«à¤‚à¤¡ (Cancel Ticket #{cancelModal.booking.bookingId})
+                  टिकट रद्दीकरण व रिफंड (Cancel Ticket #{cancelModal.booking.bookingId})
                 </h3>
               </div>
-              <button className="btn btn-outline btn-sm" onClick={() => setCancelModal(null)} style={{ border: 'none', fontSize: '1.2rem', color: '#6B7280' }}>âœ•</button>
+              <button className="btn btn-outline btn-sm" onClick={() => setCancelModal(null)} style={{ border: 'none', fontSize: '1.2rem', color: '#6B7280' }}>✕</button>
             </div>
 
             <form onSubmit={handleCancelTicket}>
               <div style={{ background: '#FEF2F2', padding: 12, borderRadius: 8, marginBottom: 14, fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span>à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥ à¤•à¤¾ à¤¨à¤¾à¤®:</span>
+                  <span>श्रद्धालु का नाम:</span>
                   <strong>{cancelModal.booking.bookedBy} (Mob: {cancelModal.booking.mobile})</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span>à¤•à¥‹à¤š à¤µ à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤¸à¥€à¤Ÿà¥‡à¤‚:</span>
-                  <strong>{cancelModal.booking.coachName} - à¤¸à¥€à¤Ÿ: {Array.isArray(cancelModal.booking.seatNumber) ? cancelModal.booking.seatNumber.join(', ') : cancelModal.booking.seatNumber}</strong>
+                  <span>कोच व आवंटित सीटें:</span>
+                  <strong>{cancelModal.booking.coachName} - सीट: {Array.isArray(cancelModal.booking.seatNumber) ? cancelModal.booking.seatNumber.join(', ') : cancelModal.booking.seatNumber}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span>à¤•à¥à¤² à¤•à¤¿à¤°à¤¾à¤¯à¤¾:</span>
-                  <strong>â‚¹ {cancelModal.booking.totalAmount}</strong>
+                  <span>कुल किराया:</span>
+                  <strong>₹ {cancelModal.booking.totalAmount}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#047857', fontWeight: 700 }}>
-                  <span>à¤œà¤®à¤¾ à¤…à¤—à¥à¤°à¤¿à¤® à¤°à¤¾à¤¶à¤¿ (Paid Advance):</span>
-                  <span>â‚¹ {cancelModal.booking.advance || 0}</span>
+                  <span>जमा अग्रिम राशि (Paid Advance):</span>
+                  <span>₹ {cancelModal.booking.advance || 0}</span>
                 </div>
               </div>
 
               {/* Refund Policy Banner */}
               <div style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
                 <div style={{ color: '#991B1B', fontWeight: 800, fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>âš ï¸</span>
-                  <span>à¤°à¤¿à¤«à¤‚à¤¡ à¤¨à¥€à¤¤à¤¿: à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤¸à¥‡ à¤¨à¤•à¤¦ (Cash) à¤µà¤¾à¤ªà¤¸ à¤¨à¤¹à¥€à¤‚ à¤¦à¤¿à¤¯à¤¾ à¤œà¤¾à¤à¤—à¤¾à¥¤</span>
+                  <span>⚠️</span>
+                  <span>रिफंड नीति: काउंटर से नकद (Cash) वापस नहीं दिया जाएगा।</span>
                 </div>
                 <div style={{ color: '#7F1D1D', fontSize: '0.78rem', marginTop: 4, lineHeight: 1.4 }}>
-                  à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¾à¤¶à¤¿ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤• (Admin) à¤¦à¥à¤µà¤¾à¤°à¤¾ <strong>5-7 à¤•à¤¾à¤°à¥à¤¯ à¤¦à¤¿à¤µà¤¸à¥‹à¤‚ (Working Days)</strong> à¤®à¥‡à¤‚ à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¥‡ à¤¬à¥ˆà¤‚à¤• à¤–à¤¾à¤¤à¥‡ / UPI à¤®à¥‡à¤‚ à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤Ÿà¥à¤°à¤¾à¤‚à¤¸à¤«à¤° à¤•à¥€ à¤œà¤¾à¤à¤—à¥€à¥¤ à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¨à¥€à¤šà¥‡ à¤¸à¤¹à¥€ à¤¬à¥ˆà¤‚à¤• à¤¯à¤¾ UPI à¤µà¤¿à¤µà¤°à¤£ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤
+                  रिफंड राशि व्यवस्थापक (Admin) द्वारा <strong>5-7 कार्य दिवसों (Working Days)</strong> में यात्री के बैंक खाते / UPI में ऑनलाइन ट्रांसफर की जाएगी। कृपया नीचे सही बैंक या UPI विवरण दर्ज करें।
                 </div>
               </div>
 
               <div className="form-group" style={{ marginBottom: 12 }}>
-                <label className="form-label" style={{ fontWeight: 700, color: '#991B1B' }}>à¤°à¤¿à¤«à¤‚à¤¡ à¤•à¥€ à¤œà¤¾à¤¨à¥‡ à¤µà¤¾à¤²à¥€ à¤°à¤¾à¤¶à¤¿ (Refund Amount â‚¹) *</label>
+                <label className="form-label" style={{ fontWeight: 700, color: '#991B1B' }}>रिफंड की जाने वाली राशि (Refund Amount ₹) *</label>
                 <input
                   type="number"
                   className="form-control"
@@ -7903,7 +7903,7 @@ export default function App() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 12 }}>
-                <label className="form-label">à¤•à¤Ÿà¥Œà¤¤à¥€ / à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤¶à¥à¤²à¥à¤• (Cancellation Charges â‚¹)</label>
+                <label className="form-label">कटौती / रद्दीकरण शुल्क (Cancellation Charges ₹)</label>
                 <input
                   type="number"
                   className="form-control"
@@ -7922,24 +7922,24 @@ export default function App() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 12 }}>
-                <label className="form-label" style={{ fontWeight: 700 }}>à¤°à¤¿à¤«à¤‚à¤¡ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¤¨à¥‡ à¤•à¤¾ à¤®à¤¾à¤§à¥à¤¯à¤® (Refund Channel - 5-7 Days) *</label>
+                <label className="form-label" style={{ fontWeight: 700 }}>रिफंड प्राप्त करने का माध्यम (Refund Channel - 5-7 Days) *</label>
                 <select
                   className="form-control"
                   value={cancelModal.refundChannel || 'UPI'}
                   onChange={(e) => setCancelModal({ ...cancelModal, refundChannel: e.target.value, refundMode: e.target.value === 'UPI' ? 'Admin UPI Transfer (5-7 Days)' : 'Admin Bank Transfer (5-7 Days)' })}
                 >
-                  <option value="UPI">UPI à¤Ÿà¥à¤°à¤¾à¤‚à¤¸à¤«à¤° (5-7 à¤•à¤¾à¤°à¥à¤¯ à¤¦à¤¿à¤µà¤¸)</option>
-                  <option value="Bank">à¤¬à¥ˆà¤‚à¤• à¤–à¤¾à¤¤à¤¾ à¤Ÿà¥à¤°à¤¾à¤‚à¤¸à¤«à¤° (NEFT/IMPS 5-7 à¤•à¤¾à¤°à¥à¤¯ à¤¦à¤¿à¤µà¤¸)</option>
+                  <option value="UPI">UPI ट्रांसफर (5-7 कार्य दिवस)</option>
+                  <option value="Bank">बैंक खाता ट्रांसफर (NEFT/IMPS 5-7 कार्य दिवस)</option>
                 </select>
               </div>
 
               {(cancelModal.refundChannel || 'UPI') === 'UPI' ? (
                 <div className="form-group" style={{ marginBottom: 12 }}>
-                  <label className="form-label" style={{ fontWeight: 700, color: '#047857' }}>à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ UPI ID (à¤‰à¤¦à¤¾. 9876543210@upi / paytm) *</label>
+                  <label className="form-label" style={{ fontWeight: 700, color: '#047857' }}>यात्री का UPI ID (उदा. 9876543210@upi / paytm) *</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="à¤‰à¤¦à¤¾. mobile@upi à¤¯à¤¾ name@okhdfcbank"
+                    placeholder="उदा. mobile@upi या name@okhdfcbank"
                     value={cancelModal.upiId || ''}
                     onChange={(e) => setCancelModal({ ...cancelModal, upiId: e.target.value, utr: e.target.value })}
                     required
@@ -7948,11 +7948,11 @@ export default function App() {
               ) : (
                 <div style={{ background: '#F8FAFC', padding: 10, borderRadius: 8, border: '1px solid #E2E8F0', marginBottom: 12 }}>
                   <div className="form-group" style={{ marginBottom: 8 }}>
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>à¤–à¤¾à¤¤à¤¾ à¤§à¤¾à¤°à¤• à¤•à¤¾ à¤¨à¤¾à¤® (Account Holder Name) *</label>
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>खाता धारक का नाम (Account Holder Name) *</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="à¤‰à¤¦à¤¾. à¤¯à¤¾à¤¤à¥à¤°à¥€ à¤•à¤¾ à¤¨à¤¾à¤®"
+                      placeholder="उदा. यात्री का नाम"
                       value={cancelModal.accountHolder || cancelModal.booking.bookedBy || ''}
                       onChange={(e) => setCancelModal({ ...cancelModal, accountHolder: e.target.value })}
                       required
@@ -7960,21 +7960,21 @@ export default function App() {
                   </div>
                   <div className="grid-2" style={{ gap: 8, marginBottom: 8 }}>
                     <div>
-                      <label className="form-label" style={{ fontSize: '0.8rem' }}>à¤¬à¥ˆà¤‚à¤• à¤•à¤¾ à¤¨à¤¾à¤® (Bank Name)</label>
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>बैंक का नाम (Bank Name)</label>
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="à¤‰à¤¦à¤¾. SBI / PNB / HDFC"
+                        placeholder="उदा. SBI / PNB / HDFC"
                         value={cancelModal.bankName || ''}
                         onChange={(e) => setCancelModal({ ...cancelModal, bankName: e.target.value })}
                       />
                     </div>
                     <div>
-                      <label className="form-label" style={{ fontSize: '0.8rem' }}>à¤–à¤¾à¤¤à¤¾ à¤¸à¤‚à¤–à¥à¤¯à¤¾ (Account No) *</label>
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>खाता संख्या (Account No) *</label>
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="à¤‰à¤¦à¤¾. 123456789012"
+                        placeholder="उदा. 123456789012"
                         value={cancelModal.accountNumber || ''}
                         onChange={(e) => setCancelModal({ ...cancelModal, accountNumber: e.target.value, utr: e.target.value })}
                         required
@@ -7982,11 +7982,11 @@ export default function App() {
                     </div>
                   </div>
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>IFSC à¤•à¥‹à¤¡ (IFSC Code) *</label>
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>IFSC कोड (IFSC Code) *</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="à¤‰à¤¦à¤¾. SBIN0001234"
+                      placeholder="उदा. SBIN0001234"
                       value={cancelModal.ifscCode || ''}
                       onChange={(e) => setCancelModal({ ...cancelModal, ifscCode: e.target.value.toUpperCase() })}
                       required
@@ -7996,7 +7996,7 @@ export default function App() {
               )}
 
               <div className="form-group" style={{ marginBottom: 16 }}>
-                <label className="form-label">à¤°à¤¦à¥à¤¦à¥€à¤•à¤°à¤£ à¤•à¤¾ à¤•à¤¾à¤°à¤£ (Cancellation Reason) *</label>
+                <label className="form-label">रद्दीकरण का कारण (Cancellation Reason) *</label>
                 <input
                   type="text"
                   className="form-control"
@@ -8008,10 +8008,10 @@ export default function App() {
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setCancelModal(null)}>
-                  à¤°à¤¦à¥à¤¦ à¤¨ à¤•à¤°à¥‡à¤‚ (Back)
+                  रद्द न करें (Back)
                 </button>
                 <button type="submit" className="btn btn-danger" style={{ background: '#DC2626', color: '#fff', fontWeight: 800 }}>
-                  âœ“ à¤Ÿà¤¿à¤•à¤Ÿ à¤°à¤¦à¥à¤¦ à¤µ à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¿à¤•à¥à¤µà¥‡à¤¸à¥à¤Ÿ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚
+                  ✓ टिकट रद्द व रिफंड रिक्वेस्ट दर्ज करें
                 </button>
               </div>
             </form>
@@ -8028,7 +8028,7 @@ export default function App() {
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, borderBottom: '1.5px solid #BAE6FD', paddingBottom: 10 }}>
               <span className="badge badge-bhakti" style={{ background: '#0284C7', color: '#FFFFFF', borderColor: '#0369A1' }}>
                 <Ticket size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
-                à¤‡à¤²à¥‡à¤•à¥à¤Ÿà¥à¤°à¥‰à¤¨à¤¿à¤• à¤°à¤¿à¤œà¤°à¥à¤µà¥‡à¤¶à¤¨ à¤¸à¥à¤²à¤¿à¤ª (IRCTC ERS Travel Pass Preview)
+                इलेक्ट्रॉनिक रिजर्वेशन स्लिप (IRCTC ERS Travel Pass Preview)
               </span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button 
@@ -8036,7 +8036,7 @@ export default function App() {
                   onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
                   style={{ background: '#0284C7', borderColor: '#0369A1' }}
                 >
-                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚ (Print A4 ERS)
+                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट करें (Print A4 ERS)
                 </button>
                 <a 
                   href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${safeStaffToken}`} 
@@ -8045,9 +8045,9 @@ export default function App() {
                   className="btn btn-outline btn-sm"
                   style={{ borderColor: '#0284C7', color: '#0284C7' }}
                 >
-                  <FileText size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡
+                  <FileText size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
                 </a>
-                <button onClick={() => setTicketModal(null)} style={{ background: 'none', border: 'none', color: '#0369A1', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>âœ•</button>
+                <button onClick={() => setTicketModal(null)} style={{ background: 'none', border: 'none', color: '#0369A1', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
               </div>
             </div>
 
@@ -8057,8 +8057,8 @@ export default function App() {
               {/* Header 1: Blue Bar */}
               <div className="irctc-header-blue">
                 <div style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.02em' }}>SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST</div>
-                <div style={{ fontSize: '0.78rem', color: '#BAE6FD', marginTop: 2 }}>YATRA SPECIAL SUPERFAST EXPRESS â€¢ ANNUAL PILGRIMAGE SPECIAL TRAIN</div>
-                <div style={{ fontSize: '0.74rem', color: '#FDE047', fontWeight: 700, marginTop: 3 }}>ELECTRONIC RESERVATION SLIP (ERS) â€¢ VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)</div>
+                <div style={{ fontSize: '0.78rem', color: '#BAE6FD', marginTop: 2 }}>YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN</div>
+                <div style={{ fontSize: '0.74rem', color: '#FDE047', fontWeight: 700, marginTop: 3 }}>ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)</div>
               </div>
 
               {/* Subheader: PNR, Quota, Batch */}
@@ -8153,20 +8153,20 @@ export default function App() {
                   <div style={{ padding: '6px 10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0' }}>
                       <span style={{ color: '#475569' }}>Ticket Fare Amount:</span>
-                      <strong>â‚¹ {parseFloat(ticketModal.totalAmount || 0).toFixed(2)}</strong>
+                      <strong>₹ {parseFloat(ticketModal.totalAmount || 0).toFixed(2)}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0' }}>
                       <span style={{ color: '#475569' }}>Trust Discount / Concession:</span>
-                      <span>â‚¹ {parseFloat(ticketModal.discount || 0).toFixed(2)}</span>
+                      <span>₹ {parseFloat(ticketModal.discount || 0).toFixed(2)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0', color: '#16A34A' }}>
                       <span>Advance Paid:</span>
-                      <strong>â‚¹ {parseFloat(ticketModal.advance || 0).toFixed(2)}</strong>
+                      <strong>₹ {parseFloat(ticketModal.advance || 0).toFixed(2)}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '3px 0', borderTop: '1px solid #E2E8F0', marginTop: 3 }}>
                       <span style={{ fontWeight: 700 }}>Balance Due at Boarding:</span>
                       <strong style={{ color: ticketModal.remainingAmount > 0 ? '#DC2626' : '#16A34A' }}>
-                        â‚¹ {parseFloat(ticketModal.remainingAmount || 0).toFixed(2)}
+                        ₹ {parseFloat(ticketModal.remainingAmount || 0).toFixed(2)}
                       </strong>
                     </div>
                     <div style={{ marginTop: 5, textAlign: 'center' }}>
@@ -8213,11 +8213,11 @@ export default function App() {
               {/* Signatures & Footer */}
               <div className="irctc-footer-bar">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <div>Helpline: +91 7398959993 â€¢ Support: iammshyam@gmail.com</div>
+                  <div>Helpline: +91 7398959993 • Support: iammshyam@gmail.com</div>
                   <div>Authorized Signatory, Trust Secretary</div>
                 </div>
                 <div style={{ color: '#0284C7', fontWeight: 700 }}>Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)</div>
-                <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) â€¢ Single Page Pass under Trust Railway Boarding Protocol</div>
+                <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol</div>
               </div>
 
               {/* Watermark if Cancelled */}
@@ -8246,7 +8246,7 @@ export default function App() {
             <div className="no-print" style={{ display: 'flex', gap: 10, marginTop: 14 }}>
               {ticketModal.remainingAmount > 0 && (
                 <button className="btn btn-gold btn-sm" style={{ flex: 1 }} onClick={() => openUpiQR(ticketModal.bookingId)}>
-                  <Smartphone size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> UPI à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤¶à¥‡à¤· à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤•à¤°à¥‡à¤‚
+                  <Smartphone size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> UPI द्वारा शेष भुगतान करें
                 </button>
               )}
               <button 
@@ -8254,7 +8254,7 @@ export default function App() {
                 style={{ flex: 1, background: '#0284C7', borderColor: '#0369A1' }} 
                 onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
               >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤ªà¤°à¥à¤šà¥€ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚ (A4 Print)
+                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> पर्ची प्रिंट करें (A4 Print)
               </button>
               <a 
                 href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${safeStaffToken}`} 
@@ -8263,7 +8263,7 @@ export default function App() {
                 className="btn btn-outline btn-sm" 
                 style={{ flex: 1, borderColor: '#0284C7', color: '#0284C7' }}
               >
-                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡
+                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
               </a>
             </div>
 
@@ -8281,15 +8281,15 @@ export default function App() {
               <span className="badge badge-bhakti">
                 <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
                 {parseFloat(receiptModal.txn.amount) < 0 || String(receiptModal.txn.type || '').toLowerCase().includes('refund')
-                  ? 'à¤°à¤¿à¤«à¤‚à¤¡ à¤°à¤¸à¥€à¤¦ à¤ªà¥‚à¤°à¥à¤µà¤¾à¤µà¤²à¥‹à¤•à¤¨ (A4-Half Refund Advice Preview)'
-                  : 'à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤°à¤¸à¥€à¤¦ à¤ªà¥‚à¤°à¥à¤µà¤¾à¤µà¤²à¥‹à¤•à¤¨ (A4-Half Payment Receipt Preview)'}
+                  ? 'रिफंड रसीद पूर्वावलोकन (A4-Half Refund Advice Preview)'
+                  : 'भुगतान रसीद पूर्वावलोकन (A4-Half Payment Receipt Preview)'}
               </span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button 
                   className="btn btn-primary btn-sm" 
                   onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`)}
                 >
-                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤°à¤¸à¥€à¤¦ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚ (A4-Half Print)
+                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट करें (A4-Half Print)
                 </button>
                 <a 
                   href={`/api/bookings/${receiptModal.booking.bookingId}/receipt/${receiptModal.txn.id}`} 
@@ -8297,9 +8297,9 @@ export default function App() {
                   rel="noreferrer" 
                   className="btn btn-outline btn-sm"
                 >
-                  <FileText size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡
+                  <FileText size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
                 </a>
-                <button onClick={() => setReceiptModal(null)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>âœ•</button>
+                <button onClick={() => setReceiptModal(null)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
               </div>
             </div>
 
@@ -8418,7 +8418,7 @@ export default function App() {
                               padding: '3px 10px',
                               borderRadius: 3
                             }}>
-                              {isRefund ? 'âœ“ REFUND INITIATED' : 'âœ“ PAYMENT RECEIVED'}
+                              {isRefund ? '✓ REFUND INITIATED' : '✓ PAYMENT RECEIVED'}
                             </span>
                           </div>
                         </div>
@@ -8499,7 +8499,7 @@ export default function App() {
                 style={{ flex: 1 }} 
                 onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`)}
               >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> à¤°à¤¸à¥€à¤¦ à¤ªà¥à¤°à¤¿à¤‚à¤Ÿ à¤•à¤°à¥‡à¤‚ (A4-Half Print)
+                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट करें (A4-Half Print)
               </button>
               <a 
                 href={`/api/bookings/${receiptModal.booking.bookingId}/receipt/${receiptModal.txn.id}`} 
@@ -8508,7 +8508,7 @@ export default function App() {
                 className="btn btn-outline btn-sm" 
                 style={{ flex: 1 }}
               >
-                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡
+                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
               </a>
             </div>
 
@@ -8522,21 +8522,21 @@ export default function App() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 820, maxHeight: '92vh', overflowY: 'auto', padding: 20, border: '3px solid #F97316', textAlign: 'center', background: '#FFFDF9' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottom: '1.5px solid #FED7AA', paddingBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="badge badge-bhakti">ðŸš© à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥‹à¤¸à¥à¤Ÿà¤°</span>
-                <strong style={{ color: '#9A3412', fontSize: '1.15rem' }}>à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤¯à¤¾à¤¤à¥à¤°à¤¾ {projectSettings.activeYatraYear || 2026}</strong>
+                <span className="badge badge-bhakti">🚩 अधिकृत यात्रा पोस्टर</span>
+                <strong style={{ color: '#9A3412', fontSize: '1.15rem' }}>श्री माता वैष्णो देवी यात्रा {projectSettings.activeYatraYear || 2026}</strong>
               </div>
               <button
                 onClick={() => setPosterModal(false)}
                 style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', width: 32, height: 32, borderRadius: '50%', fontSize: 18, cursor: 'pointer', fontWeight: 'bold' }}
               >
-                âœ•
+                ✕
               </button>
             </div>
 
             <div style={{ background: '#FFF8F2', borderRadius: 10, padding: 6, marginBottom: 14, border: '1.5px solid #FED7AA' }}>
               <img
                 src="/poster.png"
-                alt="à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤µà¤¾à¤°à¥à¤·à¤¿à¤• à¤µà¤¿à¤¶à¥‡à¤· à¤¤à¥€à¤°à¥à¤¥ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤ªà¥‹à¤¸à¥à¤Ÿà¤° 2026"
+                alt="श्री माता वैष्णो देवी वार्षिक विशेष तीर्थ यात्रा पोस्टर 2026"
                 style={{ width: '100%', maxHeight: '78vh', objectFit: 'contain', borderRadius: 6, display: 'block', margin: '0 auto' }}
               />
             </div>
@@ -8548,7 +8548,7 @@ export default function App() {
                 className="btn btn-primary"
                 style={{ padding: '10px 24px', fontSize: '0.92rem' }}
               >
-                <Download size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> à¤ªà¥‹à¤¸à¥à¤Ÿà¤° à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚ (Save High-Res Image)
+                <Download size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> पोस्टर डाउनलोड करें (Save High-Res Image)
               </a>
               <a
                 href="/poster.png"
@@ -8557,14 +8557,14 @@ export default function App() {
                 className="btn btn-outline"
                 style={{ padding: '10px 20px', fontSize: '0.92rem', borderColor: '#F97316', color: '#C2410C' }}
               >
-                <Eye size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> à¤¨à¤ à¤Ÿà¥ˆà¤¬ à¤®à¥‡à¤‚ à¤–à¥‹à¤²à¥‡à¤‚
+                <Eye size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> नए टैब में खोलें
               </a>
               <button
                 className="btn btn-outline"
                 onClick={() => setPosterModal(false)}
                 style={{ padding: '10px 20px', fontSize: '0.92rem' }}
               >
-                à¤¬à¤‚à¤¦ à¤•à¤°à¥‡à¤‚
+                बंद करें
               </button>
             </div>
           </div>
@@ -8575,19 +8575,19 @@ export default function App() {
       {upiQrModal && (
         <div className="modal-overlay" onClick={() => { setUpiQrModal(null); setUtrInput(''); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420, textAlign: 'center', border: '2px solid #F97316' }}>
-            <button onClick={() => { setUpiQrModal(null); setUtrInput(''); }} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>âœ•</button>
-            <h3 style={{ color: '#9A3412', marginBottom: 6, fontWeight: 800 }}>UPI à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤­à¥à¤—à¤¤à¤¾à¤¨</h3>
-            <div style={{ fontSize: '0.88rem', color: '#7C2D12', fontWeight: 600 }}>à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ</div>
+            <button onClick={() => { setUpiQrModal(null); setUtrInput(''); }} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+            <h3 style={{ color: '#9A3412', marginBottom: 6, fontWeight: 800 }}>UPI द्वारा भुगतान</h3>
+            <div style={{ fontSize: '0.88rem', color: '#7C2D12', fontWeight: 600 }}>माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट</div>
 
             <img src={upiQrModal.qrDataUrl} alt="UPI QR" style={{ width: 220, height: 220, margin: '16px auto', borderRadius: 12, background: '#fff', padding: 8, border: '2px solid #FED7AA' }} />
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#047857' }}>â‚¹ {upiQrModal.amount.toFixed(2)}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>GPay, PhonePe, Paytm à¤…à¤¥à¤µà¤¾ BHIM à¤¸à¥‡ à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤°à¥‡à¤‚</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#047857' }}>₹ {upiQrModal.amount.toFixed(2)}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>GPay, PhonePe, Paytm अथवा BHIM से स्कैन करें</div>
             <div style={{ fontSize: '0.82rem', color: '#C2410C', marginTop: 10, fontWeight: 700 }}>UPI ID: {upiQrModal.upiId}</div>
 
             {/* UTR Submission Form */}
             <form onSubmit={submitUtr} style={{ marginTop: 20, paddingTop: 16, borderTop: '1.5px dashed #FED7AA', textAlign: 'left' }}>
               <label style={{ display: 'block', fontSize: '0.85rem', color: '#7C2D12', fontWeight: 700, marginBottom: 6 }}>
-                à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤•à¥‡ à¤¬à¤¾à¤¦ 12-à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¤¾ UTR (Ref) à¤¨à¤‚à¤¬à¤° à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚:
+                भुगतान के बाद 12-अंकों का UTR (Ref) नंबर दर्ज करें:
               </label>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
@@ -8600,10 +8600,10 @@ export default function App() {
                   maxLength={12}
                   required
                 />
-                <button type="submit" className="btn btn-gold" style={{ padding: '8px 16px' }}>à¤¸à¤¬à¤®à¤¿à¤Ÿ</button>
+                <button type="submit" className="btn btn-gold" style={{ padding: '8px 16px' }}>सबमिट</button>
               </div>
               <div style={{ fontSize: '0.75rem', color: '#B45309', marginTop: 6, lineHeight: 1.3 }}>
-                * UTR à¤¸à¤¬à¤®à¤¿à¤Ÿ à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤¬à¤¾à¤¦ à¤à¤¡à¤®à¤¿à¤¨ à¤†à¤ªà¤•à¥‡ à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤•à¥€ à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤•à¤°à¥‡à¤—à¤¾à¥¤
+                * UTR सबमिट करने के बाद एडमिन आपके भुगतान की पुष्टि करेगा।
               </div>
             </form>
           </div>
@@ -8615,13 +8615,13 @@ export default function App() {
         <div className="modal-overlay" onClick={() => setBulkModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 500, border: '2px solid #F97316' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤à¤•à¥à¤¸à¥‡à¤² à¤¬à¤²à¥à¤• à¤¬à¥à¤•à¤¿à¤‚à¤— à¤…à¤ªà¤²à¥‹à¤¡</h3>
-              <button onClick={() => setBulkModalOpen(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>âœ•</button>
+              <h3 style={{ color: '#9A3412', fontWeight: 800 }}>एक्सेल बल्क बुकिंग अपलोड</h3>
+              <button onClick={() => setBulkModalOpen(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
             </div>
 
             <form onSubmit={handleBulkUpload}>
               <div className="form-group">
-                <label className="form-label">à¤²à¤•à¥à¤·à¤¿à¤¤ à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤µà¤°à¥à¤·:</label>
+                <label className="form-label">लक्षित यात्रा वर्ष:</label>
                 <select className="form-control" value={bulkYear} onChange={(e) => setBulkYear(e.target.value)}>
                   <option value="2026">2026</option>
                   <option value="2027">2027</option>
@@ -8630,21 +8630,21 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤à¤•à¥à¤¸à¥‡à¤² à¤«à¤¾à¤‡à¤² (.xlsx) à¤šà¥à¤¨à¥‡à¤‚:</label>
+                <label className="form-label">एक्सेल फाइल (.xlsx) चुनें:</label>
                 <input type="file" className="form-control" accept=".xlsx,.xls" onChange={(e) => setBulkFile(e.target.files[0])} required />
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '14px 0' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>à¤ªà¥à¤°à¤¾à¤°à¥‚à¤ª à¤¨à¤®à¥‚à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤?</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>प्रारूप नमूना चाहिए?</span>
                 <a href="/api/admin/sample-template?token=mvd_admin_token" className="btn btn-gold btn-sm">
-                  à¤¨à¤®à¥‚à¤¨à¤¾ à¤Ÿà¥‡à¤®à¥à¤ªà¤²à¥‡à¤Ÿ à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚
+                  नमूना टेम्पलेट डाउनलोड करें
                 </a>
               </div>
 
               {bulkMessage && <div style={{ color: '#047857', fontSize: '0.9rem', margin: '10px 0', fontWeight: 700 }}>{bulkMessage}</div>}
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 8 }}>
-                à¤¬à¥à¤•à¤¿à¤‚à¤—à¥à¤¸ à¤ªà¥à¤°à¥‹à¤¸à¥‡à¤¸ à¤•à¤°à¥‡à¤‚
+                बुकिंग्स प्रोसेस करें
               </button>
             </form>
           </div>
@@ -8656,37 +8656,37 @@ export default function App() {
         <div className="modal-overlay" onClick={() => setPaymentEditModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 450, border: '2px solid #F97316' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ color: '#9A3412', fontWeight: 800 }}>à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤¸à¤‚à¤ªà¤¾à¤¦à¤¿à¤¤ à¤•à¤°à¥‡à¤‚ (Edit Payment)</h3>
-              <button onClick={() => setPaymentEditModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>âœ•</button>
+              <h3 style={{ color: '#9A3412', fontWeight: 800 }}>भुगतान संपादित करें (Edit Payment)</h3>
+              <button onClick={() => setPaymentEditModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
             </div>
             
             <div style={{ background: '#FFF8F2', padding: 14, borderRadius: 8, marginBottom: 16, border: '1px dashed #FDBA74' }}>
               <strong>Booking ID:</strong> <span style={{ color: '#C2410C' }}>{paymentEditData.bookingId}</span><br />
-              <strong>Total Amount:</strong> â‚¹ {paymentEditData.totalAmount}
+              <strong>Total Amount:</strong> ₹ {paymentEditData.totalAmount}
             </div>
 
             <form onSubmit={handlePaymentEditSubmit}>
               <div className="form-group">
-                <label className="form-label">à¤­à¥à¤—à¤¤à¤¾à¤¨ à¤•à¤¾ à¤¤à¤°à¥€à¤•à¤¾ (Payment Mode)</label>
+                <label className="form-label">भुगतान का तरीका (Payment Mode)</label>
                 <select 
                   className="form-control" 
                   value={paymentEditData.paymentMode} 
                   onChange={e => setPaymentEditData({...paymentEditData, paymentMode: e.target.value})}
                 >
-                  <option value="Cash">à¤¨à¤•à¤¦ (Cash)</option>
-                  <option value="UPI">UPI / à¤‘à¤¨à¤²à¤¾à¤‡à¤¨</option>
-                  <option value="Both">à¤¨à¤•à¤¦ + UPI</option>
-                  <option value="Free">à¤¨à¤¿à¤ƒà¤¶à¥à¤²à¥à¤• (Trust Free)</option>
+                  <option value="Cash">नकद (Cash)</option>
+                  <option value="UPI">UPI / ऑनलाइन</option>
+                  <option value="Both">नकद + UPI</option>
+                  <option value="Free">निःशुल्क (Trust Free)</option>
                 </select>
               </div>
 
               {(paymentEditData.paymentMode === 'UPI' || paymentEditData.paymentMode === 'Both') && (
                 <div className="form-group">
-                  <label className="form-label">UPI Transaction ID (à¤°à¥‡à¤«à¤°à¥‡à¤‚à¤¸ à¤¨à¤‚à¤¬à¤°)</label>
+                  <label className="form-label">UPI Transaction ID (रेफरेंस नंबर)</label>
                   <input 
                     type="text" 
                     className="form-control" 
-                    placeholder="à¤‰à¤¦à¤¾. 312345678901"
+                    placeholder="उदा. 312345678901"
                     value={paymentEditData.upiTransactionId} 
                     onChange={e => setPaymentEditData({...paymentEditData, upiTransactionId: e.target.value})}
                   />
@@ -8695,7 +8695,7 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤œà¤®à¤¾ à¤°à¤¾à¤¶à¤¿ (Paid / Advance) â‚¹</label>
+                  <label className="form-label">जमा राशि (Paid / Advance) ₹</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -8704,7 +8704,7 @@ export default function App() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">à¤›à¥‚à¤Ÿ (Discount) â‚¹</label>
+                  <label className="form-label">छूट (Discount) ₹</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -8715,7 +8715,7 @@ export default function App() {
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 10 }}>
-                à¤µà¤¿à¤µà¤°à¤£ à¤¸à¥‡à¤µ à¤•à¤°à¥‡à¤‚
+                विवरण सेव करें
               </button>
             </form>
           </div>
@@ -8727,29 +8727,29 @@ export default function App() {
         <div className="modal-overlay" onClick={() => setNewStaffModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540, border: '2px solid #F97316' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ color: '#9A3412', fontWeight: 800 }}>+ à¤¨à¤¯à¤¾ à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ / à¤Ÿà¥€à¤Ÿà¥€ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ (Add Staff)</h3>
-              <button onClick={() => setNewStaffModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>âœ•</button>
+              <h3 style={{ color: '#9A3412', fontWeight: 800 }}>+ नया कर्मचारी / टीटी जोड़ें (Add Staff)</h3>
+              <button onClick={() => setNewStaffModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
             </div>
 
             <form onSubmit={handleAddStaffSubmit}>
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤•à¤¾ à¤ªà¥‚à¤°à¤¾ à¤¨à¤¾à¤® *</label>
+                  <label className="form-label">कर्मचारी का पूरा नाम *</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="à¤‰à¤¦à¤¾. à¤°à¤¾à¤œà¥‡à¤¶ à¤•à¥à¤®à¤¾à¤° à¤¶à¤°à¥à¤®à¤¾"
+                    placeholder="उदा. राजेश कुमार शर्मा"
                     value={newStaffForm.name}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, name: e.target.value })}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">à¤œà¥€à¤®à¥‡à¤² à¤†à¤ˆà¤¡à¥€ / Email ID (Google à¤²à¥‰à¤—à¤¿à¤¨ à¤¹à¥‡à¤¤à¥) *</label>
+                  <label className="form-label">जीमेल आईडी / Email ID (Google लॉगिन हेतु) *</label>
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="à¤‰à¤¦à¤¾. rajesh.tte@gmail.com"
+                    placeholder="उदा. rajesh.tte@gmail.com"
                     value={newStaffForm.email}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, email: e.target.value })}
                     required
@@ -8760,11 +8760,11 @@ export default function App() {
               <div className="grid-2">
 
                 <div className="form-group">
-                  <label className="form-label">à¤²à¥‰à¤—à¤¿à¤¨ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ *</label>
+                  <label className="form-label">लॉगिन पासवर्ड *</label>
                   <input
                     type="password"
                     className="form-control"
-                    placeholder="à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡"
+                    placeholder="सुरक्षित पासवर्ड"
                     value={newStaffForm.password}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, password: e.target.value })}
                     required
@@ -8774,23 +8774,23 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤ªà¤¦ / à¤°à¥‹à¤² (Role) *</label>
+                  <label className="form-label">पद / रोल (Role) *</label>
                   <select
                     className="form-control"
                     value={newStaffForm.role}
                     onChange={(e) => {
                       const selectedRole = e.target.value;
-                      let dept = 'Trust Executive (à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤ªà¥à¤°à¤¬à¤‚à¤§à¤¨)';
+                      let dept = 'Trust Executive (ट्रस्ट प्रबंधन)';
                       let coaches = [];
                       if (selectedRole === 'TTE') {
-                        dept = 'Running Staff (à¤Ÿà¥à¤°à¥‡à¤¨ à¤¸à¤‚à¤šà¤¾à¤²à¤¨)';
+                        dept = 'Running Staff (ट्रेन संचालन)';
                         coaches = ['S1'];
                       } else if (selectedRole === 'BookingClerk') {
-                        dept = 'Booking Counter (à¤Ÿà¤¿à¤•à¤Ÿ à¤•à¤¾à¤‰à¤‚à¤Ÿà¤°)';
+                        dept = 'Booking Counter (टिकट काउंटर)';
                       } else if (selectedRole === 'FinanceOfficer') {
-                        dept = 'Accounts & Audit (à¤²à¥‡à¤–à¤¾ à¤µ à¤•à¥‹à¤·à¤¾à¤—à¤¾à¤°)';
+                        dept = 'Accounts & Audit (लेखा व कोषागार)';
                       } else if (selectedRole === 'StationMaster') {
-                        dept = 'Station Management (à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤¸à¤®à¤¨à¥à¤µà¤¯à¤¨)';
+                        dept = 'Station Management (स्टेशन समन्वयन)';
                       }
                       setNewStaffForm({
                         ...newStaffForm,
@@ -8806,11 +8806,11 @@ export default function App() {
                       : Array.isArray(staffRoles) && staffRoles.length > 0
                         ? staffRoles
                         : [
-                            { id: 'SuperAdmin', name: 'à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤®à¥à¤–à¥à¤¯ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¾à¤ªà¤• (Super Admin)' },
-                            { id: 'TTE', name: 'à¤šà¤² à¤Ÿà¤¿à¤•à¤Ÿ à¤ªà¤°à¥€à¤•à¥à¤·à¤• (TTE / On-Train Officer)' },
-                            { id: 'BookingClerk', name: 'à¤•à¤¾à¤‰à¤‚à¤Ÿà¤° à¤†à¤°à¤•à¥à¤·à¤£ à¤²à¤¿à¤ªik (Booking Clerk)' },
-                            { id: 'FinanceOfficer', name: 'à¤²à¥‡à¤–à¤¾ à¤µ à¤•à¥‹à¤·à¤¾à¤§à¥à¤¯à¤•à¥à¤· à¤…à¤§à¤¿à¤•à¤¾à¤°à¥€ (Finance Officer)' },
-                            { id: 'StationMaster', name: 'à¤¸à¥à¤Ÿà¥‡à¤¶à¤¨ à¤¸à¤®à¤¨à¥à¤µà¤¯à¤• (Station Coordinator)' }
+                            { id: 'SuperAdmin', name: 'ट्रस्ट मुख्य व्यवस्थापक (Super Admin)' },
+                            { id: 'TTE', name: 'चल टिकट परीक्षक (TTE / On-Train Officer)' },
+                            { id: 'BookingClerk', name: 'काउंटर आरक्षण लिपik (Booking Clerk)' },
+                            { id: 'FinanceOfficer', name: 'लेखा व कोषाध्यक्ष अधिकारी (Finance Officer)' },
+                            { id: 'StationMaster', name: 'स्टेशन समन्वयक (Station Coordinator)' }
                           ]
                     ).map(r => (
                       <option key={r.id} value={r.id}>{r.name} ({r.id})</option>
@@ -8818,7 +8818,7 @@ export default function App() {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">à¤µà¤¿à¤­à¤¾à¤— (Department)</label>
+                  <label className="form-label">विभाग (Department)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -8831,11 +8831,11 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤®à¥‹à¤¬à¤¾à¤‡à¤² à¤¨à¤‚à¤¬à¤° *</label>
+                  <label className="form-label">मोबाइल नंबर *</label>
                   <input
                     type="tel"
                     className="form-control"
-                    placeholder="10 à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¤¾ à¤®à¥‹à¤¬à¤¾à¤‡à¤²"
+                    placeholder="10 अंकों का मोबाइल"
                     value={newStaffForm.mobile}
                     onChange={(e) => setNewStaffForm({ ...newStaffForm, mobile: e.target.value })}
                     required
@@ -8843,11 +8843,11 @@ export default function App() {
                 </div>
                 {newStaffForm.role === 'TTE' && (
                   <div className="form-group">
-                    <label className="form-label">à¤†à¤µà¤‚à¤Ÿà¤¿à¤¤ à¤•à¥‹à¤š (TTE à¤•à¥‡à¤µà¤², à¤‰à¤¦à¤¾. S1, S2) *</label>
+                    <label className="form-label">आवंटित कोच (TTE केवल, उदा. S1, S2) *</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="à¤‰à¤¦à¤¾. S1, S2, S3"
+                      placeholder="उदा. S1, S2, S3"
                       value={newStaffForm.assignedCoach || (newStaffForm.assignedCoaches ? newStaffForm.assignedCoaches.join(', ') : 'S1')}
                       onChange={(e) => {
                         const val = e.target.value;
@@ -8865,10 +8865,10 @@ export default function App() {
 
               <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
                 <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setNewStaffModal(false)}>
-                  à¤°à¤¦à¥à¤¦ à¤•à¤°à¥‡à¤‚
+                  रद्द करें
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                  à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¸à¤¹à¥‡à¤œà¥‡à¤‚ (Save Staff)
+                  सुरक्षित सहेजें (Save Staff)
                 </button>
               </div>
             </form>
@@ -8883,30 +8883,30 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Train size={22} color="#C2410C" />
-                <h3 style={{ color: '#9A3412', fontWeight: 800, margin: 0 }}>+ à¤¨à¤ˆ à¤¬à¥‹à¤—à¥€ / à¤•à¥‹à¤š à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ (Add New Bogie)</h3>
+                <h3 style={{ color: '#9A3412', fontWeight: 800, margin: 0 }}>+ नई बोगी / कोच जोड़ें (Add New Bogie)</h3>
               </div>
-              <button onClick={() => setNewCoachModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>âœ•</button>
+              <button onClick={() => setNewCoachModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
             </div>
 
             <form onSubmit={handleCreateCoach}>
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤¬à¥‹à¤—à¥€ à¤•à¥‹à¤¡ (Coach Code) *</label>
+                  <label className="form-label">बोगी कोड (Coach Code) *</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="à¤‰à¤¦à¤¾. S7, B4, A2, PC"
+                    placeholder="उदा. S7, B4, A2, PC"
                     value={newCoachForm.coachCode}
                     onChange={(e) => setNewCoachForm({ ...newCoachForm, coachCode: e.target.value.toUpperCase() })}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">à¤¬à¥‹à¤—à¥€ à¤•à¤¾ à¤¨à¤¾à¤® (Coach Name) *</label>
+                  <label className="form-label">बोगी का नाम (Coach Name) *</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="à¤‰à¤¦à¤¾. Sleeper Coach S-7"
+                    placeholder="उदा. Sleeper Coach S-7"
                     value={newCoachForm.coachName}
                     onChange={(e) => setNewCoachForm({ ...newCoachForm, coachName: e.target.value })}
                     required
@@ -8916,7 +8916,7 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤¶à¥à¤°à¥‡à¤£à¥€ (Coach Class) *</label>
+                  <label className="form-label">श्रेणी (Coach Class) *</label>
                   <select
                     className="form-control"
                     value={newCoachForm.coachClass}
@@ -8933,17 +8933,17 @@ export default function App() {
                       });
                     }}
                   >
-                    <option value="Sleeper">Sleeper (à¤¦à¥à¤µà¤¿à¤¤à¥€à¤¯ à¤¶à¤¯à¤¨à¤¯à¤¾à¤¨ - SL)</option>
-                    <option value="3 AC">3 AC (à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ à¤¥à¥à¤°à¥€ à¤Ÿà¤¿à¤¯à¤° - 3A)</option>
-                    <option value="2 AC">2 AC (à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ à¤Ÿà¥‚ à¤Ÿà¤¿à¤¯à¤° - 2A)</option>
+                    <option value="Sleeper">Sleeper (द्वितीय शयनयान - SL)</option>
+                    <option value="3 AC">3 AC (वातानुकूलित थ्री टियर - 3A)</option>
+                    <option value="2 AC">2 AC (वातानुकूलित टू टियर - 2A)</option>
                     <option value="General">General / Second Seating (GS)</option>
-                    <option value="Pantry">Pantry Car (à¤°à¤¸à¥‹à¤ˆ à¤¯à¤¾à¤¨ - PC)</option>
+                    <option value="Pantry">Pantry Car (रसोई यान - PC)</option>
                     <option value="Guard / SLR">Guard / Luggage Van (SLR)</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">à¤°à¥‡à¤• à¤•à¥à¤°à¤® à¤¸à¤‚à¤–à¥à¤¯à¤¾ (Position Sequence) *</label>
+                  <label className="form-label">रेक क्रम संख्या (Position Sequence) *</label>
                   <input
                     type="number"
                     min={1}
@@ -8958,7 +8958,7 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤•à¥à¤² à¤¬à¤°à¥à¤¥ à¤•à¥à¤·à¤®à¤¤à¤¾ (Total Seats) *</label>
+                  <label className="form-label">कुल बर्थ क्षमता (Total Seats) *</label>
                   <input
                     type="number"
                     min={0}
@@ -8971,7 +8971,7 @@ export default function App() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">à¤¬à¥‡à¤¸ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ à¤ªà¥à¤°à¤¤à¤¿ à¤¸à¥€à¤Ÿ (Base Fare â‚¹)</label>
+                  <label className="form-label">बेस किराया प्रति सीट (Base Fare ₹)</label>
                   <input
                     type="number"
                     min={0}
@@ -8983,24 +8983,24 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (Platform Placement)</label>
+                <label className="form-label">प्लेटफ़ॉर्म स्थिति (Platform Placement)</label>
                 <select
                   className="form-control"
                   value={newCoachForm.platformPlacement}
                   onChange={(e) => setNewCoachForm({ ...newCoachForm, platformPlacement: e.target.value })}
                 >
-                  <option value="Front of Platform">Front of Platform (à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤•à¥‡ à¤†à¤—à¥‡/à¤‡à¤‚à¤œà¤¨ à¤›à¥‹à¤° à¤ªà¤°)</option>
-                  <option value="Center of Platform">Center of Platform (à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤•à¥‡ à¤®à¤§à¥à¤¯ à¤®à¥‡à¤‚)</option>
-                  <option value="Rear of Platform">Rear of Platform (à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤•à¥‡ à¤ªà¤¿à¤›à¤²à¥‡ à¤›à¥‹à¤° à¤ªà¤°)</option>
+                  <option value="Front of Platform">Front of Platform (प्लेटफ़ॉर्म के आगे/इंजन छोर पर)</option>
+                  <option value="Center of Platform">Center of Platform (प्लेटफ़ॉर्म के मध्य में)</option>
+                  <option value="Rear of Platform">Rear of Platform (प्लेटफ़ॉर्म के पिछले छोर पर)</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¤¿à¤ªà¥à¤ªà¤£à¥€ / à¤¨à¥‹à¤Ÿà¥à¤¸ (Optional)</label>
+                <label className="form-label">विशेष टिप्पणी / नोट्स (Optional)</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="à¤‰à¤¦à¤¾. à¤…à¤¤à¤¿à¤°à¤¿à¤•à¥à¤¤ à¤¸à¥à¤ªà¥‡à¤¶à¤² à¤¬à¥‹à¤—à¥€, à¤†à¤ªà¤¾à¤¤à¤•à¤¾à¤²à¥€à¤¨ à¤•à¥‹à¤Ÿà¤¾ à¤†à¤¦à¤¿"
+                  placeholder="उदा. अतिरिक्त स्पेशल बोगी, आपातकालीन कोटा आदि"
                   value={newCoachForm.notes}
                   onChange={(e) => setNewCoachForm({ ...newCoachForm, notes: e.target.value })}
                 />
@@ -9015,16 +9015,16 @@ export default function App() {
                   style={{ width: 18, height: 18, accentColor: '#EA580C' }}
                 />
                 <label htmlFor="newCoachBookable" style={{ margin: 0, fontWeight: 700, color: '#7C2D12', fontSize: '0.88rem', cursor: 'pointer' }}>
-                  à¤¯à¤¹ à¤¬à¥‹à¤—à¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤†à¤°à¤•à¥à¤·à¤£ / à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¹à¥‡à¤¤à¥ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¹à¥ˆ (Active for Booking)
+                  यह बोगी टिकट आरक्षण / बुकिंग हेतु उपलब्ध है (Active for Booking)
                 </label>
               </div>
 
               <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
                 <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setNewCoachModal(false)}>
-                  à¤°à¤¦à¥à¤¦ à¤•à¤°à¥‡à¤‚
+                  रद्द करें
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                  à¤¬à¥‹à¤—à¥€ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ (Save Coach)
+                  बोगी जोड़ें (Save Coach)
                 </button>
               </div>
             </form>
@@ -9039,15 +9039,15 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Edit size={22} color="#C2410C" />
-                <h3 style={{ color: '#9A3412', fontWeight: 800, margin: 0 }}>à¤¬à¥‹à¤—à¥€ à¤µà¤¿à¤µà¤°à¤£ à¤¸à¤‚à¤¶à¥‹à¤§à¤¿à¤¤ à¤•à¤°à¥‡à¤‚ (Edit Bogie #{editCoachForm.coachCode})</h3>
+                <h3 style={{ color: '#9A3412', fontWeight: 800, margin: 0 }}>बोगी विवरण संशोधित करें (Edit Bogie #{editCoachForm.coachCode})</h3>
               </div>
-              <button onClick={() => setEditCoachModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>âœ•</button>
+              <button onClick={() => setEditCoachModal(false)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 22, cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
             </div>
 
             <form onSubmit={handleUpdateCoach}>
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤¬à¥‹à¤—à¥€ à¤•à¥‹à¤¡ (Coach Code) *</label>
+                  <label className="form-label">बोगी कोड (Coach Code) *</label>
                   <input
                     type="text"
                     className="form-control"
@@ -9057,7 +9057,7 @@ export default function App() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">à¤¬à¥‹à¤—à¥€ à¤•à¤¾ à¤¨à¤¾à¤® (Coach Name) *</label>
+                  <label className="form-label">बोगी का नाम (Coach Name) *</label>
                   <input
                     type="text"
                     className="form-control"
@@ -9070,7 +9070,7 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤¶à¥à¤°à¥‡à¤£à¥€ (Coach Class) *</label>
+                  <label className="form-label">श्रेणी (Coach Class) *</label>
                   <select
                     className="form-control"
                     value={editCoachForm.coachClass}
@@ -9086,17 +9086,17 @@ export default function App() {
                       });
                     }}
                   >
-                    <option value="Sleeper">Sleeper (à¤¦à¥à¤µà¤¿à¤¤à¥€à¤¯ à¤¶à¤¯à¤¨à¤¯à¤¾à¤¨ - SL)</option>
-                    <option value="3 AC">3 AC (à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ à¤¥à¥à¤°à¥€ à¤Ÿà¤¿à¤¯à¤° - 3A)</option>
-                    <option value="2 AC">2 AC (à¤µà¤¾à¤¤à¤¾à¤¨à¥à¤•à¥‚à¤²à¤¿à¤¤ à¤Ÿà¥‚ à¤Ÿà¤¿à¤¯à¤° - 2A)</option>
+                    <option value="Sleeper">Sleeper (द्वितीय शयनयान - SL)</option>
+                    <option value="3 AC">3 AC (वातानुकूलित थ्री टियर - 3A)</option>
+                    <option value="2 AC">2 AC (वातानुकूलित टू टियर - 2A)</option>
                     <option value="General">General / Second Seating (GS)</option>
-                    <option value="Pantry">Pantry Car (à¤°à¤¸à¥‹à¤ˆ à¤¯à¤¾à¤¨ - PC)</option>
+                    <option value="Pantry">Pantry Car (रसोई यान - PC)</option>
                     <option value="Guard / SLR">Guard / Luggage Van (SLR)</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">à¤°à¥‡à¤• à¤•à¥à¤°à¤® à¤¸à¤‚à¤–à¥à¤¯à¤¾ (Position Sequence) *</label>
+                  <label className="form-label">रेक क्रम संख्या (Position Sequence) *</label>
                   <input
                     type="number"
                     min={1}
@@ -9111,7 +9111,7 @@ export default function App() {
 
               <div className="grid-2">
                 <div className="form-group">
-                  <label className="form-label">à¤•à¥à¤² à¤¸à¥€à¤Ÿà¥‡à¤‚ (Capacity) *</label>
+                  <label className="form-label">कुल सीटें (Capacity) *</label>
                   <input
                     type="number"
                     min={0}
@@ -9124,7 +9124,7 @@ export default function App() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">à¤¬à¥‡à¤¸ à¤•à¤¿à¤°à¤¾à¤¯à¤¾ (Base Fare â‚¹)</label>
+                  <label className="form-label">बेस किराया (Base Fare ₹)</label>
                   <input
                     type="number"
                     min={0}
@@ -9136,20 +9136,20 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (Platform Placement)</label>
+                <label className="form-label">प्लेटफ़ॉर्म स्थिति (Platform Placement)</label>
                 <select
                   className="form-control"
                   value={editCoachForm.platformPlacement}
                   onChange={(e) => setEditCoachForm({ ...editCoachForm, platformPlacement: e.target.value })}
                 >
-                  <option value="Front of Platform">Front of Platform (à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤•à¥‡ à¤†à¤—à¥‡/à¤‡à¤‚à¤œà¤¨ à¤›à¥‹à¤° à¤ªà¤°)</option>
-                  <option value="Center of Platform">Center of Platform (à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤•à¥‡ à¤®à¤§à¥à¤¯ à¤®à¥‡à¤‚)</option>
-                  <option value="Rear of Platform">Rear of Platform (à¤ªà¥à¤²à¥‡à¤Ÿà¤«à¤¼à¥‰à¤°à¥à¤® à¤•à¥‡ à¤ªà¤¿à¤›à¤²à¥‡ à¤›à¥‹à¤° à¤ªà¤°)</option>
+                  <option value="Front of Platform">Front of Platform (प्लेटफ़ॉर्म के आगे/इंजन छोर पर)</option>
+                  <option value="Center of Platform">Center of Platform (प्लेटफ़ॉर्म के मध्य में)</option>
+                  <option value="Rear of Platform">Rear of Platform (प्लेटफ़ॉर्म के पिछले छोर पर)</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤µà¤¿à¤¶à¥‡à¤· à¤Ÿà¤¿à¤ªà¥à¤ªà¤£à¥€ / à¤¨à¥‹à¤Ÿà¥à¤¸</label>
+                <label className="form-label">विशेष टिप्पणी / नोट्स</label>
                 <input
                   type="text"
                   className="form-control"
@@ -9167,16 +9167,16 @@ export default function App() {
                   style={{ width: 18, height: 18, accentColor: '#EA580C' }}
                 />
                 <label htmlFor="editCoachBookable" style={{ margin: 0, fontWeight: 700, color: '#7C2D12', fontSize: '0.88rem', cursor: 'pointer' }}>
-                  à¤¯à¤¹ à¤¬à¥‹à¤—à¥€ à¤Ÿà¤¿à¤•à¤Ÿ à¤†à¤°à¤•à¥à¤·à¤£ / à¤¬à¥à¤•à¤¿à¤‚à¤— à¤¹à¥‡à¤¤à¥ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¹à¥ˆ (Active for Booking)
+                  यह बोगी टिकट आरक्षण / बुकिंग हेतु उपलब्ध है (Active for Booking)
                 </label>
               </div>
 
               <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
                 <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditCoachModal(false)}>
-                  à¤°à¤¦à¥à¤¦ à¤•à¤°à¥‡à¤‚
+                  रद्द करें
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                  à¤ªà¤°à¤¿à¤µà¤°à¥à¤¤à¤¨ à¤¸à¤¹à¥‡à¤œà¥‡à¤‚ (Update Coach)
+                  परिवर्तन सहेजें (Update Coach)
                 </button>
               </div>
             </form>
@@ -9192,20 +9192,20 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Smartphone size={20} color="#C2410C" />
                 <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.15rem', fontWeight: 800 }}>
-                  UTR à¤¨à¤‚à¤¬à¤° à¤à¤µà¤‚ à¤¬à¥ˆà¤‚à¤• à¤®à¤¿à¤²à¤¾à¤¨ à¤¸à¥à¤¥à¤¿à¤¤à¤¿
+                  UTR नंबर एवं बैंक मिलान स्थिति
                 </h3>
               </div>
-              <button className="btn btn-outline btn-sm" onClick={() => setEditUtrModal(null)}>âœ•</button>
+              <button className="btn btn-outline btn-sm" onClick={() => setEditUtrModal(null)}>✕</button>
             </div>
 
             <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', marginBottom: 16, fontSize: '0.85rem' }}>
-              <div><strong>PNR à¤•à¥à¤°à¤®à¤¾à¤‚à¤•:</strong> <span style={{ color: '#C2410C', fontWeight: 800 }}>{editUtrModal.txn?.pnr}</span></div>
-              <div style={{ marginTop: 2 }}><strong>à¤¶à¥à¤°à¤¦à¥à¤§à¤¾à¤²à¥:</strong> {editUtrModal.txn?.devoteeName} ({editUtrModal.txn?.mobile})</div>
+              <div><strong>PNR क्रमांक:</strong> <span style={{ color: '#C2410C', fontWeight: 800 }}>{editUtrModal.txn?.pnr}</span></div>
+              <div style={{ marginTop: 2 }}><strong>श्रद्धालु:</strong> {editUtrModal.txn?.devoteeName} ({editUtrModal.txn?.mobile})</div>
               <div style={{ marginTop: 2 }}>
-                <strong>à¤²à¥‡à¤¨à¤¦à¥‡à¤¨ à¤°à¤¾à¤¶à¤¿:</strong> <span style={{ color: '#047857', fontWeight: 900, fontSize: '1.05rem' }}>â‚¹ {Number(editUtrModal.txn?.amount || 0).toLocaleString()}</span> via {editUtrModal.txn?.method || 'UPI'}
+                <strong>लेनदेन राशि:</strong> <span style={{ color: '#047857', fontWeight: 900, fontSize: '1.05rem' }}>₹ {Number(editUtrModal.txn?.amount || 0).toLocaleString()}</span> via {editUtrModal.txn?.method || 'UPI'}
               </div>
               <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 4 }}>
-                à¤¤à¤¾à¤°à¥€à¤–: {new Date(editUtrModal.txn?.date).toLocaleString('hi-IN')}
+                तारीख: {new Date(editUtrModal.txn?.date).toLocaleString('hi-IN')}
               </div>
             </div>
 
@@ -9220,12 +9220,12 @@ export default function App() {
               );
             }}>
               <div className="form-group">
-                <label className="form-label">12-à¤…à¤‚à¤•à¥‹à¤‚ à¤•à¤¾ UPI UTR / à¤¬à¥ˆà¤‚à¤• à¤°à¥‡à¤«à¤°à¥‡à¤‚à¤¸ à¤•à¥à¤°à¤®à¤¾à¤‚à¤• <span style={{ color: 'red' }}>*</span></label>
+                <label className="form-label">12-अंकों का UPI UTR / बैंक रेफरेंस क्रमांक <span style={{ color: 'red' }}>*</span></label>
                 <input
                   type="text"
                   required
                   className="form-control"
-                  placeholder="à¤‰à¤¦à¤¾. 425689123456"
+                  placeholder="उदा. 425689123456"
                   value={editUtrModal.newUtr}
                   onChange={e => setEditUtrModal({ ...editUtrModal, newUtr: e.target.value.trim() })}
                   style={{ letterSpacing: '1px', fontWeight: 700 }}
@@ -9233,24 +9233,24 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (Verification Status)</label>
+                <label className="form-label">सत्यापन स्थिति (Verification Status)</label>
                 <select
                   className="form-control"
                   value={editUtrModal.status}
                   onChange={e => setEditUtrModal({ ...editUtrModal, status: e.target.value })}
                 >
-                  <option value="Pending">à¤®à¤¿à¤²à¤¾à¤¨ à¤²à¤‚à¤¬à¤¿à¤¤ (Pending Match)</option>
-                  <option value="Verified">âœ“ à¤¬à¥ˆà¤‚à¤• à¤¸à¥‡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ (Verified / Approved)</option>
-                  <option value="Rejected">âœ• à¤…à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ (Rejected / Fake UTR)</option>
+                  <option value="Pending">मिलान लंबित (Pending Match)</option>
+                  <option value="Verified">✓ बैंक से सत्यापित (Verified / Approved)</option>
+                  <option value="Rejected">✕ अस्वीकृत (Rejected / Fake UTR)</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label">à¤à¤¡à¤®à¤¿à¤¨ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨ à¤¨à¥‹à¤Ÿ / à¤¬à¥ˆà¤‚à¤• à¤µà¤¿à¤µà¤°à¤£ (Remarks)</label>
+                <label className="form-label">एडमिन सत्यापन नोट / बैंक विवरण (Remarks)</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="à¤‰à¤¦à¤¾. à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ à¤¬à¥ˆà¤‚à¤• à¤–à¤¾à¤¤à¥‡ à¤®à¥‡à¤‚ 15:30 à¤ªà¤° à¤°à¤¾à¤¶à¤¿ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤¹à¥à¤ˆ"
+                  placeholder="उदा. ट्रस्ट बैंक खाते में 15:30 पर राशि प्राप्त हुई"
                   value={editUtrModal.remarks}
                   onChange={e => setEditUtrModal({ ...editUtrModal, remarks: e.target.value })}
                 />
@@ -9258,10 +9258,10 @@ export default function App() {
 
               <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
                 <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditUtrModal(null)}>
-                  à¤°à¤¦à¥à¤¦ à¤•à¤°à¥‡à¤‚
+                  रद्द करें
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                  âœ“ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤…à¤ªà¤¡à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚
+                  ✓ स्थिति अपडेट करें
                 </button>
               </div>
             </form>
@@ -9309,17 +9309,17 @@ export default function App() {
                  className="btn btn-sm btn-outline"
                  onClick={() => navigate(roleSettingsPath)}
                  style={{ flex: 1, padding: '5px 6px', fontSize: '0.75rem', color: '#FFF', borderColor: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)' }}
-                 title="à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤à¤µà¤‚ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡"
+                 title="सेटिंग्स एवं पासवर्ड"
                >
-                 <Settings size={13} style={{display:"inline", marginRight:"3px", verticalAlign:"text-bottom"}} /> à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸
+                 <Settings size={13} style={{display:"inline", marginRight:"3px", verticalAlign:"text-bottom"}} /> सेटिंग्स
                </button>
                <button
                  className="btn btn-sm"
                  onClick={handleStaffLogout}
                  style={{ flex: 1, padding: '5px 6px', fontSize: '0.75rem', color: '#FECACA', borderColor: '#EF4444', background: 'rgba(239, 68, 68, 0.25)' }}
-                 title="à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ"
+                 title="लॉगआउट"
                >
-                 <LogOut size={13} style={{display:"inline", marginRight:"3px", verticalAlign:"text-bottom"}} /> à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ
+                 <LogOut size={13} style={{display:"inline", marginRight:"3px", verticalAlign:"text-bottom"}} /> लॉगआउट
                </button>
              </div>
           </div>
@@ -9332,13 +9332,13 @@ export default function App() {
                  className="btn btn-outline btn-sm mobile-only-inline"
                  onClick={() => setMobileMenuOpen(true)}
                  style={{ padding: '6px 10px', fontSize: '0.78rem', color: '#9A3412', borderColor: '#FDBA74', background: '#FFF8F2' }}
-                 title="à¤¸à¤­à¥€ 14 à¤ªà¥ˆà¤¨à¤² à¤¦à¥‡à¤–à¥‡à¤‚"
+                 title="सभी 14 पैनल देखें"
                >
                  <Menu size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                 <span>à¤®à¥‡à¤¨à¥à¤¯à¥‚</span>
+                 <span>मेन्यू</span>
                </button>
                <div className="admin-header-title">
-                  {allStaffNavItems.find(i => currentPath.startsWith(i.path))?.label || (activeView === 'settings' ? 'à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤à¤µà¤‚ à¤¸à¥à¤°à¤•à¥à¤·à¤¾' : 'à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡')}
+                  {allStaffNavItems.find(i => currentPath.startsWith(i.path))?.label || (activeView === 'settings' ? 'सेटिंग्स एवं सुरक्षा' : 'डैशबोर्ड')}
                </div>
              </div>
 
@@ -9347,9 +9347,9 @@ export default function App() {
                   <div className="desktop-actions" style={{ display: 'flex', gap: 6 }}>
                     <a href={`/api/admin/export-excel?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                       className="btn btn-gold btn-sm"><Download size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> Excel</a>
-                    <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> à¤¬à¤²à¥à¤•</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => setBulkModalOpen(true)}><Upload size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> बल्क</button>
                     <a href={`/api/admin/bulk-slips?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
-                      className="btn btn-primary btn-sm"><FileText size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> à¤ªà¤°à¥à¤šà¤¿à¤¯à¤¾à¤‚</a>
+                      className="btn btn-primary btn-sm"><FileText size={14} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> पर्चियां</a>
                   </div>
                 )}
                 <span className="badge badge-bhakti" style={{ fontSize: '0.73rem', padding: '3px 8px' }}>{staffUser.department || staffUser.role}</span>
@@ -9357,11 +9357,11 @@ export default function App() {
                   className="btn btn-outline btn-sm"
                   onClick={() => navigate(roleSettingsPath)}
                   style={{ color: '#9A3412', borderColor: '#FED7AA', background: '#FFF8F2', padding: '5px 8px' }}
-                  title="à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤à¤µà¤‚ à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡"
+                  title="सेटिंग्स एवं पासवर्ड"
                 >
                   <Settings size={15} style={{ verticalAlign: 'middle' }} />
                 </button>
-                <button className="btn btn-sm" onClick={handleStaffLogout} style={{ color: '#DC2626', border: '1.5px solid #FCA5A5', background: '#FFF5F5', padding: '5px 8px' }} title="à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ">
+                <button className="btn btn-sm" onClick={handleStaffLogout} style={{ color: '#DC2626', border: '1.5px solid #FCA5A5', background: '#FFF5F5', padding: '5px 8px' }} title="लॉगआउट">
                   <LogOut size={15} style={{ verticalAlign: 'middle' }} />
                 </button>
              </div>
@@ -9380,7 +9380,7 @@ export default function App() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <img src="/logo.jpg" alt="Logo" style={{ width: 38, height: 38, borderRadius: 10, border: '1.5px solid #FDBA74', objectFit: 'cover' }} />
                   <div>
-                    <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#431407' }}>à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ â€¢ à¤¸à¥à¤Ÿà¤¾à¤« à¤ªà¥ˆà¤¨à¤²</div>
+                    <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#431407' }}>श्री माता वैष्णो देवी • स्टाफ पैनल</div>
                     <div style={{ fontSize: '0.74rem', color: '#9A3412', fontWeight: 700 }}>{staffUser.name} ({staffUser.role})</div>
                   </div>
                 </div>
@@ -9399,10 +9399,10 @@ export default function App() {
                     <a href={`/api/admin/export-excel?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
                       className="btn btn-gold btn-xs" style={{ whiteSpace: 'nowrap' }}><Download size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> Excel Export</a>
                     <button className="btn btn-outline btn-xs" style={{ whiteSpace: 'nowrap' }} onClick={() => { setMobileMenuOpen(false); setBulkModalOpen(true); }}>
-                      <Upload size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> à¤¬à¤²à¥à¤• à¤…à¤ªà¤²à¥‹à¤¡
+                      <Upload size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> बल्क अपलोड
                     </button>
                     <a href={`/api/admin/bulk-slips?yatraYear=${encodeURIComponent(adminYearFilter || '')}&token=${safeStaffToken}`}
-                      className="btn btn-primary btn-xs" style={{ whiteSpace: 'nowrap' }}><FileText size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> à¤¸à¤­à¥€ à¤ªà¤°à¥à¤šà¤¿à¤¯à¤¾à¤‚</a>
+                      className="btn btn-primary btn-xs" style={{ whiteSpace: 'nowrap' }}><FileText size={13} style={{ verticalAlign: 'middle', marginRight: 2 }} /> सभी पर्चियां</a>
                   </div>
                 )}
 
@@ -9436,7 +9436,7 @@ export default function App() {
                       navigate(roleSettingsPath);
                     }}
                   >
-                    <Settings size={15} style={{ verticalAlign: 'middle', marginRight: 4 }} /> à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤µ à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸
+                    <Settings size={15} style={{ verticalAlign: 'middle', marginRight: 4 }} /> पासवर्ड व सेटिंग्स
                   </button>
                   <button
                     className="btn btn-sm"
@@ -9446,7 +9446,7 @@ export default function App() {
                       handleStaffLogout();
                     }}
                   >
-                    <LogOut size={15} style={{ verticalAlign: 'middle', marginRight: 4 }} /> à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤²à¥‰à¤—à¤†à¤‰à¤Ÿ
+                    <LogOut size={15} style={{ verticalAlign: 'middle', marginRight: 4 }} /> सुरक्षित लॉगआउट
                   </button>
                 </div>
               </div>
@@ -9495,7 +9495,7 @@ export default function App() {
     <div style={{ backgroundColor: 'var(--peach-bg)', minHeight: '100vh', color: 'var(--text-main)' }}>
       {/* Top Sacred Bhagwa Animated Band */}
       <div className="sacred-band">
-        <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> à¥¤à¥¤ à¥ à¤¸à¤°à¥à¤µà¤®à¤‚à¤—à¤² à¤®à¤¾à¤‚à¤—à¤²à¥à¤¯à¥‡ à¤¶à¤¿à¤µà¥‡ à¤¸à¤°à¥à¤µà¤¾à¤°à¥à¤¥ à¤¸à¤¾à¤§à¤¿à¤•à¥‡ â€¢ à¤¶à¤°à¤£à¥à¤¯à¥‡ à¤¤à¥à¤°à¥à¤¯à¤‚à¤¬à¤•à¥‡ à¤—à¥Œà¤°à¥€ à¤¨à¤¾à¤°à¤¾à¤¯à¤£à¤¿ à¤¨à¤®à¥‹à¤½à¤¸à¥à¤¤à¥ à¤¤à¥‡ à¥¤à¥¤ <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> &nbsp;&nbsp; à¤œà¤¯ à¤®à¤¾à¤¤à¤¾ à¤¦à¥€ â€¢ à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ  &nbsp;&nbsp;
+        <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> ।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।। <Ticket size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> &nbsp;&nbsp; जय माता दी • श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट  &nbsp;&nbsp;
       </div>
 
       {/* Main Navbar (Mobile-Responsive) */}
@@ -9505,7 +9505,7 @@ export default function App() {
           <div className="navbar-logo" style={{ background: '#fff', overflow: 'hidden' }}><img src="/logo.jpg" alt="MVD Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /></div>
           <div>
             <div className="navbar-title">Mata Vaishno Devi</div>
-            <div className="navbar-subtitle">à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ â€¢ Yatra Special Train 2026</div>
+            <div className="navbar-subtitle">श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट • Yatra Special Train 2026</div>
           </div>
         </div>
 
@@ -9514,21 +9514,21 @@ export default function App() {
           <button
             className={`btn btn-sm ${(currentPath === '/' || currentPath === '/home') ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => navigate('/')}
-            title="PNR à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤œà¤¾à¤‚à¤šà¥‡à¤‚"
+            title="PNR स्थिति जांचें"
           >
-            <Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <span className="btn-text-label">PNR à¤œà¤¾à¤‚à¤š</span>
+            <Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <span className="btn-text-label">PNR जांच</span>
           </button>
           <button
             className={`btn btn-sm ${(currentPath === '/coach-position' || currentPath === '/train-composition') ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => navigate('/coach-position')}
-            title="à¤Ÿà¥à¤°à¥‡à¤¨ à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤à¤µà¤‚ à¤¸à¤‚à¤°à¤šà¤¨à¤¾"
+            title="ट्रेन बोगी स्थिति एवं संरचना"
           >
-            <Train size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <span className="btn-text-label">à¤¬à¥‹à¤—à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (Coaches)</span>
+            <Train size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <span className="btn-text-label">बोगी स्थिति (Coaches)</span>
           </button>
           <button
             className={`btn btn-sm ${currentPath === '/login' ? 'btn-gold' : 'btn-outline'}`}
             onClick={() => navigate('/login')}
-            title="à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¥€ à¤²à¥‰à¤—à¤¿à¤¨"
+            title="कर्मचारी लॉगिन"
           >
             <Lock size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> <span className="btn-text-label">Staff Login</span>
           </button>
@@ -9545,11 +9545,11 @@ export default function App() {
           color: '#7C2D12', fontSize: '0.9rem', boxShadow: '0 -4px 15px rgba(230,81,0,0.05)'
         }}>
           <div style={{ color: '#9A3412', fontWeight: 900, fontSize: '1.1rem', marginBottom: 4 }}>
-            à¤¶à¥à¤°à¥€ à¤®à¤¾à¤¤à¤¾ à¤µà¥ˆà¤·à¥à¤£à¥‹ à¤¦à¥‡à¤µà¥€ à¤ªà¤¬à¥à¤²à¤¿à¤• à¤šà¥ˆà¤°à¤¿à¤Ÿà¥‡à¤¬à¤² à¤Ÿà¥à¤°à¤¸à¥à¤Ÿ
+            श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट
           </div>
           <div>Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India</div>
           <div style={{ marginTop: 8, color: '#C2410C', fontSize: '0.85rem', fontWeight: 700 }}>
-            à¤¹à¥‡à¤²à¥à¤ªà¤²à¤¾à¤‡à¤¨: +91 7398959993 â€¢ à¤ˆà¤®à¥‡à¤²: infomatavaishnodevi@gmail.com â€¢ à¥¤à¥¤ à¤œà¤¯ à¤®à¤¾à¤¤à¤¾ à¤¦à¥€ à¥¤à¥¤
+            हेल्पलाइन: +91 7398959993 • ईमेल: infomatavaishnodevi@gmail.com • ।। जय माता दी ।।
           </div>
           <div style={{
             marginTop: 16,
@@ -9564,7 +9564,7 @@ export default function App() {
             flexWrap: 'wrap'
           }}>
             <span>
-              Made with <span style={{ color: '#EF4444' }}>â¤ï¸</span> by{' '}
+              Made with <span style={{ color: '#EF4444' }}>❤️</span> by{' '}
               <a
                 href="https://www.aroventech.site"
                 target="_blank"
@@ -9574,7 +9574,7 @@ export default function App() {
                 ArovenTech
               </a>
             </span>
-            <span style={{ color: '#CBD5E1' }}>â€¢</span>
+            <span style={{ color: '#CBD5E1' }}>•</span>
             <a
               href="https://wa.me/919598023701"
               target="_blank"
@@ -9588,7 +9588,7 @@ export default function App() {
                 gap: 4
               }}
             >
-              ðŸ’¬ WhatsApp: +91 9598023701
+              💬 WhatsApp: +91 9598023701
             </a>
           </div>
         </footer>

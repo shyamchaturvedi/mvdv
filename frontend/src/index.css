@@ -2396,7 +2396,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
 }
 
 .vande-pantograph::after {
-  content: 'âš¡';
+  content: '⚡';
   position: absolute;
   top: -14px;
   left: 6px;
@@ -2644,13 +2644,13 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
 }
 
 /* ================================================================
-   ENTERPRISE HOME PAGE â€” REDESIGN SYSTEM v2
+   ENTERPRISE HOME PAGE — REDESIGN SYSTEM v2
    Professional Railway Portal UI (IRCTC/Vande Bharat grade)
    ================================================================ */
 
-/* â”€â”€ Google Fonts for enterprise typography â”€â”€ */
+/* ── Google Fonts for enterprise typography ── */
 
-/* â”€â”€ Design tokens â”€â”€ */
+/* ── Design tokens ── */
 :root {
   --ent-saffron:    #E65100;
   --ent-saffron-dk: #BF360C;
@@ -2682,14 +2682,14 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   --ent-sh-lg:      0 10px 32px rgba(30,8,0,.12), 0 4px 10px rgba(0,0,0,.06);
 }
 
-/* â”€â”€ Enterprise Home Layout â”€â”€ */
+/* ── Enterprise Home Layout ── */
 .ent-home-wrap {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 16px 80px;
 }
 
-/* â”€â”€ Hero Train Card â”€â”€ */
+/* ── Hero Train Card ── */
 .ent-hero-card {
   position: relative;
   border-radius: var(--ent-r-xl);
@@ -2821,7 +2821,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   flex-shrink: 0;
 }
 
-/* â”€â”€ Two-Column Dashboard Row â”€â”€ */
+/* ── Two-Column Dashboard Row ── */
 .ent-dashboard-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2835,7 +2835,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   }
 }
 
-/* â”€â”€ Enterprise Card Base â”€â”€ */
+/* ── Enterprise Card Base ── */
 .ent-card {
   background: var(--ent-card);
   border: 1px solid var(--ent-border);
@@ -2894,7 +2894,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   flex-shrink: 0;
 }
 
-/* â”€â”€ Departure Countdown â”€â”€ */
+/* ── Departure Countdown ── */
 .ent-countdown-card {
   background: linear-gradient(135deg, #1E1510 0%, #2C1810 50%, #1A0D08 100%);
   border: 1px solid rgba(230,81,0,0.3);
@@ -3007,7 +3007,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   50% { opacity: 0.55; transform: scale(0.8); }
 }
 
-/* â”€â”€ Berth Availability Card â”€â”€ */
+/* ── Berth Availability Card ── */
 .ent-berth-card {
   background: var(--ent-card);
   border: 1px solid var(--ent-border);
@@ -3039,7 +3039,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   line-height: 1.45;
 }
 
-/* â”€â”€ Class Fare Grid â”€â”€ */
+/* ── Class Fare Grid ── */
 .ent-class-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3132,7 +3132,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   line-height: 1.45;
 }
 
-/* â”€â”€ PNR Search Section â”€â”€ */
+/* ── PNR Search Section ── */
 .ent-pnr-section {
   background: var(--ent-cream);
   border: 1px solid var(--ent-border);
@@ -3283,7 +3283,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   border-color: #BBF7D0;
 }
 
-/* â”€â”€ Route / Schedule Banner â”€â”€ */
+/* ── Route / Schedule Banner ── */
 .ent-schedule-bar {
   background: #FFFFFF;
   border: 1px solid var(--ent-border);
@@ -3325,7 +3325,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   border-left: 6px solid #F59E0B;
 }
 
-/* â”€â”€ Ticket Display Card (search result) â”€â”€ */
+/* ── Ticket Display Card (search result) ── */
 .ent-ticket-card {
   background: #FFFFFF;
   border: 1.5px solid #E65100;
@@ -3371,7 +3371,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   color: var(--ent-text-h);
 }
 
-/* â”€â”€ Poster & Gallery Section â”€â”€ */
+/* ── Poster & Gallery Section ── */
 .ent-poster-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3446,7 +3446,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   line-height: 1.3;
 }
 
-/* â”€â”€ Feature Cards â”€â”€ */
+/* ── Feature Cards ── */
 .ent-feature-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3501,7 +3501,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   line-height: 1.6;
 }
 
-/* â”€â”€ Organizer Info Card â”€â”€ */
+/* ── Organizer Info Card ── */
 .ent-info-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3513,7 +3513,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   .ent-info-two-col { grid-template-columns: 1fr; }
 }
 
-/* â”€â”€ Enterprise Footer Strip â”€â”€ */
+/* ── Enterprise Footer Strip ── */
 .ent-footer-card {
   background: var(--ent-charcoal);
   border-radius: var(--ent-r-xl);
@@ -3578,7 +3578,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   color: rgba(255,255,255,0.35);
 }
 
-/* â”€â”€ CTA Action Row â”€â”€ */
+/* ── CTA Action Row ── */
 .ent-cta-row {
   display: flex;
   align-items: center;
@@ -3588,7 +3588,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   margin-top: 20px;
 }
 
-/* â”€â”€ Security Notice â”€â”€ */
+/* ── Security Notice ── */
 .ent-security-notice {
   background: #FFFBEB;
   border: 1px solid #FDE68A;
@@ -3609,7 +3609,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   margin: 28px 0;
 }
 
-/* â”€â”€ Mobile PNR search stack â”€â”€ */
+/* ── Mobile PNR search stack ── */
 @media (max-width: 600px) {
   .ent-pnr-input-wrap {
     flex-direction: column;
@@ -3639,7 +3639,7 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   .ent-hero-img { height: 420px; }
 }
 
-/* â”€â”€ Shimmer load state for big number â”€â”€ */
+/* ── Shimmer load state for big number ── */
 @keyframes entShimmer {
   from { background-position: -200% 0; }
   to   { background-position:  200% 0; }
