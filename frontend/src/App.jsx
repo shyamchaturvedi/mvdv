@@ -93,6 +93,52 @@ export default function App() {
   };
 
   // High-fidelity direct print helper matching downloaded PDF
+  const printCombinedSlipElements = (elementId1, elementId2, docTitle = 'MVD Document') => {
+    const elem1 = document.getElementById(elementId1);
+    const elem2 = document.getElementById(elementId2);
+    if (!elem1 || !elem2) return;
+    
+    const printWindow = window.open('', '_blank', 'width=950,height=800');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+    
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
+    const pageStyle = '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${docTitle}</title>
+          ${styles}
+          <style>
+            ${pageStyle}
+            * { box-sizing: border-box; }
+            .no-print { display: none !important; }
+            .irctc-ticket-wrapper, .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
+            .mandir-receipt-wrapper { border: 2px solid #C2410C !important; page-break-before: always; margin-top: 10mm !important; }
+          </style>
+        </head>
+        <body style="background: #ffffff; padding: 0;">
+          <div style="width: 100%; padding-bottom: 20px;">
+            ${elem1.outerHTML}
+          </div>
+          <div style="page-break-before: always; width: 100%; padding-top: 20px;">
+            ${elem2.outerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 800);
+  };
+
   const printSlipElement = (elementId, docTitle = 'MVD Document') => {
     const elem = document.getElementById(elementId);
     if (!elem) {
@@ -105,15 +151,15 @@ export default function App() {
       window.print();
       return;
     }
-    const pageStyle = isReceipt
-      ? '@page { size: 210mm 148mm; margin: 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
-      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
+    const pageStyle = '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
           <title>${docTitle}</title>
+          ${styles}
           <style>
             ${pageStyle}
             * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -132,9 +178,9 @@ export default function App() {
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 450);
+    }, 800);
   };
-  // Booking Form State
+// Booking Form State
   const [bookingYear, setBookingYear] = useState('2026');
   const [travelDate, setTravelDate] = useState(() => {
     const d = new Date();
@@ -1012,14 +1058,10 @@ export default function App() {
         setSameAsLeadDevotee(false);
         setPassengers([{ name: '', age: '', gender: 'Male', aadhar: '', seatAssigned: '1' }]);
         
-        // Fast counter workflow: immediately trigger print dialog
+        // Fast counter workflow: immediately trigger print dialog combining both
         setTimeout(() => {
-          printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${data.booking.bookingId}`);
-          
-          setTimeout(() => {
-             printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${data.booking.bookingId}`);
-          }, 1500);
-        }, 500);
+          printCombinedSlipElements('irctc-ticket-print-area', 'mandir-receipt-print-area', `MVD-Booking-Receipt-${data.booking.bookingId}`);
+        }, 150);
       } else {
         alert('बुकिंग विफल: ' + data.error);
       }
@@ -8247,6 +8289,25 @@ export default function App() {
 
             {/* Bottom Modal Actions (No-Print) */}
             <div className="no-print" style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+              {ticketModal.status !== 'Cancelled' && (
+                <button 
+                  className="btn btn-danger btn-sm" 
+                  style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '0 12px' }} 
+                  onClick={() => { 
+                    setCancelModal({ 
+                      show: true, 
+                      booking: ticketModal, 
+                      refundAmount: 0, 
+                      cancellationCharges: ticketModal.advance || 0, 
+                      cancellationReason: 'यात्री के अनुरोध पर', 
+                      refundMode: 'Cash', 
+                      utr: '' 
+                    }); 
+                    setTicketModal(null); 
+                  }}>
+                  रद्द करें (Cancel)
+                </button>
+              )}
               {ticketModal.remainingAmount > 0 && (
                 <button className="btn btn-gold btn-sm" style={{ flex: 1 }} onClick={() => openUpiQR(ticketModal.bookingId)}>
                   <Smartphone size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> UPI द्वारा शेष भुगतान करें
@@ -8376,7 +8437,7 @@ export default function App() {
                         </div>
                         <div>
                           <span style={{ color: '#4B5563', fontWeight: 700, display: 'block' }}>Seat No(s):</span>
-                          <strong style={{ color: '#1E40AF' }}>{seatStr}</strong>
+                          <strong style={{ color: '#1E40AF' }}>{projectSettings && projectSettings.hideBerthNumber ? 'Unassigned' : seatStr}</strong>
                         </div>
                       </div>
 
