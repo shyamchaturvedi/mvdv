@@ -8291,7 +8291,7 @@ export default function App() {
               <div className="irctc-footer-bar">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <div>Helpline: +91 7398959993 • Support: iammshyam@gmail.com</div>
-                  <div>Authorized Signatory, Trust Secretary</div>
+                  <div style={{ color: '#047857', fontWeight: 'bold' }}>*Digitally Signed (No Signature Required)*</div>
                 </div>
                 <div style={{ color: '#0284C7', fontWeight: 700 }}>Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)</div>
                 <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol</div>
@@ -8542,17 +8542,8 @@ export default function App() {
                           <strong style={{ color: '#1F2937', fontSize: '0.82rem' }}>{receiptModal.txn.cashierName || 'Trust Authorized Staff'}</strong>
                           <div style={{ color: '#9CA3AF', fontSize: '0.62rem' }}>System Verified & Logged</div>
                         </div>
-                        <div style={{ textAlign: 'center' }}>
-                          <div style={{ border: '1.5px solid #C2410C', borderRadius: '50%', width: 50, height: 50, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#C2410C', fontSize: '0.55rem', fontWeight: 900, transform: 'rotate(-5deg)', margin: '0 auto 2px', background: '#FFF7ED' }}>
-                            <span> MVD</span>
-                            <span>SEAL</span>
-                            <span>2026</span>
-                          </div>
-                          <div style={{ fontSize: '0.6rem', color: '#7C2D12', fontWeight: 700 }}>Official Digital Stamp</div>
-                        </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ color: '#4B5563', fontWeight: 700 }}>Authorized Signatory:</div>
-                          <strong style={{ color: '#7C2D12', fontSize: '0.8rem' }}>For Shri Mata Vaishno Devi Trust</strong>
+                          <strong style={{ color: '#047857', fontSize: '0.8rem' }}>*Digitally Signed (No Signature Required)*</strong>
                           <div style={{ color: '#9CA3AF', fontSize: '0.62rem' }}>Official Computer Generated Receipt</div>
                         </div>
                       </div>
