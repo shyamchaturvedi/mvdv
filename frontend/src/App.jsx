@@ -88,33 +88,33 @@ const SmartAIAuditor = ({ adminBookings, staffToken }) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const todayBookings = adminBookings.filter(b => b.createdAt && b.createdAt.startsWith(todayStr));
 
-    if (lowerQ.includes('kaisa') || lowerQ.includes('hello') || lowerQ.includes('hi')) {
+    if (lowerQ.includes('kaisa') || lowerQ.includes('hello') || lowerQ.includes('hi') || lowerQ.includes('नमस्ते') || lowerQ.includes('namaste')) {
        response = "मैं ठीक हूँ! आप ऑडिट रिपोर्ट मांग सकते हैं।";
     }
-    else if (lowerQ.includes('cash') || lowerQ.includes('nakhad') || lowerQ.includes('kash') || lowerQ.includes('paisa') || lowerQ.includes('collection')) {
+    else if (lowerQ.includes('cash') || lowerQ.includes('nakhad') || lowerQ.includes('paisa') || lowerQ.includes('collection') || lowerQ.includes('कलेक्शन') || lowerQ.includes('कैश') || lowerQ.includes('नकद')) {
        let cash = todayBookings.filter(b => b.paymentMode === 'Cash').reduce((acc, b) => acc + Number(b.advance || 0), 0);
        let upi = todayBookings.filter(b => b.paymentMode === 'UPI').reduce((acc, b) => acc + Number(b.advance || 0), 0);
        response = `📊 **आज का कलेक्शन:**\n💰 नकद (Cash): ₹${cash}\n📱 ऑनलाइन (UPI): ₹${upi}\n💵 कुल: ₹${cash + upi}`;
     }
-    else if (lowerQ.includes('aaj') || lowerQ.includes('today') || lowerQ.includes('kitne') || lowerQ.includes('booking')) {
+    else if (lowerQ.includes('aaj') || lowerQ.includes('today') || lowerQ.includes('kitne') || lowerQ.includes('booking') || lowerQ.includes('आज') || lowerQ.includes('बुकिंग')) {
        let total = todayBookings.reduce((acc, b) => acc + Number(b.advance || 0), 0);
        response = `🎟️ आज कुल **${todayBookings.length} बुकिंग्स** हुई हैं।\n📈 आज की कुल कमाई **₹${total}** है।`;
     }
-    else if (lowerQ.includes('edit') || lowerQ.includes('badla') || lowerQ.includes('change') || lowerQ.includes('update')) {
+    else if (lowerQ.includes('edit') || lowerQ.includes('badla') || lowerQ.includes('change') || lowerQ.includes('update') || lowerQ.includes('एडिट') || lowerQ.includes('बदलाव')) {
        const edits = auditLogs.filter(a => a.action === 'BOOKING_EDIT' || a.action === 'STAFF_UPDATED').slice(0, 5);
        if (edits.length === 0) response = "✅ आज किसी ने कोई बुकिंग एडिट नहीं की है।";
        else {
          response = "⚠️ **हाल ही के एडिट्स:**\n\n" + edits.map(e => `📝 ${e.performedBy} ने ${new Date(e.timestamp).toLocaleTimeString()} पर:\n"${e.details}"`).join("\n\n");
        }
     }
-    else if (lowerQ.includes('delete') || lowerQ.includes('cancel') || lowerQ.includes('radd') || lowerQ.includes('hata')) {
+    else if (lowerQ.includes('delete') || lowerQ.includes('cancel') || lowerQ.includes('radd') || lowerQ.includes('hata') || lowerQ.includes('रद्द') || lowerQ.includes('डिलीट')) {
        const deletes = auditLogs.filter(a => a.action === 'BOOKING_DELETE' || a.action === 'BOOKING_CANCEL').slice(0, 5);
        if (deletes.length === 0) response = "✅ आज किसी ने कोई टिकट डिलीट या रद्द नहीं किया है।";
        else {
          response = "❌ **डिलीट / रद्द हुए टिकट:**\n\n" + deletes.map(e => `🗑️ ${e.performedBy} ने ${new Date(e.timestamp).toLocaleTimeString()} पर:\n"${e.details}"`).join("\n\n");
        }
     }
-    else if (lowerQ.includes('chori') || lowerQ.includes('fraud') || lowerQ.includes('report') || lowerQ.includes('audit')) {
+    else if (lowerQ.includes('chori') || lowerQ.includes('fraud') || lowerQ.includes('report') || lowerQ.includes('audit') || lowerQ.includes('रिपोर्ट') || lowerQ.includes('सिक्योरिटी') || lowerQ.includes('फ्रॉड')) {
        const suspect = auditLogs.filter(a => a.action === 'BOOKING_DELETE' || a.action === 'BOOKING_EDIT').length;
        response = `🚨 **सिक्योरिटी रिपोर्ट:**\nअब तक **${suspect}** संवेदनशील बदलाव (Edits/Deletes) पकड़े गए हैं। 'edit' या 'delete' लिखकर पूरा विवरण देखें।`;
     }
