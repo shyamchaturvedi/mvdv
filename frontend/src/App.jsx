@@ -2967,15 +2967,7 @@ export default function App() {
                               >
                                 <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> यह रसीद प्रिंट करें
                               </button>
-                              <a
-                                href={`/api/bookings/${b.bookingId}/receipt/${txn.id}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-outline btn-sm"
-                                style={{ padding: '6px 12px', fontSize: '0.82rem' }}
-                              >
-                                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF
-                              </a>
+                              
                             </div>
                           </div>
                         ))}
@@ -4336,9 +4328,7 @@ export default function App() {
                                 <button className="btn btn-sm btn-primary" onClick={() => setReceiptModal({ booking: searchedTicket, txn })} style={{ padding: '4px 10px', fontSize: '0.73rem' }}>
                                   <Printer size={12} strokeWidth={2} /> रसीद
                                 </button>
-                                <a href={`/api/bookings/${searchedTicket.bookingId}/receipt/${txn.id}`} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ padding: '4px 8px', fontSize: '0.73rem', borderColor: '#86EFAC', color: '#14532D' }}>
-                                  <FileText size={12} strokeWidth={2} /> PDF
-                                </a>
+                                
                               </div>
                             </div>
                           ))}
@@ -4348,9 +4338,7 @@ export default function App() {
 
                     {/* Action Buttons */}
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                      <a href={`/api/bookings/${searchedTicket.bookingId}/pdf`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm" style={{ flex: 1, borderColor: '#BBF7D0', color: '#14532D', background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                        <FileText size={15} strokeWidth={2} /> PDF यात्रा पर्ची डाउनलोड
-                      </a>
+                      
                       {searchedTicket.remainingAmount > 0 && (
                         <button className="btn btn-gold btn-sm" style={{ flex: 1 }} onClick={() => openUpiQR(searchedTicket.bookingId)}>
                           <Smartphone size={15} strokeWidth={2} /> UPI से शेष ₹{searchedTicket.remainingAmount} जमा करें
@@ -5284,9 +5272,7 @@ export default function App() {
                                           <IndianRupee size={13} />
                                         </button>
                                       )}
-                                      <a href={`/api/bookings/${b.bookingId}/pdf`} target="_blank" rel="noreferrer" className="btn btn-icon-xs btn-outline" title="PDF डाउनलोड">
-                                        <FileText size={13} />
-                                      </a>
+                                      
                                       {isSuperAdmin && (
                                         <button className="btn btn-icon-xs btn-danger" onClick={() => deleteBooking(b.bookingId)} title="Delete">
                                           ✕
@@ -8091,17 +8077,9 @@ export default function App() {
                   onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
                   style={{ background: '#0284C7', borderColor: '#0369A1' }}
                 >
-                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट करें (Print A4 ERS)
+                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट / Save PDF
                 </button>
-                <a 
-                  href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${safeStaffToken}`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="btn btn-outline btn-sm"
-                  style={{ borderColor: '#0284C7', color: '#0284C7' }}
-                >
-                  <FileText size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
-                </a>
+                
                 <button onClick={() => setTicketModal(null)} style={{ background: 'none', border: 'none', color: '#0369A1', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
               </div>
             </div>
@@ -8328,17 +8306,9 @@ export default function App() {
                 style={{ flex: 1, background: '#0284C7', borderColor: '#0369A1' }} 
                 onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
               >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> पर्ची प्रिंट करें (A4 Print)
+                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट / Save PDF
               </button>
-              <a 
-                href={`/api/bookings/${ticketModal.bookingId}/pdf?token=${safeStaffToken}`} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="btn btn-outline btn-sm" 
-                style={{ flex: 1, borderColor: '#0284C7', color: '#0284C7' }}
-              >
-                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
-              </a>
+              
             </div>
 
           </div>
@@ -8363,16 +8333,9 @@ export default function App() {
                   className="btn btn-primary btn-sm" 
                   onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`)}
                 >
-                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट करें (A4-Half Print)
+                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट / Save PDF
                 </button>
-                <a 
-                  href={`/api/bookings/${receiptModal.booking.bookingId}/receipt/${receiptModal.txn.id}`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="btn btn-outline btn-sm"
-                >
-                  <FileText size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
-                </a>
+                
                 <button onClick={() => setReceiptModal(null)} style={{ background: 'none', border: 'none', color: '#9A3412', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
               </div>
             </div>
@@ -8573,17 +8536,9 @@ export default function App() {
                 style={{ flex: 1 }} 
                 onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`)}
               >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट करें (A4-Half Print)
+                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट / Save PDF
               </button>
-              <a 
-                href={`/api/bookings/${receiptModal.booking.bookingId}/receipt/${receiptModal.txn.id}`} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="btn btn-outline btn-sm" 
-                style={{ flex: 1 }}
-              >
-                <FileText size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> PDF डाउनलोड
-              </a>
+              
             </div>
 
           </div>
