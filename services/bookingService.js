@@ -316,6 +316,7 @@ class BookingService {
         utr: payload.utr || ''
       }] : [],
       notes: payload.notes || 'Mata Vaishno Devi Yatra Special Booking',
+      offlineReceiptNo: payload.offlineReceiptNo || '',
       passengers,
       bookedByStaff: payload.bookedByStaff || 'Self',
       createdAt: new Date().toISOString(),

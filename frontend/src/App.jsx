@@ -210,6 +210,7 @@ export default function App() {
   const [sameAsLeadDevotee, setSameAsLeadDevotee] = useState(false);
   const [advancePayment, setAdvancePayment] = useState(1000);
   const [bookingPaymentMode, setBookingPaymentMode] = useState('Cash');
+  const [offlineReceiptNo, setOfflineReceiptNo] = useState('');
   const [discount, setDiscount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAutoPrinting, setIsAutoPrinting] = useState(false);
@@ -1055,6 +1056,7 @@ export default function App() {
         advancePayment: Number(advancePayment),
         discount: Number(discount),
         paymentMode: bookingPaymentMode,
+        offlineReceiptNo: offlineReceiptNo,
         passengers
       };
 
@@ -3823,7 +3825,14 @@ export default function App() {
               <tbody>
                 {adminBookings.slice(0, 5).map(b => (
                   <tr key={b.bookingId}>
-                    <td><strong style={{ color: '#C2410C' }}>{b.bookingId}</strong></td>
+                    <td>
+                                    <strong style={{ color: '#C2410C' }}>{b.bookingId}</strong>
+                                    {b.offlineReceiptNo && (
+                                      <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 4 }}>
+                                        Receipt: <strong>{b.offlineReceiptNo}</strong>
+                                      </div>
+                                    )}
+                                  </td>
                     <td><span className="badge badge-bhakti">{b.yatraYear}</span></td>
                     <td>
                       <strong>{b.bookedBy}</strong>
