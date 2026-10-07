@@ -32,6 +32,18 @@ function getBerthType(seatNum, travelClass) {
 }
 
 class BookingService {
+  static async logAudit(action, performedBy, details, targetId) {
+    try {
+      await db.collection('auditLogs').add({
+        logId: 'AUD-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+        timestamp: new Date().toISOString(),
+        action,
+        performedBy,
+        details,
+        targetId
+      });
+    } catch (e) { console.error('Audit Log Error:', e); }
+  }
   // Generate sequential PNR format: MVD-YYYY-000001, MVD-YYYY-000002...
   static async generateBookingId(yatraYear = 2026) {
     const yr = parseInt(yatraYear, 10) || 2026;
@@ -328,7 +340,7 @@ class BookingService {
   }
 
   // Update existing booking
-  static async updateBooking(bookingId, updates) {
+  static async updateBooking(bookingId, updates, adminName = 'System') {
     const existing = await this.getBookingByIdOrPNR(bookingId);
     if (!existing) throw new Error(`Booking ${bookingId} not found`);
 
@@ -356,11 +368,12 @@ class BookingService {
     }
 
     await db.collection('bookings').doc(existing.bookingId).set(updatedData);
+    await this.logAudit('BOOKING_EDIT', adminName, `Booking ${bookingId} was edited.`, bookingId);
     return updatedData;
   }
 
   // Cancel Ticket with Refund
-  static async cancelBookingWithRefund(bookingId, cancellationData = {}) {
+  static async cancelBookingWithRefund(bookingId, cancellationData = {}, adminName = 'System') {
     const booking = await this.getBookingByIdOrPNR(bookingId);
     if (!booking) throw new Error('आरक्षण (Booking) नहीं मिला।');
 
@@ -498,7 +511,7 @@ class BookingService {
   }
 
   // Delete / cancel booking
-  static async deleteBooking(bookingId) {
+  static async deleteBooking(bookingId, adminName = 'System') {
     const booking = await this.getBookingByIdOrPNR(bookingId);
     if (!booking) throw new Error('Booking not found');
     await db.collection('bookings').doc(booking.bookingId).delete();
