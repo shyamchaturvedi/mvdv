@@ -1,22 +1,21 @@
 const fs = require('fs');
 let content = fs.readFileSync('c:/Users/sahil/.gemini/antigravity-ide/scratch/mvd_train_ticket_system/frontend/src/App.jsx', 'utf8');
 
-// We need to inject a new component for the AI Chatbot
 const chatbotComponent = `
 const SmartAIAuditor = ({ adminBookings, staffToken }) => {
-  const [chatLog, setChatLog] = useState([{ sender: 'ai', text: 'नमस्कार! मैं आपका स्मार्ट ऑडिट असिस्टेंट हूँ। आप मुझसे आज का कैश, डिलीट हुए टिकट, या कुल बुकिंग के बारे में पूछ सकते हैं।' }]);
-  const [query, setQuery] = useState('');
-  const [auditLogs, setAuditLogs] = useState([]);
-  const chatEndRef = useRef(null);
+  const [chatLog, setChatLog] = React.useState([{ sender: 'ai', text: 'नमस्कार! मैं आपका स्मार्ट ऑडिट असिस्टेंट हूँ। आप मुझसे आज का कैश, डिलीट हुए टिकट, या कुल बुकिंग के बारे में पूछ सकते हैं।' }]);
+  const [query, setQuery] = React.useState('');
+  const [auditLogs, setAuditLogs] = React.useState([]);
+  const chatEndRef = React.useRef(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetch('/api/admin/audit-logs?token=' + (staffToken || 'admin_token'))
       .then(r => r.json())
       .then(d => { if (d.logs) setAuditLogs(d.logs); })
       .catch(e => console.error(e));
   }, [staffToken]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [chatLog]);
 
@@ -27,7 +26,7 @@ const SmartAIAuditor = ({ adminBookings, staffToken }) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const todayBookings = adminBookings.filter(b => b.createdAt && b.createdAt.startsWith(todayStr));
 
-    if (lowerQ.includes('kaisa') || lowerQ.includes('hello')) {
+    if (lowerQ.includes('kaisa') || lowerQ.includes('hello') || lowerQ.includes('hi')) {
        response = "मैं ठीक हूँ! आप ऑडिट रिपोर्ट मांग सकते हैं।";
     }
     else if (lowerQ.includes('cash') || lowerQ.includes('nakhad') || lowerQ.includes('kash') || lowerQ.includes('paisa')) {
@@ -46,14 +45,14 @@ const SmartAIAuditor = ({ adminBookings, staffToken }) => {
          response = "हाल ही के एडिट्स:\\n" + edits.map(e => \`• \${e.performedBy} ने \${new Date(e.timestamp).toLocaleTimeString()} पर: \${e.details}\`).join("\\n");
        }
     }
-    else if (lowerQ.includes('delete') || lowerQ.includes('cancel') || lowerQ.includes('radd')) {
+    else if (lowerQ.includes('delete') || lowerQ.includes('cancel') || lowerQ.includes('radd') || lowerQ.includes('hata')) {
        const deletes = auditLogs.filter(a => a.action === 'BOOKING_DELETE' || a.action === 'BOOKING_CANCEL').slice(0, 5);
        if (deletes.length === 0) response = "आज किसी ने कोई टिकट डिलीट या रद्द नहीं किया है।";
        else {
          response = "डिलीट / रद्द हुए टिकट:\\n" + deletes.map(e => \`• \${e.performedBy} ने \${new Date(e.timestamp).toLocaleTimeString()} पर: \${e.details}\`).join("\\n");
        }
     }
-    else if (lowerQ.includes('chori') || lowerQ.includes('fraud') || lowerQ.includes('report')) {
+    else if (lowerQ.includes('chori') || lowerQ.includes('fraud') || lowerQ.includes('report') || lowerQ.includes('audit')) {
        const suspect = auditLogs.filter(a => a.action === 'BOOKING_DELETE' || a.action === 'BOOKING_EDIT').length;
        response = \`सिक्योरिटी रिपोर्ट: अब तक \${suspect} संवेदनशील बदलाव (Edits/Deletes) पकड़े गए हैं। 'edit' या 'delete' लिखकर विवरण देखें।\`;
     }
@@ -98,34 +97,34 @@ const SmartAIAuditor = ({ adminBookings, staffToken }) => {
 };
 `;
 
-if (!content.includes('SmartAIAuditor =')) {
-  content = content.replace(/const App = \(\) => \{/, chatbotComponent + '\nconst App = () => {');
+if (!content.includes('const SmartAIAuditor')) {
+  content = content.replace(/export default function App\(\) \{/, chatbotComponent + '\nexport default function App() {');
 }
 
-// Add ShieldCheck icon
-if (!content.includes('ShieldCheck,')) {
+// Add ShieldCheck to import
+if (!content.includes('ShieldCheck')) {
   content = content.replace(/import \{ /, `import { ShieldCheck, `);
 }
 
-// Add Tab
-if (!content.includes('<option value="ai_audit">AI ऑडिटर</option>')) {
-  // Try to find the select where we choose tabs. In App.jsx there are multiple views. 
-  // Look for admin tabs: <button onClick={() => navigate('/admin')}
-  const targetAdminTabs = `<button className={\`btn btn-sm \${adminActiveTab === 'roster' ? 'btn-primary' : 'btn-outline'}\`} onClick={() => setAdminActiveTab('roster')}>स्टाफ रोस्टर</button>`;
-  const newAdminTabs = `<button className={\`btn btn-sm \${adminActiveTab === 'ai_audit' ? 'btn-primary' : 'btn-outline'}\`} onClick={() => setAdminActiveTab('ai_audit')}>AI ऑडिटर</button>\n                          ` + targetAdminTabs;
-  content = content.replace(targetAdminTabs, newAdminTabs);
+// Add the AI Auditor tab
+const oldTabBtn = `<button className={\`btn btn-sm \${adminActiveTab === 'roster' ? 'btn-primary' : 'btn-outline'}\`} onClick={() => setAdminActiveTab('roster')}>स्टाफ रोस्टर</button>`;
+const newTabBtn = `<button className={\`btn btn-sm \${adminActiveTab === 'ai_audit' ? 'btn-primary' : 'btn-outline'}\`} onClick={() => setAdminActiveTab('ai_audit')}>AI ऑडिटर</button>\n                          ` + oldTabBtn;
+if (content.includes(oldTabBtn) && !content.includes('ai_audit')) {
+  content = content.replace(oldTabBtn, newTabBtn);
 }
 
-// Add the rendering of the tab
-const targetRender = `{adminActiveTab === 'roster' && (`;
+// Add the rendering logic for the tab
+const oldRender = `{adminActiveTab === 'roster' && (`;
 const newRender = `{adminActiveTab === 'ai_audit' && (
                         <div className="module-card">
                           <h2 className="module-card-title">ऑर्गेनाइज़र AI असिस्टेंट</h2>
                           <p className="module-card-desc">यह इन-बिल्ट स्मार्ट बॉट बिना इंटरनेट API के आपके डेटा का विश्लेषण करता है।</p>
                           <SmartAIAuditor adminBookings={adminBookings} staffToken={staffToken} />
                         </div>
-                      )}\n\n                      ` + targetRender;
-content = content.replace(targetRender, newRender);
+                      )}\n\n                      ` + oldRender;
+if (content.includes(oldRender) && !content.includes('<SmartAIAuditor')) {
+  content = content.replace(oldRender, newRender);
+}
 
 fs.writeFileSync('c:/Users/sahil/.gemini/antigravity-ide/scratch/mvd_train_ticket_system/frontend/src/App.jsx', content);
 console.log('AI Auditor component injected successfully!');
