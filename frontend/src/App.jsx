@@ -71,6 +71,7 @@ export default function App() {
   const [stationsList, setStationsList] = useState(DEFAULT_ROUTE_STATIONS);
   const [posterModal, setPosterModal] = useState(false);
   const [editYatriModal, setEditYatriModal] = useState(null);
+  const [cancelRefundModal, setCancelRefundModal] = useState(null);
   const [editReceiptModal, setEditReceiptModal] = useState(null);
 
   // Indian Currency Number to Words
@@ -208,6 +209,7 @@ export default function App() {
   ]);
   const [sameAsLeadDevotee, setSameAsLeadDevotee] = useState(false);
   const [advancePayment, setAdvancePayment] = useState(1000);
+  const [bookingPaymentMode, setBookingPaymentMode] = useState('Cash');
   const [discount, setDiscount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAutoPrinting, setIsAutoPrinting] = useState(false);
@@ -1032,6 +1034,7 @@ export default function App() {
         email,
         advancePayment: Number(advancePayment),
         discount: Number(discount),
+        paymentMode: bookingPaymentMode,
         passengers
       };
 
@@ -5291,8 +5294,13 @@ export default function App() {
                                       
                                       {isSuperAdmin && (
                                         <button className="btn btn-icon-xs btn-danger" onClick={() => deleteBooking(b.bookingId)} title="Delete">
-                                          ✕
-                                        </button>
+                                            ✕
+                                          </button>
+                                        )}
+                                        {isSuperAdmin && b.status !== 'Cancelled' && (
+                                          <button className="btn btn-xs" onClick={() => setCancelRefundModal(b)} title="Ticket Cancel / Refund" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
+                                            रद्द / रिफंड
+                                          </button>
                                       )}
                                     </div>
                                   </td>
@@ -8770,6 +8778,94 @@ export default function App() {
                 btn.innerText = prev;
               }}>अपडेट सेव करें (Save)</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      
+      {/* ----------------- CANCEL & REFUND MODAL ----------------- */}
+      {cancelRefundModal && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content" style={{ maxWidth: 500 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, color: '#DC2626', fontSize: '1.2rem', fontWeight: 800 }}>
+                ⚠️ टिकट रद्द व रिफंड करें
+              </h3>
+              <button onClick={() => setCancelRefundModal(null)} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#6B7280' }}>✕</button>
+            </div>
+            
+            <div style={{ background: '#FEF2F2', padding: 16, borderRadius: 8, border: '1px solid #FECACA', marginBottom: 16 }}>
+              <div style={{ fontSize: '0.85rem', color: '#991B1B', marginBottom: 8 }}>
+                <strong>PNR:</strong> {cancelRefundModal.bookingId} <br/>
+                <strong>भक्त:</strong> {cancelRefundModal.bookedBy} <br/>
+                <strong>कुल जमा अग्रिम:</strong> ₹{cancelRefundModal.advance || 0}
+              </div>
+            </div>
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const payload = {
+                refundAmount: Number(formData.get('refundAmount')),
+                cancellationCharges: Number(formData.get('cancellationCharges')),
+                cancellationReason: formData.get('cancellationReason'),
+                refundMode: formData.get('refundMode')
+              };
+              
+              const btn = e.target.querySelector('button[type="submit"]');
+              const prev = btn.innerText;
+              btn.innerText = 'Processing...';
+              btn.disabled = true;
+              
+              try {
+                const res = await fetch(`/api/admin/bookings/${cancelRefundModal.bookingId}/cancel?token=${staffToken}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                  alert('टिकट सफलतापूर्वक रद्द और रिफंड किया गया!');
+                  fetchAdminData();
+                  setCancelRefundModal(null);
+                } else {
+                  alert('Error: ' + data.error);
+                }
+              } catch (err) {
+                alert('Network error');
+              }
+              
+              btn.innerText = prev;
+              btn.disabled = false;
+            }}>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>रिफंड राशि (Refund Amount ₹)</label>
+                <input type="number" name="refundAmount" className="form-control" defaultValue={cancelRefundModal.advance || 0} min="0" required />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>कटौती / कैंसलेशन चार्ज (Charges ₹)</label>
+                <input type="number" name="cancellationCharges" className="form-control" defaultValue={0} min="0" required />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>रिफंड माध्यम (Refund Mode)</label>
+                <select name="refundMode" className="form-control">
+                  <option value="Cash">Cash (नकद वापसी)</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>रद्द करने का कारण</label>
+                <input type="text" name="cancellationReason" className="form-control" placeholder="उदा. यात्री अनुरोध, मेडिकल, आदि" required />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button type="button" className="btn btn-outline" onClick={() => setCancelRefundModal(null)}>वापस जाएं</button>
+                <button type="submit" className="btn btn-primary" style={{ background: '#DC2626', borderColor: '#B91C1C' }}>
+                  रद्द करें व रिफंड दें
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
