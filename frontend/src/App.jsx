@@ -5293,20 +5293,20 @@ export default function App() {
                                           ✓ Paid
                                         </button>
                                       )}
-                                      <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="रसीदें">
-                                        <Printer size={13} /> रसीद
-                                      </button>
-                                      <button className="btn btn-xs btn-outline" onClick={() => handleAutoPrintTicket(b)} title="पर्ची प्रिंट करें">
-                                        <Printer size={13} /> पर्ची
-                                      </button>
-                                      {isSuperAdmin && (
-                                        <button className="btn btn-xs btn-outline" onClick={() => setEditYatriModal(b)} title="यात्री विवरण एडिट" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
-                                          ✏️ यात्री
+                                      <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="Payment Slip">
+                                          <Printer size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Payment Slip
                                         </button>
+                                      <button className="btn btn-xs btn-outline" onClick={() => handleAutoPrintTicket(b)} title="Ticket Print">
+                                          <Ticket size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Ticket Print
+                                        </button>
+                                      {isSuperAdmin && (
+                                        <button className="btn btn-xs btn-outline" onClick={() => setEditYatriModal(b)} title="Edit Yatri" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
+                                            <Edit size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Edit Yatri
+                                          </button>
                                       )}
-                                      <button className="btn btn-icon-xs btn-outline" onClick={() => openUpiQR(b.bookingId)} title="UPI QR">
-                                        <Smartphone size={13} />
-                                      </button>
+                                      <button className="btn btn-xs btn-outline" onClick={() => openUpiQR(b.bookingId)} title="UPI QR">
+                                          <QrCode size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> UPI QR
+                                        </button>
                                       {isSuperAdmin && (
                                         <button className="btn btn-icon-xs btn-outline" onClick={() => {
                                           setPaymentEditData({
@@ -5318,20 +5318,20 @@ export default function App() {
                                             totalAmount: b.totalAmount
                                           });
                                           setPaymentEditModal(true);
-                                        }} title="किराया / भुगतान एडिट">
-                                          <IndianRupee size={13} />
-                                        </button>
+                                        }} title="Pay Edit">
+                                            <IndianRupee size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Pay Edit
+                                          </button>
                                       )}
                                       
                                       {isSuperAdmin && (
-                                        <button className="btn btn-icon-xs btn-danger" onClick={() => deleteBooking(b.bookingId)} title="Delete">
-                                            ✕
-                                          </button>
+                                        <button className="btn btn-xs btn-danger" onClick={() => deleteBooking(b.bookingId)} title="Delete">
+                                              <Trash2 size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Delete
+                                            </button>
                                         )}
                                         {isSuperAdmin && b.status !== 'Cancelled' && (
-                                          <button className="btn btn-xs" onClick={() => setCancelRefundModal(b)} title="Ticket Cancel / Refund" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
-                                            रद्द / रिफंड
-                                          </button>
+                                          <button className="btn btn-xs" onClick={() => setCancelRefundModal(b)} title="Cancel/Refund" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
+                                              <RefreshCw size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Cancel/Refund
+                                            </button>
                                       )}
                                     </div>
                                   </td>
