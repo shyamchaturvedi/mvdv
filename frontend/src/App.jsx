@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, ChevronRight, Phone, ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, DollarSign, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
 
 import { db, auth, firebaseConfig } from './firebase';
@@ -5129,6 +5129,17 @@ export default function App() {
                               <div className="form-group">
                                 <label className="form-label">छूट / रियायत (Discount ₹):</label>
                                 <input type="number" className="form-control" value={discount} onChange={(e) => setDiscount(e.target.value)} min="0" />
+
+                            
+                            <div className="form-group" style={{ marginTop: '12px' }}>
+                                <label className="form-label">भुगतान माध्यम (Payment Mode):</label>
+                                <select className="form-control" value={bookingPaymentMode} onChange={(e) => setBookingPaymentMode(e.target.value)}>
+                                  <option value="Cash">Cash (नकद)</option>
+                                  <option value="UPI">UPI (QR Code)</option>
+                                  <option value="Card">Credit/Debit Card</option>
+                                  <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
+                                </select>
+                            </div>
                               </div>
                             </div>
 
