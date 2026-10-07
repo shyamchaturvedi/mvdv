@@ -165,11 +165,12 @@ code, .mono {
 .btn-icon-xs { padding: 0; width: 27px; height: 27px; min-width: 27px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
 
 .action-btn-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  justify-content: flex-end;
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 280px;
 }
 
 /* BADGES */
