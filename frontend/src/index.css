@@ -1,4 +1,4 @@
-﻿/* Google Fonts ab index.html me <link> + preconnect ke saath load hote hain (CSS @import render-blocking chain banata tha) */
+/* Google Fonts ab index.html me <link> + preconnect ke saath load hote hain (CSS @import render-blocking chain banata tha) */
 
 :root {
   --bhagwa: #E65100; --bhagwa-bright: #FF6D00; --bhagwa-dark: #BF360C;
@@ -1896,18 +1896,9 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   }
 }
 
-@media (max-width: 480px) {
-  .btn-text-label {
-    display: inline;
-  }
-  
+@media (max-width: 768px) {
   .navbar-actions {
-    gap: 4px !important;
-  }
-
-  .navbar-actions .btn {
-    padding: 5px 8px !important;
-    font-size: 0.72rem !important;
+    display: none !important;
   }
 }
 
