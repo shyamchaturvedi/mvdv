@@ -10,6 +10,180 @@ const logoPath = path.join(__dirname, '../public/images/logo.jpg');
 const TICKET_SECURITY_SECRET = process.env.TICKET_SECURITY_SECRET || 'MVD_SHREE_VAISHNO_DEVI_SECURE_TOKEN_2026';
 
 class PDFService {
+  // Shared layout for the travel slip to avoid drift, blank gaps, and fake-stamped branding.
+  static renderBookingSlip(doc, booking, { qrBuffer, secHash } = {}) {
+    const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
+    const marginX = 16;
+    const contentWidth = pageWidth - (marginX * 2);
+
+    const cleanPnr = PDFService.cleanPdfText(booking.bookingId, 'MVD-PNR');
+    const cleanBookedBy = PDFService.cleanPdfText(booking.bookedBy, 'Devotee');
+    const cleanMobile = PDFService.cleanPdfText(booking.mobile, 'N/A');
+    const cleanAadhar = PDFService.cleanPdfText(booking.aadhar, 'Verified at Station');
+    const cleanFrom = PDFService.cleanPdfText(booking.fromStation, 'New Delhi (NDLS)');
+    const cleanTo = PDFService.cleanPdfText(booking.toStation, 'Shri Mata Vaishno Devi Katra (SVDK)');
+    const cleanClass = PDFService.cleanPdfText(booking.travelClass, 'Sleeper');
+    const cleanCoach = PDFService.cleanPdfText(booking.coachName, 'S1');
+    const seatStr = Array.isArray(booking.seatNumber) && booking.seatNumber.length > 0 ? booking.seatNumber.join(', ') : (booking.seatNumber || 'Allocated');
+
+    const rawPassengers = booking.passengers && booking.passengers.length > 0
+      ? booking.passengers
+      : [{ name: booking.bookedBy, age: 'N/A', gender: 'N/A', aadhar: booking.aadhar, seatAssigned: seatStr, berthPreference: 'Berth' }];
+
+    const pCount = rawPassengers.length;
+    const rowH = pCount > 6 ? 13 : 15;
+    const pFontSize = pCount > 6 ? 7 : 7.5;
+
+    // Outer main border
+    const totalBoxHeight = pageHeight - 24;
+    doc.rect(marginX, 12, contentWidth, totalBoxHeight).lineWidth(1).strokeColor('#0284C7').stroke();
+
+    // Header 1
+    doc.rect(marginX, 12, contentWidth, 44).fillColor('#075985').fill();
+    doc.fillColor('#FFFFFF').fontSize(12.5).font('Helvetica-Bold').text('SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST', marginX + 8, 18, { width: contentWidth - 16, align: 'center' });
+    doc.fillColor('#BAE6FD').fontSize(8).font('Helvetica').text('YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
+    doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('DIGITAL TRAVEL SLIP • VALID FOR VERIFICATION', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
+
+    // Header 2
+    let y = 58;
+    doc.rect(marginX, y, contentWidth, 18).fillColor('#F0F9FF').fill().strokeColor('#BAE6FD').lineWidth(0.5).stroke();
+    doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('PNR / BOOKING ID:', marginX + 10, y + 4.5);
+    doc.fillColor('#DC2626').fontSize(9.5).font('Helvetica-Bold').text(cleanPnr, marginX + 110, y + 4);
+    doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('QUOTA:', marginX + 250, y + 4.5);
+    doc.fillColor('#0284C7').fontSize(8).font('Helvetica-Bold').text('PILGRIM TRUST (PT)', marginX + 295, y + 4.5);
+    doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('YATRA BATCH:', marginX + 430, y + 4.5);
+    doc.fillColor('#1E293B').fontSize(8).font('Helvetica-Bold').text(`${booking.yatraYear || '2026'}`, marginX + 500, y + 4.5);
+
+    // Journey detail section
+    y += 21;
+    doc.rect(marginX, y, contentWidth, 54).fillColor('#FFFFFF').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
+    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Train Number & Name', marginX + 10, y + 4);
+    doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text('04201 / MVD YATRA SPECIAL', marginX + 10, y + 14);
+    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Class', marginX + 200, y + 4);
+    doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(cleanClass, marginX + 200, y + 14);
+    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Coach / Assigned Seats', marginX + 300, y + 4);
+    doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`Coach ${cleanCoach} : Berths [ ${seatStr} ]`, marginX + 300, y + 14);
+    doc.moveTo(marginX, y + 27).lineTo(marginX + contentWidth, y + 27).strokeColor('#E2E8F0').lineWidth(0.5).stroke();
+    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('From Station', marginX + 10, y + 30);
+    doc.fillColor('#C2410C').fontSize(8.5).font('Helvetica-Bold').text(cleanFrom, marginX + 10, y + 40);
+    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('To Destination', marginX + 200, y + 30);
+    doc.fillColor('#15803D').fontSize(8.5).font('Helvetica-Bold').text(cleanTo, marginX + 200, y + 40, { width: 190, ellipsis: true });
+    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Date of Journey', marginX + 400, y + 30);
+    doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(`${booking.travelDate || 'As Scheduled'}`, marginX + 400, y + 40);
+
+    // Contact info row
+    y += 57;
+    doc.rect(marginX, y, contentWidth, 18).fillColor('#F8FAFC').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
+    doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Booked By:', marginX + 10, y + 4.5);
+    doc.fillColor('#0F172A').fontSize(8).font('Helvetica-Bold').text(cleanBookedBy, marginX + 65, y + 4.5);
+    doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Mobile:', marginX + 250, y + 4.5);
+    doc.fillColor('#0F172A').fontSize(8).font('Helvetica').text(cleanMobile, marginX + 290, y + 4.5);
+    doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Aadhaar / ID:', marginX + 400, y + 4.5);
+    doc.fillColor('#0F172A').fontSize(8).font('Helvetica').text(cleanAadhar, marginX + 460, y + 4.5);
+
+    // Passenger list
+    y += 21;
+    doc.fillColor('#0C4A6E').fontSize(8.5).font('Helvetica-Bold').text('PASSENGER DETAILS', marginX, y);
+    y += 11;
+    doc.rect(marginX, y, contentWidth, 16).fillColor('#0284C7').fill();
+    doc.fillColor('#FFFFFF').fontSize(7.5).font('Helvetica-Bold');
+    doc.text('#', marginX + 8, y + 4);
+    doc.text('Passenger Name', marginX + 28, y + 4);
+    doc.text('Age / Gender', marginX + 200, y + 4);
+    doc.text('Booking Status', marginX + 290, y + 4);
+    doc.text('Current Status', marginX + 390, y + 4);
+    doc.text('Coach / Berth / Type', marginX + 475, y + 4);
+    y += 16;
+
+    rawPassengers.forEach((p, index) => {
+      const isEven = index % 2 === 0;
+      doc.rect(marginX, y, contentWidth, rowH).fillColor(isEven ? '#FFFFFF' : '#F0F9FF').fill().strokeColor('#E2E8F0').lineWidth(0.5).stroke();
+      const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(booking.seatNumber) ? booking.seatNumber[index] : index + 1);
+      const isCancelled = booking.status === 'Cancelled';
+      const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
+      const statusColor = isCancelled ? '#DC2626' : '#16A34A';
+      const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
+      const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
+      const pCleanBerth = PDFService.cleanPdfText(p.berthPreference, 'Berth');
+
+      doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
+      doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });
+      doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(`${p.age || '-'} / ${pCleanGender}`, marginX + 200, y + 3);
+      doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 290, y + 3);
+      doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 390, y + 3);
+      doc.fillColor('#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(`${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`, marginX + 475, y + 3);
+      y += rowH;
+    });
+
+    // Fare block + QR card
+    y += 8;
+    const paymentBoxWidth = 380;
+    const fareCardH = 92;
+    doc.rect(marginX, y, paymentBoxWidth, fareCardH).fillColor('#F8FAFC').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
+    doc.rect(marginX, y, paymentBoxWidth, 16).fillColor('#0F172A').fill();
+    doc.fillColor('#FFFFFF').fontSize(7.5).font('Helvetica-Bold').text('FARE SUMMARY', marginX + 8, y + 4);
+
+    let py = y + 21;
+    const printRow = (label, val, isBold = false, color = '#334155') => {
+      doc.fillColor(color).fontSize(7.5).font(isBold ? 'Helvetica-Bold' : 'Helvetica');
+      doc.text(label, marginX + 10, py);
+      doc.text(`Rs. ${parseFloat(val || 0).toFixed(2)}`, marginX + 250, py, { align: 'right', width: 115 });
+      py += 12;
+    };
+
+    printRow('Ticket Fare Amount:', booking.totalAmount);
+    printRow('Trust Discount / Concession:', booking.discount);
+    printRow('Advance Paid:', booking.advance, false, '#16A34A');
+    printRow('Balance Due at Boarding:', booking.remainingAmount, true, booking.remainingAmount > 0 ? '#DC2626' : '#16A34A');
+
+    doc.rect(marginX + 8, y + 71, 150, 14).fillColor('#0F172A').fill();
+    doc.fillColor('#FFFFFF').fontSize(6.7).font('Helvetica-Bold').text('DIGITAL SIGNAGE SLIP', marginX + 8, y + 74.5, { width: 150, align: 'center' });
+
+    const qrBoxX = marginX + paymentBoxWidth + 8;
+    const qrBoxWidth = contentWidth - paymentBoxWidth - 8;
+    doc.rect(qrBoxX, y, qrBoxWidth, fareCardH).fillColor('#FFFFFF').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
+    if (qrBuffer) {
+      doc.image(qrBuffer, qrBoxX + (qrBoxWidth / 2) - 32, y + 4, { width: 64, height: 64 });
+    }
+    doc.fillColor('#DC2626').fontSize(6).font('Helvetica-Bold').text('ANTI-TAMPER SEC HASH:', qrBoxX + 4, y + 72, { width: qrBoxWidth - 8, align: 'center' });
+    doc.fillColor('#0F172A').fontSize(6.5).font('Courier-Bold').text(`MVD-${secHash}`, qrBoxX + 4, y + 80, { width: qrBoxWidth - 8, align: 'center' });
+    doc.fillColor('#475569').fontSize(5.8).font('Helvetica').text('SIGNATURE NOT REQUIRED • DIGITAL TICKET', qrBoxX + 4, y + 88, { width: qrBoxWidth - 8, align: 'center' });
+
+    // Guidelines section: concise and neutral
+    y += fareCardH + 6;
+    const guideH = Math.min(54, pageHeight - y - 52);
+    doc.rect(marginX, y, contentWidth, guideH).fillColor('#FFFBEB').fill().strokeColor('#FDE68A').lineWidth(0.5).stroke();
+    doc.fillColor('#92400E').fontSize(7.5).font('Helvetica-Bold').text('IMPORTANT TRAVEL GUIDELINES:', marginX + 8, y + 4);
+    doc.fillColor('#451A03').fontSize(6.8).font('Helvetica');
+    const guidelines = [
+      '1. Carry this digital travel slip along with a valid Government ID during travel.',
+      '2. Reach the boarding point at least 45 minutes before departure.',
+      '3. Keep the QR/unique security hash ready for verification at the station.',
+      '4. Clear any remaining balance before boarding.',
+      '5. Contact the Trust helpline for assistance if required.'
+    ];
+    let gy = y + 14;
+    guidelines.forEach(g => {
+      doc.text(g, marginX + 8, gy, { width: contentWidth - 16 });
+      gy += 8.5;
+    });
+
+    // Footer, reduced and neutral; no fake official seal
+    const footerY = Math.min(760, pageHeight - 52);
+    doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(marginX, footerY).lineTo(marginX + contentWidth, footerY).stroke();
+    doc.fillColor('#475569').fontSize(6.5).font('Helvetica').text('Helpline: +91 7398959993 • Support: iammshyam@gmail.com', marginX + 8, footerY + 4);
+    doc.fillColor('#0284C7').fontSize(6.2).font('Helvetica-Bold').text('Digital Signage Slip • No physical signature required', marginX, footerY + 14, { align: 'center', width: contentWidth });
+    doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('MVD Travel Slip • Valid for QR verification • Generated in system', marginX, footerY + 22, { align: 'center', width: contentWidth });
+
+    if (booking.status === 'Cancelled') {
+      doc.save();
+      doc.rotate(-25, { origin: [pageWidth / 2, pageHeight / 2] });
+      doc.fontSize(50).fillColor('#EF4444', 0.25).font('Helvetica-Bold').text('CANCELLED / RADD', pageWidth / 2 - 240, pageHeight / 2 - 25, { align: 'center', width: 480 });
+      doc.restore();
+    }
+  }
+
   // Cryptographic HMAC-SHA256 anti-fraud hash over all immutable ticket attributes
   static computeSecurityHash(booking) {
     const seatStr = Array.isArray(booking.seatNumber) ? booking.seatNumber.slice().sort().join(',') : String(booking.seatNumber || '');
@@ -45,203 +219,7 @@ class PDFService {
     const verifyUrl = `${baseUrl}/verify-ticket.html?pnr=${encodeURIComponent(booking.bookingId)}&sec=${secHash}`;
     const qrBuffer = await QRCode.toBuffer(verifyUrl, { width: 85, margin: 1 });
 
-    const pageWidth = doc.page.width;
-    const pageHeight = doc.page.height;
-    const marginX = 16;
-    const contentWidth = pageWidth - (marginX * 2);
-
-    const cleanPnr = PDFService.cleanPdfText(booking.bookingId, 'MVD-PNR');
-    const cleanBookedBy = PDFService.cleanPdfText(booking.bookedBy, 'Devotee');
-    const cleanMobile = PDFService.cleanPdfText(booking.mobile, 'N/A');
-    const cleanAadhar = PDFService.cleanPdfText(booking.aadhar, 'Verified at Station');
-    const cleanFrom = PDFService.cleanPdfText(booking.fromStation, 'New Delhi (NDLS)');
-    const cleanTo = PDFService.cleanPdfText(booking.toStation, 'Shri Mata Vaishno Devi Katra (SVDK)');
-    const cleanClass = PDFService.cleanPdfText(booking.travelClass, 'Sleeper');
-    const cleanCoach = PDFService.cleanPdfText(booking.coachName, 'S1');
-
-    // Outer Main Border (Crisp IRCTC styling) - strictly fits 1 page
-    const totalBoxHeight = pageHeight - 24;
-    doc.rect(marginX, 12, contentWidth, totalBoxHeight).lineWidth(1).strokeColor('#0284C7').stroke();
-
-    // Header 1: Top IRCTC & Trust Blue Bar
-    doc.rect(marginX, 12, contentWidth, 44).fillColor('#075985').fill();
-
-    doc.fillColor('#FFFFFF').fontSize(12.5).font('Helvetica-Bold').text('SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST', marginX + 8, 18, { width: contentWidth - 16, align: 'center' });
-    doc.fillColor('#BAE6FD').fontSize(8).font('Helvetica').text('YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
-    doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
-
-    // Header 2: Subheader Row (PNR, Quota, Batch)
-    let y = 58;
-    doc.rect(marginX, y, contentWidth, 18).fillColor('#F0F9FF').fill().strokeColor('#BAE6FD').lineWidth(0.5).stroke();
-
-    doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('PNR / BOOKING ID:', marginX + 10, y + 4.5);
-    doc.fillColor('#DC2626').fontSize(9.5).font('Helvetica-Bold').text(cleanPnr, marginX + 110, y + 4);
-
-    doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('QUOTA:', marginX + 250, y + 4.5);
-    doc.fillColor('#0284C7').fontSize(8).font('Helvetica-Bold').text('PILGRIM TRUST (PT)', marginX + 295, y + 4.5);
-
-    doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('YATRA BATCH:', marginX + 430, y + 4.5);
-    doc.fillColor('#1E293B').fontSize(8).font('Helvetica-Bold').text(`${booking.yatraYear || '2026'}`, marginX + 500, y + 4.5);
-
-    // Section 1: Journey Details Table (IRCTC standard grid)
-    y += 21;
-    doc.rect(marginX, y, contentWidth, 54).fillColor('#FFFFFF').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-
-    // Grid Row 1
-    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Train Number & Name', marginX + 10, y + 4);
-    doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text('04201 / MVD YATRA SPECIAL', marginX + 10, y + 14);
-
-    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Class', marginX + 200, y + 4);
-    doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(cleanClass, marginX + 200, y + 14);
-
-    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Coach / Assigned Seats', marginX + 300, y + 4);
-    const seatStr = Array.isArray(booking.seatNumber) && booking.seatNumber.length > 0 ? booking.seatNumber.join(', ') : (booking.seatNumber || 'Allocated');
-    doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`Coach ${cleanCoach} : Berths [ ${seatStr} ]`, marginX + 300, y + 14);
-
-    // Horizontal Divider in grid
-    doc.moveTo(marginX, y + 27).lineTo(marginX + contentWidth, y + 27).strokeColor('#E2E8F0').lineWidth(0.5).stroke();
-
-    // Grid Row 2
-    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('From Station', marginX + 10, y + 30);
-    doc.fillColor('#C2410C').fontSize(8.5).font('Helvetica-Bold').text(cleanFrom, marginX + 10, y + 40);
-
-    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('To Destination', marginX + 200, y + 30);
-    doc.fillColor('#15803D').fontSize(8.5).font('Helvetica-Bold').text(cleanTo, marginX + 200, y + 40, { width: 190, ellipsis: true });
-
-    doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Date of Journey', marginX + 400, y + 30);
-    doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(`${booking.travelDate || 'As Scheduled'}`, marginX + 400, y + 40);
-
-    // Section 2: Devotee & Contact Info Bar
-    y += 57;
-    doc.rect(marginX, y, contentWidth, 18).fillColor('#F8FAFC').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-
-    doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Booked By:', marginX + 10, y + 4.5);
-    doc.fillColor('#0F172A').fontSize(8).font('Helvetica-Bold').text(cleanBookedBy, marginX + 65, y + 4.5);
-
-    doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Mobile:', marginX + 250, y + 4.5);
-    doc.fillColor('#0F172A').fontSize(8).font('Helvetica').text(cleanMobile, marginX + 290, y + 4.5);
-
-    doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Aadhaar / ID:', marginX + 400, y + 4.5);
-    doc.fillColor('#0F172A').fontSize(8).font('Helvetica').text(cleanAadhar, marginX + 460, y + 4.5);
-
-    // Section 3: Passenger Details Roster (Crisp Table)
-    y += 21;
-    doc.fillColor('#0C4A6E').fontSize(8.5).font('Helvetica-Bold').text('PASSENGER DETAILS', marginX, y);
-    y += 11;
-
-    // Table Header
-    doc.rect(marginX, y, contentWidth, 16).fillColor('#0284C7').fill();
-    doc.fillColor('#FFFFFF').fontSize(7.5).font('Helvetica-Bold');
-    doc.text('#', marginX + 8, y + 4);
-    doc.text('Passenger Name', marginX + 28, y + 4);
-    doc.text('Age / Gender', marginX + 200, y + 4);
-    doc.text('Booking Status', marginX + 290, y + 4);
-    doc.text('Current Status', marginX + 390, y + 4);
-    doc.text('Coach / Berth / Type', marginX + 475, y + 4);
-    y += 16;
-
-    const rawPassengers = booking.passengers && booking.passengers.length > 0
-      ? booking.passengers
-      : [{ name: booking.bookedBy, age: 'N/A', gender: 'N/A', aadhar: booking.aadhar, seatAssigned: seatStr, berthPreference: 'Berth' }];
-
-    const pCount = rawPassengers.length;
-    const rowH = pCount > 6 ? 13 : 15;
-    const pFontSize = pCount > 6 ? 7 : 7.5;
-
-    rawPassengers.forEach((p, index) => {
-      const isEven = index % 2 === 0;
-      doc.rect(marginX, y, contentWidth, rowH).fillColor(isEven ? '#FFFFFF' : '#F0F9FF').fill().strokeColor('#E2E8F0').lineWidth(0.5).stroke();
-
-      const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(booking.seatNumber) ? booking.seatNumber[index] : index + 1);
-      const isCancelled = booking.status === 'Cancelled';
-      const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
-      const statusColor = isCancelled ? '#DC2626' : '#16A34A';
-      const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
-      const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
-      const pCleanBerth = PDFService.cleanPdfText(p.berthPreference, 'Berth');
-
-      doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
-      doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });
-      doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(`${p.age || '-'} / ${pCleanGender}`, marginX + 200, y + 3);
-      doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 290, y + 3);
-      doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 390, y + 3);
-      doc.fillColor('#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(`${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`, marginX + 475, y + 3);
-      y += rowH;
-    });
-
-    // Section 4: Accounting & Payment Box (Left) + Verification QR (Right)
-    y += 8;
-    const paymentBoxWidth = 380;
-    const fareCardH = 92;
-    doc.rect(marginX, y, paymentBoxWidth, fareCardH).fillColor('#F8FAFC').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-
-    doc.rect(marginX, y, paymentBoxWidth, 16).fillColor('#0F172A').fill();
-    doc.fillColor('#FFFFFF').fontSize(7.5).font('Helvetica-Bold').text('FARE & PAYMENT DETAILS', marginX + 8, y + 4);
-
-    let py = y + 21;
-    const printRow = (label, val, isBold = false, color = '#334155') => {
-      doc.fillColor(color).fontSize(7.5).font(isBold ? 'Helvetica-Bold' : 'Helvetica');
-      doc.text(label, marginX + 10, py);
-      doc.text(`Rs. ${parseFloat(val || 0).toFixed(2)}`, marginX + 250, py, { align: 'right', width: 115 });
-      py += 12;
-    };
-
-    printRow('Ticket Fare Amount:', booking.totalAmount);
-    printRow('Trust Discount / Concession:', booking.discount);
-    printRow('Advance Paid:', booking.advance, false, '#16A34A');
-    printRow('Balance Due at Boarding:', booking.remainingAmount, true, booking.remainingAmount > 0 ? '#DC2626' : '#16A34A');
-
-    // Status Ribbon in Fare Box
-    const payStatus = (booking.paymentStatus || 'UNPAID').toUpperCase();
-    const payBg = booking.paymentStatus === 'Paid' ? '#16A34A' : (booking.paymentStatus === 'Partial' ? '#EA580C' : '#DC2626');
-    doc.rect(marginX + 8, y + 71, 140, 14).fillColor(payBg).fill();
-    doc.fillColor('#FFFFFF').fontSize(7).font('Helvetica-Bold').text(`PAYMENT: ${payStatus}`, marginX + 8, y + 74.5, { width: 140, align: 'center' });
-
-    // Right: QR Code Card
-    const qrBoxX = marginX + paymentBoxWidth + 8;
-    const qrBoxWidth = contentWidth - paymentBoxWidth - 8;
-    doc.rect(qrBoxX, y, qrBoxWidth, fareCardH).fillColor('#FFFFFF').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-
-    doc.image(qrBuffer, qrBoxX + (qrBoxWidth / 2) - 32, y + 4, { width: 64, height: 64 });
-    doc.fillColor('#DC2626').fontSize(6).font('Helvetica-Bold').text('ANTI-TAMPER SEC HASH:', qrBoxX + 4, y + 72, { width: qrBoxWidth - 8, align: 'center' });
-    doc.fillColor('#0F172A').fontSize(6.5).font('Courier-Bold').text(`MVD-${secHash}`, qrBoxX + 4, y + 80, { width: qrBoxWidth - 8, align: 'center' });
-
-    // Section 5: Official Guidelines & Rules
-    y += fareCardH + 6;
-    const guideH = 58;
-    doc.rect(marginX, y, contentWidth, guideH).fillColor('#FFFBEB').fill().strokeColor('#FDE68A').lineWidth(0.5).stroke();
-
-    doc.fillColor('#92400E').fontSize(7.5).font('Helvetica-Bold').text('IMPORTANT PASSENGER INSTRUCTIONS & TRAVEL GUIDELINES:', marginX + 8, y + 4);
-    doc.fillColor('#451A03').fontSize(6.8).font('Helvetica');
-    const guidelines = [
-      '1. Carry this Electronic Reservation Slip (ERS) along with original Government ID (Aadhaar / Voter ID / DL) during journey.',
-      '2. Reporting at boarding station is mandatory at least 45 minutes prior to scheduled train departure.',
-      '3. Mandatory RFID Yatra Registration Card must be collected at Katra base before commencing the Mata Vaishno Devi Bhawan trek.',
-      '4. Any remaining balance dues must be cleared with authorized Trust volunteers before boarding.',
-      '5. For medical emergency or coach assistance, contact Trust Helpline: +91 7398959993 or Train Captain.'
-    ];
-    let gy = y + 14;
-    guidelines.forEach(g => {
-      doc.text(g, marginX + 8, gy);
-      gy += 8.5;
-    });
-
-    // Section 6: Bottom Footer (Signatures & Branding) - strictly anchored at y = 770
-    const footerY = 770;
-    doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(marginX, footerY).lineTo(marginX + contentWidth, footerY).stroke();
-
-    doc.fillColor('#475569').fontSize(6.5).font('Helvetica').text('Helpline: +91 7398959993 • Support: iammshyam@gmail.com', marginX + 8, footerY + 4);
-    doc.text('Authorized Signatory, Trust Secretary', marginX + contentWidth - 190, footerY + 4, { align: 'right' });
-    doc.fillColor('#0284C7').fontSize(6.5).font('Helvetica-Bold').text('Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)', marginX, footerY + 14, { align: 'center', width: contentWidth });
-    doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol', marginX, footerY + 23, { align: 'center', width: contentWidth });
-
-    if (booking.status === 'Cancelled') {
-      doc.save();
-      doc.rotate(-25, { origin: [pageWidth / 2, pageHeight / 2] });
-      doc.fontSize(50).fillColor('#EF4444', 0.25).font('Helvetica-Bold').text('CANCELLED / RADD', pageWidth / 2 - 240, pageHeight / 2 - 25, { align: 'center', width: 480 });
-      doc.restore();
-    }
-
+    PDFService.renderBookingSlip(doc, booking, { qrBuffer, secHash });
     doc.end();
   }
 
@@ -262,170 +240,7 @@ class PDFService {
       const secHash = PDFService.computeSecurityHash(booking);
       const verifyUrl = `${baseUrl}/verify-ticket.html?pnr=${encodeURIComponent(booking.bookingId)}&sec=${secHash}`;
       const qrBuffer = await QRCode.toBuffer(verifyUrl, { width: 85, margin: 1 });
-
-      const pageWidth = doc.page.width;
-      const pageHeight = doc.page.height;
-      const marginX = 16;
-      const contentWidth = pageWidth - (marginX * 2);
-
-      const cleanPnr = PDFService.cleanPdfText(booking.bookingId, 'MVD-PNR');
-      const cleanBookedBy = PDFService.cleanPdfText(booking.bookedBy, 'Devotee');
-      const cleanMobile = PDFService.cleanPdfText(booking.mobile, 'N/A');
-      const cleanAadhar = PDFService.cleanPdfText(booking.aadhar, 'Verified at Station');
-      const cleanFrom = PDFService.cleanPdfText(booking.fromStation, 'New Delhi (NDLS)');
-      const cleanTo = PDFService.cleanPdfText(booking.toStation, 'Shri Mata Vaishno Devi Katra (SVDK)');
-      const cleanClass = PDFService.cleanPdfText(booking.travelClass, 'Sleeper');
-      const cleanCoach = PDFService.cleanPdfText(booking.coachName, 'S1');
-
-      // Outer Main Border (Crisp IRCTC styling)
-      const totalBoxHeight = pageHeight - 24;
-      doc.rect(marginX, 12, contentWidth, totalBoxHeight).lineWidth(1).strokeColor('#0284C7').stroke();
-
-      // Header 1: Top IRCTC & Trust Blue Bar
-      doc.rect(marginX, 12, contentWidth, 44).fillColor('#075985').fill();
-      doc.fillColor('#FFFFFF').fontSize(12.5).font('Helvetica-Bold').text('SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST', marginX + 8, 18, { width: contentWidth - 16, align: 'center' });
-      doc.fillColor('#BAE6FD').fontSize(8).font('Helvetica').text('YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
-      doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
-
-      // Header 2: Subheader Row (PNR, Quota, Batch)
-      let y = 58;
-      doc.rect(marginX, y, contentWidth, 18).fillColor('#F0F9FF').fill().strokeColor('#BAE6FD').lineWidth(0.5).stroke();
-      doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('PNR / BOOKING ID:', marginX + 10, y + 4.5);
-      doc.fillColor('#DC2626').fontSize(9.5).font('Helvetica-Bold').text(cleanPnr, marginX + 110, y + 4);
-      doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('QUOTA:', marginX + 250, y + 4.5);
-      doc.fillColor('#0284C7').fontSize(8).font('Helvetica-Bold').text('PILGRIM TRUST (PT)', marginX + 295, y + 4.5);
-      doc.fillColor('#0C4A6E').fontSize(8).font('Helvetica-Bold').text('YATRA BATCH:', marginX + 430, y + 4.5);
-      doc.fillColor('#1E293B').fontSize(8).font('Helvetica-Bold').text(`${booking.yatraYear || '2026'}`, marginX + 500, y + 4.5);
-
-      // Section 1: Journey Details
-      y += 21;
-      doc.rect(marginX, y, contentWidth, 54).fillColor('#FFFFFF').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-      doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Train Number & Name', marginX + 10, y + 4);
-      doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text('04201 / MVD YATRA SPECIAL', marginX + 10, y + 14);
-      doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Class', marginX + 200, y + 4);
-      doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(cleanClass, marginX + 200, y + 14);
-
-      const seatStr = Array.isArray(booking.seatNumber) && booking.seatNumber.length > 0 ? booking.seatNumber.join(', ') : (booking.seatNumber || 'Allocated');
-      doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Coach / Assigned Seats', marginX + 300, y + 4);
-      doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`Coach ${cleanCoach} : Berths [ ${seatStr} ]`, marginX + 300, y + 14);
-
-      doc.moveTo(marginX, y + 27).lineTo(marginX + contentWidth, y + 27).strokeColor('#E2E8F0').lineWidth(0.5).stroke();
-      doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('From Station', marginX + 10, y + 30);
-      doc.fillColor('#C2410C').fontSize(8.5).font('Helvetica-Bold').text(cleanFrom, marginX + 10, y + 40);
-      doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('To Destination', marginX + 200, y + 30);
-      doc.fillColor('#15803D').fontSize(8.5).font('Helvetica-Bold').text(cleanTo, marginX + 200, y + 40, { width: 190, ellipsis: true });
-      doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Date of Journey', marginX + 400, y + 30);
-      doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(`${booking.travelDate || 'As Scheduled'}`, marginX + 400, y + 40);
-
-      // Section 2: Contact
-      y += 57;
-      doc.rect(marginX, y, contentWidth, 18).fillColor('#F8FAFC').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-      doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Booked By:', marginX + 10, y + 4.5);
-      doc.fillColor('#0F172A').fontSize(8).font('Helvetica-Bold').text(cleanBookedBy, marginX + 65, y + 4.5);
-      doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Mobile:', marginX + 250, y + 4.5);
-      doc.fillColor('#0F172A').fontSize(8).font('Helvetica').text(cleanMobile, marginX + 290, y + 4.5);
-      doc.fillColor('#475569').fontSize(7.5).font('Helvetica-Bold').text('Aadhaar / ID:', marginX + 400, y + 4.5);
-      doc.fillColor('#0F172A').fontSize(8).font('Helvetica').text(cleanAadhar, marginX + 460, y + 4.5);
-
-      // Section 3: Passenger Roster
-      y += 21;
-      doc.fillColor('#0C4A6E').fontSize(8.5).font('Helvetica-Bold').text('PASSENGER DETAILS', marginX, y);
-      y += 11;
-
-      doc.rect(marginX, y, contentWidth, 16).fillColor('#0284C7').fill();
-      doc.fillColor('#FFFFFF').fontSize(7.5).font('Helvetica-Bold');
-      doc.text('#', marginX + 8, y + 4);
-      doc.text('Passenger Name', marginX + 28, y + 4);
-      doc.text('Age / Gender', marginX + 200, y + 4);
-      doc.text('Booking Status', marginX + 290, y + 4);
-      doc.text('Current Status', marginX + 390, y + 4);
-      doc.text('Coach / Berth / Type', marginX + 475, y + 4);
-      y += 16;
-
-      const rawPassengers = booking.passengers && booking.passengers.length > 0
-        ? booking.passengers
-        : [{ name: booking.bookedBy, age: 'N/A', gender: 'N/A', aadhar: booking.aadhar, seatAssigned: seatStr, berthPreference: 'Berth' }];
-
-      const pCount = rawPassengers.length;
-      const rowH = pCount > 6 ? 13 : 15;
-      const pFontSize = pCount > 6 ? 7 : 7.5;
-
-      rawPassengers.forEach((p, index) => {
-        const isEven = index % 2 === 0;
-        doc.rect(marginX, y, contentWidth, rowH).fillColor(isEven ? '#FFFFFF' : '#F0F9FF').fill().strokeColor('#E2E8F0').lineWidth(0.5).stroke();
-        const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(booking.seatNumber) ? booking.seatNumber[index] : index + 1);
-        const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
-        const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
-        const pCleanBerth = PDFService.cleanPdfText(p.berthPreference, 'Berth');
-
-        doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
-        doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });
-        doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(`${p.age || '-'} / ${pCleanGender}`, marginX + 200, y + 3);
-        doc.fillColor('#16A34A').fontSize(pFontSize).font('Helvetica-Bold').text('CONFIRMED (CNF)', marginX + 290, y + 3);
-        doc.fillColor('#16A34A').fontSize(pFontSize).font('Helvetica-Bold').text('CONFIRMED (CNF)', marginX + 390, y + 3);
-        doc.fillColor('#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(`${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`, marginX + 475, y + 3);
-        y += rowH;
-      });
-
-      // Section 4: Accounting & Payment Box + QR
-      y += 8;
-      const paymentBoxWidth = 380;
-      const fareCardH = 92;
-      doc.rect(marginX, y, paymentBoxWidth, fareCardH).fillColor('#F8FAFC').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-      doc.rect(marginX, y, paymentBoxWidth, 16).fillColor('#0F172A').fill();
-      doc.fillColor('#FFFFFF').fontSize(7.5).font('Helvetica-Bold').text('FARE & PAYMENT DETAILS', marginX + 8, y + 4);
-
-      let py = y + 21;
-      const printRow = (label, val, isBold = false, color = '#334155') => {
-        doc.fillColor(color).fontSize(7.5).font(isBold ? 'Helvetica-Bold' : 'Helvetica');
-        doc.text(label, marginX + 10, py);
-        doc.text(`Rs. ${parseFloat(val || 0).toFixed(2)}`, marginX + 250, py, { align: 'right', width: 115 });
-        py += 12;
-      };
-
-      printRow('Ticket Fare Amount:', booking.totalAmount);
-      printRow('Trust Discount / Concession:', booking.discount);
-      printRow('Advance Paid:', booking.advance, false, '#16A34A');
-      printRow('Balance Due at Boarding:', booking.remainingAmount, true, booking.remainingAmount > 0 ? '#DC2626' : '#16A34A');
-
-      const payStatus = (booking.paymentStatus || 'UNPAID').toUpperCase();
-      const payBg = booking.paymentStatus === 'Paid' ? '#16A34A' : (booking.paymentStatus === 'Partial' ? '#EA580C' : '#DC2626');
-      doc.rect(marginX + 8, y + 71, 140, 14).fillColor(payBg).fill();
-      doc.fillColor('#FFFFFF').fontSize(7).font('Helvetica-Bold').text(`PAYMENT: ${payStatus}`, marginX + 8, y + 74.5, { width: 140, align: 'center' });
-
-      const qrBoxX = marginX + paymentBoxWidth + 8;
-      const qrBoxWidth = contentWidth - paymentBoxWidth - 8;
-      doc.rect(qrBoxX, y, qrBoxWidth, fareCardH).fillColor('#FFFFFF').fill().strokeColor('#CBD5E1').lineWidth(0.5).stroke();
-      doc.image(qrBuffer, qrBoxX + (qrBoxWidth / 2) - 32, y + 4, { width: 64, height: 64 });
-      doc.fillColor('#DC2626').fontSize(6).font('Helvetica-Bold').text('ANTI-TAMPER SEC HASH:', qrBoxX + 4, y + 72, { width: qrBoxWidth - 8, align: 'center' });
-      doc.fillColor('#0F172A').fontSize(6.5).font('Courier-Bold').text(`MVD-${secHash}`, qrBoxX + 4, y + 80, { width: qrBoxWidth - 8, align: 'center' });
-
-      // Section 5: Guidelines
-      y += fareCardH + 6;
-      const guideH = 58;
-      doc.rect(marginX, y, contentWidth, guideH).fillColor('#FFFBEB').fill().strokeColor('#FDE68A').lineWidth(0.5).stroke();
-      doc.fillColor('#92400E').fontSize(7.5).font('Helvetica-Bold').text('IMPORTANT PASSENGER INSTRUCTIONS & TRAVEL GUIDELINES:', marginX + 8, y + 4);
-      doc.fillColor('#451A03').fontSize(6.8).font('Helvetica');
-      const guidelines = [
-        '1. Carry this Electronic Reservation Slip (ERS) along with original Government ID (Aadhaar / Voter ID / DL) during journey.',
-        '2. Reporting at boarding station is mandatory at least 45 minutes prior to scheduled train departure.',
-        '3. Mandatory RFID Yatra Registration Card must be collected at Katra base before commencing the Mata Vaishno Devi Bhawan trek.',
-        '4. Any remaining balance dues must be cleared with authorized Trust volunteers before boarding.',
-        '5. For medical emergency or coach assistance, contact Trust Helpline: +91 7398959993 or Train Captain.'
-      ];
-      let gy = y + 14;
-      guidelines.forEach(g => {
-        doc.text(g, marginX + 8, gy);
-        gy += 8.5;
-      });
-
-      // Footer
-      const footerY = 770;
-      doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(marginX, footerY).lineTo(marginX + contentWidth, footerY).stroke();
-      doc.fillColor('#475569').fontSize(6.5).font('Helvetica').text('Helpline: +91 7398959993 • Support: iammshyam@gmail.com', marginX + 8, footerY + 4);
-      doc.text('Authorized Signatory, Trust Secretary', marginX + contentWidth - 190, footerY + 4, { align: 'right' });
-      doc.fillColor('#0284C7').fontSize(6.5).font('Helvetica-Bold').text('Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)', marginX, footerY + 14, { align: 'center', width: contentWidth });
-      doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol', marginX, footerY + 23, { align: 'center', width: contentWidth });
+      PDFService.renderBookingSlip(doc, booking, { qrBuffer, secHash });
     }
 
     doc.end();
@@ -438,7 +253,7 @@ class PDFService {
     
     function inWords(n) {
       if ((n = n.toString()).length > 9) return 'overflow';
-      let n_arr = ('000000000' + n).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+      let n_arr = ('000000000' + n).substr(-9).match(/^((\d{2})(\d{2})(\d{2})(\d{1})(\d{2}))$/);
       if (!n_arr) return '';
       let str = '';
       str += (n_arr[1] != 0) ? (a[Number(n_arr[1])] || b[n_arr[1][0]] + ' ' + a[n_arr[1][1]]) + ' Crore ' : '';
@@ -632,7 +447,7 @@ class PDFService {
     doc.fillColor('#C2410C').fontSize(8).font('Helvetica-Bold').text('JAI MATA DI - SHRI MATA VAISHNO DEVI JI BLESSINGS & BEST WISHES', 20, y + 3, { align: 'center' });
 
     y += 16;
-    doc.fillColor('#6B7280').fontSize(6.5).font('Helvetica').text('Software Developed by: ArovenTech (www.aroventech.site | +91 9598023701) | Support: iammshyam@gmail.com', 20, y, { align: 'center' });
+    doc.fillColor('#6B7280').fontSize(6.5).font('Helvetica').text('Software Developed by: ArovenTech (www.aroventech.site | +91 9598023701) | Support: iammshyam@gmail.com', 20, y, { align: 'center', width: doc.page.width - 40 });
 
     doc.end();
   }
