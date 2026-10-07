@@ -93,7 +93,7 @@ export default function App() {
   };
 
   // High-fidelity direct print helper matching downloaded PDF
-  const printCombinedSlipElements = (elementId1, elementId2, docTitle = 'MVD Document') => {
+  const printCombinedSlipElements = (elementId1, elementId2, docTitle = 'MVD Document', onComplete = null) => {
     const elem1 = document.getElementById(elementId1);
     const elem2 = document.getElementById(elementId2);
     if (!elem1 || !elem2) return;
@@ -116,6 +116,7 @@ export default function App() {
           <style>
             ${pageStyle}
             * { box-sizing: border-box; }
+            @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
             .no-print { display: none !important; }
             .irctc-ticket-wrapper, .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
             .mandir-receipt-wrapper { border: 2px solid #C2410C !important; page-break-before: always; margin-top: 10mm !important; }
@@ -136,6 +137,7 @@ export default function App() {
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
+      if (onComplete) onComplete();
     }, 800);
   };
 
@@ -163,6 +165,7 @@ export default function App() {
           <style>
             ${pageStyle}
             * { box-sizing: border-box; margin: 0; padding: 0; }
+            @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
             .no-print { display: none !important; }
             .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
             .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
@@ -178,6 +181,7 @@ export default function App() {
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
+      if (onComplete) onComplete();
     }, 800);
   };
 // Booking Form State
@@ -204,6 +208,7 @@ export default function App() {
   const [advancePayment, setAdvancePayment] = useState(1000);
   const [discount, setDiscount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAutoPrinting, setIsAutoPrinting] = useState(false);
 
   // Unified Staff & Admin Authentication State (Persisted in localStorage for permanent login until Logout)
   const [staffToken, setStaffToken] = useState(() => localStorage.getItem('mvd_staff_token') || sessionStorage.getItem('mvd_staff_token') || '');
@@ -1058,9 +1063,14 @@ export default function App() {
         setSameAsLeadDevotee(false);
         setPassengers([{ name: '', age: '', gender: 'Male', aadhar: '', seatAssigned: '1' }]);
         
+        setIsAutoPrinting(true);
         // Fast counter workflow: immediately trigger print dialog combining both
         setTimeout(() => {
-          printCombinedSlipElements('irctc-ticket-print-area', 'mandir-receipt-print-area', `MVD-Booking-Receipt-${data.booking.bookingId}`);
+          printCombinedSlipElements('irctc-ticket-print-area', 'mandir-receipt-print-area', `MVD-Booking-Receipt-${data.booking.bookingId}`, () => {
+            setIsAutoPrinting(false);
+            setTicketModal(null);
+            setReceiptModal(null);
+          });
         }, 150);
       } else {
         alert('बुकिंग विफल: ' + data.error);
@@ -8066,7 +8076,7 @@ export default function App() {
 
       {/* ----------------- OFFICIAL IRCTC ERS TRAVEL TICKET MODAL (EXACT 1-PAGE A4 FORMAT) ----------------- */}
       {ticketModal && (
-        <div className="modal-overlay" onClick={() => setTicketModal(null)}>
+        <div className="modal-overlay" onClick={() => !isAutoPrinting && setTicketModal(null)} style={{ opacity: isAutoPrinting ? 0 : 1, pointerEvents: isAutoPrinting ? 'none' : 'auto' }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 840, padding: 16, border: '2px solid #0284C7', background: '#F8FAFC' }}>
             
             {/* Top Toolbar (No-Print) */}
@@ -8337,7 +8347,7 @@ export default function App() {
 
       {/* ----------------- AUTHENTIC MANDIR PAYMENT RECEIPT MODAL (EXACT A4-HALF FORMAT) ----------------- */}
       {receiptModal && (
-        <div className="modal-overlay" onClick={() => setReceiptModal(null)}>
+        <div className="modal-overlay" onClick={() => !isAutoPrinting && setReceiptModal(null)} style={{ opacity: isAutoPrinting ? 0 : 1, pointerEvents: isAutoPrinting ? 'none' : 'auto' }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 780, padding: 16, border: '2px solid #C2410C', background: '#FFF8F2' }}>
             
             {/* Top Toolbar (No-Print) */}
