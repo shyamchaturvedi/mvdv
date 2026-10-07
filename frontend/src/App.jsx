@@ -392,7 +392,56 @@ export default function App() {
   const [adminBookings, setAdminBookings] = useState([]);
   const [adminYearFilter, setAdminYearFilter] = useState('2026');
   const [adminSearch, setAdminSearch] = useState('');
-  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  
+  useEffect(() => {
+    let html5QrcodeScanner = null;
+    if (verifierTab === 'ticket_scanner' || (staffUser && staffUser.role === 'TTE')) {
+      setTimeout(() => {
+          html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: {width: 250, height: 250} },
+            false
+          );
+          
+          html5QrcodeScanner.render(
+            (decodedText, decodedResult) => {
+              if(decodedText) {
+                 let pnr = decodedText;
+                 try {
+                   const parsed = JSON.parse(decodedText);
+                   if(parsed.b) pnr = parsed.b;
+                   else if(parsed.bookingId) pnr = parsed.bookingId;
+                 } catch(e) {}
+                 
+                 setVerifierPnr(pnr);
+                 html5QrcodeScanner.pause();
+                 
+                 setTimeout(() => {
+                    const btn = document.getElementById('verify-btn');
+                    if (btn) btn.click();
+                    setTimeout(() => {
+                        try { html5QrcodeScanner.resume(); } catch(err) {}
+                    }, 3000);
+                 }, 500);
+              }
+            },
+            (errorMessage) => {
+            }
+          );
+      }, 300);
+    }
+
+    return () => {
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().catch(error => {
+          console.error("Failed to clear html5QrcodeScanner. ", error);
+        });
+      }
+    };
+  }, [verifierTab, staffUser]);
+
+
+const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [bulkFile, setBulkFile] = useState(null);
   const [bulkYear, setBulkYear] = useState('2026');
   const [bulkMessage, setBulkMessage] = useState('');
