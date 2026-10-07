@@ -213,6 +213,26 @@ export default function App() {
   const [discount, setDiscount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAutoPrinting, setIsAutoPrinting] = useState(false);
+  const handleAutoPrintTicket = (booking) => {
+    setIsAutoPrinting(true);
+    setTicketModal(booking);
+    setTimeout(() => {
+      printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${booking.bookingId}`, () => {
+        setIsAutoPrinting(false);
+        setTicketModal(null);
+      });
+    }, 500);
+  };
+  const handleAutoPrintReceipt = (booking, txn) => {
+    setIsAutoPrinting(true);
+    setReceiptModal({ booking, txn });
+    setTimeout(() => {
+      printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${txn.id}`, () => {
+        setIsAutoPrinting(false);
+        setReceiptModal(null);
+      });
+    }, 500);
+  };
 
   // Unified Staff & Admin Authentication State (Persisted in localStorage for permanent login until Logout)
   const [staffToken, setStaffToken] = useState(() => localStorage.getItem('mvd_staff_token') || sessionStorage.getItem('mvd_staff_token') || '');
@@ -2967,7 +2987,7 @@ export default function App() {
                             <div style={{ display: 'flex', gap: 8 }}>
                               <button
                                 className="btn btn-primary btn-sm"
-                                onClick={() => setReceiptModal({ booking: b, txn })}
+                                onClick={() => handleAutoPrintReceipt(b, txn)}
                                 style={{ padding: '6px 12px', fontSize: '0.82rem' }}
                               >
                                 <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> यह रसीद प्रिंट करें
@@ -5265,8 +5285,8 @@ export default function App() {
                                       <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="रसीदें">
                                         <Printer size={13} /> रसीद
                                       </button>
-                                      <button className="btn btn-xs btn-outline" onClick={() => setTicketModal(b)} title="पर्ची देखें">
-                                        <Eye size={13} /> पर्ची
+                                      <button className="btn btn-xs btn-outline" onClick={() => handleAutoPrintTicket(b)} title="पर्ची प्रिंट करें">
+                                        <Printer size={13} /> पर्ची
                                       </button>
                                       {isSuperAdmin && (
                                         <button className="btn btn-xs btn-outline" onClick={() => setEditYatriModal(b)} title="यात्री विवरण एडिट" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
