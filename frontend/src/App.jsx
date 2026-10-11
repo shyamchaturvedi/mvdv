@@ -5623,13 +5623,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>कोच:</label>
                             <select
                               className="form-control"
-                              style={{ padding: '4px 8px', width: 'auto' }}
+                              style={{ padding: '4px 8px', width: 'auto', fontWeight: 700 }}
                               value={chartCoach}
                               onChange={(e) => {
                                 setChartCoach(e.target.value);
                                 loadCoachChart(e.target.value, chartYear);
                               }}
                             >
+                              <option value="all">★ सभी कोच (All Coaches)</option>
                               {['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR'].map(c => (
                                 <option key={c} value={c}>Coach {c}</option>
                               ))}
@@ -5744,15 +5745,17 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   if (chartSearch) {
                                     const q = chartSearch.toLowerCase();
                                     return String(r.seatNumber).includes(q) ||
+                                      (r.displaySeat && r.displaySeat.toLowerCase().includes(q)) ||
+                                      (r.coachName && r.coachName.toLowerCase().includes(q)) ||
                                       (r.passengerName && r.passengerName.toLowerCase().includes(q)) ||
                                       (r.pnr && r.pnr.toLowerCase().includes(q));
                                   }
                                   return true;
                                 })
-                                .map((r) => (
-                                  <tr key={r.seatNumber} style={{ background: !r.isBooked ? '#FFFDFB' : '#FFFFFF' }}>
+                                .map((r, rIdx) => (
+                                  <tr key={r.displaySeat || `${r.coachName || 'c'}-${r.seatNumber}-${rIdx}`} style={{ background: !r.isBooked ? '#FFFDFB' : '#FFFFFF' }}>
                                     <td style={{ textAlign: 'center', fontWeight: 900, color: '#C2410C', fontSize: '1.05rem' }}>
-                                      {r.seatNumber}
+                                      {r.displaySeat || r.seatNumber}
                                     </td>
                                     <td>
                                       <span style={{ fontWeight: 700, color: '#9A3412' }}>{r.berthType}</span>
@@ -5843,13 +5846,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9A3412' }}>कोच चुनें:</label>
                             <select
                               className="form-control"
-                              style={{ padding: '4px 8px', width: 'auto' }}
+                              style={{ padding: '4px 8px', width: 'auto', fontWeight: 700 }}
                               value={chartCoach}
                               onChange={(e) => {
                                 setChartCoach(e.target.value);
                                 loadCoachChart(e.target.value, chartYear);
                               }}
                             >
+                              <option value="all">★ सभी कोच (All Coaches)</option>
                               {['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR'].map(c => (
                                 <option key={c} value={c}>Coach {c}</option>
                               ))}

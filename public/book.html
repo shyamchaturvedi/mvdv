@@ -535,9 +535,34 @@
       }
     }
 
-    // Initialize defaults
-    onClassChange();
-    addPassenger();
+    // Initialize live configuration from server
+    async function initLiveConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        if (data.success) {
+          if (data.fares) {
+            FARES.AC = data.fares.AC || FARES.AC;
+            FARES.Sleeper = data.fares.Sleeper || FARES.Sleeper;
+            FARES.General = data.fares.General || FARES.General;
+          }
+          if (data.defaultTravelDate || data.journeyDate) {
+            document.getElementById('travelDate').value = data.defaultTravelDate || data.journeyDate;
+          }
+          if (data.coaches) {
+            if (data.coaches.AC) COACHES.AC = data.coaches.AC;
+            if (data.coaches.Sleeper) COACHES.Sleeper = data.coaches.Sleeper;
+            if (data.coaches.General) COACHES.General = data.coaches.General;
+          }
+        }
+      } catch (e) {
+        console.warn('Config fetch fallback:', e);
+      }
+      onClassChange();
+      addPassenger();
+    }
+
+    initLiveConfig();
   </script>
 </body>
 </html>

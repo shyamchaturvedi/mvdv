@@ -35,7 +35,7 @@ const DEFAULT_SETTINGS = {
   returnTravelDate: '2026-10-22',
   fares: {
     AC: 4000,
-    Sleeper: 3000,
+    Sleeper: 3500,
     General: 2000
   },
 
@@ -134,12 +134,30 @@ class SettingsService {
       const snap = await docRef.get();
       if (snap.exists) {
         const data = snap.data();
-        // Cache in memory for performance
-        inMemorySettings = { ...DEFAULT_SETTINGS, ...data };
+        // Normalize fares
+        const fares = data.fares || {
+          AC: Number(data.fareAC || 4000),
+          Sleeper: Number(data.fareSleeper || 3000),
+          General: Number(data.fareGeneral || 2000)
+        };
+        inMemorySettings = {
+          ...DEFAULT_SETTINGS,
+          ...data,
+          fares,
+          fareSleeper: fares.Sleeper,
+          fareAC: fares.AC,
+          fareGeneral: fares.General
+        };
         return inMemorySettings;
       } else {
         // First time: Initialize settings in Firebase with defaults
-        const defaults = { ...DEFAULT_SETTINGS, createdAt: new Date().toISOString() };
+        const defaults = {
+          ...DEFAULT_SETTINGS,
+          fareSleeper: DEFAULT_SETTINGS.fares.Sleeper,
+          fareAC: DEFAULT_SETTINGS.fares.AC,
+          fareGeneral: DEFAULT_SETTINGS.fares.General,
+          createdAt: new Date().toISOString()
+        };
         await docRef.set(defaults);
         inMemorySettings = defaults;
         return defaults;
@@ -148,26 +166,79 @@ class SettingsService {
       console.warn('⚠️ Firebase settings read fallback to local:', e.message);
     }
     // Emergency fallback: local disk
-    return loadSettingsFromDisk();
+    const diskSettings = loadSettingsFromDisk();
+    const fares = diskSettings.fares || {
+      AC: Number(diskSettings.fareAC || 4000),
+      Sleeper: Number(diskSettings.fareSleeper || 3000),
+      General: Number(diskSettings.fareGeneral || 2000)
+    };
+    return {
+      ...diskSettings,
+      fares,
+      fareSleeper: fares.Sleeper,
+      fareAC: fares.AC,
+      fareGeneral: fares.General
+    };
   }
 
   static async updateSettings(updates, updatedByName = 'Admin') {
     const current = await this.getSettings();
+
+    // Harmonize fares between top-level fields and fares object
+    const fareSleeper = Number(updates.fareSleeper !== undefined ? updates.fareSleeper : (updates.fares?.Sleeper || current.fareSleeper || 3000));
+    const fareAC = Number(updates.fareAC !== undefined ? updates.fareAC : (updates.fares?.AC || current.fareAC || 4000));
+    const fareGeneral = Number(updates.fareGeneral !== undefined ? updates.fareGeneral : (updates.fares?.General || current.fareGeneral || 2000));
+
+    const fares = {
+      AC: fareAC,
+      Sleeper: fareSleeper,
+      General: fareGeneral
+    };
+
     const updated = {
       ...current,
       ...updates,
+      fares,
+      fareSleeper,
+      fareAC,
+      fareGeneral,
       updatedAt: new Date().toISOString(),
       lastUpdatedBy: updatedByName
     };
 
-    // Primary: Save to Firebase
+    // Primary: Save to Firebase Firestore
     try {
       await db.collection('settings').doc('general').set(updated);
       inMemorySettings = updated;
-      console.log('✅ Settings saved to Firebase Firestore.');
+      saveSettingsToDisk(updated);
+      console.log('✅ Settings saved to Firebase Firestore & local fallback.');
     } catch (e) {
       console.warn('⚠️ Firestore settings write failed, saving locally:', e.message);
       saveSettingsToDisk(updated);
+    }
+
+    // Automatically sync updated fares with all active coaches in Coach Management
+    try {
+      const coachesSnap = await db.collection('trainCoaches').get();
+      if (!coachesSnap.empty) {
+        for (const doc of coachesSnap.docs) {
+          const c = doc.data();
+          let targetFare = null;
+          if (c.coachClass === 'AC') targetFare = fareAC;
+          else if (c.coachClass === 'Sleeper') targetFare = fareSleeper;
+          else if (c.coachClass === 'General') targetFare = fareGeneral;
+
+          if (targetFare !== null && c.fare !== targetFare) {
+            await db.collection('trainCoaches').doc(doc.id).set({
+              fare: targetFare,
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+          }
+        }
+        console.log('✅ Synchronized all coach fares with updated project fares.');
+      }
+    } catch (coachErr) {
+      console.warn('⚠️ Auto coach fare sync notice:', coachErr.message);
     }
 
     try {
@@ -175,9 +246,9 @@ class SettingsService {
       await StaffService.logAudit({
         action: 'SETTINGS_UPDATED',
         performedBy: updatedByName,
-        details: `प्रोजेक्ट सेटिंग्स अपडेट की गई: UPI ID: ${updated.upiId}, ट्रस्ट नाम: ${updated.trustName}`
+        details: `प्रोजेक्ट सेटिंग्स अपडेट की गई: UPI ID: ${updated.upiId}, स्लीपर: ₹${fareSleeper}, एसी: ₹${fareAC}`
       });
-    } catch (e) {}
+    } catch (e) { }
 
     return updated;
   }

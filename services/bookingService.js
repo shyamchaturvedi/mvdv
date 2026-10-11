@@ -557,6 +557,59 @@ class BookingService {
   // IRCTC-style Coach Reservation Seating Chart (excluding cancelled)
   static async getCoachSeatingChart(coachName, yatraYear = 2026) {
     const yYear = parseInt(yatraYear, 10);
+    const isAllCoaches = !coachName || coachName.toLowerCase() === 'all';
+
+    if (isAllCoaches) {
+      const { CoachService } = require('./coachService');
+      const allCoaches = await CoachService.getAllCoaches();
+      const bookableCoaches = allCoaches.filter(c => c.status === 'Active' && c.isBookable !== false && Number(c.totalSeats) > 0);
+      
+      const coachesToProcess = bookableCoaches.length > 0 
+        ? bookableCoaches 
+        : ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR1'].map(code => ({ coachCode: code, totalSeats: 72, coachClass: code.startsWith('A') || code.startsWith('B') ? 'AC' : 'Sleeper' }));
+
+      let totalCapacity = 0;
+      let bookedCount = 0;
+      let presentCount = 0;
+      let absentCount = 0;
+      let totalDuesInCoach = 0;
+      let allRows = [];
+
+      for (const coach of coachesToProcess) {
+        const cChart = await this.getCoachSeatingChart(coach.coachCode || coach, yYear);
+        totalCapacity += cChart.totalCapacity;
+        bookedCount += cChart.bookedCount;
+        presentCount += cChart.presentCount;
+        absentCount += cChart.absentCount;
+        totalDuesInCoach += cChart.totalDuesInCoach;
+
+        // Prefix row seatNumber with coachName for clarity in aggregated list
+        const annotatedRows = cChart.rows.map(r => ({
+          ...r,
+          coachName: coach.coachCode || coach,
+          displaySeat: `${coach.coachCode || coach}-${r.seatNumber}`
+        }));
+        allRows.push(...annotatedRows);
+      }
+
+      return {
+        coachName: 'ALL (सभी कोच)',
+        yatraYear: yYear,
+        travelClass: 'All Classes (सम्पूर्ण ट्रेन)',
+        totalCapacity,
+        bookedCount,
+        vacantCount: Math.max(0, totalCapacity - bookedCount),
+        presentCount,
+        absentCount,
+        pendingCheckInCount: Math.max(0, bookedCount - presentCount - absentCount),
+        totalDuesInCoach,
+        rows: allRows,
+        chartPreparedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+        trainNumber: '04201 / 04202',
+        trainName: 'श्री माता वैष्णो देवी विशेष तीर्थ सुपरफास्ट एक्सप्रेस'
+      };
+    }
+
     const bookings = await this.getBookings({ coachName, yatraYear: yYear });
 
     const totalCapacity = coachName.startsWith('A') ? 54 : (coachName.startsWith('B') ? 64 : (coachName.startsWith('S') ? 72 : 80));
@@ -613,6 +666,8 @@ class BookingService {
         if (bookingInfo.remainingAmount > 0) totalDuesInCoach += bookingInfo.remainingAmount;
 
         rows.push({
+          coachName,
+          displaySeat: `${coachName}-${i}`,
           seatNumber: i,
           berthType,
           status: 'CNF',
@@ -636,6 +691,8 @@ class BookingService {
         });
       } else {
         rows.push({
+          coachName,
+          displaySeat: `${coachName}-${i}`,
           seatNumber: i,
           berthType,
           status: 'VACANT',
