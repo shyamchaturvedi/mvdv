@@ -1053,7 +1053,11 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
 }
 @media print {
   body * {
-    visibility: hidden;
+    visibility: visible !important;
+  }
+  .no-print, .no-print * {
+    display: none !important;
+    visibility: hidden !important;
   }
   .printable-area, .printable-area * {
     visibility: visible !important;

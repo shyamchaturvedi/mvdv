@@ -1317,14 +1317,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         setPassengers([{ name: '', age: '', gender: 'Male', aadhar: '', seatAssigned: '1' }]);
         
         setIsAutoPrinting(true);
-        // Fast counter workflow: immediately trigger print dialog combining both
+        // Fast counter workflow: trigger print dialog after React renders DOM
         setTimeout(() => {
           printCombinedSlipElements('irctc-ticket-print-area', 'mandir-receipt-print-area', `MVD-Booking-Receipt-${data.booking.bookingId}`, () => {
             setIsAutoPrinting(false);
             setTicketModal(null);
             setReceiptModal(null);
           });
-        }, 150);
+        }, 600);
       } else {
         alert('बुकिंग विफल: ' + data.error);
       }
@@ -5490,13 +5490,21 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           <tbody>
                             {adminBookings
                               .filter(b => !adminSearch || 
-                                b.bookingId.toLowerCase().includes(adminSearch.toLowerCase()) ||
-                                b.bookedBy.toLowerCase().includes(adminSearch.toLowerCase()) ||
-                                (b.mobile && b.mobile.includes(adminSearch))
+                                (b.bookingId && b.bookingId.toLowerCase().includes(adminSearch.toLowerCase())) ||
+                                (b.bookedBy && b.bookedBy.toLowerCase().includes(adminSearch.toLowerCase())) ||
+                                (b.mobile && b.mobile.includes(adminSearch)) ||
+                                (b.offlineReceiptNo && b.offlineReceiptNo.toLowerCase().includes(adminSearch.toLowerCase()))
                               )
                               .map(b => (
                                 <tr key={b.bookingId}>
-                                  <td><strong style={{ color: '#C2410C' }}>{b.bookingId}</strong></td>
+                                  <td>
+                                    <strong style={{ color: '#C2410C' }}>{b.bookingId}</strong>
+                                    {b.offlineReceiptNo && (
+                                      <div style={{ fontSize: '0.74rem', color: '#B45309', fontWeight: 700, marginTop: 3 }}>
+                                        रसीद: <span style={{ color: '#9A3412', background: '#FEF3C7', padding: '1px 5px', borderRadius: 3, border: '1px solid #FDE68A' }}>{b.offlineReceiptNo}</span>
+                                      </div>
+                                    )}
+                                  </td>
                                   <td><span className="badge badge-bhakti">{b.yatraYear}</span></td>
                                   <td>
                                     <strong>{b.bookedBy}</strong>
