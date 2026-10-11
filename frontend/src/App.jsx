@@ -1785,7 +1785,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         headers: { 'Authorization': 'Bearer ' + staffToken }
       });
       const data = await res.json();
-      if (data.success) loadAdminDashboard();
+      if (data.success) {
+        loadAdminDashboard();
+        loadDashboardStats();
+        loadCoachChart(chartCoach, chartYear);
+        loadCoachLayout(coachName, bookingYear);
+        loadTrainComposition(compositionYearFilter);
+      }
     } catch (err) {
       alert('त्रुटि: ' + err.message);
     }

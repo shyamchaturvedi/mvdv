@@ -621,10 +621,16 @@ class BookingService {
     const totalCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (coachName.startsWith('A') ? 54 : 64) : 80));
     const travelClass = isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General');
 
-    // Build map: seatStr -> { booking, passenger }
+    // Build map: seatStr -> { booking, passenger, paxRemaining }
     const seatMap = {};
+    const coachBookingsMap = new Map();
+
     bookings.forEach(b => {
       if (b.status !== 'Cancelled' && Array.isArray(b.passengers)) {
+        coachBookingsMap.set(b.bookingId, b);
+        const paxCount = b.passengers.length || 1;
+        const perPaxRemaining = Math.round((Number(b.remainingAmount) || 0) / paxCount);
+
         b.passengers.forEach((p, idx) => {
           const seatNum = String(p.seatAssigned || (b.seatNumber && b.seatNumber[idx]) || '').trim();
           if (seatNum && seatNum !== 'Cancelled') {
@@ -639,7 +645,8 @@ class BookingService {
               paymentStatus: b.paymentStatus,
               totalAmount: b.totalAmount,
               advance: b.advance,
-              remainingAmount: b.remainingAmount,
+              remainingAmount: perPaxRemaining,
+              bookingRemainingTotal: Number(b.remainingAmount) || 0,
               passenger: {
                 name: p.name,
                 age: p.age,
@@ -658,7 +665,8 @@ class BookingService {
     let bookedCount = 0;
     let presentCount = 0;
     let absentCount = 0;
-    let totalDuesInCoach = 0;
+    // Total dues in coach is sum of remaining amounts of bookings allocated in this coach
+    const totalDuesInCoach = Array.from(coachBookingsMap.values()).reduce((sum, b) => sum + (Number(b.remainingAmount) || 0), 0);
 
     for (let i = 1; i <= totalCapacity; i++) {
       const seatStr = String(i);
@@ -669,7 +677,6 @@ class BookingService {
         bookedCount++;
         if (bookingInfo.passenger.checkInStatus === 'Present') presentCount++;
         if (bookingInfo.passenger.checkInStatus === 'Absent') absentCount++;
-        if (bookingInfo.remainingAmount > 0) totalDuesInCoach += bookingInfo.remainingAmount;
 
         rows.push({
           coachName,
