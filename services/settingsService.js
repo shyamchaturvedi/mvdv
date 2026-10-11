@@ -34,8 +34,8 @@ const DEFAULT_SETTINGS = {
   journeyDate: '2026-10-15',
   returnTravelDate: '2026-10-22',
   fares: {
-    AC: 4000,
-    Sleeper: 3500,
+    AC: 0,
+    Sleeper: 3000,
     General: 2000
   },
 
@@ -136,7 +136,7 @@ class SettingsService {
         const data = snap.data();
         // Normalize fares
         const fares = data.fares || {
-          AC: Number(data.fareAC || 4000),
+          AC: Number(data.fareAC !== undefined ? data.fareAC : 0),
           Sleeper: Number(data.fareSleeper || 3000),
           General: Number(data.fareGeneral || 2000)
         };
@@ -154,7 +154,7 @@ class SettingsService {
         const defaults = {
           ...DEFAULT_SETTINGS,
           fareSleeper: DEFAULT_SETTINGS.fares.Sleeper,
-          fareAC: DEFAULT_SETTINGS.fares.AC,
+          fareAC: 0,
           fareGeneral: DEFAULT_SETTINGS.fares.General,
           createdAt: new Date().toISOString()
         };
@@ -168,7 +168,7 @@ class SettingsService {
     // Emergency fallback: local disk
     const diskSettings = loadSettingsFromDisk();
     const fares = diskSettings.fares || {
-      AC: Number(diskSettings.fareAC || 4000),
+      AC: Number(diskSettings.fareAC !== undefined ? diskSettings.fareAC : 0),
       Sleeper: Number(diskSettings.fareSleeper || 3000),
       General: Number(diskSettings.fareGeneral || 2000)
     };

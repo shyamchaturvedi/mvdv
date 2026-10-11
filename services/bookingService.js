@@ -2,16 +2,16 @@ const { db } = require('../config/firebase');
 
 // Fixed pricing per class
 const FARES = {
-  AC: 4000,
+  AC: 0,
   Sleeper: 3000,
   General: 2000
 };
 
 // Available Coaches
 const COACH_CONFIG = {
-  AC: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'],
-  Sleeper: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
-  General: ['GS1', 'GS2', 'SLR']
+  AC: [],
+  Sleeper: Array.from({ length: 18 }, (_, i) => `S${i + 1}`),
+  General: ['SLR1', 'SLR2']
 };
 
 const { SettingsService } = require('./settingsService');
@@ -529,13 +529,16 @@ class BookingService {
       }
     });
 
-    const totalCapacity = coachName.startsWith('A') ? 54 : (coachName.startsWith('B') ? 64 : (coachName.startsWith('S') ? 72 : 80));
+    const isSLR = coachName.startsWith('SLR');
+    const isSleeper = coachName.startsWith('S') && !isSLR;
+    const isAC = coachName.startsWith('A') || coachName.startsWith('B');
+    const totalCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (coachName.startsWith('A') ? 54 : 64) : 80));
     const layout = [];
 
     for (let i = 1; i <= totalCapacity; i++) {
       const seatStr = String(i);
       const isBooked = bookedSeats.has(seatStr);
-      const travelClass = coachName.startsWith('A') || coachName.startsWith('B') ? 'AC' : (coachName.startsWith('S') ? 'Sleeper' : 'General');
+      const travelClass = isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General');
       layout.push({
         seatNumber: i,
         berthType: getBerthType(i, travelClass),
@@ -612,8 +615,11 @@ class BookingService {
 
     const bookings = await this.getBookings({ coachName, yatraYear: yYear });
 
-    const totalCapacity = coachName.startsWith('A') ? 54 : (coachName.startsWith('B') ? 64 : (coachName.startsWith('S') ? 72 : 80));
-    const travelClass = coachName.startsWith('A') || coachName.startsWith('B') ? 'AC' : (coachName.startsWith('S') ? 'Sleeper' : 'General');
+    const isSLR = coachName.startsWith('SLR');
+    const isSleeper = coachName.startsWith('S') && !isSLR;
+    const isAC = coachName.startsWith('A') || coachName.startsWith('B');
+    const totalCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (coachName.startsWith('A') ? 54 : 64) : 80));
+    const travelClass = isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General');
 
     // Build map: seatStr -> { booking, passenger }
     const seatMap = {};

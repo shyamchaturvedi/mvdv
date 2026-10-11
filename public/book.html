@@ -85,9 +85,9 @@
               <div class="form-group">
                 <label class="form-label">Travel Class:</label>
                 <select id="travelClass" class="form-control" onchange="onClassChange()" required>
-                  <option value="Sleeper" selected>Sleeper Class (SL) - ₹ 3,000</option>
-                  <option value="AC">AC 3-Tier / 2-Tier - ₹ 4,000</option>
-                  <option value="General">General / Second Seating - ₹ 2,000</option>
+                  <option value="Sleeper" selected>Sleeper Class (SL S1-S18) - ₹ 3,000</option>
+                  <option value="General">SLR Divyang / General (SLR1-SLR2 18 Seats) - ₹ 2,000</option>
+                  <option value="AC">AC Class (वर्तमान में अनुपलब्ध) - ₹ 0</option>
                 </select>
               </div>
 
@@ -257,15 +257,15 @@
 
   <script>
     const FARES = {
-      AC: 4000,
+      AC: 0,
       Sleeper: 3000,
       General: 2000
     };
 
     const COACHES = {
-      AC: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'],
-      Sleeper: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
-      General: ['GS1', 'GS2', 'SLR']
+      AC: [],
+      Sleeper: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18'],
+      General: ['SLR1', 'SLR2']
     };
 
     let selectedSeats = [];

@@ -6,15 +6,15 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 const FARES = {
-  AC: 4000,
+  AC: 0,
   Sleeper: 3000,
   General: 2000
 };
 
 const COACHES = {
-  AC: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'],
-  Sleeper: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
-  General: ['GS1', 'GS2', 'SLR']
+  AC: [],
+  Sleeper: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18'],
+  General: ['SLR1', 'SLR2']
 };
 
 // Official Complete Route Stops: Lucknow to Jammu Tawi & Katra
@@ -479,7 +479,7 @@ export default function App() {
     merchantCode: 'MVD2026',
     defaultAdvance: 1000,
     fareSleeper: 3000,
-    fareAC: 4000,
+    fareAC: 0,
     fareGeneral: 2000,
     defaultTravelDate: '2026-10-15',
     journeyDate: '2026-10-15',
@@ -5631,7 +5631,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               }}
                             >
                               <option value="all">★ सभी कोच (All Coaches)</option>
-                              {['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR'].map(c => (
+                              {['SLR1', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'SLR2'].map(c => (
                                 <option key={c} value={c}>Coach {c}</option>
                               ))}
                             </select>
@@ -5854,7 +5854,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               }}
                             >
                               <option value="all">★ सभी कोच (All Coaches)</option>
-                              {['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR'].map(c => (
+                              {['SLR1', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'SLR2'].map(c => (
                                 <option key={c} value={c}>Coach {c}</option>
                               ))}
                             </select>

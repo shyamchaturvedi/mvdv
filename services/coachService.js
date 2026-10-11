@@ -24,253 +24,48 @@ const DEFAULT_TRAIN_COACHES = [
     coachClass: 'General',
     detailedType: 'SLR Luggage & Seating (सामान व दिव्यांग)',
     position: 2,
-    totalSeats: 20,
+    totalSeats: 18,
     fare: 2000,
     status: 'Active',
     isBookable: true,
     platformPosition: 'आगे की तरफ (Front End)',
-    facilities: ['सामान कक्ष', 'दिव्यांग मित्रवत रैंप व बर्थ', 'बायो-टॉयलेट'],
-    description: 'सामान रैक, दिव्यांग श्रद्धालु आरक्षण एवं ब्रेक वैन।'
+    facilities: ['सामान कक्ष', 'दिव्यांग मित्रवत 18 आरक्षित सीटें', 'बायो-टॉयलेट'],
+    description: 'सामान रैक, दिव्यांग श्रद्धालु आरक्षण (18 सीटें) एवं ब्रेक वैन।'
   },
-  {
-    id: 'coach-gs1',
-    coachCode: 'GS1',
-    coachName: 'सामान्य अनारक्षित जीएस 1 (General GS1)',
-    coachClass: 'General',
-    detailedType: 'General Unreserved (सामान्य द्वितीय श्रेणी)',
-    position: 3,
-    totalSeats: 80,
-    fare: 2000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'आगे की तरफ (Front End)',
-    facilities: ['गद्देदार बैठक सीटें', 'पंखा व चार्जिंग सॉकेट', 'बायो-टॉयलेट'],
-    description: 'सामान्य अनारक्षित कोच 1 — रियायती यात्रा श्रेणी।'
-  },
-  {
-    id: 'coach-s1',
-    coachCode: 'S1',
-    coachName: 'स्लीपर कोच S1 (Sleeper Class S1)',
-    coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (शयनयान S1)',
-    position: 4,
-    totalSeats: 72,
-    fare: 3000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'मध्य-अग्रिम (Front-Middle)',
-    facilities: ['72 शयन बर्थ (8-बे लेआउट)', 'चार्जिंग पॉइंट्स', 'बायो-वैक्यूम टॉयलेट', 'पानी की टंकी'],
-    description: 'स्लीपर क्लास कोच S1 — लोअर, मिडिल, अपर, साइड-लोअर व साइड-अपर बर्थ।'
-  },
-  {
-    id: 'coach-s2',
-    coachCode: 'S2',
-    coachName: 'स्लीपर कोच S2 (Sleeper Class S2)',
-    coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (शयनयान S2)',
-    position: 5,
-    totalSeats: 72,
-    fare: 3000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'मध्य-अग्रिम (Front-Middle)',
-    facilities: ['72 शयन बर्थ', 'चार्जिंग पॉइंट्स', 'बायो-वैक्यूम टॉयलेट'],
-    description: 'स्लीपर क्लास कोच S2 — आरक्षित तीर्थ यात्रा कोच।'
-  },
-  {
-    id: 'coach-s3',
-    coachCode: 'S3',
-    coachName: 'स्लीपर कोच S3 (Sleeper Class S3)',
-    coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (शयनयान S3)',
-    position: 6,
-    totalSeats: 72,
-    fare: 3000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
-    facilities: ['72 शयन बर्थ', 'चार्जिंग पॉइंट्स', 'बायो-टॉयलेट'],
-    description: 'स्लीपर क्लास कोच S3 — मुख्य पारिवारिक आरक्षण कोच।'
-  },
-  {
-    id: 'coach-s4',
-    coachCode: 'S4',
-    coachName: 'स्लीपर कोच S4 (Sleeper Class S4)',
-    coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (शयनयान S4)',
-    position: 7,
-    totalSeats: 72,
-    fare: 3000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
-    facilities: ['72 शयन बर्थ', 'चार्जिंग पॉइंट्स', 'बायो-टॉयलेट'],
-    description: 'स्लीपर क्लास कोच S4 — मुख्य ग्रुप एवं मंडल आरक्षण कोच।'
-  },
-  {
-    id: 'coach-s5',
-    coachCode: 'S5',
-    coachName: 'स्लीपर कोच S5 (Sleeper Class S5)',
-    coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (शयनयान S5)',
-    position: 8,
-    totalSeats: 72,
-    fare: 3000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
-    facilities: ['72 शयन बर्थ', 'चार्जिंग पॉइंट्स', 'बायो-टॉयलेट'],
-    description: 'स्लीपर क्लास कोच S5 — आरामदायक शयनयान।'
-  },
-  {
-    id: 'coach-s6',
-    coachCode: 'S6',
-    coachName: 'स्लीपर कोच S6 (Sleeper Class S6)',
-    coachClass: 'Sleeper',
-    detailedType: 'Sleeper 3-Tier (शयनयान S6)',
-    position: 9,
-    totalSeats: 72,
-    fare: 3000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'मध्य-पश्च (Center-Rear)',
-    facilities: ['72 शयन बर्थ', 'चार्जिंग पॉइंट्स', 'बायो-टॉयलेट'],
-    description: 'स्लीपर क्लास कोच S6 — अंतिम स्लीपर बोगी।'
-  },
-  {
-    id: 'coach-pc',
-    coachCode: 'PC',
-    coachName: 'पेंट्री कार व शुद्ध सात्विक रसोई (Pantry Car)',
-    coachClass: 'Special',
-    detailedType: 'Pantry Car / Catering (सात्विक रसोई)',
-    position: 10,
-    totalSeats: 0,
-    fare: 0,
-    status: 'Active',
-    isBookable: false,
-    platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
-    facilities: ['शुद्ध सात्विक लंगर रसोई', 'RO शीतल जल', 'चाय/कॉफी व फलाहार व्यवस्था'],
-    description: 'ट्रस्ट द्वारा संचालित संपूर्ण निशुल्क सात्विक भोजन व जल सेवा।'
-  },
-  {
-    id: 'coach-b1',
-    coachCode: 'B1',
-    coachName: 'थर्ड एसी कोच B1 (AC 3-Tier B1)',
-    coachClass: 'AC',
-    detailedType: 'AC 3-Tier (तृतीय वातानुकूलित B1)',
-    position: 11,
-    totalSeats: 64,
-    fare: 4000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'मध्य-पश्च (Center-Rear)',
-    facilities: ['वातानुकूलित (AC)', 'चादर व कंबल किट', 'चार्जिंग पॉइंट्स', 'रीडिंग लाइट्स'],
-    description: 'थर्ड एसी B1 — आरामदायक पूर्ण वातानुकूलित कोच।'
-  },
-  {
-    id: 'coach-b2',
-    coachCode: 'B2',
-    coachName: 'थर्ड एसी कोच B2 (AC 3-Tier B2)',
-    coachClass: 'AC',
-    detailedType: 'AC 3-Tier (तृतीय वातानुकूलित B2)',
-    position: 12,
-    totalSeats: 64,
-    fare: 4000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'मध्य-पश्च (Center-Rear)',
-    facilities: ['वातानुकूलित (AC)', 'चादर व कंबल किट', 'चार्जिंग पॉइंट्स', 'रीडिंग लाइट्स'],
-    description: 'थर्ड एसी B2 — पूर्ण वातानुकूलित आरामदायक यात्रा।'
-  },
-  {
-    id: 'coach-b3',
-    coachCode: 'B3',
-    coachName: 'थर्ड एसी कोच B3 (AC 3-Tier B3)',
-    coachClass: 'AC',
-    detailedType: 'AC 3-Tier (तृतीय वातानुकूलित B3)',
-    position: 13,
-    totalSeats: 64,
-    fare: 4000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'पीछे की तरफ (Rear Section)',
-    facilities: ['वातानुकूलित (AC)', 'चादर व कंबल किट', 'चार्जिंग पॉइंट्स', 'रीडिंग लाइट्स'],
-    description: 'थर्ड एसी B3 — तृतीय वातानुकूलित कोच।'
-  },
-  {
-    id: 'coach-a1',
-    coachCode: 'A1',
-    coachName: 'सेकंड एसी कोच A1 (AC 2-Tier A1)',
-    coachClass: 'AC',
-    detailedType: 'AC 2-Tier (द्वितीय वातानुकूलित A1)',
-    position: 14,
-    totalSeats: 54,
-    fare: 4000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'पीछे की तरफ (Rear Section)',
-    facilities: ['2-टियर विस्तृत एसी बर्थ', 'पर्दे व प्राइवेसी', 'लक्जरी बेडरोल', 'व्यक्तिगत रीडिंग लैंप'],
-    description: 'सेकंड एसी A1 — विशाल, शांत व प्रीमियम वातानुकूलित कोच।'
-  },
-  {
-    id: 'coach-a2',
-    coachCode: 'A2',
-    coachName: 'सेकंड एसी कोच A2 (AC 2-Tier A2)',
-    coachClass: 'AC',
-    detailedType: 'AC 2-Tier (द्वितीय वातानुकूलित A2)',
-    position: 15,
-    totalSeats: 54,
-    fare: 4000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'पीछे की तरफ (Rear Section)',
-    facilities: ['2-टियर विस्तृत एसी बर्थ', 'पर्दे व प्राइवेसी', 'लक्जरी बेडरोल'],
-    description: 'सेकंड एसी A2 — प्रीमियम 2-टियर वातानुकूलित कोच।'
-  },
-  {
-    id: 'coach-a3',
-    coachCode: 'A3',
-    coachName: 'सेकंड एसी कोच A3 (AC 2-Tier A3)',
-    coachClass: 'AC',
-    detailedType: 'AC 2-Tier (द्वितीय वातानुकूलित A3)',
-    position: 16,
-    totalSeats: 54,
-    fare: 4000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'पीछे की तरफ (Rear Section)',
-    facilities: ['2-टियर विस्तृत एसी बर्थ', 'पर्दे व प्राइवेसी', 'लक्जरी बेडरोल'],
-    description: 'सेकंड एसी A3 — द्वितीय वातानुकूलित कोच।'
-  },
-  {
-    id: 'coach-gs2',
-    coachCode: 'GS2',
-    coachName: 'सामान्य अनारक्षित जीएस 2 (General GS2)',
-    coachClass: 'General',
-    detailedType: 'General Unreserved (सामान्य द्वितीय श्रेणी)',
-    position: 17,
-    totalSeats: 80,
-    fare: 2000,
-    status: 'Active',
-    isBookable: true,
-    platformPosition: 'पीछे की तरफ (Rear End)',
-    facilities: ['गद्देदार बैठक सीटें', 'पंखा व चार्जिंग सॉकेट', 'बायो-टॉयलेट'],
-    description: 'सामान्य अनारक्षित कोच 2।'
-  },
+  // 18 Sleeper Coaches (S1 to S18 - 72 seats each)
+  ...Array.from({ length: 18 }, (_, idx) => {
+    const num = idx + 1;
+    const code = `S${num}`;
+    return {
+      id: `coach-s${num}`,
+      coachCode: code,
+      coachName: `स्लीपर कोच ${code} (Sleeper Class ${code})`,
+      coachClass: 'Sleeper',
+      detailedType: `Sleeper 3-Tier (शयनयान ${code})`,
+      position: num + 2, // Positions 3 to 20
+      totalSeats: 72,
+      fare: 3000,
+      status: 'Active',
+      isBookable: true,
+      platformPosition: num <= 6 ? 'अग्रिम भाग (Front Section)' : (num <= 12 ? 'मध्य भाग (Center Platform)' : 'पश्च भाग (Rear Section)'),
+      facilities: ['72 शयन बर्थ (8-बे लेआउट)', 'चार्जिंग पॉइंट्स', 'बायो-वैक्यूम टॉयलेट', 'पानी की टंकी'],
+      description: `स्लीपर क्लास कोच ${code} — 72 आरक्षित तीर्थ यात्रा बर्थ (लोअर, मिडिल, अपर, साइड-लोअर, साइड-अपर)।`
+    };
+  }),
   {
     id: 'coach-slr2',
     coachCode: 'SLR2',
     coachName: 'एसएलआर व गार्ड बोगी 2 (Guard Van & SLR)',
     coachClass: 'General',
     detailedType: 'SLR & Guard Van (गार्ड व दिव्यांग बोगी)',
-    position: 18,
-    totalSeats: 20,
+    position: 21,
+    totalSeats: 18,
     fare: 2000,
     status: 'Active',
     isBookable: true,
     platformPosition: 'ट्रेन का अंतिम छोर (Rear Guard End)',
-    facilities: ['गार्ड केबिन', 'आपातकालीन ब्रेक प्रणाली', 'दिव्यांग मित्रवत बर्थ'],
-    description: 'ट्रेन का अंतिम कोच — गार्ड वैन एवं दिव्यांग श्रद्धालु आरक्षण।'
+    facilities: ['गार्ड केबिन', 'आपातकालीन ब्रेक प्रणाली', 'दिव्यांग मित्रवत 18 सीटें'],
+    description: 'ट्रेन का अंतिम कोच — गार्ड वैन एवं दिव्यांग श्रद्धालु आरक्षण (18 सीटें)।'
   }
 ];
 
@@ -323,9 +118,9 @@ class CoachService {
     };
 
     // Ensure fallback if empty
-    if (!map.AC.length) map.AC = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'];
-    if (!map.Sleeper.length) map.Sleeper = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'];
-    if (!map.General.length) map.General = ['GS1', 'GS2', 'SLR1', 'SLR2'];
+    if (!map.AC.length) map.AC = [];
+    if (!map.Sleeper.length) map.Sleeper = Array.from({ length: 18 }, (_, i) => `S${i + 1}`);
+    if (!map.General.length) map.General = ['SLR1', 'SLR2'];
 
     return map;
   }
