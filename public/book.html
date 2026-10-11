@@ -542,12 +542,35 @@
         const data = await res.json();
         if (data.success) {
           if (data.fares) {
-            FARES.AC = data.fares.AC || FARES.AC;
-            FARES.Sleeper = data.fares.Sleeper || FARES.Sleeper;
-            FARES.General = data.fares.General || FARES.General;
+            FARES.AC = Number(data.fares.AC !== undefined ? data.fares.AC : 0);
+            FARES.Sleeper = Number(data.fares.Sleeper || 3000);
+            FARES.General = Number(data.fares.General || 2000);
           }
           if (data.defaultTravelDate || data.journeyDate) {
             document.getElementById('travelDate').value = data.defaultTravelDate || data.journeyDate;
+          }
+          if (data.yatraYear) {
+            const yearSelect = document.getElementById('yatraYear');
+            if (yearSelect && data.availableYears) {
+              yearSelect.innerHTML = data.availableYears.map(y => `<option value="${y}" ${String(y) === String(data.yatraYear) ? 'selected' : ''}>Yatra ${y} ${String(y) === String(data.yatraYear) ? '(Active Pilgrimage)' : ''}</option>`).join('');
+            }
+          }
+          if (data.stations && data.stations.length > 0) {
+            const fromSelect = document.getElementById('fromStation');
+            const prevVal = fromSelect.value;
+            fromSelect.innerHTML = data.stations.map(stn => `<option value="${stn}">${stn}</option>`).join('');
+            if (data.stations.includes(prevVal)) {
+              fromSelect.value = prevVal;
+            }
+          }
+          // Update Class Dropdown labels with live fares
+          const classSelect = document.getElementById('travelClass');
+          if (classSelect) {
+            classSelect.innerHTML = `
+              <option value="Sleeper" selected>Sleeper Class (SL S1-S18) - ₹ ${FARES.Sleeper.toLocaleString()}</option>
+              <option value="General">SLR Divyang / General (SLR1-SLR2 18 Seats) - ₹ ${FARES.General.toLocaleString()}</option>
+              <option value="AC">AC Class (${FARES.AC > 0 ? '₹ ' + FARES.AC.toLocaleString() : 'वर्तमान में अनुपलब्ध - ₹ 0'})</option>
+            `;
           }
           if (data.coaches) {
             if (data.coaches.AC) COACHES.AC = data.coaches.AC;

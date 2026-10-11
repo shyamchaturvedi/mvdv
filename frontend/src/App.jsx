@@ -515,6 +515,12 @@ export default function App() {
           if (data.defaultTravelDate || data.journeyDate) {
             setTravelDate(data.defaultTravelDate || data.journeyDate);
           }
+          if (data.yatraYear || data.settings?.activeYatraYear) {
+            setBookingYear(String(data.yatraYear || data.settings?.activeYatraYear));
+          }
+          if (data.stations && data.stations.length > 0) {
+            setFromStation(prev => data.stations.includes(prev) ? prev : data.stations[0]);
+          }
         }
       })
       .catch(err => {
@@ -526,7 +532,10 @@ export default function App() {
     if (projectSettings?.defaultTravelDate) {
       setTravelDate(projectSettings.defaultTravelDate);
     }
-  }, [projectSettings?.defaultTravelDate]);
+    if (projectSettings?.activeYatraYear) {
+      setBookingYear(String(projectSettings.activeYatraYear));
+    }
+  }, [projectSettings?.defaultTravelDate, projectSettings?.activeYatraYear]);
 
   // Live Sacred Yatra Departure Countdown State (Days, Hours, Minutes, Seconds)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -1249,7 +1258,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     setPassengers(newPax);
   };
 
-  const unitFare = FARES[travelClass] || 3000;
+  const unitFare = (() => {
+    if (projectSettings?.fares && projectSettings.fares[travelClass] !== undefined) {
+      return Number(projectSettings.fares[travelClass]);
+    }
+    if (travelClass === 'Sleeper') return Number(projectSettings?.fareSleeper !== undefined ? projectSettings.fareSleeper : 3000);
+    if (travelClass === 'General') return Number(projectSettings?.fareGeneral !== undefined ? projectSettings.fareGeneral : 2000);
+    if (travelClass === 'AC' || travelClass === '3 AC' || travelClass === '2 AC') return Number(projectSettings?.fareAC !== undefined ? projectSettings.fareAC : 0);
+    return FARES[travelClass] || 3000;
+  })();
   const grossAmount = unitFare * passengers.length;
   const netPayable = Math.max(0, grossAmount - Number(discount || 0));
   const remainingDue = Math.max(0, netPayable - Number(advancePayment || 0));
@@ -5126,10 +5143,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               <div className="form-group">
                                 <label className="form-label">यात्रा वर्ष (हर साल ट्रेन):</label>
                                 <select className="form-control" value={bookingYear} onChange={(e) => setBookingYear(e.target.value)}>
-                                  <option value="2026">यात्रा 2026 (सक्रिय बैच)</option>
-                                  <option value="2027">यात्रा 2027 (अग्रिम बुकिंग)</option>
-                                  <option value="2025">यात्रा 2025 (पुराना रिकॉर्ड)</option>
-                                  <option value="2024">यात्रा 2024 (पुराना रिकॉर्ड)</option>
+                                  {(projectSettings?.availableYears || [2024, 2025, 2026, 2027, 2028]).map(yr => (
+                                    <option key={yr} value={yr}>
+                                      यात्रा {yr} {String(yr) === String(projectSettings?.activeYatraYear || '2026') ? '(सक्रिय बैच)' : (yr > (projectSettings?.activeYatraYear || 2026) ? '(अग्रिम बुकिंग)' : '(रिकॉर्ड)')}
+                                    </option>
+                                  ))}
                                 </select>
                               </div>
 
@@ -5162,9 +5180,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               <div className="form-group">
                                 <label className="form-label">श्रेणी (Class):</label>
                                 <select className="form-control" value={travelClass} onChange={(e) => setTravelClass(e.target.value)}>
-                                  <option value="Sleeper">स्लीपर क्लास (SL) - ₹ 3,000</option>
-                                  <option value="AC">एसी कोच (AC 3A/2A) - ₹ 4,000</option>
-                                  <option value="General">जनरल / सीटिंग (2S) - ₹ 2,000</option>
+                                  <option value="Sleeper">स्लीपर क्लास (SL) - ₹ {(projectSettings?.fares?.Sleeper !== undefined ? projectSettings.fares.Sleeper : (projectSettings?.fareSleeper || 3000)).toLocaleString()}</option>
+                                  <option value="General">जनरल / सीटिंग (2S) - ₹ {(projectSettings?.fares?.General !== undefined ? projectSettings.fares.General : (projectSettings?.fareGeneral || 2000)).toLocaleString()}</option>
+                                  <option value="AC">एसी कोच (AC 3A/2A) - {((projectSettings?.fares?.AC !== undefined ? projectSettings.fares.AC : (projectSettings?.fareAC || 0)) > 0) ? `₹ ${((projectSettings?.fares?.AC !== undefined ? projectSettings.fares.AC : (projectSettings?.fareAC || 0))).toLocaleString()}` : 'वर्तमान में अनुपलब्ध - ₹ 0'}</option>
                                 </select>
                               </div>
 
@@ -8453,7 +8471,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 <div className="irctc-grid-row">
                   <div>
                     <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>From Station</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#C2410C' }}>{ticketModal.fromStation || 'New Delhi (NDLS)'}</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#C2410C' }}>{ticketModal.fromStation || projectSettings?.routeStations?.[0] || 'Lucknow Charbagh (LKO)'}</div>
                   </div>
                   <div>
                     <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>To Destination</div>
@@ -8461,7 +8479,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   </div>
                   <div>
                     <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Date of Journey</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{ticketModal.travelDate || 'As Scheduled'}</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{ticketModal.travelDate || projectSettings?.defaultTravelDate || '2026-10-15'}</div>
                   </div>
                 </div>
               </div>
@@ -8755,7 +8773,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         </div>
                         <div>
                           <span style={{ color: '#4B5563', fontWeight: 700, display: 'block' }}>Journey Route:</span>
-                          <span style={{ color: '#1F2937', fontWeight: 600 }}>{receiptModal.booking.fromStation || 'New Delhi (NDLS)'} &rarr; Katra (SVDK)</span>
+                          <span style={{ color: '#1F2937', fontWeight: 600 }}>{receiptModal.booking.fromStation || projectSettings?.routeStations?.[0] || 'Lucknow Charbagh (LKO)'} &rarr; Katra (SVDK)</span>
                         </div>
                       </div>
 

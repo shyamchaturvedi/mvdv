@@ -381,7 +381,7 @@ router.post('/bookings', async (req, res) => {
       mobile,
       aadhar,
       email,
-      fromStation: fromStation || 'New Delhi (NDLS)',
+      fromStation: fromStation || 'Lucknow Charbagh (LKO)',
       toStation: toStation || 'Shri Mata Vaishno Devi Katra (SVDK)',
       travelClass: travelClass || 'Sleeper',
       coachName: coachName || 'S1',
@@ -389,8 +389,11 @@ router.post('/bookings', async (req, res) => {
       travelDate,
       advancePayment,
       discount,
+      paymentMode: req.body.paymentMode || 'Cash',
+      offlineReceiptNo: req.body.offlineReceiptNo || '',
       passengers,
-      notes
+      notes,
+      bookedByStaff: req.body.bookedByStaff
     });
 
     // Anti-Fraud Audit Log for every booking
@@ -1090,11 +1093,11 @@ router.get('/chart/:coachName/print', requireAuth('print_chart'), async (req, re
     <tr>
       <td><strong>ट्रेन नं एवं नाम:</strong> 04201 - MVD SPECIAL SF EXP</td>
       <td><strong>कोच नंबर:</strong> ${chart.coachName} (${chart.travelClass})</td>
-      <td><strong>यात्रा तिथि:</strong> ${chart.rows[0]?.travelDate || '14-10-2026'}</td>
+      <td><strong>यात्रा तिथि:</strong> ${chart.rows.find(r => r.travelDate)?.travelDate || chart.journeyDate || '2026-10-15'}</td>
       <td><strong>चार्ट निर्माण समय:</strong> ${chart.chartPreparedAt}</td>
     </tr>
     <tr>
-      <td><strong>प्रस्थान:</strong> NEW DELHI (NDLS) / LKO / BSB</td>
+      <td><strong>प्रस्थान:</strong> ${chart.rows.find(r => r.fromStation)?.fromStation || 'Lucknow / Delhi / Kanpur Route'}</td>
       <td><strong>गंतव्य:</strong> SH. MATA VAISHNO DEVI KATRA (SVDK)</td>
       <td><strong>कुल बर्थ क्षमता:</strong> ${chart.totalCapacity}</td>
       <td><strong>आरक्षित सीटें:</strong> ${chart.bookedCount} | <strong>रिक्त:</strong> ${chart.vacantCount}</td>
