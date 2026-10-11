@@ -32,12 +32,14 @@ try {
     }
     
     db = admin.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
     isFirebaseActive = true;
     console.log('✅ Connected to Firebase Cloud Firestore successfully.');
   } else if (process.env.FIREBASE_CONFIG) {
     admin = require('firebase-admin');
     admin.initializeApp();
     db = admin.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
     isFirebaseActive = true;
     console.log('✅ Connected to Firebase via Application Default Credentials.');
   } else {

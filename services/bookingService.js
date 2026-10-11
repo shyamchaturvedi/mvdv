@@ -321,7 +321,7 @@ class BookingService {
       utrNumber: payload.utr || payload.utrNumber || payload.transactionRef || '',
       cardLast4: payload.cardLast4 || '',
       transactionRef: payload.transactionRef || payload.utr || '',
-      utrStatus: (payload.utr || payload.transactionRef || payload.cardLast4) ? 'Pending' : undefined,
+      utrStatus: (payload.utr || payload.transactionRef || payload.cardLast4) ? 'Pending' : 'N/A',
       paymentHistory: advance > 0 ? [{
         id: await BookingService.generateReceiptId(yatraYear),
         date: new Date().toISOString(),
