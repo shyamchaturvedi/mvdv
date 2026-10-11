@@ -219,7 +219,7 @@
             <div class="grid-2">
               <div class="form-group">
                 <label class="form-label">Payment Mode (भुगतान माध्यम):</label>
-                <select id="paymentMode" class="form-control">
+                <select id="paymentMode" class="form-control" onchange="togglePaymentRefFields()">
                   <option value="Cash" selected>Cash (नकद)</option>
                   <option value="UPI">UPI (QR Code)</option>
                   <option value="Card">Credit/Debit Card</option>
@@ -230,6 +230,35 @@
               <div class="form-group">
                 <label class="form-label">Offline Receipt / Manual Invoice No. (वैकल्पिक):</label>
                 <input type="text" id="offlineReceiptNo" class="form-control" placeholder="उदा. Book 14, Sl 105">
+              </div>
+            </div>
+
+            <!-- Conditional Payment Reference Fields for Non-Cash Modes -->
+            <div id="paymentRefGroup" style="display: none; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 111, 0, 0.35); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 20px;">
+              <div id="upiRefBox" style="display: none;">
+                <label class="form-label" style="color: #60a5fa;"><i class="fa-solid fa-qrcode"></i> UPI 12-Digit UTR / Transaction Ref No.:</label>
+                <input type="text" id="upiUtr" class="form-control" placeholder="उदा. 429381920192 (12-Digit UTR)" maxlength="25">
+                <small style="color: #94a3b8; font-size: 0.78rem;">Admin bank statement se match karne ke liye 12-digit UTR darj karein.</small>
+              </div>
+
+              <div id="cardRefBox" style="display: none;">
+                <div class="grid-2">
+                  <div>
+                    <label class="form-label" style="color: #34d399;"><i class="fa-solid fa-credit-card"></i> Card Last 4 Digits:</label>
+                    <input type="text" id="cardLast4" class="form-control" placeholder="XXXX-XXXX-XXXX-8492" maxlength="4">
+                  </div>
+                  <div>
+                    <label class="form-label" style="color: #34d399;"><i class="fa-solid fa-receipt"></i> POS Slip / Approval Code / RRN:</label>
+                    <input type="text" id="cardApprovalCode" class="form-control" placeholder="उदा. RRN 948201 / TXN-492" maxlength="25">
+                  </div>
+                </div>
+                <small style="color: #94a3b8; font-size: 0.78rem;">Debit/Credit swipe machine slip se last 4 ank aur RRN match karne ke liye.</small>
+              </div>
+
+              <div id="bankRefBox" style="display: none;">
+                <label class="form-label" style="color: #fbbf24;"><i class="fa-solid fa-building-columns"></i> Bank Reference / IMPS / NEFT Ref No.:</label>
+                <input type="text" id="bankRefNo" class="form-control" placeholder="उदा. CMS/IMPS/592019482" maxlength="30">
+                <small style="color: #94a3b8; font-size: 0.78rem;">Bank account statement verification hetu transaction ID darj karein.</small>
               </div>
             </div>
 
@@ -509,6 +538,13 @@
           discount: parseFloat(document.getElementById('discount').value) || 0,
           paymentMode: document.getElementById('paymentMode') ? document.getElementById('paymentMode').value : 'Cash',
           offlineReceiptNo: document.getElementById('offlineReceiptNo') ? document.getElementById('offlineReceiptNo').value.trim() : '',
+          utr: document.getElementById('upiUtr') ? document.getElementById('upiUtr').value.trim() : '',
+          cardLast4: document.getElementById('cardLast4') ? document.getElementById('cardLast4').value.trim() : '',
+          transactionRef: (document.getElementById('paymentMode') && document.getElementById('paymentMode').value === 'Card')
+            ? (document.getElementById('cardApprovalCode') ? document.getElementById('cardApprovalCode').value.trim() : '')
+            : (document.getElementById('paymentMode') && document.getElementById('paymentMode').value === 'Bank Transfer')
+              ? (document.getElementById('bankRefNo') ? document.getElementById('bankRefNo').value.trim() : '')
+              : (document.getElementById('upiUtr') ? document.getElementById('upiUtr').value.trim() : ''),
           passengers
         };
 
@@ -532,6 +568,28 @@
         alert('Booking error: ' + err.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirm & Generate Travel Slip';
+      }
+    }
+
+    function togglePaymentRefFields() {
+      const mode = document.getElementById('paymentMode').value;
+      const grp = document.getElementById('paymentRefGroup');
+      const upiBox = document.getElementById('upiRefBox');
+      const cardBox = document.getElementById('cardRefBox');
+      const bankBox = document.getElementById('bankRefBox');
+
+      if (!grp || !upiBox || !cardBox || !bankBox) return;
+
+      if (mode === 'Cash') {
+        grp.style.display = 'none';
+        upiBox.style.display = 'none';
+        cardBox.style.display = 'none';
+        bankBox.style.display = 'none';
+      } else {
+        grp.style.display = 'block';
+        upiBox.style.display = mode === 'UPI' ? 'block' : 'none';
+        cardBox.style.display = mode === 'Card' ? 'block' : 'none';
+        bankBox.style.display = mode === 'Bank Transfer' ? 'block' : 'none';
       }
     }
 

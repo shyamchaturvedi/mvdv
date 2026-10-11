@@ -387,6 +387,9 @@ export default function App() {
   const [sameAsLeadDevotee, setSameAsLeadDevotee] = useState(false);
   const [advancePayment, setAdvancePayment] = useState(1000);
   const [bookingPaymentMode, setBookingPaymentMode] = useState('Cash');
+  const [paymentUtr, setPaymentUtr] = useState('');
+  const [paymentCardLast4, setPaymentCardLast4] = useState('');
+  const [paymentBankRef, setPaymentBankRef] = useState('');
   const [offlineReceiptNo, setOfflineReceiptNo] = useState('');
   const [discount, setDiscount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1299,6 +1302,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         advancePayment: Number(advancePayment),
         discount: Number(discount),
         paymentMode: bookingPaymentMode,
+        utr: paymentUtr.trim() || paymentBankRef.trim() || '',
+        cardLast4: paymentCardLast4.trim(),
+        transactionRef: (bookingPaymentMode === 'Card' && paymentCardLast4) 
+          ? `Card ending ${paymentCardLast4.trim()}` 
+          : (paymentUtr.trim() || paymentBankRef.trim() || ''),
         offlineReceiptNo: offlineReceiptNo,
         passengers
       };
@@ -5398,9 +5406,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 <label className="form-label">भुगतान माध्यम (Payment Mode):</label>
                                 <select className="form-control" value={bookingPaymentMode} onChange={(e) => setBookingPaymentMode(e.target.value)}>
                                   <option value="Cash">Cash (नकद)</option>
-                                  <option value="UPI">UPI (QR Code)</option>
-                                  <option value="Card">Credit/Debit Card</option>
-                                  <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
+                                  <option value="UPI">UPI (QR Code / PhonePe / GPay)</option>
+                                  <option value="Card">Credit/Debit Card (POS स्वाइप)</option>
+                                  <option value="Bank Transfer">Bank Transfer (NEFT / RTGS / IMPS)</option>
                                 </select>
                               </div>
                               <div className="form-group">
@@ -5414,6 +5422,82 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 />
                               </div>
                             </div>
+
+                            {/* Dynamic Payment Verification Fields for Admin Matching */}
+                            {bookingPaymentMode === 'UPI' && (
+                              <div style={{ background: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                                <label className="form-label" style={{ color: '#166534', fontWeight: 800 }}>
+                                  📱 UPI 12-अंकीय UTR / Ref No. (बैंक मिलान हेतु) *:
+                                </label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={paymentUtr}
+                                  onChange={(e) => setPaymentUtr(e.target.value)}
+                                  placeholder="उदा. 4287xxxxxxxx / GooglePay / PhonePe 12-अंकीय UTR"
+                                  style={{ background: '#FFFFFF', borderColor: '#22C55E' }}
+                                />
+                                <div style={{ fontSize: '0.74rem', color: '#15803D', marginTop: 4 }}>
+                                  💡 यह 12-अंकीय UTR नंबर ट्रस्ट बैंक खाते व स्टेटमेंट से ऑटो-मैच करने के लिए सुरक्षित किया जाएगा।
+                                </div>
+                              </div>
+                            )}
+
+                            {bookingPaymentMode === 'Card' && (
+                              <div style={{ background: '#EFF6FF', border: '1.5px solid #93C5FD', borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                                <div className="grid-2">
+                                  <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ color: '#1E40AF', fontWeight: 800 }}>
+                                      💳 डेबिट/क्रेडिट कार्ड अंतिम 4 अंक (Last 4 Digits) *:
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      value={paymentCardLast4}
+                                      onChange={(e) => setPaymentCardLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                      placeholder="उदा. 8492 (XXXX-XXXX-XXXX-8492)"
+                                      maxLength="4"
+                                      style={{ background: '#FFFFFF', borderColor: '#3B82F6' }}
+                                    />
+                                  </div>
+                                  <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label className="form-label" style={{ color: '#1E40AF', fontWeight: 800 }}>
+                                      POS स्वाइप स्लिप / अप्रूवल कोड (Approval Code / RRN):
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      value={paymentBankRef}
+                                      onChange={(e) => setPaymentBankRef(e.target.value)}
+                                      placeholder="उदा. RRN 598412 / Appr Code 0842"
+                                      style={{ background: '#FFFFFF', borderColor: '#3B82F6' }}
+                                    />
+                                  </div>
+                                </div>
+                                <div style={{ fontSize: '0.74rem', color: '#1D4ED8', marginTop: 4 }}>
+                                  💡 कार्ड के अंतिम 4 अंक POS मशीन स्वाइप स्लिप से ऑडिट व मिलान हेतु डेटाबेस में सेव रहेंगे।
+                                </div>
+                              </div>
+                            )}
+
+                            {bookingPaymentMode === 'Bank Transfer' && (
+                              <div style={{ background: '#FFFBEB', border: '1.5px solid #FCD34D', borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                                <label className="form-label" style={{ color: '#92400E', fontWeight: 800 }}>
+                                  🏦 बैंक लेनदेन संदर्भ क्र. (NEFT / RTGS / IMPS Ref No.) *:
+                                </label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={paymentBankRef}
+                                  onChange={(e) => setPaymentBankRef(e.target.value)}
+                                  placeholder="उदा. CMS58941258 / AXISN01284921 / IMPS Ref"
+                                  style={{ background: '#FFFFFF', borderColor: '#EAB308' }}
+                                />
+                                <div style={{ fontSize: '0.74rem', color: '#B45309', marginTop: 4 }}>
+                                  💡 बैंक ट्रांसफर का ट्रांजैक्शन नंबर ट्रस्ट के बैंक स्टेटमेंट से ऑडिट मिलान हेतु दर्ज रहेगा।
+                                </div>
+                              </div>
+                            )}
 
                             <div style={{
                               background: 'linear-gradient(90deg, #FFF0E5, #FFE4D0)',
@@ -5547,11 +5631,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                     <div>कुल: ₹ {b.totalAmount}</div>
                                     <div style={{ color: '#047857' }}>अग्रिम: ₹ {b.advance}</div>
                                     <div style={{ color: b.remainingAmount > 0 ? '#DC2626' : '#047857', fontWeight: 'bold' }}>शेष: ₹ {b.remainingAmount}</div>
+                                    <div style={{ fontSize: '0.74rem', color: '#4B5563', marginTop: 2 }}>
+                                      माध्यम: <strong>{b.paymentMode || 'Cash'}</strong>
+                                      {b.cardLast4 && <span style={{ color: '#2563EB', marginLeft: 4 }}>[Card ****{b.cardLast4}]</span>}
+                                    </div>
                                     {b.utrNumber && (
-                                      <div style={{ marginTop: 4, padding: 2, background: b.utrStatus === 'Verified' ? '#D1FAE5' : '#FEF3C7', borderRadius: 4, border: '1px solid #FDE68A' }}>
-                                        <span style={{ fontWeight: 600 }}>UTR:</span> {b.utrNumber}
-                                        <div style={{ fontSize: '0.75rem', color: b.utrStatus === 'Verified' ? '#047857' : '#D97706' }}>
-                                          {b.utrStatus === 'Verified' ? '✓ Verified' : 'Pending'}
+                                      <div style={{ marginTop: 4, padding: 3, background: b.utrStatus === 'Verified' ? '#D1FAE5' : '#FEF3C7', borderRadius: 4, border: '1px solid #FDE68A' }}>
+                                        <span style={{ fontWeight: 600 }}>Ref/UTR:</span> {b.utrNumber}
+                                        <div style={{ fontSize: '0.72rem', color: b.utrStatus === 'Verified' ? '#047857' : '#D97706', fontWeight: 600 }}>
+                                          {b.utrStatus === 'Verified' ? '✓ सत्यापित (Verified)' : '⏳ सत्यापन लंबित (Pending)'}
                                         </div>
                                       </div>
                                     )}

@@ -318,6 +318,10 @@ class BookingService {
       paymentStatus,
       status: 'Confirmed', // Confirmed | Cancelled
       paymentMode: payload.paymentMode || 'UPI',
+      utrNumber: payload.utr || payload.utrNumber || payload.transactionRef || '',
+      cardLast4: payload.cardLast4 || '',
+      transactionRef: payload.transactionRef || payload.utr || '',
+      utrStatus: (payload.utr || payload.transactionRef || payload.cardLast4) ? 'Pending' : undefined,
       paymentHistory: advance > 0 ? [{
         id: await BookingService.generateReceiptId(yatraYear),
         date: new Date().toISOString(),
@@ -325,7 +329,7 @@ class BookingService {
         method: payload.paymentMode || 'UPI',
         type: 'Advance Booking',
         cashierName: payload.cashierName || 'System',
-        utr: payload.utr || ''
+        utr: payload.utr || payload.utrNumber || payload.transactionRef || (payload.cardLast4 ? `Card ****${payload.cardLast4}` : '')
       }] : [],
       notes: payload.notes || 'Mata Vaishno Devi Yatra Special Booking',
       offlineReceiptNo: payload.offlineReceiptNo || '',
