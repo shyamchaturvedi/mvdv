@@ -272,7 +272,7 @@ export default function App() {
     return inEng(val) + ' Rupees Only';
   };
 
-  // High-fidelity direct print helper matching downloaded PDF
+  // High-fidelity direct print helper matching downloaded PDF (with dynamic A4 Full vs Half Layout)
   const printCombinedSlipElements = (elementId1, elementId2, docTitle = 'MVD Document', onComplete = null) => {
     const elem1 = document.getElementById(elementId1);
     const elem2 = document.getElementById(elementId2);
@@ -284,8 +284,28 @@ export default function App() {
       return;
     }
     
+    const isHalf = (projectSettings && projectSettings.printLayout === 'half');
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
-    const pageStyle = '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+    const pageStyle = isHalf
+      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 11px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+
+    const halfOverrides = isHalf ? `
+      .irctc-ticket-wrapper, .mandir-receipt-wrapper {
+        max-height: 140mm !important;
+        overflow: hidden !important;
+        padding: 2px !important;
+        margin-bottom: 2mm !important;
+        transform: scale(0.92);
+        transform-origin: top center;
+      }
+      .irctc-header-blue { padding: 4px 8px !important; font-size: 0.85rem !important; }
+      .irctc-grid-box { margin: 3px 6px !important; }
+      .irctc-pax-row, .irctc-pax-header { padding: 3px 6px !important; font-size: 0.68rem !important; }
+      .irctc-fare-grid { margin: 4px 6px !important; gap: 4px !important; }
+      .irctc-guidelines { margin: 4px 6px !important; padding: 4px 6px !important; font-size: 0.62rem !important; }
+      .irctc-footer-bar { padding: 4px 6px !important; font-size: 0.62rem !important; }
+    ` : '';
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -300,13 +320,14 @@ export default function App() {
             .no-print { display: none !important; }
             .irctc-ticket-wrapper, .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
             .mandir-receipt-wrapper { border: 2px solid #C2410C !important; page-break-before: always; margin-top: 10mm !important; }
+            ${halfOverrides}
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">
-          <div style="width: 100%; padding-bottom: 20px;">
+          <div style="width: 100%; padding-bottom: 10px;">
             ${elem1.outerHTML}
           </div>
-          <div style="page-break-before: always; width: 100%; padding-top: 20px;">
+          <div style="page-break-before: always; width: 100%; padding-top: 10px;">
             ${elem2.outerHTML}
           </div>
         </body>
@@ -333,8 +354,30 @@ export default function App() {
       window.print();
       return;
     }
+    const isHalf = (projectSettings && projectSettings.printLayout === 'half');
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
-    const pageStyle = '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+    const pageStyle = isHalf
+      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 11px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+
+    const halfOverrides = isHalf ? `
+      .irctc-ticket-wrapper, .mandir-receipt-wrapper {
+        max-height: 140mm !important;
+        overflow: hidden !important;
+        transform: scale(0.92);
+        transform-origin: top center;
+        margin: 0 auto !important;
+      }
+      .irctc-header-blue { padding: 4px 8px !important; font-size: 0.85rem !important; }
+      .irctc-grid-box { margin: 3px 6px !important; }
+      .irctc-pax-row, .irctc-pax-header { padding: 3px 6px !important; font-size: 0.68rem !important; }
+      .irctc-fare-grid { margin: 4px 6px !important; gap: 4px !important; }
+      .irctc-guidelines { margin: 4px 6px !important; padding: 4px 6px !important; font-size: 0.62rem !important; }
+      .irctc-footer-bar { padding: 4px 6px !important; font-size: 0.62rem !important; }
+      .mandir-receipt-card { padding: 10px !important; }
+      .receipt-header-banner { padding: 8px !important; margin-bottom: 8px !important; }
+      .receipt-meta-grid { padding: 6px !important; margin-bottom: 6px !important; }
+    ` : '';
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -349,6 +392,7 @@ export default function App() {
             .no-print { display: none !important; }
             .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
             .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
+            ${halfOverrides}
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">
@@ -490,7 +534,8 @@ export default function App() {
     helplineNumber: '+91 7398959993',
     officialEmail: 'infomatavaishnodevi@gmail.com',
     officeAddress: 'Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India',
-    sacredShlok: 'जय माता दी • ॐ श्री वैष्णवी नमः • निष्काम सेवा'
+    sacredShlok: 'जय माता दी • ॐ श्री वैष्णवी नमः • निष्काम सेवा',
+    printLayout: 'full' // 'full' (A4 Full) or 'half' (A4 Half)
   });
   const [projectSettingsLoading, setProjectSettingsLoading] = useState(false);
   const [projectSettingsSaving, setProjectSettingsSaving] = useState(false);
@@ -7170,17 +7215,110 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             </div>
                           </div>
 
-                          <div className="grid-2">
-                            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
+                          {/* 4. Ticket Print Settings: A4 Full vs A4 Half Page */}
+                          <div style={{ background: '#FFF8F2', border: '2px solid #FED7AA', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Printer size={20} color="#C2410C" />
+                                <div>
+                                  <strong style={{ color: '#9A3412', fontSize: '1.05rem' }}>4. टिकट एवं रसीद प्रिंट फॉर्मेट (Print Settings)</strong>
+                                  <div style={{ fontSize: '0.8rem', color: '#7C2D12' }}>प्रिंट करते समय A4 Full पेज या A4 Half (आधा पेज / 2 टिकट प्रति पेज) चुनें</div>
+                                </div>
+                              </div>
+                              <span className="badge badge-bhakti" style={{ fontSize: '0.8rem', padding: '4px 10px' }}>
+                                {projectSettings.printLayout === 'half' ? 'A4 Half Selected' : 'A4 Full Selected'}
+                              </span>
+                            </div>
+
+                            {/* Interactive Toggle Buttons for A4 Full vs Half */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginBottom: 14 }}>
+                              <div
+                                onClick={() => setProjectSettings({ ...projectSettings, printLayout: 'full' })}
+                                style={{
+                                  cursor: 'pointer',
+                                  padding: 14,
+                                  borderRadius: 10,
+                                  border: projectSettings.printLayout !== 'half' ? '2.5px solid #EA580C' : '1.5px solid #E2E8F0',
+                                  background: projectSettings.printLayout !== 'half' ? '#FFF' : '#F8FAFC',
+                                  boxShadow: projectSettings.printLayout !== 'half' ? '0 4px 14px rgba(234, 88, 12, 0.18)' : 'none',
+                                  transition: 'all 0.2s ease',
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  gap: 12
+                                }}
+                              >
+                                <div style={{
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: '50%',
+                                  border: '2px solid #EA580C',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginTop: 2,
+                                  background: projectSettings.printLayout !== 'half' ? '#EA580C' : '#FFF'
+                                }}>
+                                  {projectSettings.printLayout !== 'half' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#FFF' }} />}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 800, color: projectSettings.printLayout !== 'half' ? '#C2410C' : '#334155', fontSize: '0.95rem' }}>
+                                    📄 A4 Full Page (पूरा पेज)
+                                  </div>
+                                  <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: 3 }}>
+                                    विस्तृत लेआउट, बड़े फॉन्ट, संपूर्ण दिशा-निर्देश एवं स्पष्ट बारकोड/QR कोड।
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div
+                                onClick={() => setProjectSettings({ ...projectSettings, printLayout: 'half' })}
+                                style={{
+                                  cursor: 'pointer',
+                                  padding: 14,
+                                  borderRadius: 10,
+                                  border: projectSettings.printLayout === 'half' ? '2.5px solid #EA580C' : '1.5px solid #E2E8F0',
+                                  background: projectSettings.printLayout === 'half' ? '#FFF' : '#F8FAFC',
+                                  boxShadow: projectSettings.printLayout === 'half' ? '0 4px 14px rgba(234, 88, 12, 0.18)' : 'none',
+                                  transition: 'all 0.2s ease',
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  gap: 12
+                                }}
+                              >
+                                <div style={{
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: '50%',
+                                  border: '2px solid #EA580C',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginTop: 2,
+                                  background: projectSettings.printLayout === 'half' ? '#EA580C' : '#FFF'
+                                }}>
+                                  {projectSettings.printLayout === 'half' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#FFF' }} />}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 800, color: projectSettings.printLayout === 'half' ? '#C2410C' : '#334155', fontSize: '0.95rem' }}>
+                                    ✂️ A4 Half Page (आधा पेज / 148mm)
+                                  </div>
+                                  <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: 3 }}>
+                                    कॉम्पैक्ट साइज, कागज की बचत, एक A4 पेपर में 2 टिकट प्रिंट करने हेतु उपयुक्त।
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
                               <input
                                 type="checkbox"
                                 id="hideBerthNumber"
                                 checked={projectSettings.hideBerthNumber || false}
                                 onChange={e => setProjectSettings({ ...projectSettings, hideBerthNumber: e.target.checked })}
-                                style={{ width: 20, height: 20, cursor: 'pointer' }}
+                                style={{ width: 18, height: 18, cursor: 'pointer' }}
                               />
-                              <label htmlFor="hideBerthNumber" className="form-label" style={{ margin: 0, cursor: 'pointer', color: '#9A3412', fontWeight: 800 }}>
-                                टिकट पर बर्थ/सीट नंबर छिपाएं (सिर्फ कोच प्रिंट होगा)
+                              <label htmlFor="hideBerthNumber" className="form-label" style={{ margin: 0, cursor: 'pointer', color: '#9A3412', fontWeight: 700, fontSize: '0.85rem' }}>
+                                टिकट पर सीट/बर्थ नंबर छिपाएं (सिर्फ कोच नाम प्रिंट होगा)
                               </label>
                             </div>
                           </div>

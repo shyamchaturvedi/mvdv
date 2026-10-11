@@ -81,10 +81,11 @@ const DEFAULT_SETTINGS = {
     'Shri Mata Vaishno Devi Katra (SVDK)'
   ],
 
-  // Security & Audit
+  // Security & Audit & Print
   enablePublicPnrSearch: true,
   strictQrVerification: true,
   hideBerthNumber: false,
+  printLayout: 'full', // 'full' (A4 Full Page) or 'half' (A4 Half Page / Compact 148mm)
   updatedAt: new Date().toISOString()
 };
 

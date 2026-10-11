@@ -167,8 +167,73 @@
       .ticket-wrapper {
         box-shadow: none !important;
         border: 1px solid #000 !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
         max-width: 100% !important;
+      }
+
+      /* Half A4 Layout Page Specific Rules */
+      body.layout-half @page {
+        size: A4 portrait;
+        margin: 4mm 5mm !important;
+      }
+      body.layout-half .ticket-wrapper {
+        max-height: 142mm !important;
+        overflow: hidden !important;
+        border: 1.5px solid #000 !important;
+        transform: scale(0.92);
+        transform-origin: top center;
+      }
+      body.layout-half .ticket-header {
+        padding: 8px 12px !important;
+      }
+      body.layout-half .trust-title {
+        font-size: 1.15rem !important;
+      }
+      body.layout-half .mantra {
+        font-size: 0.72rem !important;
+        margin-bottom: 2px !important;
+      }
+      body.layout-half .yatra-banner {
+        font-size: 0.7rem !important;
+        margin-top: 2px !important;
+      }
+      body.layout-half .ticket-body {
+        padding: 10px 14px !important;
+      }
+      body.layout-half .ticket-grid {
+        gap: 8px !important;
+        margin-bottom: 8px !important;
+      }
+      body.layout-half .info-card {
+        padding: 6px 10px !important;
+      }
+      body.layout-half .route-bar {
+        padding: 6px 10px !important;
+        margin-bottom: 8px !important;
+      }
+      body.layout-half .pax-table {
+        margin-bottom: 8px !important;
+      }
+      body.layout-half .pax-table th, body.layout-half .pax-table td {
+        padding: 4px 6px !important;
+        font-size: 0.72rem !important;
+      }
+      body.layout-half .finance-grid {
+        padding: 8px 12px !important;
+        margin-bottom: 8px !important;
+        gap: 8px !important;
+      }
+      body.layout-half .upi-box {
+        padding: 4px !important;
+      }
+      body.layout-half .guidelines-box {
+        padding: 6px 10px !important;
+        font-size: 0.65rem !important;
+        line-height: 1.35 !important;
+      }
+      body.layout-half .ticket-footer {
+        padding: 6px 14px !important;
+        font-size: 0.68rem !important;
       }
     }
   </style>
@@ -194,12 +259,20 @@
   <!-- Actions Bar -->
   <div class="container actions-bar" style="padding-bottom: 0;">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-      <div>
+      <div style="display: flex; align-items: center; gap: 10px;">
         <span class="badge badge-paid" id="liveBadge">Verified Official Slip</span>
+        <div style="display: inline-flex; background: #FFF3E0; border: 1.5px solid #FFB74D; border-radius: 20px; padding: 2px;">
+          <button id="layoutFullBtn" onclick="setTicketPrintLayout('full')" style="border: none; background: #FF6F00; color: #FFF; font-weight: 700; font-size: 0.76rem; border-radius: 16px; padding: 4px 12px; cursor: pointer; transition: all 0.2s;">
+            📄 A4 Full
+          </button>
+          <button id="layoutHalfBtn" onclick="setTicketPrintLayout('half')" style="border: none; background: transparent; color: #9A3412; font-weight: 700; font-size: 0.76rem; border-radius: 16px; padding: 4px 12px; cursor: pointer; transition: all 0.2s;">
+            ✂️ A4 Half (आधा पेज)
+          </button>
+        </div>
       </div>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn btn-gold btn-sm" onclick="window.print()">
-          <i class="fa-solid fa-print"></i> Print Slip (A4)
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn btn-gold btn-sm" onclick="printTicketWithSelectedLayout()">
+          <i class="fa-solid fa-print"></i> <span id="printBtnLabel">Print Slip (A4 Full)</span>
         </button>
         <a id="pdfDownloadBtn" href="#" class="btn btn-primary btn-sm">
           <i class="fa-solid fa-file-pdf"></i> Download PDF
@@ -519,6 +592,58 @@
                    `Jai Mata Di! 🙏`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     }
+
+    let currentPrintLayout = 'full';
+
+    function setTicketPrintLayout(layout) {
+      currentPrintLayout = layout;
+      const fullBtn = document.getElementById('layoutFullBtn');
+      const halfBtn = document.getElementById('layoutHalfBtn');
+      const printBtnLabel = document.getElementById('printBtnLabel');
+
+      if (layout === 'half') {
+        document.body.classList.add('layout-half');
+        if (fullBtn) {
+          fullBtn.style.background = 'transparent';
+          fullBtn.style.color = '#9A3412';
+        }
+        if (halfBtn) {
+          halfBtn.style.background = '#FF6F00';
+          halfBtn.style.color = '#FFF';
+        }
+        if (printBtnLabel) printBtnLabel.textContent = 'Print Slip (A4 Half)';
+      } else {
+        document.body.classList.remove('layout-half');
+        if (fullBtn) {
+          fullBtn.style.background = '#FF6F00';
+          fullBtn.style.color = '#FFF';
+        }
+        if (halfBtn) {
+          halfBtn.style.background = 'transparent';
+          halfBtn.style.color = '#9A3412';
+        }
+        if (printBtnLabel) printBtnLabel.textContent = 'Print Slip (A4 Full)';
+      }
+    }
+
+    function printTicketWithSelectedLayout() {
+      if (currentPrintLayout === 'half') {
+        document.body.classList.add('layout-half');
+      } else {
+        document.body.classList.remove('layout-half');
+      }
+      window.print();
+    }
+
+    // Read default print setting from server config
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(d => {
+        if (d && d.settings && d.settings.printLayout) {
+          setTicketPrintLayout(d.settings.printLayout);
+        }
+      })
+      .catch(e => console.warn('Could not fetch print layout config:', e));
 
     loadTicket();
   </script>
