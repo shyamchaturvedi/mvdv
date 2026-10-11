@@ -5366,9 +5366,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               <div className="form-group">
                                 <label className="form-label">छूट / रियायत (Discount ₹):</label>
                                 <input type="number" className="form-control" value={discount} onChange={(e) => setDiscount(e.target.value)} min="0" />
+                              </div>
+                            </div>
 
-                            
-                            <div className="form-group" style={{ marginTop: '12px' }}>
+                            <div className="grid-2" style={{ marginTop: "12px", marginBottom: "16px" }}>
+                              <div className="form-group">
                                 <label className="form-label">भुगतान माध्यम (Payment Mode):</label>
                                 <select className="form-control" value={bookingPaymentMode} onChange={(e) => setBookingPaymentMode(e.target.value)}>
                                   <option value="Cash">Cash (नकद)</option>
@@ -5376,7 +5378,16 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   <option value="Card">Credit/Debit Card</option>
                                   <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
                                 </select>
-                            </div>
+                              </div>
+                              <div className="form-group">
+                                <label className="form-label">ऑफलाइन रसीद क्र. / रसीद संख्या (Manual Receipt No.):</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={offlineReceiptNo}
+                                  onChange={(e) => setOfflineReceiptNo(e.target.value)}
+                                  placeholder="उदा. Book 14, Sl 105 / R-2026-01"
+                                />
                               </div>
                             </div>
 
