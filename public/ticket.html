@@ -203,100 +203,105 @@
         margin-bottom: 12px !important;
       }
 
-      /* Half A4 Layout Page Specific Rules (Fits neatly within 138mm) */
-      body.layout-half @page {
-        size: A4 portrait;
-        margin: 3mm 4mm !important;
-      }
-      body.layout-half .ticket-wrapper {
-        border: 1.5px solid #000 !important;
-        margin: 0 auto !important;
-        max-width: 100% !important;
-        page-break-inside: avoid !important;
-        box-shadow: none !important;
-      }
-      body.layout-half .ticket-header {
-        padding: 5px 10px !important;
-      }
-      body.layout-half .trust-title {
-        font-size: 1rem !important;
-        letter-spacing: 0.01em !important;
-      }
-      body.layout-half .mantra {
-        font-size: 0.65rem !important;
-        margin-bottom: 1px !important;
-      }
-      body.layout-half .yatra-banner {
-        font-size: 0.65rem !important;
-        margin-top: 1px !important;
-      }
-      body.layout-half .ticket-body {
-        padding: 6px 10px !important;
-      }
-      body.layout-half .ticket-grid {
-        gap: 6px !important;
-        margin-bottom: 4px !important;
-      }
-      body.layout-half .info-card {
-        padding: 4px 6px !important;
-      }
-      body.layout-half .info-label {
-        font-size: 0.62rem !important;
-      }
-      body.layout-half .info-value {
-        font-size: 0.82rem !important;
-      }
-      body.layout-half #ticketPnr {
-        font-size: 1rem !important;
-      }
-      body.layout-half #ticketQrImage {
-        width: 60px !important;
-        height: 60px !important;
-      }
-      body.layout-half .route-bar {
-        padding: 4px 8px !important;
-        margin-bottom: 4px !important;
-      }
-      body.layout-half #ticketFromStation,
-      body.layout-half #ticketToStation {
-        font-size: 0.88rem !important;
-      }
-      body.layout-half .pax-table {
-        margin-bottom: 4px !important;
-      }
-      body.layout-half .pax-table th, body.layout-half .pax-table td {
-        padding: 2px 4px !important;
-        font-size: 0.66rem !important;
-      }
-      body.layout-half .finance-grid {
-        padding: 4px 8px !important;
-        margin-bottom: 4px !important;
-        gap: 6px !important;
-      }
-      body.layout-half .finance-grid h4 {
-        font-size: 0.72rem !important;
-        margin-bottom: 4px !important;
-      }
-      body.layout-half .finance-grid div {
-        font-size: 0.68rem !important;
-      }
-      body.layout-half .upi-box {
-        padding: 3px !important;
-      }
-      body.layout-half .upi-box img {
-        width: 50px !important;
-        height: 50px !important;
-      }
-      body.layout-half .guidelines-box {
-        padding: 3px 6px !important;
-        font-size: 0.58rem !important;
-        line-height: 1.25 !important;
-        margin-bottom: 4px !important;
-      }
-      body.layout-half .ticket-footer {
-        padding: 4px 8px !important;
-        font-size: 0.6rem !important;
-      }
+    }
+
+    /* Half A4 Layout Rules (Applied when A4 Half is selected) */
+    @page halfPage {
+      size: 210mm 148.5mm;
+      margin: 3mm 4mm;
+    }
+
+    body.layout-half {
+      font-size: 11px !important;
+    }
+    body.layout-half .ticket-wrapper {
+      max-width: 780px !important;
+      margin: 0 auto !important;
+      border: 1.5px solid #000 !important;
+      box-shadow: none !important;
+      page-break-inside: avoid !important;
+    }
+    body.layout-half .ticket-header {
+      padding: 5px 10px !important;
+    }
+    body.layout-half .trust-title {
+      font-size: 1rem !important;
+      letter-spacing: 0.01em !important;
+    }
+    body.layout-half .mantra {
+      font-size: 0.64rem !important;
+      margin-bottom: 1px !important;
+    }
+    body.layout-half .yatra-banner {
+      font-size: 0.65rem !important;
+      margin-top: 1px !important;
+    }
+    body.layout-half .ticket-body {
+      padding: 6px 10px !important;
+    }
+    body.layout-half .ticket-grid {
+      gap: 6px !important;
+      margin-bottom: 4px !important;
+    }
+    body.layout-half .info-card {
+      padding: 4px 6px !important;
+    }
+    body.layout-half .info-label {
+      font-size: 0.62rem !important;
+    }
+    body.layout-half .info-value {
+      font-size: 0.82rem !important;
+    }
+    body.layout-half #ticketPnr {
+      font-size: 1rem !important;
+    }
+    body.layout-half #ticketQrImage {
+      width: 55px !important;
+      height: 55px !important;
+    }
+    body.layout-half .route-bar {
+      padding: 4px 8px !important;
+      margin-bottom: 4px !important;
+    }
+    body.layout-half #ticketFromStation,
+    body.layout-half #ticketToStation {
+      font-size: 0.86rem !important;
+    }
+    body.layout-half .pax-table {
+      margin-bottom: 4px !important;
+    }
+    body.layout-half .pax-table th, body.layout-half .pax-table td {
+      padding: 2px 4px !important;
+      font-size: 0.66rem !important;
+    }
+    body.layout-half .finance-grid {
+      padding: 4px 8px !important;
+      margin-bottom: 4px !important;
+      gap: 6px !important;
+    }
+    body.layout-half .finance-grid h4 {
+      font-size: 0.72rem !important;
+      margin-bottom: 4px !important;
+    }
+    body.layout-half .finance-grid div {
+      font-size: 0.68rem !important;
+    }
+    body.layout-half .upi-box {
+      padding: 3px !important;
+    }
+    body.layout-half .upi-box img {
+      width: 48px !important;
+      height: 48px !important;
+    }
+    body.layout-half .guidelines-box {
+      padding: 3px 6px !important;
+      font-size: 0.58rem !important;
+      line-height: 1.25 !important;
+      margin-bottom: 4px !important;
+    }
+    body.layout-half .ticket-footer {
+      padding: 4px 8px !important;
+      font-size: 0.6rem !important;
     }
   </style>
 </head>

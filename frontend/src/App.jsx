@@ -326,10 +326,21 @@ export default function App() {
     }, 800);
   };
 
-  const printSlipElement = (elementId, docTitle = 'MVD Document', onComplete = null) => {
-    const isHalf = (ticketPrintLayout === 'half' || (projectSettings && projectSettings.printLayout === 'half'));
-    const actualElemId = (isHalf && elementId === 'irctc-ticket-print-area') ? 'irctc-ticket-half-area' : elementId;
-    const elem = document.getElementById(actualElemId) || document.getElementById(elementId);
+  const printSlipElement = (elementId, docTitle = 'MVD Document', onComplete = null, forcedLayout = null) => {
+    const activeLayout = forcedLayout || ticketPrintLayout || (projectSettings && projectSettings.printLayout) || 'full';
+    const isHalf = (activeLayout === 'half');
+    
+    // Determine the actual element ID to print
+    let targetElemId = elementId;
+    if (elementId === 'irctc-ticket-print-area') {
+      if (isHalf && document.getElementById('irctc-ticket-half-area')) {
+        targetElemId = 'irctc-ticket-half-area';
+      } else if (!isHalf && document.getElementById('irctc-ticket-print-area')) {
+        targetElemId = 'irctc-ticket-print-area';
+      }
+    }
+
+    const elem = document.getElementById(targetElemId) || document.getElementById(elementId);
     if (!elem) {
       window.print();
       return;
@@ -8657,7 +8668,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button 
                   className="btn btn-primary btn-sm" 
-                  onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
+                  onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
                   style={{ background: '#0284C7', borderColor: '#0369A1' }}
                 >
                   <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
@@ -9027,7 +9038,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               <button 
                 className="btn btn-primary btn-sm" 
                 style={{ flex: 1, background: '#0284C7', borderColor: '#0369A1' }} 
-                onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
+                onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
               >
                 <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
                 {ticketPrintLayout === 'half' ? 'टिकट प्रिंट (A4 Half)' : 'टिकट प्रिंट (A4 Full)'}
