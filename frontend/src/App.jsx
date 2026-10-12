@@ -247,9 +247,8 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stationsList, setStationsList] = useState(DEFAULT_ROUTE_STATIONS);
   const [posterModal, setPosterModal] = useState(false);
-  const [editYatriModal, setEditYatriModal] = useState(null);
-  const [cancelRefundModal, setCancelRefundModal] = useState(null);
   const [editReceiptModal, setEditReceiptModal] = useState(null);
+  const [ticketPrintLayout, setTicketPrintLayout] = useState('full'); // 'full' or 'half'
 
   // Indian Currency Number to Words
   const numberToWords = (num) => {
@@ -274,7 +273,9 @@ export default function App() {
 
   // High-fidelity direct print helper matching downloaded PDF (with dynamic A4 Full vs Half Layout)
   const printCombinedSlipElements = (elementId1, elementId2, docTitle = 'MVD Document', onComplete = null) => {
-    const elem1 = document.getElementById(elementId1);
+    const isHalf = (ticketPrintLayout === 'half' || (projectSettings && projectSettings.printLayout === 'half'));
+    const actualElem1Id = (isHalf && elementId1 === 'irctc-ticket-print-area') ? 'irctc-ticket-half-area' : elementId1;
+    const elem1 = document.getElementById(actualElem1Id) || document.getElementById(elementId1);
     const elem2 = document.getElementById(elementId2);
     if (!elem1 || !elem2) return;
     
@@ -284,28 +285,10 @@ export default function App() {
       return;
     }
     
-    const isHalf = (projectSettings && projectSettings.printLayout === 'half');
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     const pageStyle = isHalf
-      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 11px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
       : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
-
-    const halfOverrides = isHalf ? `
-      .irctc-ticket-wrapper, .mandir-receipt-wrapper {
-        max-height: 140mm !important;
-        overflow: hidden !important;
-        padding: 2px !important;
-        margin-bottom: 2mm !important;
-        transform: scale(0.92);
-        transform-origin: top center;
-      }
-      .irctc-header-blue { padding: 4px 8px !important; font-size: 0.85rem !important; }
-      .irctc-grid-box { margin: 3px 6px !important; }
-      .irctc-pax-row, .irctc-pax-header { padding: 3px 6px !important; font-size: 0.68rem !important; }
-      .irctc-fare-grid { margin: 4px 6px !important; gap: 4px !important; }
-      .irctc-guidelines { margin: 4px 6px !important; padding: 4px 6px !important; font-size: 0.62rem !important; }
-      .irctc-footer-bar { padding: 4px 6px !important; font-size: 0.62rem !important; }
-    ` : '';
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -318,9 +301,8 @@ export default function App() {
             * { box-sizing: border-box; }
             @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
             .no-print { display: none !important; }
-            .irctc-ticket-wrapper, .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
+            .irctc-ticket-wrapper, .irctc-ticket-half-wrapper, .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
             .mandir-receipt-wrapper { border: 2px solid #C2410C !important; page-break-before: always; margin-top: 10mm !important; }
-            ${halfOverrides}
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">
@@ -342,42 +324,23 @@ export default function App() {
     }, 800);
   };
 
-  const printSlipElement = (elementId, docTitle = 'MVD Document') => {
-    const elem = document.getElementById(elementId);
+  const printSlipElement = (elementId, docTitle = 'MVD Document', onComplete = null) => {
+    const isHalf = (ticketPrintLayout === 'half' || (projectSettings && projectSettings.printLayout === 'half'));
+    const actualElemId = (isHalf && elementId === 'irctc-ticket-print-area') ? 'irctc-ticket-half-area' : elementId;
+    const elem = document.getElementById(actualElemId) || document.getElementById(elementId);
     if (!elem) {
       window.print();
       return;
     }
-    const isReceipt = elementId.includes('receipt');
     const printWindow = window.open('', '_blank', 'width=950,height=800');
     if (!printWindow) {
       window.print();
       return;
     }
-    const isHalf = (projectSettings && projectSettings.printLayout === 'half');
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     const pageStyle = isHalf
-      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 11px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
       : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
-
-    const halfOverrides = isHalf ? `
-      .irctc-ticket-wrapper, .mandir-receipt-wrapper {
-        max-height: 140mm !important;
-        overflow: hidden !important;
-        transform: scale(0.92);
-        transform-origin: top center;
-        margin: 0 auto !important;
-      }
-      .irctc-header-blue { padding: 4px 8px !important; font-size: 0.85rem !important; }
-      .irctc-grid-box { margin: 3px 6px !important; }
-      .irctc-pax-row, .irctc-pax-header { padding: 3px 6px !important; font-size: 0.68rem !important; }
-      .irctc-fare-grid { margin: 4px 6px !important; gap: 4px !important; }
-      .irctc-guidelines { margin: 4px 6px !important; padding: 4px 6px !important; font-size: 0.62rem !important; }
-      .irctc-footer-bar { padding: 4px 6px !important; font-size: 0.62rem !important; }
-      .mandir-receipt-card { padding: 10px !important; }
-      .receipt-header-banner { padding: 8px !important; margin-bottom: 8px !important; }
-      .receipt-meta-grid { padding: 6px !important; margin-bottom: 6px !important; }
-    ` : '';
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -390,9 +353,8 @@ export default function App() {
             * { box-sizing: border-box; margin: 0; padding: 0; }
             @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
             .no-print { display: none !important; }
-            .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
+            .irctc-ticket-wrapper, .irctc-ticket-half-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
             .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
-            ${halfOverrides}
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">
@@ -8646,94 +8608,118 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 840, padding: 16, border: '2px solid #0284C7', background: '#F8FAFC' }}>
             
             {/* Top Toolbar (No-Print) */}
-            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, borderBottom: '1.5px solid #BAE6FD', paddingBottom: 10 }}>
-              <span className="badge badge-bhakti" style={{ background: '#0284C7', color: '#FFFFFF', borderColor: '#0369A1' }}>
-                <Ticket size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
-                इलेक्ट्रॉनिक रिजर्वेशन स्लिप (IRCTC ERS Travel Pass Preview)
-              </span>
+            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, borderBottom: '1.5px solid #BAE6FD', paddingBottom: 10, flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="badge badge-bhakti" style={{ background: '#0284C7', color: '#FFFFFF', borderColor: '#0369A1' }}>
+                  <Ticket size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                  इलेक्ट्रॉनिक रिजर्वेशन स्लिप (IRCTC ERS Travel Pass)
+                </span>
+                
+                {/* Format Selector: A4 Full vs Dedicated A4 Half */}
+                <div style={{ display: 'inline-flex', background: '#E0F2FE', border: '1.5px solid #7DD3FC', borderRadius: 20, padding: 2 }}>
+                  <button 
+                    onClick={() => setTicketPrintLayout('full')}
+                    style={{
+                      border: 'none',
+                      background: ticketPrintLayout !== 'half' ? '#0284C7' : 'transparent',
+                      color: ticketPrintLayout !== 'half' ? '#FFF' : '#0369A1',
+                      fontWeight: 700,
+                      fontSize: '0.74rem',
+                      borderRadius: 16,
+                      padding: '4px 12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    📄 A4 Full
+                  </button>
+                  <button 
+                    onClick={() => setTicketPrintLayout('half')}
+                    style={{
+                      border: 'none',
+                      background: ticketPrintLayout === 'half' ? '#0284C7' : 'transparent',
+                      color: ticketPrintLayout === 'half' ? '#FFF' : '#0369A1',
+                      fontWeight: 700,
+                      fontSize: '0.74rem',
+                      borderRadius: 16,
+                      padding: '4px 12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    ✂️ A4 Half (आधा पेज)
+                  </button>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button 
                   className="btn btn-primary btn-sm" 
                   onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
                   style={{ background: '#0284C7', borderColor: '#0369A1' }}
                 >
-                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट / Save PDF
+                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                  {ticketPrintLayout === 'half' ? 'प्रिंट (A4 Half)' : 'प्रिंट (A4 Full)'}
                 </button>
                 
                 <button onClick={() => setTicketModal(null)} style={{ background: 'none', border: 'none', color: '#0369A1', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
               </div>
             </div>
 
-            {/* Exact IRCTC ERS Ticket Canvas (Identical to Downloaded PDF) */}
-            <div id="irctc-ticket-print-area" className="irctc-ticket-wrapper" style={{ position: 'relative' }}>
-              
-              {/* Header 1: Blue Bar */}
-              <div className="irctc-header-blue">
-                <div style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.02em' }}>SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST</div>
-                <div style={{ fontSize: '0.78rem', color: '#BAE6FD', marginTop: 2 }}>YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN</div>
-                <div style={{ fontSize: '0.74rem', color: '#FDE047', fontWeight: 700, marginTop: 3 }}>ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)</div>
-              </div>
-
-              {/* Subheader: PNR, Quota, Batch */}
-              <div className="irctc-sub-bar">
-                <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>PNR / BOOKING ID:</span> <strong style={{ color: '#DC2626', fontSize: '0.95rem', marginLeft: 4 }}>{ticketModal.bookingId}</strong></div>
-                <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>QUOTA:</span> <strong style={{ color: '#0284C7', marginLeft: 4 }}>PILGRIM TRUST (PT)</strong></div>
-                <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>YATRA BATCH:</span> <strong style={{ color: '#1E293B', marginLeft: 4 }}>{ticketModal.yatraYear || '2026'}</strong></div>
-              </div>
-
-              {/* Journey Details Grid */}
-              <div className="irctc-grid-box">
-                <div className="irctc-grid-row">
-                  <div>
-                    <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Train Number & Name</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>04201 / MVD YATRA SPECIAL</div>
+            {/* Layout 1: Dedicated A4 Half Ticket (Fits <= 138mm cleanly) */}
+            {ticketPrintLayout === 'half' ? (
+              <div id="irctc-ticket-half-area" className="irctc-ticket-half-wrapper" style={{ position: 'relative' }}>
+                {/* 1. Header */}
+                <div className="irctc-half-header">
+                  <div style={{ fontSize: '0.98rem', fontWeight: 800, letterSpacing: '0.02em', lineHeight: 1.2 }}>
+                    SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Class</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{ticketModal.travelClass || 'Sleeper'}</div>
+                  <div style={{ fontSize: '0.66rem', color: '#FDE047', fontWeight: 700, marginTop: 1 }}>
+                    ERS TRAVEL PASS • YATRA SPECIAL EXPRESS (A4 HALF COMPACT)
                   </div>
+                </div>
+
+                {/* 2. Subbar: PNR, Quota, Batch */}
+                <div className="irctc-half-subbar">
+                  <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>PNR:</span> <strong style={{ color: '#DC2626', fontSize: '0.86rem', marginLeft: 4 }}>{ticketModal.bookingId}</strong></div>
+                  <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>QUOTA:</span> <strong style={{ color: '#0284C7' }}>PILGRIM TRUST</strong></div>
+                  <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>BATCH:</span> <strong>{ticketModal.yatraYear || '2026'}</strong></div>
+                </div>
+
+                {/* 3. Train & Seat Summary */}
+                <div className="irctc-half-trainbar">
+                  <div><strong>04201 / MVD SPECIAL</strong> ({ticketModal.travelClass || 'Sleeper'})</div>
+                  <div style={{ color: '#0284C7', fontWeight: 800 }}>
+                    Coach {ticketModal.coachName || 'S1'} {!(projectSettings && projectSettings.hideBerthNumber) && `: Seat [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
+                  </div>
+                  <div><strong>Date:</strong> {ticketModal.travelDate || projectSettings?.defaultTravelDate || '2026-10-15'}</div>
+                </div>
+
+                {/* 4. Origin & Destination */}
+                <div className="irctc-half-routebar">
                   <div>
-                    <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Coach / Assigned Seats</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0284C7' }}>
-                      Coach {ticketModal.coachName || 'S1'} {!(projectSettings && projectSettings.hideBerthNumber) && `: Berths [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
+                    <div style={{ fontSize: '0.6rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>From Boarding</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#C2410C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {ticketModal.fromStation || projectSettings?.routeStations?.[0] || 'Lucknow Charbagh (LKO)'}
+                    </div>
+                  </div>
+                  <div style={{ padding: '0 8px', color: '#0284C7', fontWeight: 900, fontSize: '0.85rem' }}>➔</div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.6rem', color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>To Terminus</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#15803D', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {ticketModal.toStation || 'Shri Mata Vaishno Devi Katra (SVDK)'}
                     </div>
                   </div>
                 </div>
-                <div style={{ borderTop: '1px solid #E2E8F0' }}></div>
-                <div className="irctc-grid-row">
-                  <div>
-                    <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>From Station</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#C2410C' }}>{ticketModal.fromStation || projectSettings?.routeStations?.[0] || 'Lucknow Charbagh (LKO)'}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>To Destination</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#15803D' }}>{ticketModal.toStation || 'Shri Mata Vaishno Devi Katra (SVDK)'}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Date of Journey</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{ticketModal.travelDate || projectSettings?.defaultTravelDate || '2026-10-15'}</div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Devotee Contact Bar */}
-              <div className="irctc-contact-row">
-                <div><span style={{ color: '#475569', fontWeight: 700 }}>Booked By:</span> <strong style={{ color: '#0F172A', marginLeft: 4 }}>{ticketModal.bookedBy || 'Devotee'}</strong></div>
-                <div><span style={{ color: '#475569', fontWeight: 700 }}>Mobile:</span> <span style={{ color: '#0F172A', marginLeft: 4 }}>{ticketModal.mobile || 'N/A'}</span></div>
-                <div><span style={{ color: '#475569', fontWeight: 700 }}>Aadhaar / ID:</span> <span style={{ color: '#0F172A', marginLeft: 4 }}>{ticketModal.aadhar || 'Verified at Station'}</span></div>
-              </div>
-
-              {/* Passenger Roster Table */}
-              <div style={{ margin: '8px 14px' }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0C4A6E', marginBottom: 4 }}>PASSENGER DETAILS</div>
-                <div style={{ border: '1px solid #CBD5E1', borderRadius: 4, overflow: 'hidden' }}>
-                  <div className="irctc-pax-header">
+                {/* 5. Passenger Roster */}
+                <div className="irctc-half-pax-box">
+                  <div className="irctc-half-pax-head">
                     <div>#</div>
                     <div>Passenger Name</div>
-                    <div>Age / Gender</div>
-                    <div>Booking Status</div>
-                    <div>Current Status</div>
-                    <div>Coach / {!(projectSettings && projectSettings.hideBerthNumber) ? 'Berth / Type' : 'Type'}</div>
+                    <div>Age / Gen</div>
+                    <div>Status</div>
+                    <div>Coach / Seat</div>
                   </div>
                   {(ticketModal.passengers && ticketModal.passengers.length > 0
                     ? ticketModal.passengers
@@ -8741,119 +8727,274 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   ).map((p, idx) => {
                     const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber[idx] : idx + 1);
                     const isCancelled = ticketModal.status === 'Cancelled';
-                    const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
-                    const statusColor = isCancelled ? '#DC2626' : '#16A34A';
                     return (
-                      <div key={idx} className="irctc-pax-row">
-                        <div style={{ color: '#475569' }}>{idx + 1}</div>
-                        <div style={{ fontWeight: 700, color: '#0F172A' }}>{p.name || 'Passenger'}</div>
+                      <div key={idx} className="irctc-half-pax-row">
+                        <div style={{ color: '#64748B' }}>{idx + 1}</div>
+                        <div style={{ fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name || 'Passenger'}</div>
                         <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
-                        <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
-                        <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
-                        <div style={{ color: '#0284C7', fontWeight: 700 }}>{ticketModal.coachName || 'S1'} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}</div>
+                        <div style={{ color: isCancelled ? '#DC2626' : '#16A34A', fontWeight: 700 }}>{isCancelled ? 'CANCELLED' : 'CNF'}</div>
+                        <div style={{ color: '#0284C7', fontWeight: 700 }}>
+                          {ticketModal.coachName || 'S1'} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${p.berthPreference || 'B'})` : (p.berthPreference || 'Berth')}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
 
-              {/* Fare & Anti-Tamper Security QR Grid */}
-              <div className="irctc-fare-grid">
-                <div className="irctc-fare-table">
-                  <div className="irctc-fare-header" style={{ background: '#0F172A', color: '#FFF', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 700 }}>
-                    FARE & PAYMENT DETAILS
-                  </div>
-                  <div style={{ padding: '6px 10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0' }}>
-                      <span style={{ color: '#475569' }}>Ticket Fare Amount:</span>
-                      <strong>₹ {parseFloat(ticketModal.totalAmount || 0).toFixed(2)}</strong>
+                {/* 6. Compact Bottom: Fare & Security QR */}
+                <div className="irctc-half-bottom">
+                  <div className="irctc-half-fare">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
+                      <span>Fare: <strong>₹{parseFloat(ticketModal.totalAmount || 0).toFixed(0)}</strong></span>
+                      <span style={{ color: '#16A34A' }}>Adv: <strong>₹{parseFloat(ticketModal.advance || 0).toFixed(0)}</strong></span>
+                      <span>Due: <strong style={{ color: ticketModal.remainingAmount > 0 ? '#DC2626' : '#16A34A' }}>₹{parseFloat(ticketModal.remainingAmount || 0).toFixed(0)}</strong></span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0' }}>
-                      <span style={{ color: '#475569' }}>Trust Discount / Concession:</span>
-                      <span>₹ {parseFloat(ticketModal.discount || 0).toFixed(2)}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0', color: '#16A34A' }}>
-                      <span>Advance Paid:</span>
-                      <strong>₹ {parseFloat(ticketModal.advance || 0).toFixed(2)}</strong>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '3px 0', borderTop: '1px solid #E2E8F0', marginTop: 3 }}>
-                      <span style={{ fontWeight: 700 }}>Balance Due at Boarding:</span>
-                      <strong style={{ color: ticketModal.remainingAmount > 0 ? '#DC2626' : '#16A34A' }}>
-                        ₹ {parseFloat(ticketModal.remainingAmount || 0).toFixed(2)}
-                      </strong>
-                    </div>
-                    <div style={{ marginTop: 5, textAlign: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 3, borderTop: '1px solid #E2E8F0', paddingTop: 2 }}>
+                      <span style={{ fontSize: '0.68rem', color: '#475569' }}>Booked: <strong>{ticketModal.bookedBy || 'Devotee'}</strong> ({ticketModal.mobile || 'N/A'})</span>
                       <span style={{
-                        display: 'inline-block',
                         background: ticketModal.paymentStatus === 'Paid' ? '#16A34A' : (ticketModal.paymentStatus === 'Partial' ? '#EA580C' : '#DC2626'),
                         color: '#FFF',
-                        fontSize: '0.7rem',
+                        fontSize: '0.62rem',
                         fontWeight: 700,
-                        padding: '3px 12px',
-                        borderRadius: 3,
-                        width: '100%'
+                        padding: '1px 6px',
+                        borderRadius: 2
                       }}>
-                        PAYMENT: {(ticketModal.paymentStatus || 'UNPAID').toUpperCase()}
+                        {(ticketModal.paymentStatus || 'UNPAID').toUpperCase()}
                       </span>
                     </div>
                   </div>
-                </div>
 
-                {/* QR Code & Sec Hash Card */}
-                <div className="irctc-qr-card">
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(`${window.location.origin}/verify-ticket.html?pnr=${ticketModal.bookingId}`)}`}
-                    alt="Anti-Fraud Ticket QR"
-                    style={{ width: 75, height: 75, margin: '0 auto', display: 'block' }}
-                  />
-                  <div style={{ fontSize: '0.62rem', color: '#DC2626', fontWeight: 800, marginTop: 4 }}>ANTI-TAMPER SEC HASH:</div>
-                  <div style={{ fontSize: '0.68rem', fontFamily: 'monospace', fontWeight: 700, color: '#0F172A' }}>
-                    MVD-{ticketModal.bookingId.replace(/[^0-9]/g, '').slice(-8) || '2026'}
+                  <div className="irctc-half-qr">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent(`${window.location.origin}/verify-ticket.html?pnr=${ticketModal.bookingId}`)}`}
+                      alt="QR"
+                      style={{ width: 50, height: 50, display: 'block' }}
+                    />
+                    <div style={{ fontSize: '0.55rem', color: '#DC2626', fontWeight: 800, marginTop: 1 }}>VERIFY QR</div>
                   </div>
                 </div>
-              </div>
 
-              {/* Guidelines Box */}
-              <div className="irctc-guidelines">
-                <div style={{ fontWeight: 800, color: '#92400E', marginBottom: 3 }}>IMPORTANT PASSENGER INSTRUCTIONS & TRAVEL GUIDELINES:</div>
-                <div>1. Carry this Electronic Reservation Slip (ERS) along with original Government ID (Aadhaar / Voter ID / DL) during journey.</div>
-                <div>2. Reporting at boarding station is mandatory at least 45 minutes prior to scheduled train departure.</div>
-                <div>3. Mandatory RFID Yatra Registration Card must be collected at Katra base before commencing the Mata Vaishno Devi Bhawan trek.</div>
-                <div>4. Any remaining balance dues must be cleared with authorized Trust volunteers before boarding.</div>
-                <div>5. For medical emergency or coach assistance, contact Trust Helpline: +91 7398959993 or Train Captain.</div>
-              </div>
-
-              {/* Signatures & Footer */}
-              <div className="irctc-footer-bar">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <div>Helpline: +91 7398959993 • Support: iammshyam@gmail.com</div>
-                  <div style={{ color: '#047857', fontWeight: 'bold' }}>*Digitally Signed (No Signature Required)*</div>
+                {/* 7. Guidelines */}
+                <div className="irctc-half-guidelines">
+                  <strong>GUIDELINES:</strong> Carry original Govt ID (Aadhaar). Report station 45m before departure. Collect RFID Yatra Card at Katra base. Helpline: +91 7398959993.
                 </div>
-                <div style={{ color: '#0284C7', fontWeight: 700 }}>Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)</div>
-                <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol</div>
-              </div>
 
-              {/* Watermark if Cancelled */}
-              {ticketModal.status === 'Cancelled' && (
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%) rotate(-25deg)',
-                  fontSize: '3.5rem',
-                  fontWeight: 900,
-                  color: 'rgba(239, 68, 68, 0.25)',
-                  border: '6px dashed rgba(239, 68, 68, 0.35)',
-                  padding: '10px 40px',
-                  borderRadius: 12,
-                  pointerEvents: 'none',
-                  textTransform: 'uppercase',
-                  whiteSpace: 'nowrap'
-                }}>
-                  CANCELLED / RADD
+                {/* 8. Footer */}
+                <div className="irctc-half-footer">
+                  Trust Helpline: +91 7398959993 • Digitally Signed Official ERS Pass • Software by ArovenTech
                 </div>
-              )}
-            </div>
+
+                {/* Cancelled Stamp */}
+                {ticketModal.status === 'Cancelled' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-25deg)',
+                    fontSize: '2.5rem',
+                    fontWeight: 900,
+                    color: 'rgba(239, 68, 68, 0.3)',
+                    border: '4px dashed rgba(239, 68, 68, 0.4)',
+                    padding: '6px 25px',
+                    borderRadius: 8,
+                    pointerEvents: 'none'
+                  }}>
+                    CANCELLED
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Layout 2: Exact IRCTC ERS Ticket Canvas (Full A4 Format) */
+              <div id="irctc-ticket-print-area" className="irctc-ticket-wrapper" style={{ position: 'relative' }}>
+                
+                {/* Header 1: Blue Bar */}
+                <div className="irctc-header-blue">
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.02em' }}>SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST</div>
+                  <div style={{ fontSize: '0.78rem', color: '#BAE6FD', marginTop: 2 }}>YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN</div>
+                  <div style={{ fontSize: '0.74rem', color: '#FDE047', fontWeight: 700, marginTop: 3 }}>ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)</div>
+                </div>
+
+                {/* Subheader: PNR, Quota, Batch */}
+                <div className="irctc-sub-bar">
+                  <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>PNR / BOOKING ID:</span> <strong style={{ color: '#DC2626', fontSize: '0.95rem', marginLeft: 4 }}>{ticketModal.bookingId}</strong></div>
+                  <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>QUOTA:</span> <strong style={{ color: '#0284C7', marginLeft: 4 }}>PILGRIM TRUST (PT)</strong></div>
+                  <div><span style={{ color: '#0C4A6E', fontWeight: 700 }}>YATRA BATCH:</span> <strong style={{ color: '#1E293B', marginLeft: 4 }}>{ticketModal.yatraYear || '2026'}</strong></div>
+                </div>
+
+                {/* Journey Details Grid */}
+                <div className="irctc-grid-box">
+                  <div className="irctc-grid-row">
+                    <div>
+                      <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Train Number & Name</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>04201 / MVD YATRA SPECIAL</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Class</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{ticketModal.travelClass || 'Sleeper'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Coach / Assigned Seats</div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0284C7' }}>
+                        Coach {ticketModal.coachName || 'S1'} {!(projectSettings && projectSettings.hideBerthNumber) && `: Berths [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid #E2E8F0' }}></div>
+                  <div className="irctc-grid-row">
+                    <div>
+                      <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>From Station</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#C2410C' }}>{ticketModal.fromStation || projectSettings?.routeStations?.[0] || 'Lucknow Charbagh (LKO)'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>To Destination</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#15803D' }}>{ticketModal.toStation || 'Shri Mata Vaishno Devi Katra (SVDK)'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Date of Journey</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{ticketModal.travelDate || projectSettings?.defaultTravelDate || '2026-10-15'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Devotee Contact Bar */}
+                <div className="irctc-contact-row">
+                  <div><span style={{ color: '#475569', fontWeight: 700 }}>Booked By:</span> <strong style={{ color: '#0F172A', marginLeft: 4 }}>{ticketModal.bookedBy || 'Devotee'}</strong></div>
+                  <div><span style={{ color: '#475569', fontWeight: 700 }}>Mobile:</span> <span style={{ color: '#0F172A', marginLeft: 4 }}>{ticketModal.mobile || 'N/A'}</span></div>
+                  <div><span style={{ color: '#475569', fontWeight: 700 }}>Aadhaar / ID:</span> <span style={{ color: '#0F172A', marginLeft: 4 }}>{ticketModal.aadhar || 'Verified at Station'}</span></div>
+                </div>
+
+                {/* Passenger Roster Table */}
+                <div style={{ margin: '8px 14px' }}>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0C4A6E', marginBottom: 4 }}>PASSENGER DETAILS</div>
+                  <div style={{ border: '1px solid #CBD5E1', borderRadius: 4, overflow: 'hidden' }}>
+                    <div className="irctc-pax-header">
+                      <div>#</div>
+                      <div>Passenger Name</div>
+                      <div>Age / Gender</div>
+                      <div>Booking Status</div>
+                      <div>Current Status</div>
+                      <div>Coach / {!(projectSettings && projectSettings.hideBerthNumber) ? 'Berth / Type' : 'Type'}</div>
+                    </div>
+                    {(ticketModal.passengers && ticketModal.passengers.length > 0
+                      ? ticketModal.passengers
+                      : [{ name: ticketModal.bookedBy, age: '-', gender: '-', aadhar: ticketModal.aadhar, seatAssigned: (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber), berthPreference: 'Berth' }]
+                    ).map((p, idx) => {
+                      const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber[idx] : idx + 1);
+                      const isCancelled = ticketModal.status === 'Cancelled';
+                      const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
+                      const statusColor = isCancelled ? '#DC2626' : '#16A34A';
+                      return (
+                        <div key={idx} className="irctc-pax-row">
+                          <div style={{ color: '#475569' }}>{idx + 1}</div>
+                          <div style={{ fontWeight: 700, color: '#0F172A' }}>{p.name || 'Passenger'}</div>
+                          <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
+                          <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
+                          <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
+                          <div style={{ color: '#0284C7', fontWeight: 700 }}>{ticketModal.coachName || 'S1'} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Fare & Anti-Tamper Security QR Grid */}
+                <div className="irctc-fare-grid">
+                  <div className="irctc-fare-table">
+                    <div className="irctc-fare-header" style={{ background: '#0F172A', color: '#FFF', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 700 }}>
+                      FARE & PAYMENT DETAILS
+                    </div>
+                    <div style={{ padding: '6px 10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0' }}>
+                        <span style={{ color: '#475569' }}>Ticket Fare Amount:</span>
+                        <strong>₹ {parseFloat(ticketModal.totalAmount || 0).toFixed(2)}</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0' }}>
+                        <span style={{ color: '#475569' }}>Trust Discount / Concession:</span>
+                        <span>₹ {parseFloat(ticketModal.discount || 0).toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', padding: '2px 0', color: '#16A34A' }}>
+                        <span>Advance Paid:</span>
+                        <strong>₹ {parseFloat(ticketModal.advance || 0).toFixed(2)}</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '3px 0', borderTop: '1px solid #E2E8F0', marginTop: 3 }}>
+                        <span style={{ fontWeight: 700 }}>Balance Due at Boarding:</span>
+                        <strong style={{ color: ticketModal.remainingAmount > 0 ? '#DC2626' : '#16A34A' }}>
+                          ₹ {parseFloat(ticketModal.remainingAmount || 0).toFixed(2)}
+                        </strong>
+                      </div>
+                      <div style={{ marginTop: 5, textAlign: 'center' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          background: ticketModal.paymentStatus === 'Paid' ? '#16A34A' : (ticketModal.paymentStatus === 'Partial' ? '#EA580C' : '#DC2626'),
+                          color: '#FFF',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          padding: '3px 12px',
+                          borderRadius: 3,
+                          width: '100%'
+                        }}>
+                          PAYMENT: {(ticketModal.paymentStatus || 'UNPAID').toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* QR Code & Sec Hash Card */}
+                  <div className="irctc-qr-card">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(`${window.location.origin}/verify-ticket.html?pnr=${ticketModal.bookingId}`)}`}
+                      alt="Anti-Fraud Ticket QR"
+                      style={{ width: 75, height: 75, margin: '0 auto', display: 'block' }}
+                    />
+                    <div style={{ fontSize: '0.62rem', color: '#DC2626', fontWeight: 800, marginTop: 4 }}>ANTI-TAMPER SEC HASH:</div>
+                    <div style={{ fontSize: '0.68rem', fontFamily: 'monospace', fontWeight: 700, color: '#0F172A' }}>
+                      MVD-{ticketModal.bookingId.replace(/[^0-9]/g, '').slice(-8) || '2026'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guidelines Box */}
+                <div className="irctc-guidelines">
+                  <div style={{ fontWeight: 800, color: '#92400E', marginBottom: 3 }}>IMPORTANT PASSENGER INSTRUCTIONS & TRAVEL GUIDELINES:</div>
+                  <div>1. Carry this Electronic Reservation Slip (ERS) along with original Government ID (Aadhaar / Voter ID / DL) during journey.</div>
+                  <div>2. Reporting at boarding station is mandatory at least 45 minutes prior to scheduled train departure.</div>
+                  <div>3. Mandatory RFID Yatra Registration Card must be collected at Katra base before commencing the Mata Vaishno Devi Bhawan trek.</div>
+                  <div>4. Any remaining balance dues must be cleared with authorized Trust volunteers before boarding.</div>
+                  <div>5. For medical emergency or coach assistance, contact Trust Helpline: +91 7398959993 or Train Captain.</div>
+                </div>
+
+                {/* Signatures & Footer */}
+                <div className="irctc-footer-bar">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <div>Helpline: +91 7398959993 • Support: iammshyam@gmail.com</div>
+                    <div style={{ color: '#047857', fontWeight: 'bold' }}>*Digitally Signed (No Signature Required)*</div>
+                  </div>
+                  <div style={{ color: '#0284C7', fontWeight: 700 }}>Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)</div>
+                  <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol</div>
+                </div>
+
+                {/* Watermark if Cancelled */}
+                {ticketModal.status === 'Cancelled' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-25deg)',
+                    fontSize: '3.5rem',
+                    fontWeight: 900,
+                    color: 'rgba(239, 68, 68, 0.25)',
+                    border: '6px dashed rgba(239, 68, 68, 0.35)',
+                    padding: '10px 40px',
+                    borderRadius: 12,
+                    pointerEvents: 'none',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    CANCELLED / RADD
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Bottom Modal Actions (No-Print) */}
             <div className="no-print" style={{ display: 'flex', gap: 10, marginTop: 14 }}>
@@ -8886,7 +9027,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 style={{ flex: 1, background: '#0284C7', borderColor: '#0369A1' }} 
                 onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`)}
               >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> टिकट प्रिंट / Save PDF
+                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                {ticketPrintLayout === 'half' ? 'टिकट प्रिंट (A4 Half)' : 'टिकट प्रिंट (A4 Full)'}
               </button>
               
             </div>

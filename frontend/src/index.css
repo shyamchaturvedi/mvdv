@@ -1598,39 +1598,145 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   background: #FFFFFF;
 }
 
-/* Mandir Receipt A4-Half Styling */
-.mandir-receipt-wrapper {
+/* ------------------------------------------------------------------
+   DEDICATED A4 HALF IRCTC TICKET STYLES (Tailored for <= 138mm height)
+------------------------------------------------------------------ */
+.irctc-ticket-half-wrapper {
   background: #FFFFFF !important;
-  border: 2px solid #C2410C;
-  border-radius: 6px;
-  padding: 4px;
-  max-width: 740px;
+  border: 1.5px solid #0284C7;
+  border-radius: 4px;
+  color: #0F172A;
+  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  max-width: 780px;
   margin: 0 auto;
-  box-shadow: 0 4px 15px rgba(194, 65, 12, 0.15);
+  box-sizing: border-box;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.15);
 }
 
-.mandir-receipt-inner {
-  border: 1px solid #F59E0B;
-  border-radius: 4px;
-  padding: 10px;
+.irctc-half-header {
+  background: #075985;
+  color: #FFFFFF;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+.irctc-half-subbar {
+  background: #F0F9FF;
+  border-top: 1px solid #BAE6FD;
+  border-bottom: 1px solid #BAE6FD;
+  padding: 3px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.irctc-half-trainbar {
+  background: #F8FAFC;
+  border-bottom: 1px solid #CBD5E1;
+  padding: 4px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+}
+
+.irctc-half-routebar {
+  padding: 5px 10px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border-bottom: 1px solid #E2E8F0;
   background: #FFFFFF;
 }
 
-@media print {
-  body {
-    background: #FFFFFF !important;
-    padding: 0 !important;
-  }
-  .no-print, .modal-overlay, .navbar, .bottom-nav {
-    display: none !important;
-  }
-  .irctc-ticket-wrapper, .mandir-receipt-wrapper {
-    box-shadow: none !important;
-    border: 1px solid #0284C7 !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-  }
+.irctc-half-pax-box {
+  margin: 4px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  overflow: hidden;
 }
+
+.irctc-half-pax-head {
+  background: #0284C7;
+  color: #FFFFFF;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: grid;
+  grid-template-columns: 24px 2fr 1.1fr 1.3fr 1.3fr;
+  align-items: center;
+}
+
+.irctc-half-pax-row {
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  display: grid;
+  grid-template-columns: 24px 2fr 1.1fr 1.3fr 1.3fr;
+  border-bottom: 1px solid #E2E8F0;
+  align-items: center;
+}
+
+.irctc-half-pax-row:last-child {
+  border-bottom: none;
+}
+
+.irctc-half-pax-row:nth-child(even) {
+  background: #F0F9FF;
+}
+
+.irctc-half-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin: 4px 10px;
+  align-items: stretch;
+}
+
+.irctc-half-fare {
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  background: #F8FAFC;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+}
+
+.irctc-half-qr {
+  border: 1px solid #CBD5E1;
+  border-radius: 3px;
+  background: #FFFFFF;
+  padding: 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 85px;
+}
+
+.irctc-half-guidelines {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 3px;
+  margin: 4px 10px;
+  padding: 3px 8px;
+  font-size: 0.62rem;
+  color: #451A03;
+  line-height: 1.3;
+}
+
+.irctc-half-footer {
+  border-top: 1px solid #CBD5E1;
+  padding: 3px 10px;
+  font-size: 0.62rem;
+  color: #475569;
+  text-align: center;
+  background: #F8FAFC;
+}
+
 
 /* =============================================================
    EXECUTIVE ADVANCED DASHBOARD STYLING
