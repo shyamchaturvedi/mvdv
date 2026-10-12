@@ -205,14 +205,21 @@
 
     }
 
-    /* Half A4 Layout Rules (Applied when A4 Half is selected) */
-    @page halfPage {
-      size: 210mm 148.5mm;
-      margin: 3mm 4mm;
+    /* Layout Rules: Default A4 vs A5 (A4 Half) */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 6mm;
+      }
     }
-
     body.layout-half {
       font-size: 11px !important;
+    }
+    @media print {
+      body.layout-half {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
     }
     body.layout-half .ticket-wrapper {
       max-width: 780px !important;
@@ -333,7 +340,7 @@
             📄 A4 Full
           </button>
           <button id="layoutHalfBtn" onclick="setTicketPrintLayout('half')" style="border: none; background: transparent; color: #9A3412; font-weight: 700; font-size: 0.76rem; border-radius: 16px; padding: 4px 12px; cursor: pointer; transition: all 0.2s;">
-            ✂️ A4 Half (आधा पेज)
+            ✂️ A5 (Half Page)
           </button>
         </div>
       </div>
@@ -685,7 +692,7 @@
           halfBtn.style.background = '#FF6F00';
           halfBtn.style.color = '#FFF';
         }
-        if (printBtnLabel) printBtnLabel.textContent = 'Print Slip (A4 Half)';
+        if (printBtnLabel) printBtnLabel.textContent = 'Print Slip (A5)';
       } else {
         document.body.classList.remove('layout-half');
         if (fullBtn) {
@@ -701,12 +708,23 @@
     }
 
     function printTicketWithSelectedLayout() {
+      // Remove any previously injected dynamic print style
+      const existingStyle = document.getElementById('dynamicPrintPageStyle');
+      if (existingStyle) existingStyle.remove();
+
+      const style = document.createElement('style');
+      style.id = 'dynamicPrintPageStyle';
       if (currentPrintLayout === 'half') {
         document.body.classList.add('layout-half');
+        style.innerHTML = '@page { size: 210mm 148mm; margin: 3mm 4mm; }';
       } else {
         document.body.classList.remove('layout-half');
+        style.innerHTML = '@page { size: A4 portrait; margin: 6mm; }';
       }
-      window.print();
+      document.head.appendChild(style);
+      setTimeout(() => {
+        window.print();
+      }, 50);
     }
 
     // Read default print setting from server config

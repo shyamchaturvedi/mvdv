@@ -352,7 +352,7 @@ export default function App() {
     }
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     const pageStyle = isHalf
-      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
       : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
     printWindow.document.write(`
@@ -416,11 +416,13 @@ export default function App() {
   const handleAutoPrintTicket = (booking) => {
     setIsAutoPrinting(true);
     setTicketModal(booking);
+    const activeLayout = ticketPrintLayout || (projectSettings && projectSettings.printLayout) || 'full';
+    const targetElemId = (activeLayout === 'half') ? 'irctc-ticket-half-area' : 'irctc-ticket-print-area';
     setTimeout(() => {
-      printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${booking.bookingId}`, () => {
+      printSlipElement(targetElemId, `IRCTC-Ticket-${booking.bookingId}`, () => {
         setIsAutoPrinting(false);
         setTicketModal(null);
-      });
+      }, activeLayout);
     }, 500);
   };
   const handleAutoPrintReceipt = (booking, txn) => {
@@ -7275,10 +7277,10 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 </div>
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontWeight: 800, color: projectSettings.printLayout === 'half' ? '#C2410C' : '#334155', fontSize: '0.95rem' }}>
-                                    ✂️ A4 Half Page (आधा पेज / 148mm)
+                                    ✂️ A5 Format (A4 का आधा पेज / 148mm)
                                   </div>
                                   <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: 3 }}>
-                                    कॉम्पैक्ट साइज, कागज की बचत, एक A4 पेपर में 2 टिकट प्रिंट करने हेतु उपयुक्त।
+                                    कॉम्पैक्ट साइज, कागज की बचत, A5 पेपर या A4 के आधे हिस्से में प्रिंट करने हेतु उपयुक्त।
                                   </div>
                                 </div>
                               </div>
@@ -8660,7 +8662,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       transition: 'all 0.2s'
                     }}
                   >
-                    ✂️ A4 Half (आधा पेज)
+                    ✂️ A5 (Half Page)
                   </button>
                 </div>
               </div>
@@ -8672,7 +8674,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   style={{ background: '#0284C7', borderColor: '#0369A1' }}
                 >
                   <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
-                  {ticketPrintLayout === 'half' ? 'प्रिंट (A4 Half)' : 'प्रिंट (A4 Full)'}
+                  {ticketPrintLayout === 'half' ? 'प्रिंट (A5)' : 'प्रिंट (A4 Full)'}
                 </button>
                 
                 <button onClick={() => setTicketModal(null)} style={{ background: 'none', border: 'none', color: '#0369A1', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
@@ -9041,7 +9043,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
               >
                 <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
-                {ticketPrintLayout === 'half' ? 'टिकट प्रिंट (A4 Half)' : 'टिकट प्रिंट (A4 Full)'}
+                {ticketPrintLayout === 'half' ? 'टिकट प्रिंट (A5)' : 'टिकट प्रिंट (A4 Full)'}
               </button>
               
             </div>
