@@ -68,7 +68,7 @@ class PDFService {
 
     doc.fillColor('#FFFFFF').fontSize(12.5).font('Helvetica-Bold').text('SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST', marginX + 8, 18, { width: contentWidth - 16, align: 'center' });
     doc.fillColor('#BAE6FD').fontSize(8).font('Helvetica').text('YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
-    doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
+    doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
 
     // Header 2: Subheader Row (PNR, Quota, Batch)
     let y = 58;
@@ -233,7 +233,7 @@ class PDFService {
     doc.fillColor('#475569').fontSize(6.5).font('Helvetica').text('Helpline: +91 7398959993 • Support: iammshyam@gmail.com', marginX + 8, footerY + 4);
     doc.text('Authorized Signatory, Trust Secretary', marginX + contentWidth - 190, footerY + 4, { align: 'right' });
     doc.fillColor('#0284C7').fontSize(6.5).font('Helvetica-Bold').text('Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)', marginX, footerY + 14, { align: 'center', width: contentWidth });
-    doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol', marginX, footerY + 23, { align: 'center', width: contentWidth });
+    doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Valid for Boarding', marginX, footerY + 23, { align: 'center', width: contentWidth });
 
     if (booking.status === 'Cancelled') {
       doc.save();
@@ -285,7 +285,7 @@ class PDFService {
       doc.rect(marginX, 12, contentWidth, 44).fillColor('#075985').fill();
       doc.fillColor('#FFFFFF').fontSize(12.5).font('Helvetica-Bold').text('SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST', marginX + 8, 18, { width: contentWidth - 16, align: 'center' });
       doc.fillColor('#BAE6FD').fontSize(8).font('Helvetica').text('YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
-      doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
+      doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
 
       // Header 2: Subheader Row (PNR, Quota, Batch)
       let y = 58;
@@ -425,7 +425,7 @@ class PDFService {
       doc.fillColor('#475569').fontSize(6.5).font('Helvetica').text('Helpline: +91 7398959993 • Support: iammshyam@gmail.com', marginX + 8, footerY + 4);
       doc.text('Authorized Signatory, Trust Secretary', marginX + contentWidth - 190, footerY + 4, { align: 'right' });
       doc.fillColor('#0284C7').fontSize(6.5).font('Helvetica-Bold').text('Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)', marginX, footerY + 14, { align: 'center', width: contentWidth });
-      doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol', marginX, footerY + 23, { align: 'center', width: contentWidth });
+      doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Valid for Boarding', marginX, footerY + 23, { align: 'center', width: contentWidth });
     }
 
     doc.end();

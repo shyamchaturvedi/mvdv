@@ -8688,7 +8688,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST
                   </div>
                   <div style={{ fontSize: '0.66rem', color: '#FDE047', fontWeight: 700, marginTop: 1 }}>
-                    ERS TRAVEL PASS • YATRA SPECIAL EXPRESS (A4 HALF COMPACT)
+                    ERS TRAVEL PASS • YATRA SPECIAL EXPRESS
                   </div>
                 </div>
 
@@ -8824,7 +8824,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 <div className="irctc-header-blue">
                   <div style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.02em' }}>SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST</div>
                   <div style={{ fontSize: '0.78rem', color: '#BAE6FD', marginTop: 2 }}>YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN</div>
-                  <div style={{ fontSize: '0.74rem', color: '#FDE047', fontWeight: 700, marginTop: 3 }}>ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL (1-PAGE OFFICIAL PASS)</div>
+                  <div style={{ fontSize: '0.74rem', color: '#FDE047', fontWeight: 700, marginTop: 3 }}>ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL</div>
                 </div>
 
                 {/* Subheader: PNR, Quota, Batch */}
@@ -8983,7 +8983,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     <div style={{ color: '#047857', fontWeight: 'bold' }}>*Digitally Signed (No Signature Required)*</div>
                   </div>
                   <div style={{ color: '#0284C7', fontWeight: 700 }}>Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)</div>
-                  <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) • Single Page Pass under Trust Railway Boarding Protocol</div>
+                  <div style={{ fontSize: '0.62rem', color: '#64748B', marginTop: 2 }}>Official Electronic Reservation Slip (ERS) • Valid for Boarding</div>
                 </div>
 
                 {/* Watermark if Cancelled */}
