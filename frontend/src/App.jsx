@@ -287,6 +287,19 @@ export default function App() {
       return;
     }
     
+    // Extract all styles to avoid missing external stylesheets in about:blank
+    let embeddedStyles = '';
+    try {
+      embeddedStyles = Array.from(document.styleSheets).map(s => {
+        try {
+          return Array.from(s.cssRules || []).map(r => r.cssText).join('\n');
+        } catch (e) {
+          return '';
+        }
+      }).join('\n');
+    } catch (e) {
+      embeddedStyles = '';
+    }
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     const pageStyle = isHalf
       ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
@@ -296,9 +309,12 @@ export default function App() {
       <!DOCTYPE html>
       <html>
         <head>
+          <base href="${window.location.origin}/" />
+          <meta charset="utf-8" />
           <title>${docTitle}</title>
           ${styles}
           <style>
+            ${embeddedStyles}
             ${pageStyle}
             * { box-sizing: border-box; }
             @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
@@ -323,7 +339,7 @@ export default function App() {
       printWindow.print();
       printWindow.close();
       if (onComplete) onComplete();
-    }, 800);
+    }, 700);
   };
 
   const printSlipElement = (elementId, docTitle = 'MVD Document', onComplete = null, forcedLayout = null) => {
@@ -332,7 +348,7 @@ export default function App() {
     
     // Determine the actual element ID to print
     let targetElemId = elementId;
-    if (elementId === 'irctc-ticket-print-area') {
+    if (elementId === 'irctc-ticket-print-area' || elementId === 'irctc-ticket-half-area') {
       if (isHalf && document.getElementById('irctc-ticket-half-area')) {
         targetElemId = 'irctc-ticket-half-area';
       } else if (!isHalf && document.getElementById('irctc-ticket-print-area')) {
@@ -350,24 +366,48 @@ export default function App() {
       window.print();
       return;
     }
+
+    // Inlined styles from document styleSheets to guarantee complete rendering without CSS loading failure
+    let embeddedStyles = '';
+    try {
+      embeddedStyles = Array.from(document.styleSheets).map(s => {
+        try {
+          return Array.from(s.cssRules || []).map(r => r.cssText).join('\n');
+        } catch (e) {
+          return '';
+        }
+      }).join('\n');
+    } catch (e) {
+      embeddedStyles = '';
+    }
+
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
+    
+    // Explicit sizing for A5 / Half page vs Full A4 page
     const pageStyle = isHalf
-      ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
-      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+      ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
+          <base href="${window.location.origin}/" />
+          <meta charset="utf-8" />
           <title>${docTitle}</title>
           ${styles}
           <style>
+            ${embeddedStyles}
             ${pageStyle}
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
+            * { box-sizing: border-box; }
+            @media print { 
+              body * { visibility: visible !important; } 
+              .no-print, .no-print * { display: none !important; visibility: hidden !important; } 
+            }
             .no-print { display: none !important; }
-            .irctc-ticket-wrapper, .irctc-ticket-half-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
-            .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
+            .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
+            .irctc-ticket-half-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; max-height: 142mm !important; }
+            .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">
@@ -381,7 +421,7 @@ export default function App() {
       printWindow.print();
       printWindow.close();
       if (onComplete) onComplete();
-    }, 800);
+    }, 700);
   };
 // Booking Form State
   const [bookingYear, setBookingYear] = useState('2026');
