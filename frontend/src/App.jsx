@@ -247,6 +247,8 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stationsList, setStationsList] = useState(DEFAULT_ROUTE_STATIONS);
   const [posterModal, setPosterModal] = useState(false);
+  const [editYatriModal, setEditYatriModal] = useState(null);
+  const [cancelRefundModal, setCancelRefundModal] = useState(null);
   const [editReceiptModal, setEditReceiptModal] = useState(null);
   const [ticketPrintLayout, setTicketPrintLayout] = useState('full'); // 'full' or 'half'
 
