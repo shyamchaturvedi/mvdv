@@ -273,21 +273,83 @@ export default function App() {
     return inEng(val) + ' Rupees Only';
   };
 
+  // Prints a self-contained HTML document. Uses a new popup window when allowed;
+  // if the browser blocks popups, renders into an off-screen iframe so ONLY the
+  // slip is printed (instead of the whole app via a bare window.print()).
+  const printHTMLDocument = (html, onComplete = null) => {
+    const done = () => { if (onComplete) onComplete(); };
+    const printWindow = window.open('', '_blank', 'width=950,height=800');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+        done();
+      }, 700);
+      return;
+    }
+
+    // Popup blocked → render into an off-screen iframe and print that instead.
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.position = 'fixed';
+    iframe.style.left = '-10000px';
+    iframe.style.top = '0';
+    iframe.style.width = '210mm';
+    iframe.style.height = '297mm';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+    const cleanup = () => {
+      setTimeout(() => {
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        done();
+      }, 500);
+    };
+    try {
+      const idoc = iframe.contentWindow.document;
+      idoc.open();
+      idoc.write(html);
+      idoc.close();
+      setTimeout(() => {
+        try {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch (e) {
+          console.warn('Iframe print failed, using window.print():', e.message);
+          window.print();
+        }
+        cleanup();
+      }, 700);
+    } catch (e) {
+      console.warn('Iframe print setup failed:', e.message);
+      cleanup();
+    }
+  };
+
   // High-fidelity direct print helper matching downloaded PDF (with dynamic A4 Full vs Half Layout)
   const printCombinedSlipElements = (elementId1, elementId2, docTitle = 'MVD Document', onComplete = null) => {
-    const isHalf = (ticketPrintLayout === 'half' || (projectSettings && projectSettings.printLayout === 'half'));
+    const activeLayout = ticketPrintLayout || (projectSettings && projectSettings.printLayout) || 'full';
+    const isHalf = (activeLayout === 'half');
     const actualElem1Id = (isHalf && elementId1 === 'irctc-ticket-print-area') ? 'irctc-ticket-half-area' : elementId1;
-    const elem1 = document.getElementById(actualElem1Id) || document.getElementById(elementId1);
-    const elem2 = document.getElementById(elementId2);
-    if (!elem1 || !elem2) return;
+    let elem1 = document.getElementById(actualElem1Id) || document.getElementById(elementId1);
+    let elem2 = document.getElementById(elementId2);
     
-    const printWindow = window.open('', '_blank', 'width=950,height=800');
-    if (!printWindow) {
-      window.print();
+    // Fallback if elements not yet present: warn and fall back to single slip print if possible
+    if (!elem1 && !elem2) {
+      console.warn('printCombinedSlipElements: neither element found:', actualElem1Id, elementId2);
+      if (onComplete) onComplete();
+      return;
+    }
+    if (!elem1 || !elem2) {
+      const singleElemId = elem1 ? actualElem1Id : elementId2;
+      console.warn(`printCombinedSlipElements: one element missing, falling back to single element: ${singleElemId}`);
+      printSlipElement(singleElemId, docTitle, onComplete, isHalf ? 'half' : 'full');
       return;
     }
     
-    // Extract all styles to avoid missing external stylesheets in about:blank
+    // Extract CSS styles once cleanly to avoid duplicate CSS injection
     let embeddedStyles = '';
     try {
       embeddedStyles = Array.from(document.styleSheets).map(s => {
@@ -300,49 +362,46 @@ export default function App() {
     } catch (e) {
       embeddedStyles = '';
     }
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
-    const pageStyle = isHalf
-      ? '@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
-      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
-    printWindow.document.write(`
+    const pageStyle = isHalf
+      ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+
+    const html = `
       <!DOCTYPE html>
       <html>
         <head>
           <base href="${window.location.origin}/" />
           <meta charset="utf-8" />
           <title>${docTitle}</title>
-          ${styles}
           <style>
             ${embeddedStyles}
             ${pageStyle}
             * { box-sizing: border-box; }
-            @media print { body * { visibility: visible !important; } .no-print, .no-print * { display: none !important; visibility: hidden !important; } }
+            @media print { 
+              body * { visibility: visible !important; } 
+              .no-print, .no-print * { display: none !important; visibility: hidden !important; } 
+            }
             .no-print { display: none !important; }
-            .irctc-ticket-wrapper, .irctc-ticket-half-wrapper, .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
-            .mandir-receipt-wrapper { border: 2px solid #C2410C !important; page-break-before: always; margin-top: 10mm !important; }
+            .irctc-ticket-wrapper, .irctc-ticket-half-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; }
+            .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 2px solid #C2410C !important; page-break-inside: avoid; page-break-before: always; }
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">
-          <div style="width: 100%; padding-bottom: 10px;">
+          <div style="width: 100%; padding-bottom: 5px;">
             ${elem1.outerHTML}
           </div>
-          <div style="page-break-before: always; width: 100%; padding-top: 10px;">
+          <div style="page-break-before: always; width: 100%; padding-top: 5px;">
             ${elem2.outerHTML}
           </div>
         </body>
       </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-      if (onComplete) onComplete();
-    }, 700);
+    `;
+    printHTMLDocument(html, onComplete);
   };
 
   const printSlipElement = (elementId, docTitle = 'MVD Document', onComplete = null, forcedLayout = null) => {
+    // Determine active layout strictly respecting forcedLayout -> ticketPrintLayout -> projectSettings.printLayout
     const activeLayout = forcedLayout || ticketPrintLayout || (projectSettings && projectSettings.printLayout) || 'full';
     const isHalf = (activeLayout === 'half');
     
@@ -358,16 +417,11 @@ export default function App() {
 
     const elem = document.getElementById(targetElemId) || document.getElementById(elementId);
     if (!elem) {
-      window.print();
+      console.warn(`printSlipElement: element not found: ${targetElemId} or ${elementId}`);
+      if (onComplete) onComplete();
       return;
     }
-    const printWindow = window.open('', '_blank', 'width=950,height=800');
-    if (!printWindow) {
-      window.print();
-      return;
-    }
-
-    // Inlined styles from document styleSheets to guarantee complete rendering without CSS loading failure
+    // Inlined styles from document styleSheets to guarantee complete rendering without CSS loading failure or duplicates
     let embeddedStyles = '';
     try {
       embeddedStyles = Array.from(document.styleSheets).map(s => {
@@ -381,21 +435,18 @@ export default function App() {
       embeddedStyles = '';
     }
 
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
-    
     // Explicit sizing for A5 / Half page vs Full A4 page
     const pageStyle = isHalf
       ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
       : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
-    printWindow.document.write(`
+    const html = `
       <!DOCTYPE html>
       <html>
         <head>
           <base href="${window.location.origin}/" />
           <meta charset="utf-8" />
           <title>${docTitle}</title>
-          ${styles}
           <style>
             ${embeddedStyles}
             ${pageStyle}
@@ -414,14 +465,8 @@ export default function App() {
           ${elem.outerHTML}
         </body>
       </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-      if (onComplete) onComplete();
-    }, 700);
+    `;
+    printHTMLDocument(html, onComplete);
   };
 // Booking Form State
   const [bookingYear, setBookingYear] = useState('2026');
@@ -456,7 +501,8 @@ export default function App() {
   const handleAutoPrintTicket = (booking) => {
     setIsAutoPrinting(true);
     setTicketModal(booking);
-    const activeLayout = ticketPrintLayout || (projectSettings && projectSettings.printLayout) || 'full';
+    const activeLayout = (projectSettings && projectSettings.printLayout) || ticketPrintLayout || 'full';
+    setTicketPrintLayout(activeLayout);
     const targetElemId = (activeLayout === 'half') ? 'irctc-ticket-half-area' : 'irctc-ticket-print-area';
     setTimeout(() => {
       printSlipElement(targetElemId, `IRCTC-Ticket-${booking.bookingId}`, () => {
@@ -472,7 +518,7 @@ export default function App() {
       printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${txn.id}`, () => {
         setIsAutoPrinting(false);
         setReceiptModal(null);
-      });
+      }, 'half');
     }, 500);
   };
 
@@ -573,6 +619,9 @@ export default function App() {
               journeyDate: data.defaultTravelDate || data.settings.journeyDate || '2026-10-15',
               returnTravelDate: data.returnTravelDate || data.settings.returnTravelDate || '2026-10-22'
             }));
+            if (data.settings.printLayout) {
+              setTicketPrintLayout(data.settings.printLayout);
+            }
           }
           if (data.stations && data.stations.length > 0) {
             setStationsList(data.stations);
@@ -600,7 +649,17 @@ export default function App() {
     if (projectSettings?.activeYatraYear) {
       setBookingYear(String(projectSettings.activeYatraYear));
     }
-  }, [projectSettings?.defaultTravelDate, projectSettings?.activeYatraYear]);
+    if (projectSettings?.printLayout) {
+      setTicketPrintLayout(projectSettings.printLayout);
+    }
+  }, [projectSettings?.defaultTravelDate, projectSettings?.activeYatraYear, projectSettings?.printLayout]);
+
+  // Sync ticketPrintLayout with projectSettings.printLayout whenever a ticket modal is opened
+  useEffect(() => {
+    if (ticketModal && projectSettings?.printLayout) {
+      setTicketPrintLayout(projectSettings.printLayout);
+    }
+  }, [ticketModal?.bookingId, projectSettings?.printLayout]);
 
   // Live Sacred Yatra Departure Countdown State (Days, Hours, Minutes, Seconds)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -1438,7 +1497,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const searchPNR = async (queryTerm) => {
     const term = (queryTerm !== undefined ? queryTerm : pnrInput).trim();
     if (!term) {
-      setPnrSearchError('कृपया PNR नंबर अथवा मोबाइल नंबर दर्ज करें।');
+      setPnrSearchError('कृपया PNR नंबर, मोबाइल नंबर अथवा रसीद नंबर दर्ज करें।');
       return;
     }
     setPnrLoading(true);
@@ -1450,7 +1509,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         setTicketModal(data.booking);
       } else {
         setSearchedTicket(null);
-        setPnrSearchError(data.error || 'इस PNR / मोबाइल नंबर से कोई वैध आरक्षण नहीं मिला।');
+        setPnrSearchError(data.error || 'इस PNR / मोबाइल / रसीद नंबर से कोई वैध आरक्षण नहीं मिला।');
       }
     } catch (err) {
       setPnrSearchError('सर्वर त्रुटि: ' + err.message);
@@ -4558,7 +4617,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   <h2 className="ent-section-title">PNR स्थिति एवं टिकट सत्यापन</h2>
                   <p className="ent-section-desc">
                     श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट — आधिकारिक डिजिटल पोर्टल।
-                    PNR नंबर या रजिस्टर्ड मोबाइल दर्ज कर अपनी बर्थ और यात्रा की पूरी जानकारी प्राप्त करें।
+                    PNR नंबर, रजिस्टर्ड मोबाइल या रसीद नंबर दर्ज कर अपनी बर्थ और यात्रा की पूरी जानकारी प्राप्त करें।
                   </p>
 
                   <div className="ent-pnr-input-wrap">
@@ -4566,7 +4625,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     <input
                       id="pnr-search-input"
                       type="text"
-                      placeholder="PNR नंबर या रजिस्टर्ड मोबाइल नंबर दर्ज करें..."
+                      placeholder="PNR नंबर, रजिस्टर्ड मोबाइल या रसीद नंबर दर्ज करें..."
                       value={pnrInput}
                       onChange={(e) => { setPnrInput(e.target.value); setPnrSearchError(''); }}
                       onKeyDown={(e) => e.key === 'Enter' && searchPNR()}
@@ -9108,7 +9167,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button 
                   className="btn btn-primary btn-sm" 
-                  onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`)}
+                  onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`, null, 'half')}
                 >
                   <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट / Save PDF
                 </button>
@@ -9302,7 +9361,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               <button 
                 className="btn btn-primary btn-sm" 
                 style={{ flex: 1 }} 
-                onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`)}
+                onClick={() => printSlipElement('mandir-receipt-print-area', `MVD-Receipt-${receiptModal.txn.id}`, null, 'half')}
               >
                 <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रसीद प्रिंट / Save PDF
               </button>

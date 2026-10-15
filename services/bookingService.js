@@ -212,6 +212,7 @@ class BookingService {
         (b.bookedBy && b.bookedBy.toLowerCase().includes(q)) ||
         (b.mobile && b.mobile.includes(q)) ||
         (b.aadhar && b.aadhar.includes(q)) ||
+        (b.offlineReceiptNo && b.offlineReceiptNo.toLowerCase().includes(q)) ||
         (b.passengers && b.passengers.some(p => p.name && p.name.toLowerCase().includes(q)))
       );
     }
@@ -237,6 +238,26 @@ class BookingService {
     if (!query.empty) {
       const first = query.docs[0];
       return { ...first.data(), id: first.id };
+    }
+
+    // Check by offline receipt number (exact match)
+    if (clean) {
+      const receiptQuery = await db.collection('bookings').where('offlineReceiptNo', '==', clean).get();
+      if (!receiptQuery.empty) {
+        const first = receiptQuery.docs[0];
+        return { ...first.data(), id: first.id };
+      }
+
+      // Case-insensitive / whitespace-tolerant fallback for offline receipt number
+      const needle = clean.toLowerCase();
+      const allSnap = await db.collection('bookings').get();
+      const matchDoc = allSnap.docs.find(d => {
+        const val = d.data().offlineReceiptNo;
+        return val && String(val).trim().toLowerCase() === needle;
+      });
+      if (matchDoc) {
+        return { ...matchDoc.data(), id: matchDoc.id };
+      }
     }
 
     return null;
