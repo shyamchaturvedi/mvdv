@@ -364,7 +364,7 @@ export default function App() {
     }
 
     const pageStyle = isHalf
-      ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      ? '@page { size: A4 portrait; margin: 4mm 5mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
       : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
     const html = `
@@ -435,9 +435,9 @@ export default function App() {
       embeddedStyles = '';
     }
 
-    // Explicit sizing for A5 / Half page vs Full A4 page
+    // Explicit sizing for A5 / Half page vs Full A4 page (always Portrait orientation)
     const pageStyle = isHalf
-      ? '@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
+      ? '@page { size: A4 portrait; margin: 4mm 5mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }'
       : '@page { size: A4 portrait; margin: 6mm; } body { width: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
 
     const html = `
@@ -456,9 +456,9 @@ export default function App() {
               .no-print, .no-print * { display: none !important; visibility: hidden !important; } 
             }
             .no-print { display: none !important; }
-            .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; }
-            .irctc-ticket-half-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; max-height: 142mm !important; }
-            .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; }
+            .irctc-ticket-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; page-break-inside: avoid; break-inside: avoid; }
+            .irctc-ticket-half-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 1.5px solid #0284C7 !important; max-height: 142mm !important; page-break-inside: avoid; break-inside: avoid; }
+            .mandir-receipt-wrapper { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; max-width: 100% !important; border: 2px solid #C2410C !important; page-break-inside: avoid; break-inside: avoid; }
           </style>
         </head>
         <body style="background: #ffffff; padding: 0;">

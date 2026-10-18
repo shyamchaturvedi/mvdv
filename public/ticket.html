@@ -716,7 +716,7 @@
       style.id = 'dynamicPrintPageStyle';
       if (currentPrintLayout === 'half') {
         document.body.classList.add('layout-half');
-        style.innerHTML = '@page { size: 210mm 148mm; margin: 3mm 4mm; }';
+        style.innerHTML = '@page { size: A4 portrait; margin: 3mm 4mm; }';
       } else {
         document.body.classList.remove('layout-half');
         style.innerHTML = '@page { size: A4 portrait; margin: 6mm; }';

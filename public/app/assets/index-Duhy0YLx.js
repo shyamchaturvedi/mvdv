@@ -81,7 +81,7 @@ Total Duration: ${c-l}ms`),q.resolve({didRun:!0,sequenceNumbersCollected:r,targe
         </body>
       </html>
     `),c.document.close(),c.focus(),setTimeout(()=>{c.print(),c.close(),r&&r()},800)},le=(e,t=`MVD Document`,n=null,r=null)=>{let i=(r||x||D&&D.printLayout||`full`)===`half`,a=e;e===`irctc-ticket-print-area`&&(i&&document.getElementById(`irctc-ticket-half-area`)?a=`irctc-ticket-half-area`:!i&&document.getElementById(`irctc-ticket-print-area`)&&(a=`irctc-ticket-print-area`));let o=document.getElementById(a)||document.getElementById(e);if(!o){window.print();return}let s=window.open(``,`_blank`,`width=950,height=800`);if(!s){window.print();return}let c=Array.from(document.querySelectorAll(`style, link[rel="stylesheet"]`)).map(e=>e.outerHTML).join(`
-`),l=i?`@page { size: 210mm 148mm; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }`:`@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }`;s.document.write(`
+`),l=i?`@page { size: A4 portrait; margin: 3mm 4mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }`:`@page { size: A4 portrait; margin: 6mm; } body { width: 100%; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }`;s.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
