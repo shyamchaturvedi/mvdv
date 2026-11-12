@@ -21,7 +21,7 @@ function getBerthType(seatNum, travelClass) {
   const num = parseInt(seatNum, 10);
   if (isNaN(num)) return 'Chair';
   if (travelClass === 'General') return 'General';
-  
+
   const mod = num % 8;
   if (mod === 1 || mod === 4) return 'Lower';
   if (mod === 2 || mod === 5) return 'Middle';
@@ -29,6 +29,20 @@ function getBerthType(seatNum, travelClass) {
   if (mod === 7) return 'Side Lower';
   if (mod === 0) return 'Side Upper';
   return 'Berth';
+}
+
+function normalizePassengerBerths(passengers = [], travelClass = 'Sleeper') {
+  if (!Array.isArray(passengers)) return [];
+
+  return passengers.map((p, index) => {
+    const assignedSeat = String(p?.seatAssigned || p?.seatNumber || (index + 1)).trim();
+    const safeSeat = assignedSeat || String(index + 1);
+    return {
+      ...p,
+      seatAssigned: safeSeat,
+      berthPreference: getBerthType(safeSeat, travelClass)
+    };
+  });
 }
 
 class BookingService {
@@ -217,6 +231,11 @@ class BookingService {
       );
     }
 
+    list = list.map(b => ({
+      ...b,
+      passengers: normalizePassengerBerths(b.passengers || [], b.travelClass || 'Sleeper')
+    }));
+
     // Sort by createdAt descending
     list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     return list;
@@ -230,14 +249,16 @@ class BookingService {
     // Check by doc id first
     const doc = await db.collection('bookings').doc(clean).get();
     if (doc.exists) {
-      return { ...doc.data(), id: doc.id };
+      const data = { ...doc.data(), id: doc.id };
+      return { ...data, passengers: normalizePassengerBerths(data.passengers || [], data.travelClass || 'Sleeper') };
     }
 
     // Check by bookingId / PNR field
     const query = await db.collection('bookings').where('bookingId', '==', clean).get();
     if (!query.empty) {
       const first = query.docs[0];
-      return { ...first.data(), id: first.id };
+      const data = { ...first.data(), id: first.id };
+      return { ...data, passengers: normalizePassengerBerths(data.passengers || [], data.travelClass || 'Sleeper') };
     }
 
     // Check by offline receipt number (exact match)
@@ -245,7 +266,8 @@ class BookingService {
       const receiptQuery = await db.collection('bookings').where('offlineReceiptNo', '==', clean).get();
       if (!receiptQuery.empty) {
         const first = receiptQuery.docs[0];
-        return { ...first.data(), id: first.id };
+        const data = { ...first.data(), id: first.id };
+        return { ...data, passengers: normalizePassengerBerths(data.passengers || [], data.travelClass || 'Sleeper') };
       }
 
       // Case-insensitive / whitespace-tolerant fallback for offline receipt number
@@ -256,7 +278,8 @@ class BookingService {
         return val && String(val).trim().toLowerCase() === needle;
       });
       if (matchDoc) {
-        return { ...matchDoc.data(), id: matchDoc.id };
+        const data = { ...matchDoc.data(), id: matchDoc.id };
+        return { ...data, passengers: normalizePassengerBerths(data.passengers || [], data.travelClass || 'Sleeper') };
       }
     }
 
@@ -270,7 +293,7 @@ class BookingService {
 
     const passengerCount = parseInt(payload.numberOfPassengers, 10) || (payload.passengers ? payload.passengers.length : 1);
     const travelClass = payload.travelClass || 'Sleeper';
-    
+
     // Dynamically fetch fare from Settings
     let unitPrice = FARES[travelClass] || 3000;
     try {
@@ -306,15 +329,18 @@ class BookingService {
     }
 
     // Format passengers
-    const passengers = (payload.passengers || []).map((p, idx) => ({
-      name: p.name || `Yatri ${idx + 1}`,
-      age: parseInt(p.age, 10) || null,
-      gender: p.gender || 'Male',
-      aadhar: p.aadhar || '',
-      mobile: p.mobile || payload.mobile || '',
-      berthPreference: p.berthPreference || getBerthType(seatNumbers[idx] || (idx + 1), travelClass),
-      seatAssigned: seatNumbers[idx] || `${idx + 1}`
-    }));
+    const passengers = (payload.passengers || []).map((p, idx) => {
+      const assignedSeat = String(seatNumbers[idx] || p.seatAssigned || p.seatNumber || (idx + 1)).trim();
+      return {
+        name: p.name || `Yatri ${idx + 1}`,
+        age: parseInt(p.age, 10) || null,
+        gender: p.gender || 'Male',
+        aadhar: p.aadhar || '',
+        mobile: p.mobile || payload.mobile || '',
+        berthPreference: getBerthType(assignedSeat, travelClass),
+        seatAssigned: assignedSeat
+      };
+    });
 
     const bookingData = {
       bookingId,
@@ -369,11 +395,19 @@ class BookingService {
     const existing = await this.getBookingByIdOrPNR(bookingId);
     if (!existing) throw new Error(`Booking ${bookingId} not found`);
 
+    if (updates.passengers && Array.isArray(updates.passengers)) {
+      updates.passengers = normalizePassengerBerths(updates.passengers, updates.travelClass || existing.travelClass || 'Sleeper');
+    }
+
     const updatedData = {
       ...existing,
       ...updates,
       updatedAt: new Date().toISOString()
     };
+
+    if (updatedData.passengers && Array.isArray(updatedData.passengers)) {
+      updatedData.passengers = normalizePassengerBerths(updatedData.passengers, updatedData.travelClass || existing.travelClass || 'Sleeper');
+    }
 
     // Recalculate remaining amount and status if financial values change
     if (updates.totalAmount !== undefined || updates.advance !== undefined || updates.discount !== undefined) {
@@ -411,16 +445,16 @@ class BookingService {
     const cancellationCharges = cancellationData.cancellationCharges !== undefined ? Number(cancellationData.cancellationCharges) : Math.max(0, totalPaid - refundAmount);
     const cancellationReason = cancellationData.cancellationReason || 'Cancelled on Passenger Request';
     const refundMode = cancellationData.refundMode || 'Admin Bank/UPI Transfer (5-7 Days)';
-    
+
     const staffUser = cancellationData.cancelledBy || { name: 'Chief Admin', username: 'admin', role: 'SuperAdmin' };
     const rawStaffName = typeof staffUser === 'string' ? staffUser : (staffUser.name || staffUser.username || 'Admin');
     const staffRole = typeof staffUser === 'object' ? (staffUser.role || 'Staff') : 'Staff';
-    
+
     // Clean staff name for clean display
     let staffName = String(rawStaffName).trim();
     if (staffName.includes('रमाकांत') || staffName.includes('tt')) staffName = 'Ramakant Sharma (TTE)';
     else if (staffName.includes('व्यवस्थापक') || staffName.includes('admin')) staffName = 'Chief Trust Admin';
-    else staffName = staffName.replace(/[^\x20-\x7E]/g, '').trim() || 'Counter Staff';
+    else staffName = staffName.replace(/[^ -\u007E]/g, '').trim() || 'Counter Staff';
 
     const refundAccount = {
       channel: cancellationData.refundChannel || (cancellationData.upiId ? 'UPI' : 'Bank Transfer'),
@@ -469,7 +503,7 @@ class BookingService {
       paymentStatus: 'Refunded',
       releasedSeats: booking.seatNumber || [],
       seatNumber: [], // Release seats back to available pool!
-      passengers: (booking.passengers || []).map(p => ({ ...p, seatAssigned: 'Cancelled', checkInStatus: 'Cancelled' })),
+      passengers: (booking.passengers || []).map(p => ({ ...p, seatAssigned: 'Cancelled', checkInStatus: 'Cancelled', berthPreference: 'Cancelled' })),
       refundAmount,
       cancellationCharges,
       cancellationDetails: cancellationRecord,
@@ -485,7 +519,8 @@ class BookingService {
       await StaffService.logAudit({
         action: 'TICKET_CANCELLED',
         performedBy: staffUser,
-        details: `PNR ${booking.bookingId} (${booking.bookedBy}) का टिकट रद्द किया गया। रिफंड राशि: ₹${refundAmount} (माध्यम: ${refundMode})। रद्दीकरणकर्ता: ${staffName} (${staffRole})। कारण: ${cancellationReason}`
+        details: `PNR ${booking.bookingId} (${booking.bookedBy}) का टिकट रद्द किया गया। रिफंड राशि: ₹${refundAmount} (माध्यम: ${refundMode})`,
+        targetId: booking.bookingId
       });
     } catch (e) {}
 
@@ -591,10 +626,10 @@ class BookingService {
       const { CoachService } = require('./coachService');
       const allCoaches = await CoachService.getAllCoaches();
       const bookableCoaches = allCoaches.filter(c => c.status === 'Active' && c.isBookable !== false && Number(c.totalSeats) > 0);
-      
-      const coachesToProcess = bookableCoaches.length > 0 
-        ? bookableCoaches 
-        : ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR1'].map(code => ({ coachCode: code, totalSeats: 72, coachClass: code.startsWith('A') || code.startsWith('B') ? 'AC' : 'Sleeper' }));
+
+      const coachesToProcess = bookableCoaches.length > 0
+        ? bookableCoaches
+        : ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR1'].map(code => ({ coachCode: code, totalSeats: 72, coachClass: code.startsWith('A') || code.startsWith('B') ? 'AC' : code.startsWith('S') ? 'Sleeper' : 'General' }));
 
       let totalCapacity = 0;
       let bookedCount = 0;
@@ -611,7 +646,6 @@ class BookingService {
         absentCount += cChart.absentCount;
         totalDuesInCoach += cChart.totalDuesInCoach;
 
-        // Prefix row seatNumber with coachName for clarity in aggregated list
         const annotatedRows = cChart.rows.map(r => ({
           ...r,
           coachName: coach.coachCode || coach,
@@ -646,7 +680,6 @@ class BookingService {
     const totalCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (coachName.startsWith('A') ? 54 : 64) : 80));
     const travelClass = isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General');
 
-    // Build map: seatStr -> { booking, passenger, paxRemaining }
     const seatMap = {};
     const coachBookingsMap = new Map();
 
@@ -659,6 +692,7 @@ class BookingService {
         b.passengers.forEach((p, idx) => {
           const seatNum = String(p.seatAssigned || (b.seatNumber && b.seatNumber[idx]) || '').trim();
           if (seatNum && seatNum !== 'Cancelled') {
+            const berthPreference = getBerthType(seatNum, travelClass);
             seatMap[seatNum] = {
               bookingId: b.bookingId,
               pnr: b.bookingId,
@@ -677,7 +711,7 @@ class BookingService {
                 age: p.age,
                 gender: p.gender,
                 aadhar: p.aadhar,
-                berthPreference: p.berthPreference || getBerthType(seatNum, travelClass),
+                berthPreference,
                 checkInStatus: p.checkInStatus || 'Pending'
               }
             };
@@ -690,7 +724,6 @@ class BookingService {
     let bookedCount = 0;
     let presentCount = 0;
     let absentCount = 0;
-    // Total dues in coach is sum of remaining amounts of bookings allocated in this coach
     const totalDuesInCoach = Array.from(coachBookingsMap.values()).reduce((sum, b) => sum + (Number(b.remainingAmount) || 0), 0);
 
     for (let i = 1; i <= totalCapacity; i++) {
@@ -786,7 +819,7 @@ class BookingService {
           const s = String(p.seatAssigned || (b.seatNumber && b.seatNumber[idx]) || '').trim();
           if (s === seatStr) {
             found = true;
-            return { ...p, checkInStatus };
+            return { ...p, checkInStatus, berthPreference: getBerthType(s, b.travelClass || 'Sleeper') };
           }
           return p;
         });
@@ -803,7 +836,7 @@ class BookingService {
   // Aggregate stats for executive dashboard with Comprehensive Progress, Collections, Discounts, Staff & Coach Analytics
   static async getDashboardStats(yatraYear = null) {
     const allBookings = await this.getBookings(yatraYear ? { yatraYear } : {});
-    
+
     const activeBookings = allBookings.filter(b => b.status !== 'Cancelled');
     const cancelledBookings = allBookings.filter(b => b.status === 'Cancelled');
 
@@ -1064,5 +1097,6 @@ module.exports = {
   BookingService,
   FARES,
   COACH_CONFIG,
-  getBerthType
+  getBerthType,
+  normalizePassengerBerths
 };
