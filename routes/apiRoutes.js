@@ -288,12 +288,19 @@ router.post('/admin/coaches/reset-default', requireAuth('SuperAdmin'), async (re
 // Cancel Ticket with Refund (Booking Counter & Admin)
 router.post('/bookings/:id/cancel', requireAuth(), async (req, res) => {
   try {
-    const { refundAmount, cancellationCharges, cancellationReason, refundMode, utr } = req.body;
+    const { refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
     const cancelled = await BookingService.cancelBookingWithRefund(req.params.id, {
       refundAmount,
       cancellationCharges,
       cancellationReason,
+      remarks,
       refundMode,
+      refundChannel,
+      upiId,
+      accountHolder,
+      bankName,
+      accountNumber,
+      ifscCode,
       utr,
       cancelledBy: req.user
     });
@@ -309,12 +316,19 @@ router.post('/bookings/:id/cancel', requireAuth(), async (req, res) => {
 
 router.post('/admin/bookings/:id/cancel', requireAuth(), async (req, res) => {
   try {
-    const { refundAmount, cancellationCharges, cancellationReason, refundMode, utr } = req.body;
+    const { refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
     const cancelled = await BookingService.cancelBookingWithRefund(req.params.id, {
       refundAmount,
       cancellationCharges,
       cancellationReason,
+      remarks,
       refundMode,
+      refundChannel,
+      upiId,
+      accountHolder,
+      bankName,
+      accountNumber,
+      ifscCode,
       utr,
       cancelledBy: req.user
     });
@@ -635,6 +649,39 @@ router.get('/verify-slip', async (req, res) => {
           remainingAmount: booking.remainingAmount,
           paymentStatus: booking.paymentStatus,
           passengers: booking.passengers
+        }
+      });
+    }
+
+    if (booking.status === 'Cancelled') {
+      return res.json({
+        success: true,
+        isGenuine: false,
+        status: 'CANCELLED',
+        title: '⚠️ आरक्षण रद्द (TICKET CANCELLED - VOID FOR TRAVEL)',
+        message: 'यह आरक्षण आधिकारिक रूप से रद्द (Cancelled) किया जा चुका है और सीटें रिक्त हो चुकी हैं। यह पर्ची यात्रा हेतु पूर्णतः अमान्य है। इस पर ट्रेन में यात्रा करने की अनुमति नहीं है।',
+        securityHash: `MVD-${expectedHash}`,
+        booking: {
+          bookingId: booking.bookingId,
+          yatraYear: booking.yatraYear,
+          bookedBy: booking.bookedBy,
+          mobile: booking.mobile,
+          status: 'Cancelled',
+          paymentStatus: booking.paymentStatus,
+          coachName: booking.coachName,
+          coachDisplayName: booking.coachDisplayName || '',
+          seatNumber: booking.seatNumber || [],
+          travelClass: booking.travelClass,
+          fromStation: booking.fromStation,
+          toStation: booking.toStation,
+          travelDate: booking.travelDate,
+          totalAmount: booking.totalAmount,
+          advance: booking.advance,
+          refundAmount: booking.refundAmount || 0,
+          cancellationCharges: booking.cancellationCharges || 0,
+          cancellationDetails: booking.cancellationDetails || null,
+          passengers: booking.passengers,
+          createdAt: booking.createdAt
         }
       });
     }

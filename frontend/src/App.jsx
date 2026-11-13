@@ -252,7 +252,6 @@ export default function App() {
   const [posterModal, setPosterModal] = useState(false);
   const [editYatriModal, setEditYatriModal] = useState(null);
   const [editYatriCoachLayout, setEditYatriCoachLayout] = useState({ layout: [], totalCapacity: 72 });
-  const [cancelRefundModal, setCancelRefundModal] = useState(null);
   const [editReceiptModal, setEditReceiptModal] = useState(null);
   const [ticketPrintLayout, setTicketPrintLayout] = useState('full'); // 'full' or 'half'
 
@@ -412,6 +411,11 @@ export default function App() {
     // Determine the actual element ID to print
     let targetElemId = elementId;
     if (elementId === 'irctc-ticket-print-area' || elementId === 'irctc-ticket-half-area') {
+      if (ticketModal && ticketModal.status === 'Cancelled') {
+        alert('सुरक्षा प्रतिबंध: यह आरक्षण रद्द है। रद्द टिकट का यात्रा पास प्रिंट नहीं किया जा सकता!');
+        if (onComplete) onComplete();
+        return;
+      }
       if (isHalf && document.getElementById('irctc-ticket-half-area')) {
         targetElemId = 'irctc-ticket-half-area';
       } else if (!isHalf && document.getElementById('irctc-ticket-print-area')) {
@@ -503,6 +507,25 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAutoPrinting, setIsAutoPrinting] = useState(false);
   const handleAutoPrintTicket = (booking) => {
+    if (!booking) return;
+    if (booking.status === 'Cancelled') {
+      alert('⚠️ यह आरक्षण रद्द (CANCELLED) किया जा चुका है!\n\nसुरक्षा एवं रेलवे नियमों के अनुसार रद्द टिकट का यात्रा पास प्रिंट नहीं किया जा सकता। इसके स्थान पर आधिकारिक रद्दीकरण एवं रिफंड वाउचर खोला जा रहा है।');
+      const refundTxn = (booking.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+        id: `MVD-REF-${booking.bookingId}`,
+        date: booking.cancellationDetails?.cancelledAt || new Date().toISOString(),
+        amount: -(booking.refundAmount || booking.advance || 0),
+        refundAmount: booking.refundAmount || booking.advance || 0,
+        cancellationCharges: booking.cancellationCharges || 0,
+        originalAdvance: booking.cancellationDetails?.originalAdvance || booking.advance || 0,
+        method: booking.cancellationDetails?.refundMode || 'Refund Processed',
+        type: 'Ticket Cancellation Refund',
+        cashierName: booking.cancellationDetails?.cancelledBy || 'Trust Admin',
+        reason: booking.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+        remarks: booking.cancellationDetails?.remarks || ''
+      };
+      handleAutoPrintReceipt(booking, refundTxn);
+      return;
+    }
     setIsAutoPrinting(true);
     setTicketModal(booking);
     const activeLayout = (projectSettings && projectSettings.printLayout) || ticketPrintLayout || 'full';
@@ -1418,15 +1441,28 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
   };
 
-  // Ticket Cancellation & Refund Handler
+  // Ticket Cancellation & Refund Handler (Anti-Fraud & Auto-Print Refund Voucher)
   const handleCancelTicket = async (e) => {
     e.preventDefault();
     if (!cancelModal?.booking) return;
     const b = cancelModal.booking;
+    const paid = Number(b.advance || 0);
     const refAmt = parseFloat(cancelModal.refundAmount) || 0;
     const charges = parseFloat(cancelModal.cancellationCharges) || 0;
-    
-    if (!confirm(`क्या आप निश्चित हैं कि PNR ${b.bookingId} (${b.bookedBy}) का टिकट रद्द करना चाहते हैं?\n\nरिफंड राशि: ₹${refAmt}\nकटौती शुल्क: ₹${charges}\nमाध्यम: ${cancelModal.refundMode}\n\nसीटें तुरंत मुक्त कर दी जाएंगी।`)) {
+    const reason = cancelModal.cancellationReason || 'यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण';
+    const remarks = (cancelModal.remarks || '').trim();
+
+    // Anti-Fraud Validations
+    if (paid > 0 && Math.abs((refAmt + charges) - paid) > 0.01) {
+      alert(`त्रुटि: रिफंड राशि (₹${refAmt}) + कटौती शुल्क (₹${charges}) कुल जमा अग्रिम (₹${paid}) के बराबर होनी चाहिए।`);
+      return;
+    }
+    if (remarks.length < 5) {
+      alert('⚠️ अनिवार्य आवश्यकता: कृपया रद्दीकरण का स्पष्ट कारण व विस्तृत टिप्पणी दर्ज करें (कम से कम 5 अक्षर)।');
+      return;
+    }
+
+    if (!confirm(`क्या आप निश्चित हैं कि PNR ${b.bookingId} (${b.bookedBy}) का टिकट रद्द करना चाहते हैं?\n\nकुल जमा अग्रिम: ₹${paid}\nरिफंड राशि: ₹${refAmt}\nकटौती शुल्क: ₹${charges}\nमाध्यम: ${cancelModal.refundMode}\nकारण: ${reason}\n\nसीटें तुरंत मुक्त (VACANT) कर दी जाएंगी।`)) {
       return;
     }
 
@@ -1438,8 +1474,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         body: JSON.stringify({
           refundAmount: refAmt,
           cancellationCharges: charges,
-          cancellationReason: cancelModal.cancellationReason || 'यात्री के अनुरोध पर रद्दीकरण',
-          refundMode: cancelModal.refundMode || 'Cash',
+          cancellationReason: reason,
+          remarks: remarks,
+          refundChannel: cancelModal.refundChannel || 'Cash',
+          refundMode: cancelModal.refundMode || 'Cash (Counter Cash Refund)',
+          accountHolder: cancelModal.accountHolder || b.bookedBy,
+          bankName: cancelModal.bankName || '',
+          accountNumber: cancelModal.accountNumber || '',
+          ifscCode: cancelModal.ifscCode || '',
+          upiId: cancelModal.upiId || '',
           utr: cancelModal.utr || ''
         })
       });
@@ -1448,6 +1491,23 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         alert(data.message || 'टिकट सफलतापूर्वक रद्द किया गया एवं रिफंड रिकॉर्ड दर्ज किया गया।');
         setCancelModal(null);
         refreshAllBookingViews();
+
+        // Auto-Print Official Cancellation & Refund Advice Slip
+        const updatedBooking = data.booking || { ...b, status: 'Cancelled', refundAmount: refAmt, cancellationCharges: charges };
+        const refundTxn = (updatedBooking.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+          id: `MVD-REF-${b.bookingId}`,
+          date: new Date().toISOString(),
+          amount: -refAmt,
+          refundAmount: refAmt,
+          cancellationCharges: charges,
+          originalAdvance: paid,
+          method: cancelModal.refundMode || 'Cash (Counter Cash Refund)',
+          type: 'Ticket Cancellation Refund',
+          cashierName: staffUser?.name || staffUser?.username || 'Counter Staff',
+          reason: reason,
+          remarks: remarks
+        };
+        handleAutoPrintReceipt(updatedBooking, refundTxn);
       } else {
         alert('त्रुटि: ' + data.error);
       }
@@ -1811,7 +1871,24 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       const data = await safeFetchJson(`/api/bookings/pnr/${encodeURIComponent(term)}`);
       if (data.success && data.booking) {
         setSearchedTicket(data.booking);
-        setTicketModal(data.booking);
+        if (data.booking.status === 'Cancelled') {
+          const refundTxn = (data.booking.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+            id: `MVD-REF-${data.booking.bookingId}`,
+            date: data.booking.cancellationDetails?.cancelledAt || new Date().toISOString(),
+            amount: -(data.booking.refundAmount || data.booking.advance || 0),
+            refundAmount: data.booking.refundAmount || data.booking.advance || 0,
+            cancellationCharges: data.booking.cancellationCharges || 0,
+            originalAdvance: data.booking.cancellationDetails?.originalAdvance || data.booking.advance || 0,
+            method: data.booking.cancellationDetails?.refundMode || 'Refund Processed',
+            type: 'Ticket Cancellation Refund',
+            cashierName: data.booking.cancellationDetails?.cancelledBy || 'Trust Admin',
+            reason: data.booking.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+            remarks: data.booking.cancellationDetails?.remarks || ''
+          };
+          setReceiptModal({ booking: data.booking, txn: refundTxn });
+        } else {
+          setTicketModal(data.booking);
+        }
       } else {
         setSearchedTicket(null);
         setPnrSearchError(data.error || 'इस PNR / मोबाइल / रसीद नंबर से कोई वैध आरक्षण नहीं मिला।');
@@ -4484,9 +4561,30 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <button className="btn btn-outline btn-sm" onClick={() => setTicketModal(b)}>
-                        <FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> पर्ची
-                      </button>
+                      {b.status === 'Cancelled' ? (
+                        <button className="btn btn-outline btn-sm" style={{ borderColor: '#DC2626', color: '#DC2626' }} onClick={() => {
+                          const refundTxn = (b.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+                            id: `MVD-REF-${b.bookingId}`,
+                            date: b.cancellationDetails?.cancelledAt || new Date().toISOString(),
+                            amount: -(b.refundAmount || b.advance || 0),
+                            refundAmount: b.refundAmount || b.advance || 0,
+                            cancellationCharges: b.cancellationCharges || 0,
+                            originalAdvance: b.cancellationDetails?.originalAdvance || b.advance || 0,
+                            method: b.cancellationDetails?.refundMode || 'Refund Processed',
+                            type: 'Ticket Cancellation Refund',
+                            cashierName: b.cancellationDetails?.cancelledBy || 'Trust Admin',
+                            reason: b.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+                            remarks: b.cancellationDetails?.remarks || ''
+                          };
+                          setReceiptModal({ booking: b, txn: refundTxn });
+                        }} title="रद्दीकरण एवं रिफंड वाउचर देखें / प्रिंट करें">
+                          <Printer size={15} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> रिफंड पर्ची
+                        </button>
+                      ) : (
+                        <button className="btn btn-outline btn-sm" onClick={() => setTicketModal(b)}>
+                          <FileText size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> पर्ची
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -6065,8 +6163,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                       <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="Payment Slip">
                                           <Printer size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Payment Slip
                                         </button>
-                                      <button className="btn btn-xs btn-outline" onClick={() => handleAutoPrintTicket(b)} title="Ticket Print">
-                                          <Ticket size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Ticket Print
+                                      <button className="btn btn-xs btn-outline" style={b.status === 'Cancelled' ? { borderColor: '#DC2626', color: '#DC2626' } : {}} onClick={() => handleAutoPrintTicket(b)} title={b.status === 'Cancelled' ? 'रिफंड पर्ची प्रिंट (Refund Advice Slip)' : 'Ticket Print'}>
+                                          {b.status === 'Cancelled' ? <Printer size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> : <Ticket size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} />}
+                                          {b.status === 'Cancelled' ? 'रिफंड पर्ची' : 'Ticket Print'}
                                         </button>
                                       {isSuperAdmin && (
                                         <button className="btn btn-xs btn-outline" onClick={() => openEditYatriModal(b)} title="Edit Yatri / Add or Delete Yatri" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
@@ -6093,13 +6192,48 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                       )}
                                       
                                       {b.status !== 'Cancelled' ? (
-                                        <button className="btn btn-xs" onClick={() => setCancelRefundModal(b)} title="रद्द करें व रिफंड दें (Cancel/Refund)" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
+                                        <button className="btn btn-xs" onClick={() => setCancelModal({
+                                          show: true,
+                                          booking: b,
+                                          refundAmount: b.advance || 0,
+                                          cancellationCharges: 0,
+                                          cancellationReason: 'यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण',
+                                          remarks: '',
+                                          refundChannel: 'Cash',
+                                          refundMode: 'Cash (Counter Cash Refund)',
+                                          accountHolder: b.bookedBy || '',
+                                          bankName: '',
+                                          accountNumber: '',
+                                          ifscCode: '',
+                                          upiId: '',
+                                          utr: ''
+                                        })} title="रद्द करें व रिफंड दें (Cancel/Refund)" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
                                           <RefreshCw size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> रद्द/Cancel
                                         </button>
                                       ) : (
-                                        <span className="badge badge-bhakti" style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}>
-                                          रद्द (Cancelled)
-                                        </span>
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                          <span className="badge badge-bhakti" style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}>
+                                            रद्द (Cancelled)
+                                          </span>
+                                          <button className="btn btn-xs btn-outline" style={{ borderColor: '#DC2626', color: '#DC2626', padding: '2px 6px' }} onClick={() => {
+                                            const refundTxn = (b.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+                                              id: `MVD-REF-${b.bookingId}`,
+                                              date: b.cancellationDetails?.cancelledAt || new Date().toISOString(),
+                                              amount: -(b.refundAmount || b.advance || 0),
+                                              refundAmount: b.refundAmount || b.advance || 0,
+                                              cancellationCharges: b.cancellationCharges || 0,
+                                              originalAdvance: b.cancellationDetails?.originalAdvance || b.advance || 0,
+                                              method: b.cancellationDetails?.refundMode || 'Refund Processed',
+                                              type: 'Ticket Cancellation Refund',
+                                              cashierName: b.cancellationDetails?.cancelledBy || 'Trust Admin',
+                                              reason: b.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+                                              remarks: b.cancellationDetails?.remarks || ''
+                                            };
+                                            setReceiptModal({ booking: b, txn: refundTxn });
+                                          }} title="रद्दीकरण एवं रिफंड वाउचर देखें / प्रिंट करें">
+                                            <Printer size={11} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> रिफंड पर्ची
+                                          </button>
+                                        </div>
                                       )}
                                     </div>
                                   </td>
@@ -8895,10 +9029,10 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               <div style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
                 <div style={{ color: '#991B1B', fontWeight: 800, fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span>⚠️</span>
-                  <span>रिफंड नीति: काउंटर से नकद (Cash) वापस नहीं दिया जाएगा।</span>
+                  <span>रिफंड एवं सुरक्षा नीति (IRCTC Standard Anti-Fraud Policy)</span>
                 </div>
                 <div style={{ color: '#7F1D1D', fontSize: '0.78rem', marginTop: 4, lineHeight: 1.4 }}>
-                  रिफंड राशि व्यवस्थापक (Admin) द्वारा <strong>5-7 कार्य दिवसों (Working Days)</strong> में यात्री के बैंक खाते / UPI में ऑनलाइन ट्रांसफर की जाएगी। कृपया नीचे सही बैंक या UPI विवरण दर्ज करें।
+                  रद्दीकरण की पुष्टि होते ही सीटें तुरंत मुक्त (Vacant) हो जाएंगी। नकद अथवा ऑनलाइन रिफंड का अधिकृत रद्दीकरण एवं रिफंड वाउचर स्वतः प्रिंट होगा।
                 </div>
               </div>
 
@@ -8944,18 +9078,27 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               </div>
 
               <div className="form-group" style={{ marginBottom: 12 }}>
-                <label className="form-label" style={{ fontWeight: 700 }}>रिफंड प्राप्त करने का माध्यम (Refund Channel - 5-7 Days) *</label>
+                <label className="form-label" style={{ fontWeight: 700 }}>रिफंड प्राप्त करने का माध्यम (Refund Channel) *</label>
                 <select
                   className="form-control"
-                  value={cancelModal.refundChannel || 'UPI'}
-                  onChange={(e) => setCancelModal({ ...cancelModal, refundChannel: e.target.value, refundMode: e.target.value === 'UPI' ? 'Admin UPI Transfer (5-7 Days)' : 'Admin Bank Transfer (5-7 Days)' })}
+                  value={cancelModal.refundChannel || 'Cash'}
+                  onChange={(e) => {
+                    const ch = e.target.value;
+                    const mode = ch === 'Cash' ? 'Cash (Counter Cash Refund)' : (ch === 'UPI' ? 'Admin UPI Transfer (5-7 Days)' : 'Admin Bank Transfer (5-7 Days)');
+                    setCancelModal({ ...cancelModal, refundChannel: ch, refundMode: mode });
+                  }}
                 >
+                  <option value="Cash">नकद रिफंड (Counter Cash Handover)</option>
                   <option value="UPI">UPI ट्रांसफर (5-7 कार्य दिवस)</option>
                   <option value="Bank">बैंक खाता ट्रांसफर (NEFT/IMPS 5-7 कार्य दिवस)</option>
                 </select>
               </div>
 
-              {(cancelModal.refundChannel || 'UPI') === 'UPI' ? (
+              {(cancelModal.refundChannel || 'Cash') === 'Cash' ? (
+                <div style={{ background: '#ECFDF5', padding: 10, borderRadius: 8, border: '1px solid #A7F3D0', marginBottom: 12, fontSize: '0.82rem', color: '#065F46' }}>
+                  ✓ काउंटर से श्रद्धालु को नकद राशि <strong>₹{cancelModal.refundAmount || 0}</strong> वापस सौंपी जाएगी। आधिकारिक रद्दीकरण एवं रिफंड रसीद तुरंत प्रिंट होगी।
+                </div>
+              ) : (cancelModal.refundChannel === 'UPI' ? (
                 <div className="form-group" style={{ marginBottom: 12 }}>
                   <label className="form-label" style={{ fontWeight: 700, color: '#047857' }}>यात्री का UPI ID (उदा. 9876543210@upi / paytm) *</label>
                   <input
@@ -9015,17 +9158,40 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     />
                   </div>
                 </div>
-              )}
+              ))}
 
-              <div className="form-group" style={{ marginBottom: 16 }}>
-                <label className="form-label">रद्दीकरण का कारण (Cancellation Reason) *</label>
-                <input
-                  type="text"
+              <div className="form-group" style={{ marginBottom: 12 }}>
+                <label className="form-label" style={{ fontWeight: 700 }}>रद्दीकरण का कारण (Cancellation Reason - IRCTC Format) *</label>
+                <select
                   className="form-control"
-                  value={cancelModal.cancellationReason}
+                  value={cancelModal.cancellationReason || 'यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण'}
                   onChange={(e) => setCancelModal({ ...cancelModal, cancellationReason: e.target.value })}
                   required
+                >
+                  <option value="यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण">यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण (Personal / Family Reasons)</option>
+                  <option value="चिकित्सा आपातकाल / अस्वस्थता">चिकित्सा आपातकाल / अस्वस्थता (Medical Emergency / Illness)</option>
+                  <option value="यात्रा योजना में परिवर्तन / स्थगित">यात्रा योजना में परिवर्तन / स्थगित (Change of Travel Plans)</option>
+                  <option value="ट्रेन समय सारणी / स्टेशन परिवर्तन">ट्रेन समय सारणी / स्टेशन परिवर्तन (Train Schedule / Station Rescheduled)</option>
+                  <option value="ट्रस्ट / प्रशासनिक निर्देश">ट्रस्ट / प्रशासनिक निर्देश (Administrative / Trust Directive)</option>
+                  <option value="डुप्लीकेट या गलत विवरण से बुकिंग">डुप्लीकेट या गलत विवरण से बुकिंग (Duplicate / Erroneous Booking)</option>
+                  <option value="अन्य विशेष कारण">अन्य विशेष कारण (Other Reasons - Remarks Required)</option>
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 16 }}>
+                <label className="form-label" style={{ fontWeight: 700, color: '#991B1B' }}>स्टाफ टिप्पणी / विस्तृत कारण (Mandatory Remarks) *</label>
+                <textarea
+                  className="form-control"
+                  rows="2"
+                  placeholder="रद्दीकरण का ठोस कारण व स्पष्ट विवरण दर्ज करें (कम से कम 5 अक्षर अनिवार्य)..."
+                  value={cancelModal.remarks || ''}
+                  onChange={(e) => setCancelModal({ ...cancelModal, remarks: e.target.value })}
+                  required
+                  minLength={5}
                 />
+                <div style={{ fontSize: '0.72rem', color: '#6B7280', marginTop: 3 }}>
+                  * ऑडिट व सुरक्षा नियमों के तहत स्टाफ द्वारा रद्दीकरण का कारण लिखना अनिवार्य है ताकि कोई धोखाधड़ी न हो सके।
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
@@ -9033,7 +9199,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   रद्द न करें (Back)
                 </button>
                 <button type="submit" className="btn btn-danger" style={{ background: '#DC2626', color: '#fff', fontWeight: 800 }}>
-                  ✓ टिकट रद्द व रिफंड रिक्वेस्ट दर्ज करें
+                  ✓ टिकट रद्द करें व रिफंड वाउचर जारी करें
                 </button>
               </div>
             </form>
@@ -9092,18 +9258,57 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               </div>
 
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <button 
-                  className="btn btn-primary btn-sm" 
-                  onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
-                  style={{ background: '#0284C7', borderColor: '#0369A1' }}
-                >
-                  <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
-                  {ticketPrintLayout === 'half' ? 'प्रिंट (A5)' : 'प्रिंट (A4 Full)'}
-                </button>
+                {ticketModal.status === 'Cancelled' ? (
+                  <button 
+                    className="btn btn-danger btn-sm" 
+                    onClick={() => {
+                      const refundTxn = (ticketModal.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+                        id: `MVD-REF-${ticketModal.bookingId}`,
+                        date: ticketModal.cancellationDetails?.cancelledAt || new Date().toISOString(),
+                        amount: -(ticketModal.refundAmount || ticketModal.advance || 0),
+                        refundAmount: ticketModal.refundAmount || ticketModal.advance || 0,
+                        cancellationCharges: ticketModal.cancellationCharges || 0,
+                        originalAdvance: ticketModal.cancellationDetails?.originalAdvance || ticketModal.advance || 0,
+                        method: ticketModal.cancellationDetails?.refundMode || 'Refund Processed',
+                        type: 'Ticket Cancellation Refund',
+                        cashierName: ticketModal.cancellationDetails?.cancelledBy || 'Trust Admin',
+                        reason: ticketModal.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+                        remarks: ticketModal.cancellationDetails?.remarks || ''
+                      };
+                      setTicketModal(null);
+                      setReceiptModal({ booking: ticketModal, txn: refundTxn });
+                    }}
+                    style={{ background: '#DC2626', borderColor: '#B91C1C' }}
+                  >
+                    <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                    रिफंड वाउचर प्रिंट करें
+                  </button>
+                ) : (
+                  <button 
+                    className="btn btn-primary btn-sm" 
+                    onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
+                    style={{ background: '#0284C7', borderColor: '#0369A1' }}
+                  >
+                    <Printer size={16} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                    {ticketPrintLayout === 'half' ? 'प्रिंट (A5)' : 'प्रिंट (A4 Full)'}
+                  </button>
+                )}
                 
                 <button onClick={() => setTicketModal(null)} style={{ background: 'none', border: 'none', color: '#0369A1', fontSize: 24, cursor: 'pointer', fontWeight: 'bold', marginLeft: 8 }}>✕</button>
               </div>
             </div>
+
+            {ticketModal.status === 'Cancelled' && (
+              <div style={{ background: '#FEF2F2', border: '2px solid #EF4444', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#991B1B' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: '1rem' }}>
+                  <AlertTriangle size={20} color="#DC2626" />
+                  <span>आरक्षण रद्द (TICKET CANCELLED - VOID FOR TRAVEL)</span>
+                </div>
+                <div style={{ fontSize: '0.82rem', marginTop: 4, lineHeight: 1.4, color: '#7F1D1D' }}>
+                  सुरक्षा एवं रेलवे नियमों के अनुसार, रद्द टिकट को यात्रा पास के रूप में प्रिंट नहीं किया जा सकता। आवंटित सीटें रिक्त कर दी गई हैं। कृपया <strong>"रिफंड वाउचर प्रिंट करें"</strong> बटन से आधिकारिक रद्दीकरण एवं रिफंड पर्ची प्राप्त करें।
+                </div>
+              </div>
+            )}
 
             {/* Layout 1: Dedicated A4 Half Ticket (Fits <= 138mm cleanly) */}
             {ticketPrintLayout === 'half' ? (
@@ -9480,14 +9685,41 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   <Smartphone size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> UPI द्वारा शेष भुगतान करें
                 </button>
               )}
-              <button 
-                className="btn btn-primary btn-sm" 
-                style={{ flex: 1, background: '#0284C7', borderColor: '#0369A1' }} 
-                onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
-              >
-                <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
-                {ticketPrintLayout === 'half' ? 'टिकट प्रिंट (A5)' : 'टिकट प्रिंट (A4 Full)'}
-              </button>
+              {ticketModal.status === 'Cancelled' ? (
+                <button 
+                  className="btn btn-danger btn-sm" 
+                  style={{ flex: 1, background: '#DC2626', borderColor: '#B91C1C' }} 
+                  onClick={() => {
+                    const refundTxn = (ticketModal.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+                      id: `MVD-REF-${ticketModal.bookingId}`,
+                      date: ticketModal.cancellationDetails?.cancelledAt || new Date().toISOString(),
+                      amount: -(ticketModal.refundAmount || ticketModal.advance || 0),
+                      refundAmount: ticketModal.refundAmount || ticketModal.advance || 0,
+                      cancellationCharges: ticketModal.cancellationCharges || 0,
+                      originalAdvance: ticketModal.cancellationDetails?.originalAdvance || ticketModal.advance || 0,
+                      method: ticketModal.cancellationDetails?.refundMode || 'Refund Processed',
+                      type: 'Ticket Cancellation Refund',
+                      cashierName: ticketModal.cancellationDetails?.cancelledBy || 'Trust Admin',
+                      reason: ticketModal.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+                      remarks: ticketModal.cancellationDetails?.remarks || ''
+                    };
+                    setTicketModal(null);
+                    setReceiptModal({ booking: ticketModal, txn: refundTxn });
+                  }}
+                >
+                  <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                  रिफंड वाउचर देखें व प्रिंट करें (Print Refund Advice)
+                </button>
+              ) : (
+                <button 
+                  className="btn btn-primary btn-sm" 
+                  style={{ flex: 1, background: '#0284C7', borderColor: '#0369A1' }} 
+                  onClick={() => printSlipElement('irctc-ticket-print-area', `IRCTC-Ticket-${ticketModal.bookingId}`, null, ticketPrintLayout)}
+                >
+                  <Printer size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> 
+                  {ticketPrintLayout === 'half' ? 'टिकट प्रिंट (A5)' : 'टिकट प्रिंट (A4 Full)'}
+                </button>
+              )}
               
             </div>
 
@@ -9644,10 +9876,35 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         </div>
                         <div style={{ fontSize: '0.7rem', color: '#374151', marginTop: 3 }}>
                           {isRefund 
-                            ? `Refund Channel: ${receiptModal.txn.method || 'Admin Bank/UPI Transfer (5-7 Days)'} ${receiptModal.txn.utr ? `(Ref: ${receiptModal.txn.utr})` : ''} | Processed by Trust Admin directly to Bank/UPI`
+                            ? `Refund Channel: ${receiptModal.txn.method || 'Admin Bank/UPI Transfer (5-7 Days)'} ${receiptModal.txn.utr ? `(Ref: ${receiptModal.txn.utr})` : ''} | Processed by Trust Admin directly`
                             : `Payment Mode: ${receiptModal.txn.method || 'Cash'} ${receiptModal.txn.utr ? `(UTR: ${receiptModal.txn.utr})` : ''} | Type: Advance/Balance Payment | ID: ${receiptModal.txn.id}`}
                         </div>
                       </div>
+
+                      {/* Refund Detailed Audit Box */}
+                      {isRefund && (
+                        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 4, padding: '6px 10px', fontSize: '0.74rem', marginBottom: 8, color: '#991B1B' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 4 }}>
+                            <div>
+                              <span style={{ fontWeight: 700 }}>कुल जमा अग्रिम (Paid Advance):</span> Rs. {parseFloat(receiptModal.txn.originalAdvance || receiptModal.booking.cancellationDetails?.originalAdvance || receiptModal.booking.advance || absAmt).toFixed(2)}
+                            </div>
+                            <div>
+                              <span style={{ fontWeight: 700 }}>कटौती शुल्क (Cancellation Charges):</span> Rs. {parseFloat(receiptModal.txn.cancellationCharges || receiptModal.booking.cancellationDetails?.cancellationCharges || 0).toFixed(2)}
+                            </div>
+                          </div>
+                          <div style={{ marginBottom: 3 }}>
+                            <span style={{ fontWeight: 700 }}>रद्दीकरण कारण (Reason):</span> {receiptModal.txn.reason || receiptModal.booking.cancellationDetails?.cancellationReason || 'यात्री के अनुरोध पर'}
+                          </div>
+                          {(receiptModal.txn.remarks || receiptModal.booking.cancellationDetails?.remarks) && (
+                            <div style={{ marginBottom: 3 }}>
+                              <span style={{ fontWeight: 700 }}>स्टाफ टिप्पणी (Remarks):</span> <em>{receiptModal.txn.remarks || receiptModal.booking.cancellationDetails?.remarks}</em>
+                            </div>
+                          )}
+                          <div style={{ fontWeight: 800, color: '#B91C1C', marginTop: 4, borderTop: '1px dashed #FCA5A5', paddingTop: 3, fontSize: '0.7rem' }}>
+                            ⚠️ यह रद्दीकरण एवं रिफंड रसीद है। मूल यात्रा टिकट अमान्य (VOID) हो चुका है और सीटें रिक्त कर दी गई हैं। इस पर्ची पर यात्रा की अनुमति नहीं है।
+                          </div>
+                        </div>
+                      )}
 
                       {/* Account Summary Table */}
                       <div style={{ background: '#F3F4F6', border: '1px solid #D1D5DB', borderRadius: 4, padding: '6px 10px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, fontSize: '0.74rem', marginBottom: 8 }}>
@@ -10370,95 +10627,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       )}
 
       
-      {/* ----------------- CANCEL & REFUND MODAL ----------------- */}
-      {cancelRefundModal && (
-        <div className="modal-overlay" style={{ zIndex: 9999 }}>
-          <div className="modal-content" style={{ maxWidth: 500 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, color: '#DC2626', fontSize: '1.2rem', fontWeight: 800 }}>
-                ⚠️ टिकट रद्द व रिफंड करें
-              </h3>
-              <button onClick={() => setCancelRefundModal(null)} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#6B7280' }}>✕</button>
-            </div>
-            
-            <div style={{ background: '#FEF2F2', padding: 16, borderRadius: 8, border: '1px solid #FECACA', marginBottom: 16 }}>
-              <div style={{ fontSize: '0.85rem', color: '#991B1B', marginBottom: 8 }}>
-                <strong>PNR:</strong> {cancelRefundModal.bookingId} <br/>
-                <strong>भक्त:</strong> {cancelRefundModal.bookedBy} <br/>
-                <strong>कुल जमा अग्रिम:</strong> ₹{cancelRefundModal.advance || 0}
-              </div>
-            </div>
-            
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target);
-              const payload = {
-                refundAmount: Number(formData.get('refundAmount')),
-                cancellationCharges: Number(formData.get('cancellationCharges')),
-                cancellationReason: formData.get('cancellationReason'),
-                refundMode: formData.get('refundMode')
-              };
-              
-              const btn = e.target.querySelector('button[type="submit"]');
-              const prev = btn.innerText;
-              btn.innerText = 'Processing...';
-              btn.disabled = true;
-              
-              try {
-                const res = await fetch(`/api/admin/bookings/${cancelRefundModal.bookingId}/cancel?token=${encodeURIComponent(staffToken)}`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + staffToken
-                  },
-                  body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (data.success) {
-                  alert('टिकट सफलतापूर्वक रद्द और रिफंड किया गया!');
-                  refreshAllBookingViews();
-                  setCancelRefundModal(null);
-                } else {
-                  alert('Error: ' + data.error);
-                }
-              } catch (err) {
-                alert('Network error');
-              }
-              
-              btn.innerText = prev;
-              btn.disabled = false;
-            }}>
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>रिफंड राशि (Refund Amount ₹)</label>
-                <input type="number" name="refundAmount" className="form-control" defaultValue={cancelRefundModal.advance || 0} min="0" required />
-              </div>
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>कटौती / कैंसलेशन चार्ज (Charges ₹)</label>
-                <input type="number" name="cancellationCharges" className="form-control" defaultValue={0} min="0" required />
-              </div>
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>रिफंड माध्यम (Refund Mode)</label>
-                <select name="refundMode" className="form-control">
-                  <option value="Cash">Cash (नकद वापसी)</option>
-                  <option value="UPI">UPI</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>रद्द करने का कारण</label>
-                <input type="text" name="cancellationReason" className="form-control" placeholder="उदा. यात्री अनुरोध, मेडिकल, आदि" required />
-              </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button type="button" className="btn btn-outline" onClick={() => setCancelRefundModal(null)}>वापस जाएं</button>
-                <button type="submit" className="btn btn-primary" style={{ background: '#DC2626', borderColor: '#B91C1C' }}>
-                  रद्द करें व रिफंड दें
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {posterModal && (
         <div className="modal-overlay" onClick={() => setPosterModal(false)} style={{ zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}>

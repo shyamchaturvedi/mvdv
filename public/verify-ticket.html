@@ -322,6 +322,102 @@
               </div>
             </div>
           `;
+        } else if (data.status === 'CANCELLED') {
+          const b = data.booking;
+          const c = b.cancellationDetails || {};
+          container.innerHTML = `
+            <div class="card" style="border: 2px solid #DC2626;">
+              <div class="card-header tampered" style="background: linear-gradient(135deg, #FEF2F2, #FEE2E2); border-bottom: 2px solid #EF4444;">
+                <div class="status-icon">🚫</div>
+                <div class="status-title" style="color: #991B1B; font-weight: 900;">${data.title}</div>
+                <p style="color: #991B1B; font-size: 0.95rem; font-weight: 700; margin-top: 6px;">
+                  ${data.message}
+                </p>
+              </div>
+              <div class="card-body">
+                <div style="background: #FEF2F2; border: 1.5px solid #F87171; border-radius: 8px; padding: 12px; margin-bottom: 16px; color: #991B1B; font-size: 0.88rem;">
+                  <strong>⚠️ रेलवे एवं ट्रस्ट सुरक्षा चेतावनी:</strong> यह आरक्षण रद्द हो चुका है एवं सभी सीटें सामान्य कोटे में वापस छोड़ी जा चुकी हैं। इस पर्ची या यात्रा पास पर ट्रेन में यात्रा करना पूर्णतः गैरकानूनी है।
+                </div>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-label">PNR / बुकिंग आईडी</div>
+                    <div class="info-val" style="color: #DC2626; font-weight: 900;">${b.bookingId}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">रद्दीकरण स्थिति</div>
+                    <div class="info-val"><span class="badge-due" style="background: #DC2626; color: white;">रद्द (CANCELLED)</span></div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">मुख्य भक्त / आवेदक</div>
+                    <div class="info-val">${b.bookedBy} (${b.mobile})</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">रद्दीकरण दिनांक व समय</div>
+                    <div class="info-val">${c.cancelledAt ? new Date(c.cancelledAt).toLocaleString('hi-IN') : 'सत्यापित'}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">रद्द करने वाले अधिकृत स्टाफ</div>
+                    <div class="info-val">${c.cancelledBy || 'ट्रस्ट व्यवस्थापक'}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">रिफंड वाउचर संख्या</div>
+                    <div class="info-val" style="color: #047857; font-weight: 700;">${c.refundVoucherId || 'MVD-REF-' + b.bookingId}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">कुल जमा अग्रिम राशि</div>
+                    <div class="info-val">₹${c.originalAdvance || b.advance || 0}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">कटौती / कैंसलेशन शुल्क</div>
+                    <div class="info-val" style="color: #DC2626;">₹${c.cancellationCharges || b.cancellationCharges || 0}</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">वापसी / रिफंड राशि</div>
+                    <div class="info-val" style="color: #047857; font-weight: 900; font-size: 1.1rem;">₹${c.refundAmount || b.refundAmount || 0}</div>
+                  </div>
+                  <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">रद्दीकरण का कारण (Cancellation Reason)</div>
+                    <div class="info-val" style="color: #1F2937; font-weight: 700;">${c.cancellationReason || 'यात्री के अनुरोध पर'}</div>
+                  </div>
+                  ${c.remarks ? `
+                  <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">स्टाफ टिप्पणी (Remarks)</div>
+                    <div class="info-val" style="color: #4B5563; font-style: italic;">${c.remarks}</div>
+                  </div>` : ''}
+                </div>
+
+                <h4 style="color: #DC2626; margin-top: 14px; font-size: 0.95rem;">रद्द किए गए यात्रियों की सूची (Cancelled Passengers):</h4>
+                <table class="passengers-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>यात्री का नाम</th>
+                      <th>आयु/लिंग</th>
+                      <th>सीट स्थिति</th>
+                      <th>प्राधिकृत स्थिति</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${(b.passengers || []).map((p, i) => `
+                      <tr style="background: #FEF2F2; color: #991B1B;">
+                        <td><strong>${i + 1}</strong></td>
+                        <td><strike>${p.name}</strike> <span style="color: #DC2626; font-size: 0.75rem; font-weight: 800;">[रद्द / CANCELLED]</span></td>
+                        <td>${p.age || '-'} / ${p.gender || '-'}</td>
+                        <td><strong style="color: #DC2626;">मुक्त / Released</strong></td>
+                        <td><span style="color: #DC2626; font-weight: 700;">अमान्य (VOID)</span></td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+
+                <div class="sec-seal" style="background: #FEF2F2; color: #991B1B; border: 1px dashed #F87171;">
+                  🔒 डिजिटल क्रिप्टोग्राफिक हैश: <strong>${data.securityHash}</strong><br>
+                  रद्दीकरण सत्यापन समय: ${new Date().toLocaleString('hi-IN')}
+                </div>
+              </div>
+            </div>
+          `;
         } else if (data.status === 'TAMPERED') {
           const auth = data.authenticData;
           container.innerHTML = `

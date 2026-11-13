@@ -229,12 +229,19 @@ router.get('/reports/defaulters', checkAdminAuth, async (req, res) => {
 // Cancel Ticket with Refund (Admin)
 router.post('/bookings/:id/cancel', checkAdminAuth, async (req, res) => {
   try {
-    const { refundAmount, cancellationCharges, cancellationReason, refundMode, utr } = req.body;
+    const { refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
     const cancelled = await BookingService.cancelBookingWithRefund(req.params.id, {
       refundAmount,
       cancellationCharges,
       cancellationReason,
+      remarks,
       refundMode,
+      refundChannel,
+      upiId,
+      accountHolder,
+      bankName,
+      accountNumber,
+      ifscCode,
       utr,
       cancelledBy: req.user || { name: 'Admin', role: 'SuperAdmin', username: 'admin' }
     });

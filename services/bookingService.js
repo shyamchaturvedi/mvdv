@@ -748,7 +748,7 @@ class BookingService {
     return updatedData;
   }
 
-  // Cancel Ticket with Refund
+  // Cancel Ticket with Unified Refund, Mandatory IRCTC Reason, Remarks, and Anti-Fraud Audit
   static async cancelBookingWithRefund(bookingId, cancellationData = {}, adminName = 'System') {
     const booking = await this.getBookingByIdOrPNR(bookingId);
     if (!booking) throw new Error('आरक्षण (Booking) नहीं मिला।');
@@ -758,10 +758,18 @@ class BookingService {
     }
 
     const totalPaid = Number(booking.advance || 0);
-    const refundAmount = cancellationData.refundAmount !== undefined ? Number(cancellationData.refundAmount) : totalPaid;
-    const cancellationCharges = cancellationData.cancellationCharges !== undefined ? Number(cancellationData.cancellationCharges) : Math.max(0, totalPaid - refundAmount);
-    const cancellationReason = cancellationData.cancellationReason || 'Cancelled on Passenger Request';
-    const refundMode = cancellationData.refundMode || 'Admin Bank/UPI Transfer (5-7 Days)';
+    let refundAmount = cancellationData.refundAmount !== undefined ? Number(cancellationData.refundAmount) : totalPaid;
+    let cancellationCharges = cancellationData.cancellationCharges !== undefined ? Number(cancellationData.cancellationCharges) : Math.max(0, totalPaid - refundAmount);
+
+    // Strict Anti-Cheating Mathematical Verification: Advance Paid = Refund Amount + Cancellation Charges
+    if (refundAmount < 0) refundAmount = 0;
+    if (cancellationCharges < 0) cancellationCharges = 0;
+    if (refundAmount > totalPaid) refundAmount = totalPaid;
+    cancellationCharges = Math.max(0, totalPaid - refundAmount);
+
+    const cancellationReason = cancellationData.cancellationReason || 'यात्री के अनुरोध पर रद्दीकरण (Cancelled on Passenger Request)';
+    const remarks = cancellationData.remarks || cancellationData.cancellationRemarks || cancellationData.notes || 'रद्दीकरण एवं रिफंड प्रक्रिया पूर्ण की गई';
+    const refundMode = cancellationData.refundMode || (cancellationData.refundChannel === 'Cash' ? 'Cash (Counter Cash Refund)' : 'Admin Bank/UPI Transfer (5-7 Days)');
 
     const staffUser = cancellationData.cancelledBy || { name: 'Chief Admin', username: 'admin', role: 'SuperAdmin' };
     const rawStaffName = typeof staffUser === 'string' ? staffUser : (staffUser.name || staffUser.username || 'Admin');
@@ -771,34 +779,36 @@ class BookingService {
     let staffName = String(rawStaffName).trim();
     if (staffName.includes('रमाकांत') || staffName.includes('tt')) staffName = 'Ramakant Sharma (TTE)';
     else if (staffName.includes('व्यवस्थापक') || staffName.includes('admin')) staffName = 'Chief Trust Admin';
-    else staffName = staffName.replace(/[^ -\u007E]/g, '').trim() || 'Counter Staff';
+    else staffName = staffName.replace(/[^ -\u007E]/g, '').trim() || 'Counter Staff';
 
     const refundAccount = {
-      channel: cancellationData.refundChannel || (cancellationData.upiId ? 'UPI' : 'Bank Transfer'),
+      channel: cancellationData.refundChannel || (refundMode.includes('Cash') ? 'Cash' : (cancellationData.upiId ? 'UPI' : 'Bank Transfer')),
       upiId: cancellationData.upiId || '',
       accountHolder: cancellationData.accountHolder || booking.bookedBy || '',
       bankName: cancellationData.bankName || '',
       accountNumber: cancellationData.accountNumber || '',
       ifscCode: cancellationData.ifscCode || '',
-      status: 'Pending Admin Processing (5-7 Working Days)'
+      status: refundMode.includes('Cash') ? 'Completed at Counter' : 'Pending Admin Processing (5-7 Working Days)'
     };
 
     const paymentHistory = booking.paymentHistory || [];
-    if (refundAmount > 0) {
-      const refundReceiptId = await BookingService.generateReceiptId(booking.yatraYear || 2026, true);
-      paymentHistory.push({
-        id: refundReceiptId,
-        date: new Date().toISOString(),
-        amount: -refundAmount,
-        refundAmount: refundAmount,
-        method: refundMode,
-        type: 'Ticket Cancellation Refund',
-        cashierName: staffName,
-        reason: cancellationReason,
-        refundAccount,
-        utr: cancellationData.utr || refundAccount.upiId || refundAccount.accountNumber || 'Pending Admin Transfer (5-7 Days)'
-      });
-    }
+    // Always generate official refund voucher ID so there is an immutable audit slip
+    const refundReceiptId = await BookingService.generateReceiptId(booking.yatraYear || 2026, true);
+    paymentHistory.push({
+      id: refundReceiptId,
+      date: new Date().toISOString(),
+      amount: -refundAmount,
+      refundAmount: refundAmount,
+      cancellationCharges: cancellationCharges,
+      originalAdvance: totalPaid,
+      method: refundMode,
+      type: 'Ticket Cancellation Refund',
+      cashierName: staffName,
+      reason: cancellationReason,
+      remarks: remarks,
+      refundAccount,
+      utr: cancellationData.utr || refundAccount.upiId || refundAccount.accountNumber || (refundMode.includes('Cash') ? 'Counter Cash Handover' : 'Pending Admin Transfer (5-7 Days)')
+    });
 
     const cancellationRecord = {
       cancelledAt: new Date().toISOString(),
@@ -806,6 +816,8 @@ class BookingService {
       cancelledByUsername: typeof staffUser === 'object' ? staffUser.username : staffName,
       cancelledByRole: staffRole,
       cancellationReason,
+      remarks,
+      refundVoucherId: refundReceiptId,
       refundAmount,
       cancellationCharges,
       refundMode,
@@ -837,7 +849,7 @@ class BookingService {
       await StaffService.logAudit({
         action: 'TICKET_CANCELLED',
         performedBy: staffUser,
-        details: `PNR ${booking.bookingId} (${booking.bookedBy}) का टिकट रद्द किया गया। रिफंड राशि: ₹${refundAmount} (माध्यम: ${refundMode})`,
+        details: `PNR ${booking.bookingId} (${booking.bookedBy}) का टिकट रद्द किया गया। कुल अग्रिम: ₹${totalPaid}, रिफंड राशि: ₹${refundAmount}, कटौती शुल्क: ₹${cancellationCharges}, माध्यम: ${refundMode}, कारण: ${cancellationReason}, टिप्पणी: ${remarks}`,
         targetId: booking.bookingId
       });
     } catch (e) {}

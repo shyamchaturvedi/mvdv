@@ -59,16 +59,18 @@ class PDFService {
     const cleanClass = PDFService.cleanPdfText(booking.travelClass, 'Sleeper');
     const cleanCoach = PDFService.cleanPdfText(booking.coachName, 'S1');
 
+    const isCancelled = booking.status === 'Cancelled';
+
     // Outer Main Border (Crisp IRCTC styling) - strictly fits 1 page
     const totalBoxHeight = pageHeight - 24;
-    doc.rect(marginX, 12, contentWidth, totalBoxHeight).lineWidth(1).strokeColor('#0284C7').stroke();
+    doc.rect(marginX, 12, contentWidth, totalBoxHeight).lineWidth(1).strokeColor(isCancelled ? '#DC2626' : '#0284C7').stroke();
 
-    // Header 1: Top IRCTC & Trust Blue Bar
-    doc.rect(marginX, 12, contentWidth, 44).fillColor('#075985').fill();
+    // Header 1: Top IRCTC & Trust Blue Bar (Red for Cancelled Advice)
+    doc.rect(marginX, 12, contentWidth, 44).fillColor(isCancelled ? '#991B1B' : '#075985').fill();
 
     doc.fillColor('#FFFFFF').fontSize(12.5).font('Helvetica-Bold').text('SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST', marginX + 8, 18, { width: contentWidth - 16, align: 'center' });
-    doc.fillColor('#BAE6FD').fontSize(8).font('Helvetica').text('YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
-    doc.fillColor('#FDE047').fontSize(7.5).font('Helvetica-Bold').text('ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
+    doc.fillColor(isCancelled ? '#FEE2E2' : '#BAE6FD').fontSize(8).font('Helvetica').text(isCancelled ? 'ANNUAL PILGRIMAGE SPECIAL TRAIN • TICKET CANCELLATION & REFUND ADVICE SLIP' : 'YATRA SPECIAL SUPERFAST EXPRESS • ANNUAL PILGRIMAGE SPECIAL TRAIN', marginX + 8, 32, { width: contentWidth - 16, align: 'center' });
+    doc.fillColor(isCancelled ? '#FCA5A5' : '#FDE047').fontSize(7.5).font('Helvetica-Bold').text(isCancelled ? 'OFFICIAL CANCELLATION & REFUND VOUCHER • TRAVEL TICKET VOID / NOT VALID FOR TRAVEL' : 'ELECTRONIC RESERVATION SLIP (ERS) • VALID FOR TRAVEL', marginX + 8, 43, { width: contentWidth - 16, align: 'center' });
 
     // Header 2: Subheader Row (PNR, Quota, Batch)
     let y = 58;
@@ -211,11 +213,18 @@ class PDFService {
     // Section 5: Official Guidelines & Rules
     y += fareCardH + 6;
     const guideH = 58;
-    doc.rect(marginX, y, contentWidth, guideH).fillColor('#FFFBEB').fill().strokeColor('#FDE68A').lineWidth(0.5).stroke();
+    doc.rect(marginX, y, contentWidth, guideH).fillColor(isCancelled ? '#FEF2F2' : '#FFFBEB').fill().strokeColor(isCancelled ? '#FECACA' : '#FDE68A').lineWidth(0.5).stroke();
 
-    doc.fillColor('#92400E').fontSize(7.5).font('Helvetica-Bold').text('IMPORTANT PASSENGER INSTRUCTIONS & TRAVEL GUIDELINES:', marginX + 8, y + 4);
-    doc.fillColor('#451A03').fontSize(6.8).font('Helvetica');
-    const guidelines = [
+    doc.fillColor(isCancelled ? '#991B1B' : '#92400E').fontSize(7.5).font('Helvetica-Bold').text(isCancelled ? 'IMPORTANT CANCELLATION & REFUND ADVICE NOTICE (NOT A TRAVEL PASS):' : 'IMPORTANT PASSENGER INSTRUCTIONS & TRAVEL GUIDELINES:', marginX + 8, y + 4);
+    doc.fillColor(isCancelled ? '#7F1D1D' : '#451A03').fontSize(6.8).font('Helvetica');
+    const cd = booking.cancellationDetails || {};
+    const guidelines = isCancelled ? [
+      `1. OFFICIAL CANCELLATION: This reservation was cancelled on ${cd.cancelledAt ? new Date(cd.cancelledAt).toLocaleString('en-IN') : 'Authorized Request'}. All seats released.`,
+      `2. FINANCIAL SETTLEMENT: Total Paid: Rs. ${cd.originalAdvance || booking.advance || 0} | Deductions: Rs. ${cd.cancellationCharges || booking.cancellationCharges || 0} | Net Refund: Rs. ${cd.refundAmount || booking.refundAmount || 0}.`,
+      `3. REASON & REMARKS: Reason: ${cd.cancellationReason || 'On Devotee Request'} | Remarks: ${cd.remarks || 'Standard Processing'}.`,
+      `4. REFUND CHANNEL: ${cd.refundMode || 'Admin Bank/UPI Processing (5-7 Working Days)'} | Refund Ref ID: ${cd.refundVoucherId || 'MVD-REF'}.`,
+      '5. LEGAL CAUTION: THIS SLIP CANNOT BE USED FOR BOARDING. Attempting to board with this voucher is an offense under Trust & Railway rules.'
+    ] : [
       '1. Carry this Electronic Reservation Slip (ERS) along with original Government ID (Aadhaar / Voter ID / DL) during journey.',
       '2. Reporting at boarding station is mandatory at least 45 minutes prior to scheduled train departure.',
       '3. Mandatory RFID Yatra Registration Card must be collected at Katra base before commencing the Mata Vaishno Devi Bhawan trek.',
@@ -230,17 +239,17 @@ class PDFService {
 
     // Section 6: Bottom Footer (Signatures & Branding) - strictly anchored at y = 770
     const footerY = 770;
-    doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(marginX, footerY).lineTo(marginX + contentWidth, footerY).stroke();
+    doc.strokeColor(isCancelled ? '#F87171' : '#CBD5E1').lineWidth(0.5).moveTo(marginX, footerY).lineTo(marginX + contentWidth, footerY).stroke();
 
     doc.fillColor('#475569').fontSize(6.5).font('Helvetica').text('Helpline: +91 7398959993 • Support: iammshyam@gmail.com', marginX + 8, footerY + 4);
-    doc.text('Authorized Signatory, Trust Secretary', marginX + contentWidth - 190, footerY + 4, { align: 'right' });
+    doc.text(isCancelled ? 'Verified Cancellation Officer, Trust Office' : 'Authorized Signatory, Trust Secretary', marginX + contentWidth - 210, footerY + 4, { align: 'right' });
     doc.fillColor('#0284C7').fontSize(6.5).font('Helvetica-Bold').text('Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)', marginX, footerY + 14, { align: 'center', width: contentWidth });
-    doc.fillColor('#64748B').fontSize(6).font('Helvetica').text('Official Electronic Reservation Slip (ERS) • Valid for Boarding', marginX, footerY + 23, { align: 'center', width: contentWidth });
+    doc.fillColor(isCancelled ? '#DC2626' : '#64748B').fontSize(6.5).font('Helvetica-Bold').text(isCancelled ? 'VOID FOR BOARDING • CANCELLATION & REFUND ADVICE ONLY • DO NOT PERMIT TRAVEL' : 'Official Electronic Reservation Slip (ERS) • Valid for Boarding', marginX, footerY + 23, { align: 'center', width: contentWidth });
 
-    if (booking.status === 'Cancelled') {
+    if (isCancelled) {
       doc.save();
       doc.rotate(-25, { origin: [pageWidth / 2, pageHeight / 2] });
-      doc.fontSize(50).fillColor('#EF4444', 0.25).font('Helvetica-Bold').text('CANCELLED / RADD', pageWidth / 2 - 240, pageHeight / 2 - 25, { align: 'center', width: 480 });
+      doc.fontSize(42).fillColor('#EF4444', 0.35).font('Helvetica-Bold').text('CANCELLED - TRAVEL VOID', pageWidth / 2 - 270, pageHeight / 2 - 25, { align: 'center', width: 540 });
       doc.restore();
     }
 
