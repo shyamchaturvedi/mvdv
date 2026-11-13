@@ -6382,49 +6382,78 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                     </span>
                                   </td>
                                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap', padding: '6px 8px' }}>
-                                    <div className="action-btn-group">
-                                      {b.utrNumber && b.utrStatus !== 'Verified' && (
-                                        <button className="btn btn-xs btn-gold" onClick={() => verifyUtr(b.bookingId, b.utrNumber)} title="Verify UTR">
-                                          ✓ Verify
+                                    {b.status === 'Cancelled' ? (
+                                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                                        <span className="badge badge-unpaid" style={{ background: '#FEE2E2', color: '#991B1B', border: '1.5px solid #FCA5A5', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 800 }}>
+                                          🚫 रद्द (CANCELLED)
+                                        </span>
+                                        <button
+                                          className="btn btn-xs btn-outline"
+                                          style={{ borderColor: '#DC2626', color: '#DC2626', background: '#FFF5F5', fontWeight: 800, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                          onClick={() => {
+                                            const refundTxn = (b.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+                                              id: `MVD-REF-${b.bookingId}`,
+                                              date: b.cancellationDetails?.cancelledAt || new Date().toISOString(),
+                                              amount: -(b.refundAmount || b.advance || 0),
+                                              refundAmount: b.refundAmount || b.advance || 0,
+                                              cancellationCharges: b.cancellationCharges || 0,
+                                              originalAdvance: b.cancellationDetails?.originalAdvance || b.advance || 0,
+                                              method: b.cancellationDetails?.refundMode || 'Refund Processed',
+                                              type: 'Ticket Cancellation Refund',
+                                              cashierName: b.cancellationDetails?.cancelledBy || 'Trust Admin',
+                                              reason: b.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+                                              remarks: b.cancellationDetails?.remarks || ''
+                                            };
+                                            setReceiptModal({ booking: b, txn: refundTxn });
+                                          }}
+                                          title="रद्दीकरण एवं रिफंड पर्ची प्रिंट करें"
+                                        >
+                                          <Printer size={13} style={{ verticalAlign: 'text-bottom' }} /> रिफंड पर्ची
                                         </button>
-                                      )}
-                                      {b.remainingAmount > 0 && b.utrStatus !== 'Pending' && (
-                                        <button className="btn btn-xs btn-success" onClick={() => markBookingPaid(b.bookingId)} title="Clear Dues">
-                                          ✓ Paid
-                                        </button>
-                                      )}
-                                      <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="Payment Slip">
-                                          <Printer size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Payment Slip
-                                        </button>
-                                      <button className="btn btn-xs btn-outline" style={b.status === 'Cancelled' ? { borderColor: '#DC2626', color: '#DC2626' } : {}} onClick={() => handleAutoPrintTicket(b)} title={b.status === 'Cancelled' ? 'रिफंड पर्ची प्रिंट (Refund Advice Slip)' : 'Ticket Print'}>
-                                          {b.status === 'Cancelled' ? <Printer size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> : <Ticket size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} />}
-                                          {b.status === 'Cancelled' ? 'रिफंड पर्ची' : 'Ticket Print'}
-                                        </button>
-                                      {isSuperAdmin && (
-                                        <button className="btn btn-xs btn-outline" onClick={() => openEditYatriModal(b)} title="Edit Yatri / Add or Delete Yatri" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
-                                            <Edit size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Edit Yatri
+                                      </div>
+                                    ) : (
+                                      <div className="action-btn-group">
+                                        {b.utrNumber && b.utrStatus !== 'Verified' && (
+                                          <button className="btn btn-xs btn-gold" onClick={() => verifyUtr(b.bookingId, b.utrNumber)} title="Verify UTR">
+                                            ✓ Verify
                                           </button>
-                                      )}
-                                      <button className="btn btn-xs btn-outline" onClick={() => openUpiQR(b.bookingId)} title="UPI QR">
-                                          <QrCode size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> UPI QR
-                                        </button>
-                                      {isSuperAdmin && (
-                                        <button className="btn btn-icon-xs btn-outline" onClick={() => {
-                                          setPaymentEditData({
-                                            bookingId: b.bookingId,
-                                            paymentMode: b.paymentMode || 'Cash',
-                                            upiTransactionId: b.upiTransactionId || '',
-                                            advance: b.advance || 0,
-                                            discount: b.discount || 0,
-                                            totalAmount: b.totalAmount
-                                          });
-                                          setPaymentEditModal(true);
-                                        }} title="Pay Edit">
-                                            <IndianRupee size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Pay Edit
+                                        )}
+                                        {b.remainingAmount > 0 && b.utrStatus !== 'Pending' && (
+                                          <button className="btn btn-xs btn-success" onClick={() => markBookingPaid(b.bookingId)} title="बकाया भुगतान चुकता करें (Mark Paid)">
+                                            ✓ Paid
                                           </button>
-                                      )}
-                                      
-                                      {b.status !== 'Cancelled' ? (
+                                        )}
+                                        <button className="btn btn-xs btn-gold" onClick={() => { setReceiptSearchQuery(b.bookingId); navigate('/admin/receipts'); }} title="Payment Slip देखें व प्रिंट करें">
+                                          <Printer size={13} style={{ verticalAlign: 'text-bottom' }} /> रसीद (Slip)
+                                        </button>
+                                        <button className="btn btn-xs btn-outline" onClick={() => handleAutoPrintTicket(b)} title="टिकट प्रिंट करें (Ticket Print)">
+                                          <Ticket size={13} style={{ verticalAlign: 'text-bottom' }} /> टिकट (Ticket)
+                                        </button>
+                                        {isSuperAdmin && (
+                                          <button className="btn btn-xs btn-outline" onClick={() => openEditYatriModal(b)} title="Edit Yatri / Add or Delete Yatri" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
+                                            <Edit size={13} style={{ verticalAlign: 'text-bottom' }} /> यात्री (Edit)
+                                          </button>
+                                        )}
+                                        {b.remainingAmount > 0 && (
+                                          <button className="btn btn-xs btn-outline" onClick={() => openUpiQR(b.bookingId)} title="UPI QR कोड दिखाएं">
+                                            <QrCode size={13} style={{ verticalAlign: 'text-bottom' }} /> UPI QR
+                                          </button>
+                                        )}
+                                        {isSuperAdmin && (
+                                          <button className="btn btn-icon-xs btn-outline" onClick={() => {
+                                            setPaymentEditData({
+                                              bookingId: b.bookingId,
+                                              paymentMode: b.paymentMode || 'Cash',
+                                              upiTransactionId: b.upiTransactionId || '',
+                                              advance: b.advance || 0,
+                                              discount: b.discount || 0,
+                                              totalAmount: b.totalAmount
+                                            });
+                                            setPaymentEditModal(true);
+                                          }} title="भुगतान विवरण संपादित करें (Pay Edit)">
+                                            <IndianRupee size={13} style={{ verticalAlign: 'text-bottom' }} />
+                                          </button>
+                                        )}
                                         <button className="btn btn-xs" onClick={() => setCancelModal({
                                           show: true,
                                           booking: b,
@@ -6441,34 +6470,10 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                           upiId: '',
                                           utr: ''
                                         })} title="रद्द करें व रिफंड दें (Cancel/Refund)" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
-                                          <RefreshCw size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> रद्द/Cancel
+                                          <RefreshCw size={13} style={{ verticalAlign: 'text-bottom' }} /> रद्द/Cancel
                                         </button>
-                                      ) : (
-                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                          <span className="badge badge-bhakti" style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}>
-                                            रद्द (Cancelled)
-                                          </span>
-                                          <button className="btn btn-xs btn-outline" style={{ borderColor: '#DC2626', color: '#DC2626', padding: '2px 6px' }} onClick={() => {
-                                            const refundTxn = (b.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
-                                              id: `MVD-REF-${b.bookingId}`,
-                                              date: b.cancellationDetails?.cancelledAt || new Date().toISOString(),
-                                              amount: -(b.refundAmount || b.advance || 0),
-                                              refundAmount: b.refundAmount || b.advance || 0,
-                                              cancellationCharges: b.cancellationCharges || 0,
-                                              originalAdvance: b.cancellationDetails?.originalAdvance || b.advance || 0,
-                                              method: b.cancellationDetails?.refundMode || 'Refund Processed',
-                                              type: 'Ticket Cancellation Refund',
-                                              cashierName: b.cancellationDetails?.cancelledBy || 'Trust Admin',
-                                              reason: b.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
-                                              remarks: b.cancellationDetails?.remarks || ''
-                                            };
-                                            setReceiptModal({ booking: b, txn: refundTxn });
-                                          }} title="रद्दीकरण एवं रिफंड वाउचर देखें / प्रिंट करें">
-                                            <Printer size={11} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> रिफंड पर्ची
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
+                                      </div>
+                                    )}
                                   </td>
                                 </tr>
                               ))}
