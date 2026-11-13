@@ -3,6 +3,7 @@ const QRCode = require('qrcode');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const { getBerthCode, getBerthInfo } = require('./bookingService');
 
 const fontPath = path.join(__dirname, '../public/fonts/NotoSansDevanagari-Regular.ttf');
 const logoPath = path.join(__dirname, '../public/images/logo.jpg');
@@ -161,8 +162,8 @@ class PDFService {
       const statusColor = isCancelled ? '#DC2626' : '#16A34A';
       const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
       const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
-      const pCleanBerth = isCancelled ? 'CAN' : PDFService.cleanPdfText(p.berthPreference, 'Berth');
-      const seatDisplay = isCancelled ? 'CANCELLED' : `${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`;
+      const bCode = isCancelled ? 'CAN' : (p.berthCode || (assignedSeat && !isNaN(parseInt(assignedSeat, 10)) ? getBerthCode(assignedSeat, booking.travelClass) : PDFService.cleanPdfText(p.berthPreference, 'Berth')));
+      const seatDisplay = isCancelled ? 'CANCELLED' : `${cleanCoach} / ${assignedSeat} / ${bCode}`;
 
       doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
       doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });
@@ -371,8 +372,8 @@ class PDFService {
         const statusColor = isCancelled ? '#DC2626' : '#16A34A';
         const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
         const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
-        const pCleanBerth = isCancelled ? 'CAN' : PDFService.cleanPdfText(p.berthPreference, 'Berth');
-        const seatDisplay = isCancelled ? 'CANCELLED' : `${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`;
+        const bCode = isCancelled ? 'CAN' : (p.berthCode || (assignedSeat && !isNaN(parseInt(assignedSeat, 10)) ? getBerthCode(assignedSeat, booking.travelClass) : PDFService.cleanPdfText(p.berthPreference, 'Berth')));
+        const seatDisplay = isCancelled ? 'CANCELLED' : `${cleanCoach} / ${assignedSeat} / ${bCode}`;
 
         doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
         doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });

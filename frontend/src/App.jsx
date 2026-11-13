@@ -1579,24 +1579,147 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
   };
 
-  const getBerthType = (seatNum, coachClass = travelClass) => {
+  const getBerthInfo = (seatNum, coachClass = travelClass) => {
     const num = parseInt(seatNum, 10);
-    if (isNaN(num) || num <= 0) return 'Berth';
-    if (coachClass === 'AC' || coachClass === '2A') {
-      const rem = num % 6;
-      if (rem === 1 || rem === 3) return 'Lower Berth (LB)';
-      if (rem === 2 || rem === 4) return 'Upper Berth (UB)';
-      if (rem === 5) return 'Side Lower (SL)';
-      return 'Side Upper (SU)';
-    } else {
-      // Sleeper & 3AC
-      const rem = num % 8;
-      if (rem === 1 || rem === 4) return 'Lower Berth (LB)';
-      if (rem === 2 || rem === 5) return 'Middle Berth (MB)';
-      if (rem === 3 || rem === 6) return 'Upper Berth (UB)';
-      if (rem === 7) return 'Side Lower (SL)';
-      return 'Side Upper (SU)';
+    if (isNaN(num) || num <= 0) {
+      return {
+        code: 'BERTH',
+        name: 'Berth',
+        fullName: 'Berth',
+        display: 'Berth',
+        bayNumber: 1,
+        isSide: false,
+        tier: 'Standard'
+      };
     }
+
+    const c = String(coachClass || '').trim().toUpperCase();
+    const is2AC = c === 'AC' || c === '2A' || c.includes('2A');
+    const is1AC = c === '1A' || c.includes('1A');
+    const isGeneral = c === 'GENERAL' || c === '2S' || c === 'GS' || c === 'CC';
+
+    if (isGeneral) {
+      const mod = num % 6;
+      const isWindow = mod === 1 || mod === 0;
+      const isAisle = mod === 3 || mod === 4;
+      const code = isWindow ? 'WS' : (isAisle ? 'AS' : 'M');
+      const name = isWindow ? 'Window' : (isAisle ? 'Aisle' : 'Middle');
+      return {
+        code,
+        name,
+        fullName: `${name} (${code})`,
+        display: `${name} (${code})`,
+        bayNumber: Math.ceil(num / 6),
+        isSide: false,
+        tier: 'Seater'
+      };
+    }
+
+    if (is1AC) {
+      const isLower = num % 2 === 1;
+      const code = isLower ? 'LB' : 'UB';
+      const name = isLower ? 'Lower' : 'Upper';
+      return {
+        code,
+        name,
+        fullName: `${name} (${code})`,
+        display: `${name} (${code})`,
+        bayNumber: Math.ceil(num / 4),
+        isSide: false,
+        tier: isLower ? 'Lower' : 'Upper'
+      };
+    }
+
+    if (is2AC) {
+      const rem = num % 6;
+      let code = 'UB';
+      let name = 'Upper';
+      let isSide = false;
+      let tier = 'Upper';
+
+      if (rem === 1 || rem === 3) {
+        code = 'LB';
+        name = 'Lower';
+        tier = 'Lower';
+      } else if (rem === 2 || rem === 4) {
+        code = 'UB';
+        name = 'Upper';
+        tier = 'Upper';
+      } else if (rem === 5) {
+        code = 'SL';
+        name = 'Side Lower';
+        isSide = true;
+        tier = 'Lower';
+      } else { // rem === 0
+        code = 'SU';
+        name = 'Side Upper';
+        isSide = true;
+        tier = 'Upper';
+      }
+
+      return {
+        code,
+        name,
+        fullName: `${name} (${code})`,
+        display: `${name} (${code})`,
+        bayNumber: Math.ceil(num / 6),
+        isSide,
+        tier
+      };
+    }
+
+    // Standard Sleeper & 3AC (8-berth bay)
+    const rem = num % 8;
+    let code = 'UB';
+    let name = 'Upper';
+    let isSide = false;
+    let tier = 'Upper';
+
+    if (rem === 1 || rem === 4) {
+      code = 'LB';
+      name = 'Lower';
+      tier = 'Lower';
+    } else if (rem === 2 || rem === 5) {
+      code = 'MB';
+      name = 'Middle';
+      tier = 'Middle';
+    } else if (rem === 3 || rem === 6) {
+      code = 'UB';
+      name = 'Upper';
+      tier = 'Upper';
+    } else if (rem === 7) {
+      code = 'SL';
+      name = 'Side Lower';
+      isSide = true;
+      tier = 'Lower';
+    } else { // rem === 0
+      code = 'SU';
+      name = 'Side Upper';
+      isSide = true;
+      tier = 'Upper';
+    }
+
+    return {
+      code,
+      name,
+      fullName: `${name} (${code})`,
+      display: `${name} (${code})`,
+      bayNumber: Math.ceil(num / 8),
+      isSide,
+      tier
+    };
+  };
+
+  const getBerthType = (seatNum, coachClass = travelClass) => {
+    return getBerthInfo(seatNum, coachClass).fullName;
+  };
+
+  const getBerthCode = (seatNum, coachClass = travelClass) => {
+    return getBerthInfo(seatNum, coachClass).code;
+  };
+
+  const getBerthName = (seatNum, coachClass = travelClass) => {
+    return getBerthInfo(seatNum, coachClass).name;
   };
 
   const handleSeatClick = (seatNum, isBooked) => {
@@ -1609,21 +1732,84 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const handleAutoAssignSeats = () => {
-    const available = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
-    if (available.length === 0) {
+    const availableSeats = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => parseInt(s.seatNumber, 10)).filter(n => !isNaN(n) && n > 0).sort((a, b) => a - b);
+    if (availableSeats.length === 0) {
       alert(`कोच ${formatCoachDisplay(coachName, coachLayout.coachDisplayName)} में कोई भी सीट रिक्त नहीं है! कृपया अन्य कोच चुनें।`);
       return;
     }
     const needed = Math.max(1, passengers.length);
-    const chosen = available.slice(0, needed);
-    setSelectedSeats(chosen);
+    const cUpper = String(travelClass || '').toUpperCase();
+    const baySize = (cUpper === 'AC' || cUpper === '2A' || cUpper.includes('2A')) ? 6 : 8;
 
-    let newPax = passengers.map((p, idx) => {
-      const assigned = chosen[idx] || (idx + 1).toString();
+    // Group available seats by bay to keep party/family together
+    const bayMap = new Map();
+    availableSeats.forEach(num => {
+      const bay = Math.ceil(num / baySize);
+      if (!bayMap.has(bay)) bayMap.set(bay, []);
+      bayMap.get(bay).push(num);
+    });
+
+    let chosen = [];
+    // 1st priority: Bay that can fit all needed passengers
+    for (const [, baySeats] of bayMap.entries()) {
+      if (baySeats.length >= needed) {
+        chosen = baySeats.slice(0, needed);
+        break;
+      }
+    }
+    // 2nd priority: Contiguous chunk
+    if (chosen.length < needed) {
+      chosen = availableSeats.slice(0, needed);
+    }
+
+    const chosenStr = chosen.map(String);
+    setSelectedSeats(chosenStr);
+
+    // Prioritize Lower berths for Senior Citizens (>= 60) and Females
+    const lowerBerths = chosen.filter(s => getBerthInfo(s, travelClass).tier === 'Lower');
+    const otherBerths = chosen.filter(s => getBerthInfo(s, travelClass).tier !== 'Lower');
+
+    const paxWithMeta = passengers.map((p, idx) => ({
+      passenger: p,
+      idx,
+      age: parseInt(p.age, 10) || 0,
+      isSenior: (parseInt(p.age, 10) || 0) >= 60,
+      isFemale: String(p.gender || '').toLowerCase() === 'female'
+    }));
+
+    const sortedPax = [...paxWithMeta].sort((a, b) => {
+      if (a.isSenior !== b.isSenior) return a.isSenior ? -1 : 1;
+      if (a.isFemale !== b.isFemale) return a.isFemale ? -1 : 1;
+      return a.idx - b.idx;
+    });
+
+    const assignmentMap = new Map();
+    const remLowers = [...lowerBerths];
+    const remOthers = [...otherBerths];
+
+    sortedPax.forEach(item => {
+      let seat;
+      if ((item.isSenior || item.isFemale) && remLowers.length > 0) {
+        seat = remLowers.shift();
+      } else if (remOthers.length > 0) {
+        seat = remOthers.shift();
+      } else if (remLowers.length > 0) {
+        seat = remLowers.shift();
+      } else {
+        seat = chosen[item.idx] || (item.idx + 1);
+      }
+      assignmentMap.set(item.idx, String(seat));
+    });
+
+    const newPax = passengers.map((p, idx) => {
+      const assigned = assignmentMap.get(idx) || chosenStr[idx] || (idx + 1).toString();
+      const bInfo = getBerthInfo(assigned, travelClass);
       return {
         ...p,
         seatAssigned: assigned,
-        berthPreference: p.berthPreference || getBerthType(assigned, travelClass).split(' ')[0]
+        berthPreference: bInfo.name,
+        berthCode: bInfo.code,
+        berthType: bInfo.fullName
       };
     });
     setPassengers(newPax);
@@ -1637,12 +1823,25 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     } else {
       updated = [...selectedSeats, str];
     }
+    // Keep seats sorted numerically like IRCTC
+    updated.sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
     setSelectedSeats(updated);
 
     const targetCount = Math.max(1, updated.length);
     let newPax = [...passengers];
     while (newPax.length < targetCount) {
-      newPax.push({ name: '', age: '', gender: 'Male', aadhar: '', seatAssigned: '', berthPreference: 'Lower' });
+      const autoSeat = updated[newPax.length] || `${newPax.length + 1}`;
+      const autoInfo = getBerthInfo(autoSeat, travelClass);
+      newPax.push({
+        name: '',
+        age: '',
+        gender: 'Male',
+        aadhar: '',
+        seatAssigned: autoSeat,
+        berthPreference: autoInfo.name,
+        berthCode: autoInfo.code,
+        berthType: autoInfo.fullName
+      });
     }
     if (newPax.length > targetCount && updated.length > 0) {
       newPax = newPax.slice(0, targetCount);
@@ -1650,10 +1849,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
     newPax = newPax.map((p, idx) => {
       const seat = updated[idx] || `${idx + 1}`;
+      const bInfo = getBerthInfo(seat, travelClass);
       return {
         ...p,
         seatAssigned: seat,
-        berthPreference: p.berthPreference || getBerthType(seat, travelClass).split(' ')[0]
+        berthPreference: bInfo.name,
+        berthCode: bInfo.code,
+        berthType: bInfo.fullName
       };
     });
 
@@ -1718,8 +1920,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       .filter(s => !s.isBooked && !selectedSeats.includes(String(s.seatNumber)))
       .map(s => String(s.seatNumber));
     const nextSeat = available[0] || `${passengers.length + 1}`;
-    const newSelected = [...selectedSeats, nextSeat];
+    const newSelected = [...selectedSeats, nextSeat].sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
     setSelectedSeats(newSelected);
+    const bInfo = getBerthInfo(nextSeat, travelClass);
     setPassengers([
       ...passengers,
       {
@@ -1728,7 +1931,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         gender: 'Male',
         aadhar: '',
         seatAssigned: nextSeat,
-        berthPreference: getBerthType(nextSeat, travelClass).split(' ')[0]
+        berthPreference: bInfo.name,
+        berthCode: bInfo.code,
+        berthType: bInfo.fullName
       }
     ]);
   };
@@ -5733,33 +5938,61 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             <div className="seat-grid">
                               {coachLayout.layout.map(seat => {
                                 const isSelected = selectedSeats.includes(String(seat.seatNumber)) || passengers.some(p => String(p.seatAssigned) === String(seat.seatNumber));
+                                const bInfo = getBerthInfo(seat.seatNumber, travelClass);
+                                const getBadgeColor = (code) => {
+                                  if (code === 'LB') return '#059669'; // Emerald Lower
+                                  if (code === 'MB') return '#2563EB'; // Blue Middle
+                                  if (code === 'UB') return '#7C3AED'; // Purple Upper
+                                  if (code === 'SL') return '#0D9488'; // Teal Side Lower
+                                  if (code === 'SU') return '#D97706'; // Amber Side Upper
+                                  return '#475569';
+                                };
                                 return (
                                   <div
                                     key={seat.seatNumber}
                                     className={`seat-box ${seat.isBooked ? 'seat-booked' : (isSelected ? 'seat-selected' : 'seat-available')}`}
                                     onClick={() => handleSeatClick(seat.seatNumber, seat.isBooked)}
-                                    title={`Seat ${seat.seatNumber} (${seat.berthType})${isSelected ? ' - चयनित' : ''}`}
+                                    title={`Seat ${seat.seatNumber} — ${bInfo.fullName}${isSelected ? ' (चयनित / Selected)' : (seat.isBooked ? ' (आरक्षित / Booked)' : ' (उपलब्ध / Available)')}`}
                                   >
                                     <div style={{ fontSize: '0.95rem', fontWeight: 900 }}>
                                       {isSelected ? '✓ ' : ''}{seat.seatNumber}
                                     </div>
-                                    <div style={{ fontSize: '0.65rem', fontWeight: isSelected ? 800 : 500 }}>
-                                      {seat.berthType.slice(0, 2)}
+                                    <div style={{
+                                      fontSize: '0.66rem',
+                                      fontWeight: 800,
+                                      color: isSelected ? '#FFFFFF' : (seat.isBooked ? '#991B1B' : getBadgeColor(bInfo.code)),
+                                      letterSpacing: '0.5px'
+                                    }}>
+                                      {bInfo.code}
                                     </div>
                                   </div>
                                 );
                               })}
                             </div>
 
-                            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 14, fontSize: '0.8rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 14, height: 14, background: '#DC2626', borderRadius: 3 }} /> आरक्षित (Booked)
+                            {/* IRCTC Standard Berth & Status Legend */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 14 }}>
+                              <div style={{ display: 'flex', gap: 14, justifyContent: 'center', fontSize: '0.78rem', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <div style={{ width: 13, height: 13, background: '#DC2626', borderRadius: 3 }} /> आरक्षित (Booked)
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <div style={{ width: 13, height: 13, background: '#16A34A', borderRadius: 3 }} /> चुनी हुई (Selected)
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <div style={{ width: 13, height: 13, background: '#FFFFFF', border: '1.5px solid #FED7AA', borderRadius: 3 }} /> उपलब्ध (Available)
+                                </div>
                               </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 14, height: 14, background: '#16A34A', borderRadius: 3 }} /> चुनी हुई (Selected)
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 14, height: 14, background: '#FFFFFF', border: '1.5px solid #FED7AA', borderRadius: 3 }} /> उपलब्ध (Available)
+                              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', fontSize: '0.72rem', flexWrap: 'wrap', color: '#4B5563', paddingTop: 6, borderTop: '1px dashed #FED7AA' }}>
+                                <span><strong style={{ color: '#059669' }}>LB:</strong> Lower (निचला)</span>
+                                <span>•</span>
+                                <span><strong style={{ color: '#2563EB' }}>MB:</strong> Middle (मध्य)</span>
+                                <span>•</span>
+                                <span><strong style={{ color: '#7C3AED' }}>UB:</strong> Upper (ऊपरी)</span>
+                                <span>•</span>
+                                <span><strong style={{ color: '#0D9488' }}>SL:</strong> Side Lower (साइड निचला)</span>
+                                <span>•</span>
+                                <span><strong style={{ color: '#D97706' }}>SU:</strong> Side Upper (साइड ऊपरी)</span>
                               </div>
                             </div>
                           </div>
@@ -9371,6 +9604,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   ).map((p, idx) => {
                     const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber[idx] : idx + 1);
                     const isCancelled = ticketModal.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
+                    const bInfo = getBerthInfo(assignedSeat, ticketModal.travelClass);
+                    const berthDisplayCompact = !(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${bInfo.code})` : bInfo.code;
                     return (
                       <div key={idx} className="irctc-half-pax-row" style={isCancelled ? { background: '#FEF2F2' } : {}}>
                         <div style={{ color: '#64748B' }}>{idx + 1}</div>
@@ -9380,7 +9615,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
                         <div style={{ color: isCancelled ? '#DC2626' : '#16A34A', fontWeight: 700 }}>{isCancelled ? 'CANCELLED' : 'CNF'}</div>
                         <div style={{ color: isCancelled ? '#DC2626' : '#0284C7', fontWeight: 700, fontSize: '0.66rem', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                          {isCancelled ? 'रद्द / Cancelled' : `${formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / ${!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${p.berthPreference || 'B'})` : (p.berthPreference || 'Berth')}`}
+                          {isCancelled ? 'रद्द / Cancelled' : `${formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / ${berthDisplayCompact}`}
                         </div>
                       </div>
                     );
@@ -9527,6 +9762,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     ).map((p, idx) => {
                       const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber[idx] : idx + 1);
                       const isCancelled = ticketModal.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
+                      const bInfo = getBerthInfo(assignedSeat, ticketModal.travelClass);
+                      const berthDisplayFull = !(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${bInfo.fullName}` : bInfo.fullName;
                       const statusText = isCancelled ? 'CANCELLED (रद्द)' : 'CONFIRMED (CNF)';
                       const statusColor = isCancelled ? '#DC2626' : '#16A34A';
                       return (
@@ -9539,7 +9776,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
                           <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
                           <div style={{ color: isCancelled ? '#DC2626' : '#0284C7', fontWeight: 700 }}>
-                            {isCancelled ? 'रद्द / Cancelled' : `${formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / ${!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}`}
+                            {isCancelled ? 'रद्द / Cancelled' : `${formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / ${berthDisplayFull}`}
                           </div>
                         </div>
                       );
@@ -10108,10 +10345,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           });
                           const chosen = freeSeat ? String(freeSeat.seatNumber) : 'AUTO';
                           usedHere.add(chosen);
+                          const bInfo = chosen !== 'AUTO' ? getBerthInfo(chosen, editYatriModal.travelClass) : null;
                           return {
                             ...p,
                             seatAssigned: chosen,
-                            berthPreference: chosen !== 'AUTO' ? getBerthType(chosen, editYatriModal.travelClass).split(' ')[0] : p.berthPreference
+                            berthPreference: bInfo ? bInfo.name : p.berthPreference,
+                            berthCode: bInfo ? bInfo.code : (p.berthCode || 'B'),
+                            berthType: bInfo ? bInfo.fullName : (p.berthType || 'Berth')
                           };
                         });
                         setEditYatriModal({ ...editYatriModal, passengers: updatedPax, saveError: '' });
@@ -10136,10 +10376,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             const newPax = [...editYatriModal.passengers];
                             const autoIdx = newPax.findIndex(p => !p.seatAssigned || String(p.seatAssigned).toUpperCase() === 'AUTO');
                             if (autoIdx >= 0) {
+                              const bInfo = getBerthInfo(sStr, editYatriModal.travelClass);
                               newPax[autoIdx] = {
                                 ...newPax[autoIdx],
                                 seatAssigned: sStr,
-                                berthPreference: getBerthType(sStr, editYatriModal.travelClass).split(' ')[0]
+                                berthPreference: bInfo.name,
+                                berthCode: bInfo.code,
+                                berthType: bInfo.fullName
                               };
                               setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
                             }
@@ -10180,6 +10423,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       return (!s.isBooked || isMineOnServer) && !taken.has(sStr);
                     });
                     const nextSeat = freeSeatObj ? String(freeSeatObj.seatNumber) : 'AUTO';
+                    const bInfo = nextSeat !== 'AUTO' ? getBerthInfo(nextSeat, editYatriModal.travelClass) : null;
                     const newPax = [
                       ...editYatriModal.passengers,
                       {
@@ -10188,7 +10432,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         gender: 'Male',
                         aadhar: '',
                         seatAssigned: nextSeat,
-                        berthPreference: nextSeat !== 'AUTO' ? getBerthType(nextSeat, editYatriModal.travelClass).split(' ')[0] : 'Berth',
+                        berthPreference: bInfo ? bInfo.name : 'Berth',
+                        berthCode: bInfo ? bInfo.code : 'B',
+                        berthType: bInfo ? bInfo.fullName : 'Berth',
                         checkInStatus: 'Pending'
                       }
                     ];
@@ -10358,10 +10604,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           onChange={(e) => {
                             const val = e.target.value;
                             const newPax = [...editYatriModal.passengers];
+                            const bInfo = (val && val.toUpperCase() !== 'AUTO') ? getBerthInfo(val, editYatriModal.travelClass) : null;
                             newPax[idx] = {
                               ...newPax[idx],
                               seatAssigned: val,
-                              berthPreference: (val && val.toUpperCase() !== 'AUTO') ? getBerthType(val, editYatriModal.travelClass).split(' ')[0] : newPax[idx].berthPreference
+                              berthPreference: bInfo ? bInfo.name : newPax[idx].berthPreference,
+                              berthCode: bInfo ? bInfo.code : newPax[idx].berthCode,
+                              berthType: bInfo ? bInfo.fullName : newPax[idx].berthType
                             };
                             setEditYatriModal({ ...editYatriModal, passengers: newPax });
                           }}

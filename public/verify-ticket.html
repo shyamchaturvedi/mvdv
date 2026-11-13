@@ -220,6 +220,25 @@
       return `${d} (${c})`;
     }
 
+    function getBerthDisplay(seatNum, travelClass) {
+      const num = parseInt(seatNum, 10);
+      if (isNaN(num) || num <= 0) return 'आरक्षित';
+      const tc = String(travelClass || '').toUpperCase();
+      if (tc.includes('2A')) {
+        const rem = num % 6;
+        if (rem === 1 || rem === 3) return 'Lower (LB)';
+        if (rem === 2 || rem === 4) return 'Upper (UB)';
+        if (rem === 5) return 'Side Lower (SL)';
+        return 'Side Upper (SU)';
+      }
+      const rem = num % 8;
+      if (rem === 1 || rem === 4) return 'Lower (LB)';
+      if (rem === 2 || rem === 5) return 'Middle (MB)';
+      if (rem === 3 || rem === 6) return 'Upper (UB)';
+      if (rem === 7) return 'Side Lower (SL)';
+      return 'Side Upper (SU)';
+    }
+
     async function checkTicket(pnrVal, secVal) {
       const container = document.getElementById('resultContainer');
       if (!pnrVal) {
@@ -309,7 +328,7 @@
                         <td><strong>${p.name}</strong> ${isPaxCancelled ? '<span style="color: #DC2626; font-size: 0.75rem; font-weight: 800;">[रद्द / CANCELLED]</span>' : ''}</td>
                         <td>${p.age || '-'} / ${p.gender || '-'}</td>
                         <td><strong style="color: ${isPaxCancelled ? '#DC2626' : '#C2410C'};">${isPaxCancelled ? 'रद्द (Cancelled)' : (p.seatAssigned || p.seatNumber || '-')}</strong></td>
-                        <td>${isPaxCancelled ? '<span style="color: #DC2626; font-weight: 700;">रद्द</span>' : (p.berthPreference || 'आरक्षित')}</td>
+                        <td>${isPaxCancelled ? '<span style="color: #DC2626; font-weight: 700;">रद्द</span>' : (p.berthType || getBerthDisplay(p.seatAssigned || p.seatNumber, b.travelClass))}</td>
                       </tr>
                     `;}).join('')}
                   </tbody>

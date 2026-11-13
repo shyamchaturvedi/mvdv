@@ -43,19 +43,240 @@ async function resolveCoachAndSettings(coachCode, travelClass) {
   return { coachMeta, settings, normClass };
 }
 
-// Calculate berth type based on Indian Railways standard layout (8-seat bay)
-function getBerthType(seatNum, travelClass) {
+// IRCTC Standard Coach Berth Engine (Indian Railways PRS Architecture)
+function getBerthInfo(seatNum, travelClass = 'Sleeper') {
   const num = parseInt(seatNum, 10);
-  if (isNaN(num)) return 'Chair';
-  if (normalizeClassKey(travelClass) === 'General') return 'General';
+  if (isNaN(num) || num <= 0) {
+    return {
+      code: 'BERTH',
+      name: 'Berth',
+      fullName: 'Berth',
+      display: 'Berth',
+      bayNumber: 1,
+      isSide: false,
+      tier: 'Standard'
+    };
+  }
 
-  const mod = num % 8;
-  if (mod === 1 || mod === 4) return 'Lower';
-  if (mod === 2 || mod === 5) return 'Middle';
-  if (mod === 3 || mod === 6) return 'Upper';
-  if (mod === 7) return 'Side Lower';
-  if (mod === 0) return 'Side Upper';
-  return 'Berth';
+  const norm = normalizeClassKey(travelClass);
+  const is2AC = norm === 'AC' || norm === '2A' || String(travelClass || '').toUpperCase().includes('2A');
+  const is1AC = norm === '1A' || String(travelClass || '').toUpperCase().includes('1A');
+  const isGeneral = norm === 'General' || norm === '2S' || norm === 'CC';
+
+  if (isGeneral) {
+    const mod = num % 6;
+    const isWindow = mod === 1 || mod === 0;
+    const isAisle = mod === 3 || mod === 4;
+    const code = isWindow ? 'WS' : (isAisle ? 'AS' : 'M');
+    const name = isWindow ? 'Window' : (isAisle ? 'Aisle' : 'Middle');
+    return {
+      code,
+      name,
+      fullName: `${name} (${code})`,
+      display: `${name} (${code})`,
+      bayNumber: Math.ceil(num / 6),
+      isSide: false,
+      tier: 'Seater'
+    };
+  }
+
+  if (is1AC) {
+    const isLower = num % 2 === 1;
+    const code = isLower ? 'LB' : 'UB';
+    const name = isLower ? 'Lower' : 'Upper';
+    return {
+      code,
+      name,
+      fullName: `${name} (${code})`,
+      display: `${name} (${code})`,
+      bayNumber: Math.ceil(num / 4),
+      isSide: false,
+      tier: isLower ? 'Lower' : 'Upper'
+    };
+  }
+
+  if (is2AC) {
+    const rem = num % 6;
+    let code = 'UB';
+    let name = 'Upper';
+    let isSide = false;
+    let tier = 'Upper';
+
+    if (rem === 1 || rem === 3) {
+      code = 'LB';
+      name = 'Lower';
+      tier = 'Lower';
+    } else if (rem === 2 || rem === 4) {
+      code = 'UB';
+      name = 'Upper';
+      tier = 'Upper';
+    } else if (rem === 5) {
+      code = 'SL';
+      name = 'Side Lower';
+      isSide = true;
+      tier = 'Lower';
+    } else { // rem === 0
+      code = 'SU';
+      name = 'Side Upper';
+      isSide = true;
+      tier = 'Upper';
+    }
+
+    return {
+      code,
+      name,
+      fullName: `${name} (${code})`,
+      display: `${name} (${code})`,
+      bayNumber: Math.ceil(num / 6),
+      isSide,
+      tier
+    };
+  }
+
+  // Standard Indian Railways Sleeper & 3AC (8-berth bay)
+  const rem = num % 8;
+  let code = 'UB';
+  let name = 'Upper';
+  let isSide = false;
+  let tier = 'Upper';
+
+  if (rem === 1 || rem === 4) {
+    code = 'LB';
+    name = 'Lower';
+    tier = 'Lower';
+  } else if (rem === 2 || rem === 5) {
+    code = 'MB';
+    name = 'Middle';
+    tier = 'Middle';
+  } else if (rem === 3 || rem === 6) {
+    code = 'UB';
+    name = 'Upper';
+    tier = 'Upper';
+  } else if (rem === 7) {
+    code = 'SL';
+    name = 'Side Lower';
+    isSide = true;
+    tier = 'Lower';
+  } else { // rem === 0
+    code = 'SU';
+    name = 'Side Upper';
+    isSide = true;
+    tier = 'Upper';
+  }
+
+  return {
+    code,
+    name,
+    fullName: `${name} (${code})`,
+    display: `${name} (${code})`,
+    bayNumber: Math.ceil(num / 8),
+    isSide,
+    tier
+  };
+}
+
+function getBerthType(seatNum, travelClass) {
+  return getBerthInfo(seatNum, travelClass).display;
+}
+
+function getBerthCode(seatNum, travelClass) {
+  return getBerthInfo(seatNum, travelClass).code;
+}
+
+function getBerthName(seatNum, travelClass) {
+  return getBerthInfo(seatNum, travelClass).name;
+}
+
+/**
+ * Senior Developer IRCTC Smart Seat Allocation Algorithm:
+ * 1. Bay Continuity: Allocates family/group in the same 8-berth coupe whenever possible.
+ * 2. Senior Citizen & Female Priority: Automatically allocates Lower Berths (LB/SL) to seniors (age >= 60) and females.
+ * 3. Modulo Berth Correctness: Guarantees Seat 1 is Lower, Seat 2 is Middle, Seat 3 is Upper (no consecutive upper berths).
+ */
+function allocateIRCTCBaySeats(passengers = [], availableSeatNumbers = [], travelClass = 'Sleeper') {
+  if (!Array.isArray(passengers) || passengers.length === 0) return [];
+  const needed = passengers.length;
+  const availNums = availableSeatNumbers.map(n => parseInt(n, 10)).filter(n => !isNaN(n) && n > 0).sort((a, b) => a - b);
+  if (availNums.length === 0) return passengers;
+
+  // Group available seats by bay
+  const bayMap = new Map();
+  const baySize = (normalizeClassKey(travelClass) === 'AC' && String(travelClass || '').toUpperCase().includes('2A')) ? 6 : 8;
+
+  availNums.forEach(num => {
+    const bay = Math.ceil(num / baySize);
+    if (!bayMap.has(bay)) bayMap.set(bay, []);
+    bayMap.get(bay).push(num);
+  });
+
+  // Find optimal cluster: preferably single bay with >= needed seats
+  let chosenSeats = [];
+  for (const [, baySeats] of bayMap.entries()) {
+    if (baySeats.length >= needed) {
+      chosenSeats = baySeats.slice(0, needed);
+      break;
+    }
+  }
+
+  // Fallback: take first contiguous available seats
+  if (chosenSeats.length < needed) {
+    chosenSeats = availNums.slice(0, needed);
+  }
+
+  // Separate seats by Lower vs Non-Lower
+  const lowerSeats = chosenSeats.filter(s => {
+    const info = getBerthInfo(s, travelClass);
+    return info.tier === 'Lower';
+  });
+  const otherSeats = chosenSeats.filter(s => {
+    const info = getBerthInfo(s, travelClass);
+    return info.tier !== 'Lower';
+  });
+
+  // Sort passengers: Seniors (>= 60) first, then Females, then others
+  const paxWithMeta = passengers.map((p, idx) => ({
+    passenger: p,
+    originalIdx: idx,
+    age: parseInt(p.age, 10) || 0,
+    isSenior: (parseInt(p.age, 10) || 0) >= 60,
+    isFemale: String(p.gender || '').toLowerCase() === 'female'
+  }));
+
+  const prioritizedPax = [...paxWithMeta].sort((a, b) => {
+    if (a.isSenior !== b.isSenior) return a.isSenior ? -1 : 1;
+    if (a.isFemale !== b.isFemale) return a.isFemale ? -1 : 1;
+    return a.originalIdx - b.originalIdx;
+  });
+
+  const seatAssignmentMap = new Map();
+  const remainingLowers = [...lowerSeats];
+  const remainingOthers = [...otherSeats];
+
+  prioritizedPax.forEach(item => {
+    let assignedNum;
+    if ((item.isSenior || item.isFemale) && remainingLowers.length > 0) {
+      assignedNum = remainingLowers.shift();
+    } else if (remainingOthers.length > 0) {
+      assignedNum = remainingOthers.shift();
+    } else if (remainingLowers.length > 0) {
+      assignedNum = remainingLowers.shift();
+    } else {
+      assignedNum = chosenSeats[item.originalIdx] || (item.originalIdx + 1);
+    }
+    seatAssignmentMap.set(item.originalIdx, assignedNum);
+  });
+
+  return passengers.map((p, idx) => {
+    const seatNum = seatAssignmentMap.get(idx) || chosenSeats[idx] || (idx + 1);
+    const bInfo = getBerthInfo(seatNum, travelClass);
+    return {
+      ...p,
+      seatAssigned: String(seatNum),
+      berthPreference: bInfo.name,
+      berthCode: bInfo.code,
+      berthType: bInfo.fullName
+    };
+  });
 }
 
 function normalizePassengerBerths(passengers = [], travelClass = 'Sleeper') {
@@ -64,10 +285,13 @@ function normalizePassengerBerths(passengers = [], travelClass = 'Sleeper') {
   return passengers.map((p, index) => {
     const assignedSeat = String(p?.seatAssigned || p?.seatNumber || (index + 1)).trim();
     const safeSeat = assignedSeat || String(index + 1);
+    const bInfo = getBerthInfo(safeSeat, travelClass);
     return {
       ...p,
       seatAssigned: safeSeat,
-      berthPreference: getBerthType(safeSeat, travelClass)
+      berthPreference: bInfo.name,
+      berthCode: bInfo.code,
+      berthType: bInfo.fullName
     };
   });
 }
@@ -452,13 +676,16 @@ class BookingService {
     // Format passengers
     const passengers = (payload.passengers || []).map((p, idx) => {
       const assigned = String(seatNumbers[idx] || p.seatAssigned || p.seatNumber || (idx + 1)).trim();
+      const bInfo = getBerthInfo(assigned, normClass);
       return {
         name: p.name || `Yatri ${idx + 1}`,
         age: parseInt(p.age, 10) || null,
         gender: p.gender || 'Male',
         aadhar: p.aadhar || '',
         mobile: p.mobile || payload.mobile || '',
-        berthPreference: getBerthType(assigned, normClass),
+        berthPreference: bInfo.name,
+        berthCode: bInfo.code,
+        berthType: bInfo.fullName,
         seatAssigned: assigned,
         checkInStatus: p.checkInStatus || 'Pending'
       };
@@ -630,15 +857,16 @@ class BookingService {
           seatStr = 'Cancelled';
         }
 
+        const bInfo = isPaxCancelled ? null : getBerthInfo(seatStr, normClass);
         return {
           name: cleanName || existing.bookedBy || `Yatri ${idx + 1}`,
           age: p?.age !== undefined && p?.age !== '' && p?.age !== null ? (parseInt(p.age, 10) || null) : null,
           gender: p?.gender || 'Male',
           aadhar: String(p?.aadhar || '').trim(),
           mobile: String(p?.mobile || updatedData.mobile || existing.mobile || '').trim(),
-          berthPreference: isPaxCancelled ? 'Cancelled' : ((updates.coachName !== undefined || updates.travelClass !== undefined || String(seatStr) !== String(prevSeats[idx] || ''))
-            ? getBerthType(seatStr, normClass)
-            : (p?.berthPreference || getBerthType(seatStr, normClass))),
+          berthPreference: isPaxCancelled ? 'Cancelled' : bInfo.name,
+          berthCode: isPaxCancelled ? 'CAN' : bInfo.code,
+          berthType: isPaxCancelled ? 'Cancelled' : bInfo.fullName,
           seatAssigned: isPaxCancelled ? 'Cancelled' : seatStr,
           checkInStatus
         };
@@ -678,7 +906,14 @@ class BookingService {
       if (Array.isArray(updatedData.passengers)) {
         updatedData.passengers = updatedData.passengers.map((p, idx) => {
           const s = seatList[idx] || String(p.seatAssigned || idx + 1);
-          return { ...p, seatAssigned: s, berthPreference: getBerthType(s, normClass) };
+          const bInfo = getBerthInfo(s, normClass);
+          return {
+            ...p,
+            seatAssigned: s,
+            berthPreference: bInfo.name,
+            berthCode: bInfo.code,
+            berthType: bInfo.fullName
+          };
         });
       }
     }
@@ -833,7 +1068,7 @@ class BookingService {
       paymentStatus: 'Refunded',
       releasedSeats: booking.seatNumber || [],
       seatNumber: [], // Release seats back to available pool!
-      passengers: (booking.passengers || []).map(p => ({ ...p, seatAssigned: 'Cancelled', checkInStatus: 'Cancelled', berthPreference: 'Cancelled' })),
+      passengers: (booking.passengers || []).map(p => ({ ...p, seatAssigned: 'Cancelled', checkInStatus: 'Cancelled', berthPreference: 'Cancelled', berthCode: 'CAN', berthType: 'Cancelled' })),
       refundAmount,
       cancellationCharges,
       cancellationDetails: cancellationRecord,
@@ -1484,6 +1719,10 @@ module.exports = {
   BookingService,
   FARES,
   COACH_CONFIG,
+  getBerthInfo,
   getBerthType,
+  getBerthCode,
+  getBerthName,
+  allocateIRCTCBaySeats,
   normalizePassengerBerths
 };
