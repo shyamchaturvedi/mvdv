@@ -593,8 +593,12 @@ class BookingService {
           throw new Error(`यात्री #${idx + 1} का पूरा नाम भरना अनिवार्य है।`);
         }
 
-        let seatStr = String(p?.seatAssigned ?? p?.seat ?? p?.seatNumber ?? fallbackSeats[idx] ?? '').trim();
-        if (targetStatus !== 'Cancelled') {
+        const rawCheckIn = String(p?.checkInStatus || '').trim();
+        const isPaxCancelled = rawCheckIn === 'Cancelled' || String(p?.seatAssigned || '').toUpperCase() === 'CANCELLED' || targetStatus === 'Cancelled';
+        const checkInStatus = isPaxCancelled ? 'Cancelled' : (['Present', 'Absent', 'Pending'].includes(rawCheckIn) ? rawCheckIn : 'Pending');
+
+        let seatStr = isPaxCancelled ? 'Cancelled' : String(p?.seatAssigned ?? p?.seat ?? p?.seatNumber ?? fallbackSeats[idx] ?? '').trim();
+        if (targetStatus !== 'Cancelled' && !isPaxCancelled) {
           if (!seatStr || seatStr.toUpperCase() === 'AUTO') {
             const capLimit = coachCapacity > 0 ? coachCapacity : 72;
             let assignedAuto = '';
@@ -622,12 +626,9 @@ class BookingService {
             throw new Error(`कोच ${targetCoach} में केवल 1 से ${coachCapacity} तक सीटें उपलब्ध हैं (अमान्य सीट: ${seatStr})।`);
           }
           seenInBooking.add(seatStr);
+        } else if (isPaxCancelled) {
+          seatStr = 'Cancelled';
         }
-
-        const rawCheckIn = String(p?.checkInStatus || '').trim();
-        const checkInStatus = ['Present', 'Absent', 'Pending', 'Cancelled'].includes(rawCheckIn)
-          ? rawCheckIn
-          : (targetStatus === 'Cancelled' ? 'Cancelled' : 'Pending');
 
         return {
           name: cleanName || existing.bookedBy || `Yatri ${idx + 1}`,
@@ -635,17 +636,22 @@ class BookingService {
           gender: p?.gender || 'Male',
           aadhar: String(p?.aadhar || '').trim(),
           mobile: String(p?.mobile || updatedData.mobile || existing.mobile || '').trim(),
-          berthPreference: (updates.coachName !== undefined || updates.travelClass !== undefined || String(seatStr) !== String(prevSeats[idx] || ''))
+          berthPreference: isPaxCancelled ? 'Cancelled' : ((updates.coachName !== undefined || updates.travelClass !== undefined || String(seatStr) !== String(prevSeats[idx] || ''))
             ? getBerthType(seatStr, normClass)
-            : (p?.berthPreference || getBerthType(seatStr, normClass)),
-          seatAssigned: targetStatus === 'Cancelled' ? 'Cancelled' : seatStr,
+            : (p?.berthPreference || getBerthType(seatStr, normClass))),
+          seatAssigned: isPaxCancelled ? 'Cancelled' : seatStr,
           checkInStatus
         };
       });
 
       updatedData.passengers = normalizedPassengers;
-      updatedData.numberOfPassengers = normalizedPassengers.length;
-      updatedData.seatNumber = targetStatus === 'Cancelled' ? [] : normalizedPassengers.map(p => String(p.seatAssigned));
+      const activePaxList = normalizedPassengers.filter(p => p.seatAssigned !== 'Cancelled' && p.checkInStatus !== 'Cancelled');
+      updatedData.numberOfPassengers = activePaxList.length;
+      updatedData.seatNumber = targetStatus === 'Cancelled' ? [] : activePaxList.map(p => String(p.seatAssigned));
+
+      if (activePaxList.length === 0 && targetStatus !== 'Cancelled') {
+        updatedData.status = 'Cancelled';
+      }
 
       if (normalizedPassengers.length !== prevPaxCount || prevCoach !== targetCoach || prevSeats.join(',') !== updatedData.seatNumber.join(',')) {
         passengerMutationNote = ` [यात्री: ${prevPaxCount} → ${normalizedPassengers.length}, कोच: ${prevCoach} → ${targetCoach}, सीटें: ${prevSeats.join(',')} → ${updatedData.seatNumber.join(',')}]`;
@@ -678,7 +684,8 @@ class BookingService {
     }
 
     // Fare & payment recalculation
-    const newPaxCount = Number(updatedData.numberOfPassengers) || (Array.isArray(updatedData.passengers) ? updatedData.passengers.length : 1) || 1;
+    const activePaxForFare = (updatedData.passengers || []).filter(p => p.seatAssigned !== 'Cancelled' && p.checkInStatus !== 'Cancelled');
+    const newPaxCount = activePaxForFare.length > 0 ? activePaxForFare.length : (Number(updatedData.numberOfPassengers) || 1);
     let effectiveUnitPrice = Number(existing.unitPrice) || Math.round((Number(existing.totalAmount) || 0) / Math.max(1, prevPaxCount)) || 3000;
     if (updates.unitPrice !== undefined && updates.unitPrice !== '') {
       effectiveUnitPrice = Number(updates.unitPrice);

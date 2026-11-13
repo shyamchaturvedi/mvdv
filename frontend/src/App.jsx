@@ -5427,7 +5427,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               {(verifierResult.booking.passengers || []).map((p, idx) => (
                                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #FFEDD5', fontSize: '0.85rem' }}>
                                   <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} वर्ष, {p.gender || '-'})</span>
-                                  <span style={{ color: '#C2410C', fontWeight: 700 }}>सीट: {p.seatAssigned || p.seatNumber || '-'}</span>
+                                  <span style={{ color: p.seatAssigned === 'Cancelled' ? '#DC2626' : '#C2410C', fontWeight: 700 }}>{p.seatAssigned === 'Cancelled' ? 'रद्द (Cancelled)' : `सीट: ${p.seatAssigned || p.seatNumber || '-'}`}</span>
                                 </div>
                               ))}
                             </div>
@@ -6092,15 +6092,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                           </button>
                                       )}
                                       
-                                      {isSuperAdmin && (
-                                        <button className="btn btn-xs btn-danger" onClick={() => deleteBooking(b.bookingId)} title="Delete">
-                                              <Trash2 size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Delete
-                                            </button>
-                                        )}
-                                        {isSuperAdmin && b.status !== 'Cancelled' && (
-                                          <button className="btn btn-xs" onClick={() => setCancelRefundModal(b)} title="Cancel/Refund" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
-                                              <RefreshCw size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Cancel/Refund
-                                            </button>
+                                      {b.status !== 'Cancelled' ? (
+                                        <button className="btn btn-xs" onClick={() => setCancelRefundModal(b)} title="रद्द करें व रिफंड दें (Cancel/Refund)" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
+                                          <RefreshCw size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> रद्द/Cancel
+                                        </button>
+                                      ) : (
+                                        <span className="badge badge-bhakti" style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA' }}>
+                                          रद्द (Cancelled)
+                                        </span>
                                       )}
                                     </div>
                                   </td>
@@ -7311,7 +7310,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   {(verifierResult.booking.passengers || []).map((p, idx) => (
                                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #FFEDD5', fontSize: '0.85rem' }}>
                                       <span>{idx + 1}. <strong>{p.name}</strong> ({p.age || '-'} वर्ष, {p.gender || '-'})</span>
-                                      <span style={{ color: '#C2410C', fontWeight: 700 }}>सीट: {p.seatAssigned || p.seatNumber || '-'}</span>
+                                      <span style={{ color: p.seatAssigned === 'Cancelled' ? '#DC2626' : '#C2410C', fontWeight: 700 }}>{p.seatAssigned === 'Cancelled' ? 'रद्द (Cancelled)' : `सीट: ${p.seatAssigned || p.seatNumber || '-'}`}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -9166,15 +9165,17 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     : [{ name: ticketModal.bookedBy, age: '-', gender: '-', aadhar: ticketModal.aadhar, seatAssigned: (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber), berthPreference: 'Berth' }]
                   ).map((p, idx) => {
                     const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber[idx] : idx + 1);
-                    const isCancelled = ticketModal.status === 'Cancelled';
+                    const isCancelled = ticketModal.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
                     return (
-                      <div key={idx} className="irctc-half-pax-row">
+                      <div key={idx} className="irctc-half-pax-row" style={isCancelled ? { background: '#FEF2F2' } : {}}>
                         <div style={{ color: '#64748B' }}>{idx + 1}</div>
-                        <div style={{ fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name || 'Passenger'}</div>
+                        <div style={{ fontWeight: 700, color: isCancelled ? '#991B1B' : '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {p.name || 'Passenger'} {isCancelled && <span style={{ color: '#DC2626', fontSize: '0.6rem', fontWeight: 800 }}>[CAN]</span>}
+                        </div>
                         <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
                         <div style={{ color: isCancelled ? '#DC2626' : '#16A34A', fontWeight: 700 }}>{isCancelled ? 'CANCELLED' : 'CNF'}</div>
-                        <div style={{ color: '#0284C7', fontWeight: 700, fontSize: '0.66rem', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                          {formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${p.berthPreference || 'B'})` : (p.berthPreference || 'Berth')}
+                        <div style={{ color: isCancelled ? '#DC2626' : '#0284C7', fontWeight: 700, fontSize: '0.66rem', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                          {isCancelled ? 'रद्द / Cancelled' : `${formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / ${!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${p.berthPreference || 'B'})` : (p.berthPreference || 'Berth')}`}
                         </div>
                       </div>
                     );
@@ -9320,17 +9321,21 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       : [{ name: ticketModal.bookedBy, age: '-', gender: '-', aadhar: ticketModal.aadhar, seatAssigned: (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber), berthPreference: 'Berth' }]
                     ).map((p, idx) => {
                       const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber[idx] : idx + 1);
-                      const isCancelled = ticketModal.status === 'Cancelled';
-                      const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
+                      const isCancelled = ticketModal.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
+                      const statusText = isCancelled ? 'CANCELLED (रद्द)' : 'CONFIRMED (CNF)';
                       const statusColor = isCancelled ? '#DC2626' : '#16A34A';
                       return (
-                        <div key={idx} className="irctc-pax-row">
+                        <div key={idx} className="irctc-pax-row" style={isCancelled ? { background: '#FEF2F2' } : {}}>
                           <div style={{ color: '#475569' }}>{idx + 1}</div>
-                          <div style={{ fontWeight: 700, color: '#0F172A' }}>{p.name || 'Passenger'}</div>
+                          <div style={{ fontWeight: 700, color: isCancelled ? '#991B1B' : '#0F172A' }}>
+                            {p.name || 'Passenger'} {isCancelled && <span style={{ color: '#DC2626', fontSize: '0.72rem', fontWeight: 800, marginLeft: 4 }}>[रद्द / CAN]</span>}
+                          </div>
                           <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
                           <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
                           <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
-                          <div style={{ color: '#0284C7', fontWeight: 700 }}>{formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}</div>
+                          <div style={{ color: isCancelled ? '#DC2626' : '#0284C7', fontWeight: 700 }}>
+                            {isCancelled ? 'रद्द / Cancelled' : `${formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / ${!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}`}
+                          </div>
                         </div>
                       );
                     })}
@@ -9938,23 +9943,92 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 </button>
               </div>
 
-              {editYatriModal.passengers.map((p, idx) => (
-                <div key={idx} style={{ background: '#F9FAFB', padding: 12, borderRadius: 8, marginBottom: 10, border: '1px solid #E5E7EB' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontWeight: 800, color: '#4B5563', fontSize: '0.86rem' }}>यात्री #{idx + 1}</span>
-                    <button
-                      type="button"
-                      className="btn btn-xs btn-danger"
-                      disabled={editYatriModal.passengers.length <= 1}
-                      title={editYatriModal.passengers.length <= 1 ? 'कम से कम 1 यात्री होना आवश्यक है (पूरी बुकिंग हटाने हेतु Cancel/Delete उपयोग करें)' : 'इस यात्री को बुकिंग से हटाएं'}
-                      onClick={() => {
-                        if (editYatriModal.passengers.length <= 1) return;
-                        const newPax = editYatriModal.passengers.filter((_, i) => i !== idx);
-                        setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
-                      }}
-                    >
-                      <Trash2 size={12} style={{ display: 'inline', marginRight: 3, verticalAlign: 'text-bottom' }} /> हटाएं (Delete)
-                    </button>
+              {editYatriModal.passengers.map((p, idx) => {
+                const isPaxCancelled = p.seatAssigned === 'Cancelled' || p.checkInStatus === 'Cancelled';
+                return (
+                <div key={idx} style={{ 
+                  background: isPaxCancelled ? '#FEF2F2' : '#F9FAFB', 
+                  padding: 12, 
+                  borderRadius: 8, 
+                  marginBottom: 10, 
+                  border: isPaxCancelled ? '1.5px solid #FECACA' : '1px solid #E5E7EB' 
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 800, color: isPaxCancelled ? '#991B1B' : '#4B5563', fontSize: '0.86rem' }}>
+                        यात्री #{idx + 1}
+                      </span>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        background: isPaxCancelled ? '#DC2626' : '#10B981',
+                        color: '#FFFFFF'
+                      }}>
+                        {isPaxCancelled ? '❌ रद्द (CANCELLED)' : '✅ सक्रिय (ACTIVE)'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      {isPaxCancelled ? (
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-success"
+                          style={{ background: '#059669', borderColor: '#059669', color: '#FFF' }}
+                          title="इस यात्री को दोबारा सक्रिय करें"
+                          onClick={() => {
+                            const newPax = [...editYatriModal.passengers];
+                            newPax[idx] = {
+                              ...newPax[idx],
+                              seatAssigned: 'AUTO',
+                              checkInStatus: 'Pending',
+                              berthPreference: 'Berth'
+                            };
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                          }}
+                        >
+                          ✓ पुनः बहाल करें (Reinstate)
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-danger"
+                          title="इस यात्री का टिकट रद्द करें (सीट तुरंत खाली होगी)"
+                          onClick={() => {
+                            const activeCount = editYatriModal.passengers.filter(x => x.seatAssigned !== 'Cancelled' && x.checkInStatus !== 'Cancelled').length;
+                            if (activeCount <= 1) {
+                              if (!confirm('यह इस बुकिंग का अंतिम सक्रिय यात्री है। इसे रद्द करने पर पूरी बुकिंग रद्द मानी जाएगी। क्या आप जारी रखना चाहते हैं?')) return;
+                            }
+                            const newPax = [...editYatriModal.passengers];
+                            newPax[idx] = {
+                              ...newPax[idx],
+                              seatAssigned: 'Cancelled',
+                              checkInStatus: 'Cancelled',
+                              berthPreference: 'Cancelled'
+                            };
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                          }}
+                        >
+                          ✕ यात्री रद्द करें (Cancel Yatri)
+                        </button>
+                      )}
+
+                      {(!p.name && editYatriModal.passengers.length > 1) && (
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-outline"
+                          style={{ borderColor: '#D1D5DB', color: '#6B7280' }}
+                          title="अतिरिक्त खाली पंक्ति हटाएं"
+                          onClick={() => {
+                            const newPax = editYatriModal.passengers.filter((_, i) => i !== idx);
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                          }}
+                        >
+                          <Trash2 size={12} style={{ display: 'inline', marginRight: 2, verticalAlign: 'text-bottom' }} /> हटाएं
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: 8 }}>
                     <div>
@@ -10067,13 +10141,16 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
 
               {/* Fare & Payment Summary */}
               {(() => {
-                const paxCount = editYatriModal.passengers.length;
+                const activePax = editYatriModal.passengers.filter(p => p.seatAssigned !== 'Cancelled' && p.checkInStatus !== 'Cancelled');
+                const activeCount = activePax.length;
+                const cancelledCount = editYatriModal.passengers.length - activeCount;
                 const unitFareEst = Number(editYatriModal.unitPrice || 0);
-                const estTotal = editYatriModal.recalculateFare ? (unitFareEst * paxCount) : Number(editYatriModal.totalAmount || 0);
+                const estTotal = editYatriModal.recalculateFare ? (unitFareEst * activeCount) : Number(editYatriModal.totalAmount || 0);
                 const estDue = Math.max(0, estTotal - (Number(editYatriModal.advance || 0) + Number(editYatriModal.discount || 0)));
                 return (
                   <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: 12, marginTop: 12 }}>
@@ -10085,7 +10162,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           onChange={(e) => setEditYatriModal({ ...editYatriModal, recalculateFare: e.target.checked })}
                           style={{ width: 16, height: 16, accentColor: '#059669' }}
                         />
-                        यात्रियों की संख्या के अनुसार किराया स्वतः पुनः गणना करें (₹{unitFareEst} × {paxCount} = ₹{unitFareEst * paxCount})
+                        सक्रिय यात्रियों के अनुसार किराया पुनः गणना करें (सक्रिय: {activeCount} × ₹{unitFareEst} = ₹{unitFareEst * activeCount}{cancelledCount > 0 ? ` • ${cancelledCount} रद्द` : ''})
                       </label>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, fontSize: '0.84rem' }}>

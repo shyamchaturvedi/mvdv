@@ -154,19 +154,20 @@ class PDFService {
       doc.rect(marginX, y, contentWidth, rowH).fillColor(isEven ? '#FFFFFF' : '#F0F9FF').fill().strokeColor('#E2E8F0').lineWidth(0.5).stroke();
 
       const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(booking.seatNumber) ? booking.seatNumber[index] : index + 1);
-      const isCancelled = booking.status === 'Cancelled';
+      const isCancelled = booking.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
       const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
       const statusColor = isCancelled ? '#DC2626' : '#16A34A';
       const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
       const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
-      const pCleanBerth = PDFService.cleanPdfText(p.berthPreference, 'Berth');
+      const pCleanBerth = isCancelled ? 'CAN' : PDFService.cleanPdfText(p.berthPreference, 'Berth');
+      const seatDisplay = isCancelled ? 'CANCELLED' : `${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`;
 
       doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
       doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });
       doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(`${p.age || '-'} / ${pCleanGender}`, marginX + 200, y + 3);
       doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 290, y + 3);
       doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 390, y + 3);
-      doc.fillColor('#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(`${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`, marginX + 475, y + 3);
+      doc.fillColor(isCancelled ? '#DC2626' : '#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(seatDisplay, marginX + 475, y + 3);
       y += rowH;
     });
 
@@ -356,16 +357,20 @@ class PDFService {
         const isEven = index % 2 === 0;
         doc.rect(marginX, y, contentWidth, rowH).fillColor(isEven ? '#FFFFFF' : '#F0F9FF').fill().strokeColor('#E2E8F0').lineWidth(0.5).stroke();
         const assignedSeat = p.seatAssigned || p.seatNumber || (Array.isArray(booking.seatNumber) ? booking.seatNumber[index] : index + 1);
+        const isCancelled = booking.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
+        const statusText = isCancelled ? 'CANCELLED' : 'CONFIRMED (CNF)';
+        const statusColor = isCancelled ? '#DC2626' : '#16A34A';
         const pCleanName = PDFService.cleanPdfText(p.name, 'Passenger');
         const pCleanGender = PDFService.cleanPdfText(p.gender, '-');
-        const pCleanBerth = PDFService.cleanPdfText(p.berthPreference, 'Berth');
+        const pCleanBerth = isCancelled ? 'CAN' : PDFService.cleanPdfText(p.berthPreference, 'Berth');
+        const seatDisplay = isCancelled ? 'CANCELLED' : `${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`;
 
         doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(String(index + 1), marginX + 8, y + 3);
         doc.fillColor('#0F172A').fontSize(pFontSize).font('Helvetica-Bold').text(pCleanName, marginX + 28, y + 3, { width: 170, ellipsis: true });
         doc.fillColor('#334155').fontSize(pFontSize).font('Helvetica').text(`${p.age || '-'} / ${pCleanGender}`, marginX + 200, y + 3);
-        doc.fillColor('#16A34A').fontSize(pFontSize).font('Helvetica-Bold').text('CONFIRMED (CNF)', marginX + 290, y + 3);
-        doc.fillColor('#16A34A').fontSize(pFontSize).font('Helvetica-Bold').text('CONFIRMED (CNF)', marginX + 390, y + 3);
-        doc.fillColor('#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(`${cleanCoach} / ${assignedSeat} / ${pCleanBerth}`, marginX + 475, y + 3);
+        doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 290, y + 3);
+        doc.fillColor(statusColor).fontSize(pFontSize).font('Helvetica-Bold').text(statusText, marginX + 390, y + 3);
+        doc.fillColor(isCancelled ? '#DC2626' : '#0284C7').fontSize(pFontSize).font('Helvetica-Bold').text(seatDisplay, marginX + 475, y + 3);
         y += rowH;
       });
 

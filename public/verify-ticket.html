@@ -301,15 +301,17 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${(b.passengers || []).map((p, i) => `
-                      <tr>
+                    ${(b.passengers || []).map((p, i) => {
+                      const isPaxCancelled = b.status === 'Cancelled' || String(p.seatAssigned || '').toUpperCase() === 'CANCELLED' || String(p.checkInStatus || '').toUpperCase() === 'CANCELLED';
+                      return `
+                      <tr style="${isPaxCancelled ? 'background: #FEF2F2; color: #991B1B;' : ''}">
                         <td><strong>${i + 1}</strong></td>
-                        <td><strong>${p.name}</strong></td>
+                        <td><strong>${p.name}</strong> ${isPaxCancelled ? '<span style="color: #DC2626; font-size: 0.75rem; font-weight: 800;">[रद्द / CANCELLED]</span>' : ''}</td>
                         <td>${p.age || '-'} / ${p.gender || '-'}</td>
-                        <td><strong style="color: #C2410C;">${p.seatAssigned || p.seatNumber || '-'}</strong></td>
-                        <td>${p.berthPreference || 'आरक्षित'}</td>
+                        <td><strong style="color: ${isPaxCancelled ? '#DC2626' : '#C2410C'};">${isPaxCancelled ? 'रद्द (Cancelled)' : (p.seatAssigned || p.seatNumber || '-')}</strong></td>
+                        <td>${isPaxCancelled ? '<span style="color: #DC2626; font-weight: 700;">रद्द</span>' : (p.berthPreference || 'आरक्षित')}</td>
                       </tr>
-                    `).join('')}
+                    `;}).join('')}
                   </tbody>
                 </table>
 
