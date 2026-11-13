@@ -311,10 +311,11 @@
       coachSelect.innerHTML = '';
 
       const list = COACHES[cls] || COACHES.Sleeper;
-      list.forEach(c => {
+      list.forEach(item => {
+        const coach = typeof item === 'string' ? { code: item, name: item } : item;
         const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = `Coach ${c}`;
+        opt.value = coach.code || coach.coachCode || coach;
+        opt.textContent = coach.name || coach.coachName || coach.code || coach.coachCode || coach;
         coachSelect.appendChild(opt);
       });
 
@@ -331,9 +332,11 @@
     }
 
     async function loadCoachLayout() {
-      const coach = document.getElementById('coachName').value;
+      const coachSelect = document.getElementById('coachName');
+      const coach = coachSelect.value;
       const year = document.getElementById('yatraYear').value;
-      document.getElementById('coachTitle').textContent = `Coach ${coach} Seat Layout (Yatra ${year})`;
+      const selectedCoachLabel = coachSelect.selectedOptions[0]?.text || coach;
+      document.getElementById('coachTitle').textContent = `${selectedCoachLabel} Seat Layout (Yatra ${year})`;
 
       const container = document.getElementById('seatGridContainer');
       container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 20px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading seats...</div>';
@@ -404,7 +407,6 @@
         addPassenger();
       }
 
-      // Assign selected seats to passenger inputs
       const seatInputs = document.querySelectorAll('.pax-seat-assigned');
       seatInputs.forEach((input, i) => {
         if (selectedSeats[i]) {
@@ -425,7 +427,7 @@
       card.innerHTML = `
         <div class="pax-header">
           <strong style="color: #FFB74D;"><i class="fa-solid fa-user-tag"></i> Passenger #${passengerCount}</strong>
-          ${passengerCount > 1 ? `<button type="button" class="btn btn-outline btn-sm" onclick="removePassenger(${passengerCount})" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-trash"></i></button>` : ''}
+          ${passengerCount > 1 ? `<button type="button" class="btn btn-outline btn-sm" onclick="removePassenger(${passengerCount})" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-trash"></i> Remove</button>` : ''}
         </div>
         <div class="grid-2">
           <div class="form-group" style="margin-bottom: 10px;">
@@ -562,7 +564,6 @@
           return;
         }
 
-        // Redirect to live ticket page
         window.location.href = `/ticket.html?pnr=${data.booking.bookingId}`;
       } catch (err) {
         alert('Booking error: ' + err.message);
@@ -593,7 +594,6 @@
       }
     }
 
-    // Initialize live configuration from server
     async function initLiveConfig() {
       try {
         const res = await fetch('/api/config');
@@ -610,7 +610,7 @@
           if (data.yatraYear) {
             const yearSelect = document.getElementById('yatraYear');
             if (yearSelect && data.availableYears) {
-              yearSelect.innerHTML = data.availableYears.map(y => `<option value="${y}" ${String(y) === String(data.yatraYear) ? 'selected' : ''}>Yatra ${y} ${String(y) === String(data.yatraYear) ? '(Active Pilgrimage)' : ''}</option>`).join('');
+              yearSelect.innerHTML = data.availableYears.map(y => `<option value="${y}" ${String(y) === String(data.yatraYear) ? 'selected' : ''}>Yatra ${y} ${String(y) === String(data.yatraYear) ? '(Active)' : ''}</option>`).join('');
             }
           }
           if (data.stations && data.stations.length > 0) {
@@ -621,7 +621,6 @@
               fromSelect.value = prevVal;
             }
           }
-          // Update Class Dropdown labels with live fares
           const classSelect = document.getElementById('travelClass');
           if (classSelect) {
             classSelect.innerHTML = `
@@ -631,9 +630,9 @@
             `;
           }
           if (data.coaches) {
-            if (data.coaches.AC) COACHES.AC = data.coaches.AC;
-            if (data.coaches.Sleeper) COACHES.Sleeper = data.coaches.Sleeper;
-            if (data.coaches.General) COACHES.General = data.coaches.General;
+            if (data.coaches.AC) COACHES.AC = data.coaches.AC.map(c => ({ code: c.code || c.coachCode, name: c.name || c.coachName || c.code || c.coachCode }));
+            if (data.coaches.Sleeper) COACHES.Sleeper = data.coaches.Sleeper.map(c => ({ code: c.code || c.coachCode, name: c.name || c.coachName || c.code || c.coachCode }));
+            if (data.coaches.General) COACHES.General = data.coaches.General.map(c => ({ code: c.code || c.coachCode, name: c.name || c.coachName || c.code || c.coachCode }));
           }
         }
       } catch (e) {
