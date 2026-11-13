@@ -137,9 +137,9 @@ class SettingsService {
         const data = snap.data();
         // Normalize fares
         const fares = data.fares || {
-          AC: Number(data.fareAC !== undefined ? data.fareAC : 0),
-          Sleeper: Number(data.fareSleeper || 3000),
-          General: Number(data.fareGeneral || 2000)
+          AC: Number(data.fareAC ?? 0),
+          Sleeper: Number(data.fareSleeper ?? 3000),
+          General: Number(data.fareGeneral ?? 2000)
         };
         inMemorySettings = {
           ...DEFAULT_SETTINGS,
@@ -169,9 +169,9 @@ class SettingsService {
     // Emergency fallback: local disk
     const diskSettings = loadSettingsFromDisk();
     const fares = diskSettings.fares || {
-      AC: Number(diskSettings.fareAC !== undefined ? diskSettings.fareAC : 0),
-      Sleeper: Number(diskSettings.fareSleeper || 3000),
-      General: Number(diskSettings.fareGeneral || 2000)
+      AC: Number(diskSettings.fareAC ?? 0),
+      Sleeper: Number(diskSettings.fareSleeper ?? 3000),
+      General: Number(diskSettings.fareGeneral ?? 2000)
     };
     return {
       ...diskSettings,
@@ -186,9 +186,9 @@ class SettingsService {
     const current = await this.getSettings();
 
     // Harmonize fares between top-level fields and fares object
-    const fareSleeper = Number(updates.fareSleeper !== undefined ? updates.fareSleeper : (updates.fares?.Sleeper || current.fareSleeper || 3000));
-    const fareAC = Number(updates.fareAC !== undefined ? updates.fareAC : (updates.fares?.AC || current.fareAC || 4000));
-    const fareGeneral = Number(updates.fareGeneral !== undefined ? updates.fareGeneral : (updates.fares?.General || current.fareGeneral || 2000));
+    const fareSleeper = Number(updates.fareSleeper ?? updates.fares?.Sleeper ?? current.fareSleeper ?? current.fares?.Sleeper ?? 3000);
+    const fareAC = Number(updates.fareAC ?? updates.fares?.AC ?? current.fareAC ?? current.fares?.AC ?? 0);
+    const fareGeneral = Number(updates.fareGeneral ?? updates.fares?.General ?? current.fareGeneral ?? current.fares?.General ?? 2000);
 
     const fares = {
       AC: fareAC,
@@ -225,13 +225,14 @@ class SettingsService {
         for (const doc of coachesSnap.docs) {
           const c = doc.data();
           let targetFare = null;
-          if (c.coachClass === 'AC') targetFare = fareAC;
+          if (['AC', '3 AC', '2 AC', '3A', '2A'].includes(c.coachClass)) targetFare = fareAC;
           else if (c.coachClass === 'Sleeper') targetFare = fareSleeper;
           else if (c.coachClass === 'General') targetFare = fareGeneral;
 
-          if (targetFare !== null && c.fare !== targetFare) {
+          if (targetFare !== null && (c.fare !== targetFare || c.baseFare !== targetFare)) {
             await db.collection('trainCoaches').doc(doc.id).set({
               fare: targetFare,
+              baseFare: targetFare,
               updatedAt: new Date().toISOString()
             }, { merge: true });
           }

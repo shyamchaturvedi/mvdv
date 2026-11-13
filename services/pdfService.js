@@ -96,7 +96,8 @@ class PDFService {
 
     doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Coach / Assigned Seats', marginX + 300, y + 4);
     const seatStr = Array.isArray(booking.seatNumber) && booking.seatNumber.length > 0 ? booking.seatNumber.join(', ') : (booking.seatNumber || 'Allocated');
-    doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`Coach ${cleanCoach} : Berths [ ${seatStr} ]`, marginX + 300, y + 14);
+    const coachLabel = PDFService.formatCoachForPdf(booking);
+    doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`${coachLabel} : Berths [ ${seatStr} ]`, marginX + 300, y + 14, { width: contentWidth - 310, ellipsis: true });
 
     // Horizontal Divider in grid
     doc.moveTo(marginX, y + 27).lineTo(marginX + contentWidth, y + 27).strokeColor('#E2E8F0').lineWidth(0.5).stroke();
@@ -306,8 +307,9 @@ class PDFService {
       doc.fillColor('#0F172A').fontSize(8.5).font('Helvetica-Bold').text(cleanClass, marginX + 200, y + 14);
 
       const seatStr = Array.isArray(booking.seatNumber) && booking.seatNumber.length > 0 ? booking.seatNumber.join(', ') : (booking.seatNumber || 'Allocated');
+      const coachLabel = PDFService.formatCoachForPdf(booking);
       doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('Coach / Assigned Seats', marginX + 300, y + 4);
-      doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`Coach ${cleanCoach} : Berths [ ${seatStr} ]`, marginX + 300, y + 14);
+      doc.fillColor('#0284C7').fontSize(9).font('Helvetica-Bold').text(`${coachLabel} : Berths [ ${seatStr} ]`, marginX + 300, y + 14, { width: contentWidth - 310, ellipsis: true });
 
       doc.moveTo(marginX, y + 27).lineTo(marginX + contentWidth, y + 27).strokeColor('#E2E8F0').lineWidth(0.5).stroke();
       doc.fillColor('#475569').fontSize(7).font('Helvetica-Bold').text('From Station', marginX + 10, y + 30);
@@ -475,6 +477,16 @@ class PDFService {
     return s || fallback;
   }
 
+  // Helper to format coach and human bogie name cleanly for standard WinAnsi PDFKit fonts
+  static formatCoachForPdf(booking) {
+    const cleanCoach = PDFService.cleanPdfText(booking?.coachName, 'S1');
+    const cleanDisplay = PDFService.cleanPdfText(booking?.coachDisplayName, '');
+    if (cleanDisplay && cleanDisplay !== cleanCoach && cleanDisplay !== `Coach ${cleanCoach}`) {
+      return `${cleanDisplay} (${cleanCoach})`;
+    }
+    return `Coach ${cleanCoach}`;
+  }
+
   // Generate an authentic official Mandir / Charitable Trust Payment Receipt PDF in A4-HALF (A5 Landscape) Format
   static async generatePaymentSlipPDF(booking, txn, stream) {
     const fs = require('fs');
@@ -556,7 +568,7 @@ class PDFService {
     doc.fillColor('#1F2937').fontSize(8).font('Helvetica').text(`Special Train ${booking.yatraYear || 2026}`, 88, y + 20);
 
     doc.fillColor('#4B5563').fontSize(8).font('Helvetica-Bold').text('Class & Coach:', 230, y + 20);
-    doc.fillColor('#1F2937').fontSize(8).font('Helvetica').text(`${cleanClass} (Coach ${cleanCoach})`, 295, y + 20);
+    doc.fillColor('#1F2937').fontSize(8).font('Helvetica').text(`${cleanClass} (${PDFService.formatCoachForPdf(booking)})`, 295, y + 20, { width: 100, ellipsis: true });
 
     doc.fillColor('#4B5563').fontSize(8).font('Helvetica-Bold').text('Seat No(s):', 400, y + 20);
     doc.fillColor('#1E40AF').fontSize(8.5).font('Helvetica-Bold').text(`${seatStr}`, 455, y + 20);
@@ -657,7 +669,7 @@ class PDFService {
       totalPending += pending;
       doc.fillColor('#333').fontSize(10).font('Helvetica');
       doc.text(`${i + 1}. PNR: ${b.bookingId} | Name: ${b.bookedBy} | Mobile: ${b.mobile || 'N/A'}`);
-      doc.text(`    Coach: ${b.coachName} | Seats: ${Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber} | Dues: Rs. ${pending.toFixed(2)}`);
+      doc.text(`    Coach: ${PDFService.formatCoachForPdf(b)} | Seats: ${Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber} | Dues: Rs. ${pending.toFixed(2)}`);
       doc.moveDown(0.5);
     });
     

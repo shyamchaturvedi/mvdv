@@ -41,13 +41,26 @@ router.post('/login', async (req, res) => {
   }
 
   if (username === adminUser && password === adminPass) {
-    req.session.isAdmin = true;
-    req.session.user = { username, role: 'SuperAdmin' };
+    const adminProfile = {
+      staffId: 'ADMIN-001',
+      name: 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
+      username: adminUser,
+      role: 'SuperAdmin',
+      status: 'Active',
+      department: 'Executive Trust Office'
+    };
+    const token = AuthService.generateToken(adminProfile);
+    if (req.session) {
+      req.session.isAdmin = true;
+      req.session.user = adminProfile;
+      req.session.staffUser = adminProfile;
+      req.session.token = token;
+    }
     return res.json({
       success: true,
       message: 'Admin authenticated successfully',
-      user: { username, role: 'SuperAdmin' },
-      token: 'mvd_admin_token'
+      user: adminProfile,
+      token
     });
   }
 
@@ -98,13 +111,15 @@ router.get('/bookings', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Update booking details
+// Update booking details (supports add/delete/edit yatris, coach change & seat assignment)
 router.put('/bookings/:id', checkAdminAuth, async (req, res) => {
   try {
-    const updated = await BookingService.updateBooking(req.params.id, req.body);
+    const actor = req.user || req.session?.user || 'Admin';
+    const updated = await BookingService.updateBooking(req.params.id, req.body, actor);
     res.json({ success: true, message: 'Booking updated successfully', booking: updated });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const status = err.message && err.message.includes('not found') ? 404 : 400;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 
@@ -112,6 +127,7 @@ router.put('/bookings/:id', checkAdminAuth, async (req, res) => {
 router.put('/bookings/:id/payment', checkAdminAuth, async (req, res) => {
   try {
     const { paymentMode, upiTransactionId, advance, discount } = req.body;
+    const actor = req.user || req.session?.user || 'Admin';
     
     // Use the existing updateBooking to handle recalculations
     const payload = {};
@@ -120,71 +136,86 @@ router.put('/bookings/:id/payment', checkAdminAuth, async (req, res) => {
     if (advance !== undefined) payload.advance = advance;
     if (discount !== undefined) payload.discount = discount;
     
-    const updated = await BookingService.updateBooking(req.params.id, payload);
+    const updated = await BookingService.updateBooking(req.params.id, payload, actor);
     
     // Let's also log this specifically since it's a payment modification
-    const { StaffService } = require('../services/StaffService');
     await StaffService.logAudit({
       action: 'PAYMENT_EDIT',
-      performedBy: req.user,
+      performedBy: req.user || actor,
+      targetId: updated.bookingId,
       details: `बुकिंग ${updated.bookingId} का भुगतान विवरण अद्यतन किया गया। (Mode: ${paymentMode || updated.paymentMode})`
     });
 
     res.json({ success: true, message: 'Payment details updated successfully', booking: updated });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const status = err.message && err.message.includes('not found') ? 404 : 400;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 
 // Mark as paid or record partial payment
 router.post('/bookings/:id/pay', checkAdminAuth, async (req, res) => {
   try {
-    const { amount } = req.body;
-    const updated = await BookingService.recordPayment(req.params.id, amount !== undefined ? amount : null);
+    const { amount, paymentMode, method, type, utr } = req.body;
+    const paymentDetails = {
+      method: paymentMode || method || 'Cash',
+      type: type || 'Balance Clearance',
+      cashierName: req.user?.name || req.user?.username || 'Admin',
+      utr: utr || ''
+    };
+    const updated = await BookingService.recordPayment(req.params.id, amount !== undefined ? amount : null, paymentDetails);
+    await StaffService.logAudit({
+      action: 'PAYMENT_RECORDED',
+      performedBy: req.user || { name: paymentDetails.cashierName, role: 'Admin' },
+      targetId: updated.bookingId,
+      amount: Number(amount) || 0,
+      paymentMode: paymentDetails.method,
+      details: `बुकिंग ${updated.bookingId} में भुगतान दर्ज किया गया (${paymentDetails.method})। शेष बकाया: ₹${updated.remainingAmount}`
+    });
     res.json({ success: true, message: 'Payment recorded successfully', booking: updated });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
 // Verify UTR
 router.put('/bookings/:id/verify-utr', checkAdminAuth, async (req, res) => {
   try {
+    const actor = req.user || req.session?.user || 'Admin';
     const updated = await BookingService.updateBooking(req.params.id, {
       utrStatus: 'Verified',
       paymentMode: 'UPI'
-    });
+    }, actor);
     // Also mark as paid
     const paymentDetails = {
       method: 'UPI',
       type: 'Admin UTR Verification',
-      cashierName: req.user.username || req.user.role || 'Admin',
+      cashierName: req.user?.username || req.user?.name || req.user?.role || 'Admin',
       utr: updated.utrNumber
     };
     const fullyPaid = await BookingService.recordPayment(req.params.id, null, paymentDetails);
     
     // Log verification
-    const { StaffService } = require('../services/staffService');
     await StaffService.logAudit({
       action: 'UTR_VERIFIED',
-      performedBy: req.user,
+      performedBy: req.user || actor,
+      targetId: updated.bookingId,
       details: `बुकिंग ${updated.bookingId} का UTR (${updated.utrNumber}) सत्यापित किया गया।`
     });
 
     res.json({ success: true, message: 'UTR verified and payment marked as Paid', booking: fullyPaid });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
 // Generate Defaulters Report PDF
 router.get('/reports/defaulters', checkAdminAuth, async (req, res) => {
   try {
-    const { PDFService } = require('../services/pdfService');
     const bookings = await BookingService.getBookings();
     
-    // Filter bookings with remainingAmount > 0
-    const defaulters = bookings.filter(b => parseFloat(b.remainingAmount) > 0);
+    // Filter active (non-cancelled) bookings with remainingAmount > 0
+    const defaulters = bookings.filter(b => b.status !== 'Cancelled' && parseFloat(b.remainingAmount) > 0);
     
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'inline; filename="defaulters_report.pdf"');
@@ -220,10 +251,18 @@ router.post('/bookings/:id/cancel', checkAdminAuth, async (req, res) => {
 // Cancel / Delete a booking
 router.delete('/bookings/:id', checkAdminAuth, async (req, res) => {
   try {
-    await BookingService.deleteBooking(req.params.id);
+    const actor = req.user?.name || req.user?.username || req.session?.user?.username || 'Admin';
+    await BookingService.deleteBooking(req.params.id, actor);
+    await StaffService.logAudit({
+      action: 'BOOKING_DELETE',
+      performedBy: req.user || { name: actor, role: 'Admin', username: actor },
+      targetId: req.params.id,
+      details: `बुकिंग ${req.params.id} स्थायी रूप से हटाई गई (Deleted by ${actor})।`
+    });
     res.json({ success: true, message: `Booking ${req.params.id} removed successfully.` });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const status = err.message && err.message.includes('not found') ? 404 : 400;
+    res.status(status).json({ success: false, error: err.message });
   }
 });
 
@@ -334,7 +373,7 @@ router.get('/staff', checkAdminAuth, async (req, res) => {
 // Add a new staff member with role & department
 router.post('/staff', checkAdminAuth, async (req, res) => {
   try {
-    const creator = req.session?.user?.username || 'Admin';
+    const creator = req.user?.username || req.user?.name || req.session?.user?.username || 'Admin';
     const newStaff = await StaffService.addStaff({ ...req.body, createdByName: creator });
     res.status(201).json({ success: true, message: 'कर्मचारी सफलतापूर्वक जोड़ा गया (Staff Added)', staff: newStaff });
   } catch (err) {
@@ -345,7 +384,7 @@ router.post('/staff', checkAdminAuth, async (req, res) => {
 // Update staff status or role
 router.put('/staff/:staffId', checkAdminAuth, async (req, res) => {
   try {
-    const updater = req.session?.user?.username || 'Admin';
+    const updater = req.user?.username || req.user?.name || req.session?.user?.username || 'Admin';
     const updated = await StaffService.updateStaff(req.params.staffId, { ...req.body, updatedByName: updater });
     res.json({ success: true, message: 'कर्मचारी विवरण अपडेट किया गया (Staff Updated)', staff: updated });
   } catch (err) {
@@ -356,7 +395,7 @@ router.put('/staff/:staffId', checkAdminAuth, async (req, res) => {
 // Delete a staff member
 router.delete('/staff/:staffId', checkAdminAuth, async (req, res) => {
   try {
-    const deleter = req.session?.user?.username || 'Admin';
+    const deleter = req.user?.username || req.user?.name || req.session?.user?.username || 'Admin';
     const result = await StaffService.deleteStaff(req.params.staffId, deleter);
     res.json(result);
   } catch (err) {

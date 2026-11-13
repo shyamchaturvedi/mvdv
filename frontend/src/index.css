@@ -192,6 +192,7 @@ code, .mono {
 .badge-info    { background: #EFF6FF; border: 1px solid #93C5FD; color: #1E40AF; }
 .badge-dark    { background: #1F2937; border: 1px solid #374151; color: #F9FAFB; }
 .badge-success { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); }
+.badge-active  { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); }
 .badge-danger  { background: var(--danger-bg);  border: 1px solid var(--danger-border);  color: var(--danger); }
 
 /* CARDS */
@@ -297,7 +298,7 @@ select.form-control {
   position: relative; overflow: hidden;
 }
 .pnr-hero::before {
-  content: '??'; position: absolute; top: -30px; right: -30px;
+  content: 'ॐ'; position: absolute; top: -30px; right: -30px;
   font-size: 160px; opacity: .03; pointer-events: none; line-height: 1;
 }
 .pnr-hero::after {
@@ -3758,5 +3759,17 @@ hr, .divider { border: none; border-top: 1.5px solid #FEE4CC; margin: 20px 0; }
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: entShimmer 3s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .grid-kpi-mobile {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-kpi-mobile {
+    grid-template-columns: 1fr !important;
+  }
 }
 

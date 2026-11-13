@@ -211,6 +211,15 @@
     const pnr = urlParams.get('pnr') || urlParams.get('id');
     const sec = urlParams.get('sec') || urlParams.get('hash');
 
+    function formatBogieLabel(code, displayName) {
+      const c = (code || '').trim();
+      const d = (displayName || '').trim();
+      if (!d || d === c || d === 'Coach ' + c || d === 'कोच ' + c) {
+        return c || d || '-';
+      }
+      return `${d} (${c})`;
+    }
+
     async function checkTicket(pnrVal, secVal) {
       const container = document.getElementById('resultContainer');
       if (!pnrVal) {
@@ -264,7 +273,7 @@
                   </div>
                   <div class="info-item">
                     <div class="info-label">आवंटित कोच व सीट(s)</div>
-                    <div class="info-val" style="color: #059669;">कोच ${b.coachName} • सीट: ${Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</div>
+                    <div class="info-val" style="color: #059669;">कोच ${formatBogieLabel(b.coachName, b.coachDisplayName)} • सीट: ${Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</div>
                   </div>
                   <div class="info-item">
                     <div class="info-label">यात्रा मार्ग (Route)</div>
@@ -336,7 +345,7 @@
                   </div>
                   <div class="info-item">
                     <div class="info-label">वास्तविक कोच व सीट</div>
-                    <div class="info-val" style="color: #DC2626;">कोच ${auth.coachName} • सीट: ${Array.isArray(auth.seatNumber) ? auth.seatNumber.join(', ') : auth.seatNumber}</div>
+                    <div class="info-val" style="color: #DC2626;">कोच ${formatBogieLabel(auth.coachName, auth.coachDisplayName)} • सीट: ${Array.isArray(auth.seatNumber) ? auth.seatNumber.join(', ') : auth.seatNumber}</div>
                   </div>
                   <div class="info-item">
                     <div class="info-label">वास्तविक देय बकाया राशि</div>

@@ -303,8 +303,11 @@ class AuthService {
               }
             }
 
-            // If signature is verified OR has valid active staff payload
-            if (isSigValid || data.user.role === 'SuperAdmin' || data.user.staffId) {
+            // Only accept cryptographically verified active staff payloads
+            if (isSigValid && data.user.status !== 'Suspended' && data.user.status !== 'Inactive') {
+              if (!data.user.status) {
+                data.user.status = 'Active';
+              }
               if (!data.user.permissions) {
                 const roleDef = ROLES[data.user.role] || {};
                 data.user.permissions = roleDef.permissions || (data.user.role === 'SuperAdmin' ? ['all'] : []);

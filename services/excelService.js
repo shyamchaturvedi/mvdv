@@ -23,6 +23,7 @@ class ExcelService {
       { header: 'To Station', key: 'toStation', width: 24 },
       { header: 'Class', key: 'travelClass', width: 12 },
       { header: 'Coach', key: 'coachName', width: 10 },
+      { header: 'Bogie Name', key: 'coachDisplayName', width: 26 },
       { header: 'Seat Number(s)', key: 'seatNumber', width: 18 },
       { header: 'Passengers', key: 'numberOfPassengers', width: 12 },
       { header: 'Total Amount (₹)', key: 'totalAmount', width: 16 },
@@ -56,6 +57,7 @@ class ExcelService {
         toStation: b.toStation,
         travelClass: b.travelClass,
         coachName: b.coachName,
+        coachDisplayName: b.coachDisplayName || '',
         seatNumber: seats,
         numberOfPassengers: b.numberOfPassengers || (b.passengers ? b.passengers.length : 1),
         totalAmount: b.totalAmount,
@@ -82,6 +84,7 @@ class ExcelService {
       { header: 'Aadhar', key: 'aadhar', width: 16 },
       { header: 'Mobile', key: 'mobile', width: 15 },
       { header: 'Coach', key: 'coachName', width: 10 },
+      { header: 'Bogie Name', key: 'coachDisplayName', width: 26 },
       { header: 'Seat Assigned', key: 'seatAssigned', width: 14 },
       { header: 'Berth Type', key: 'berthPreference', width: 14 }
     ];
@@ -107,6 +110,7 @@ class ExcelService {
           aadhar: p.aadhar || '',
           mobile: p.mobile || b.mobile || '',
           coachName: b.coachName,
+          coachDisplayName: b.coachDisplayName || '',
           seatAssigned: p.seatAssigned || p.seatNumber || '',
           berthPreference: p.berthPreference || ''
         });

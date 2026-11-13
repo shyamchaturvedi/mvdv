@@ -219,6 +219,7 @@ class StaffService {
       role: staff.role,
       department: staff.department,
       mobile: staff.mobile,
+      status: staff.status || 'Active',
       assignedCoaches: staff.assignedCoaches,
       permissions: ROLES[staff.role]?.permissions || ['view_chart']
     };
@@ -249,6 +250,7 @@ class StaffService {
       role: staff.role,
       department: staff.department,
       mobile: staff.mobile,
+      status: staff.status || 'Active',
       assignedCoaches: staff.assignedCoaches,
       photoUrl: profile.photoUrl || '',
       permissions: ROLES[staff.role]?.permissions || ['view_chart']
@@ -446,6 +448,7 @@ class StaffService {
     // Filter audit logs and bookings
     const filteredLogs = auditLogs.filter(l => isDateMatch(l.timestamp) || isDateMatch(l.formattedTime));
     const filteredBookings = bookings.filter(b => isDateMatch(b.createdAt) || isDateMatch(b.travelDate));
+    const activeFilteredBookings = filteredBookings.filter(b => b.status !== 'Cancelled');
 
     const targetStaff = username ? staffList.find(s => s.username === username || s.staffId === username) : null;
 
@@ -454,6 +457,7 @@ class StaffService {
     let personalUpiCollected = 0;
     let personalTransactions = [];
     let personalBookingsCount = 0;
+    let personalGrossAmount = 0;
     let personalDiscountsGiven = 0;
     let personalPendingDues = 0;
     let personalYatrisHandled = 0;
@@ -502,13 +506,15 @@ class StaffService {
     // Date-wise bucket map for graphs / time-series MIS
     const dateWiseBuckets = {};
 
-    filteredBookings.forEach(b => {
-      const staffUser = b.bookedByStaff?.username || (b.bookedByStaff?.role === 'BookingClerk' ? 'clerk1' : 'admin');
+    activeFilteredBookings.forEach(b => {
+      const staffUser = b.bookedByStaff?.username
+        || (typeof b.bookedByStaff === 'string' && b.bookedByStaff !== 'Self' ? b.bookedByStaff : '')
+        || 'online_devotee';
       const discount = Number(b.discount || 0);
       const remaining = Number(b.remainingAmount || 0);
       const gross = Number(b.totalAmount || 0);
       const advance = Number(b.advance || 0);
-      const paxCount = Array.isArray(b.passengers) ? b.passengers.length : 1;
+      const paxCount = Number(b.numberOfPassengers) || (Array.isArray(b.passengers) ? b.passengers.length : 1);
       const bDate = (b.createdAt || new Date().toISOString()).slice(0, 10);
 
       // Populate dateWise bucket
@@ -519,9 +525,13 @@ class StaffService {
           yatrisCount: 0,
           grossAmount: 0,
           collectedAmount: 0,
+          totalCollected: 0,
           cashAmount: 0,
+          cashCollected: 0,
           upiAmount: 0,
+          upiCollected: 0,
           duesAmount: 0,
+          pendingDues: 0,
           discountsAmount: 0
         };
       }
@@ -529,13 +539,18 @@ class StaffService {
       dateWiseBuckets[bDate].yatrisCount += paxCount;
       dateWiseBuckets[bDate].grossAmount += gross;
       dateWiseBuckets[bDate].duesAmount += remaining;
+      dateWiseBuckets[bDate].pendingDues += remaining;
       dateWiseBuckets[bDate].discountsAmount += discount;
       dateWiseBuckets[bDate].collectedAmount += advance;
+      dateWiseBuckets[bDate].totalCollected += advance;
 
-      if (b.paymentMode?.toLowerCase().includes('upi')) {
+      const modeLower = String(b.paymentMode || '').toLowerCase();
+      if (modeLower.includes('upi') || modeLower.includes('qr') || modeLower.includes('online')) {
         dateWiseBuckets[bDate].upiAmount += advance;
+        dateWiseBuckets[bDate].upiCollected += advance;
       } else {
         dateWiseBuckets[bDate].cashAmount += advance;
+        dateWiseBuckets[bDate].cashCollected += advance;
       }
 
       if (staffBreakdownMap[staffUser]) {
@@ -546,8 +561,9 @@ class StaffService {
         staffBreakdownMap[staffUser].passengersCount += paxCount;
       }
 
-      if (username && (staffUser === username || username === 'admin')) {
+      if (username && staffUser === username) {
         personalBookingsCount++;
+        personalGrossAmount += gross;
         personalDiscountsGiven += discount;
         personalPendingDues += remaining;
         personalYatrisHandled += paxCount;
@@ -558,7 +574,6 @@ class StaffService {
       const actor = log.actorUsername || (log.performedBy && typeof log.performedBy === 'string' ? log.performedBy : '');
       const amt = Number(log.amount || 0);
       const isCash = (log.paymentMode || '').toLowerCase().includes('cash') || (log.paymentMode || '').toLowerCase().includes('नकद');
-      const logDate = (log.timestamp || new Date().toISOString()).slice(0, 10);
 
       if (staffBreakdownMap[actor]) {
         staffBreakdownMap[actor].transactionCount++;
@@ -569,7 +584,7 @@ class StaffService {
         }
       }
 
-      if (username && (actor === username || username === 'admin')) {
+      if (username && actor === username) {
         if (amt > 0) {
           personalTotalCollected += amt;
           if (isCash) personalCashCollected += amt;
@@ -579,48 +594,77 @@ class StaffService {
       }
     });
 
-    // Aggregate overall numbers
+    // Aggregate overall numbers from active bookings
     let overallGross = 0;
     let overallAdvance = 0;
     let overallDues = 0;
     let overallDiscounts = 0;
     let overallYatris = 0;
+    let overallBookingCash = 0;
+    let overallBookingUpi = 0;
 
-    filteredBookings.forEach(b => {
+    activeFilteredBookings.forEach(b => {
+      const adv = Number(b.advance || 0);
       overallGross += Number(b.totalAmount || 0);
-      overallAdvance += Number(b.advance || 0);
+      overallAdvance += adv;
       overallDues += Number(b.remainingAmount || 0);
       overallDiscounts += Number(b.discount || 0);
-      overallYatris += (Array.isArray(b.passengers) ? b.passengers.length : 1);
+      overallYatris += (Number(b.numberOfPassengers) || (Array.isArray(b.passengers) ? b.passengers.length : 1));
+      const modeLower = String(b.paymentMode || '').toLowerCase();
+      if (modeLower.includes('upi') || modeLower.includes('qr') || modeLower.includes('online')) {
+        overallBookingUpi += adv;
+      } else {
+        overallBookingCash += adv;
+      }
     });
 
-    const overallTotalCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.totalCollected, 0) || overallAdvance;
-    const overallCashCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.cashCollected, 0);
-    const overallUpiCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.upiCollected, 0);
+    const overallLogCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.totalCollected, 0);
+    const overallTotalCollected = overallLogCollected > 0 ? overallLogCollected : overallAdvance;
+    const overallCashCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.cashCollected, 0) || overallBookingCash;
+    const overallUpiCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.upiCollected, 0) || overallBookingUpi;
 
     // Build chronological date-wise breakdown array for UI graphs
     const dateWiseBreakdown = Object.values(dateWiseBuckets).sort((a, b) => a.date.localeCompare(b.date));
 
-    // Role-wise aggregation
+    // Role-wise aggregation (include UI-compatible aliases)
     const roleBreakdown = {
-      SuperAdmin: { roleName: 'मुख्य व्यवस्थापक', bookings: 0, collected: 0, cash: 0, upi: 0, dues: 0, discounts: 0 },
-      BookingClerk: { roleName: 'काउंटर लिपिक', bookings: 0, collected: 0, cash: 0, upi: 0, dues: 0, discounts: 0 },
-      TTE: { roleName: 'चल टिकट परीक्षक (TTE)', bookings: 0, collected: 0, cash: 0, upi: 0, dues: 0, discounts: 0 },
-      FinanceOfficer: { roleName: 'लेखा व कोषाध्यक्ष', bookings: 0, collected: 0, cash: 0, upi: 0, dues: 0, discounts: 0 },
-      StationMaster: { roleName: 'स्टेशन समन्वयक', bookings: 0, collected: 0, cash: 0, upi: 0, dues: 0, discounts: 0 }
+      SuperAdmin: { roleName: 'मुख्य व्यवस्थापक', bookings: 0, bookingsCount: 0, collected: 0, totalCollected: 0, cash: 0, cashCollected: 0, upi: 0, upiCollected: 0, dues: 0, pendingDues: 0, discounts: 0 },
+      BookingClerk: { roleName: 'काउंटर लिपिक', bookings: 0, bookingsCount: 0, collected: 0, totalCollected: 0, cash: 0, cashCollected: 0, upi: 0, upiCollected: 0, dues: 0, pendingDues: 0, discounts: 0 },
+      TTE: { roleName: 'चल टिकट परीक्षक (TTE)', bookings: 0, bookingsCount: 0, collected: 0, totalCollected: 0, cash: 0, cashCollected: 0, upi: 0, upiCollected: 0, dues: 0, pendingDues: 0, discounts: 0 },
+      FinanceOfficer: { roleName: 'लेखा व कोषाध्यक्ष', bookings: 0, bookingsCount: 0, collected: 0, totalCollected: 0, cash: 0, cashCollected: 0, upi: 0, upiCollected: 0, dues: 0, pendingDues: 0, discounts: 0 },
+      StationMaster: { roleName: 'स्टेशन समन्वयक', bookings: 0, bookingsCount: 0, collected: 0, totalCollected: 0, cash: 0, cashCollected: 0, upi: 0, upiCollected: 0, dues: 0, pendingDues: 0, discounts: 0 }
     };
 
     Object.values(staffBreakdownMap).forEach(s => {
       const rKey = s.role || 'Staff';
       if (roleBreakdown[rKey]) {
         roleBreakdown[rKey].bookings += s.bookingsCount;
+        roleBreakdown[rKey].bookingsCount += s.bookingsCount;
         roleBreakdown[rKey].collected += s.totalCollected;
+        roleBreakdown[rKey].totalCollected += s.totalCollected;
         roleBreakdown[rKey].cash += s.cashCollected;
+        roleBreakdown[rKey].cashCollected += s.cashCollected;
         roleBreakdown[rKey].upi += s.upiCollected;
+        roleBreakdown[rKey].upiCollected += s.upiCollected;
         roleBreakdown[rKey].dues += s.pendingDues;
+        roleBreakdown[rKey].pendingDues += s.pendingDues;
         roleBreakdown[rKey].discounts += s.discountsGiven;
       }
     });
+
+    const isFilteredToStaff = Boolean(username && username !== 'All Staff');
+
+    const coachDisplayMap = await BookingService.getCoachDisplayMap();
+    const attachCoachDisplay = (log) => {
+      const code = String(log.coachName || '').trim().toUpperCase();
+      if (!code) return log;
+      return {
+        ...log,
+        coachDisplayName: coachDisplayMap[code] || log.coachDisplayName || ''
+      };
+    };
+
+    const personalTxOut = (isFilteredToStaff ? personalTransactions : filteredLogs).slice(0, 100).map(attachCoachDisplay);
 
     return {
       date: cleanDate || (startD && endD ? `${startD} से ${endD}` : 'समस्त तिथियां (All Time)'),
@@ -629,28 +673,31 @@ class StaffService {
       username: username || 'All Staff',
       role: role || (targetStaff ? targetStaff.role : 'Staff'),
       personalStats: {
-        staffName: targetStaff ? targetStaff.name : (username === 'admin' ? 'मुख्य व्यवस्थापक' : username),
+        staffName: targetStaff ? targetStaff.name : (username === 'admin' ? 'मुख्य व्यवस्थापक' : (username || 'All Staff')),
         role: targetStaff ? targetStaff.role : (username === 'admin' ? 'SuperAdmin' : 'Staff'),
         department: targetStaff ? targetStaff.department : 'General',
-        totalCollected: personalTotalCollected || overallAdvance,
-        cashCollected: personalCashCollected,
-        upiCollected: personalUpiCollected,
-        bookingsCount: personalBookingsCount || filteredBookings.length,
-        grossBookedAmount: personalBookingsCount ? filteredBookings.reduce((a, b) => a + Number(b.totalAmount || 0), 0) : overallGross,
-        discountsGiven: personalDiscountsGiven,
-        pendingDues: personalPendingDues,
-        yatrisHandled: personalYatrisHandled || overallYatris,
-        transactions: personalTransactions.slice(0, 100)
+        totalCollected: isFilteredToStaff ? personalTotalCollected : overallTotalCollected,
+        cashCollected: isFilteredToStaff ? personalCashCollected : overallCashCollected,
+        upiCollected: isFilteredToStaff ? personalUpiCollected : overallUpiCollected,
+        bookingsCount: isFilteredToStaff ? personalBookingsCount : activeFilteredBookings.length,
+        grossBookedAmount: isFilteredToStaff ? personalGrossAmount : overallGross,
+        discountsGiven: isFilteredToStaff ? personalDiscountsGiven : overallDiscounts,
+        pendingDues: isFilteredToStaff ? personalPendingDues : overallDues,
+        yatrisHandled: isFilteredToStaff ? personalYatrisHandled : overallYatris,
+        transactions: personalTxOut
       },
       overallStats: {
-        totalBookings: filteredBookings.length,
+        totalBookings: activeFilteredBookings.length,
         totalYatris: overallYatris,
         totalGrossAmount: overallGross,
+        grossAmount: overallGross,
         totalCollected: overallTotalCollected,
         cashCollected: overallCashCollected,
         upiCollected: overallUpiCollected,
         totalDiscounts: overallDiscounts,
+        discountsGiven: overallDiscounts,
         totalPendingDues: overallDues,
+        pendingDues: overallDues,
         totalTransactions: filteredLogs.length,
         reconciliationBalanced: (overallGross === (overallAdvance + overallDues + overallDiscounts))
       },
@@ -664,6 +711,8 @@ class StaffService {
           bookingId: b.bookingId,
           bookedBy: b.bookedBy,
           mobile: b.mobile,
+          coachName: b.coachName || b.cancellationDetails?.originalCoach || '',
+          coachDisplayName: b.coachDisplayName || b.cancellationDetails?.originalCoachDisplayName || '',
           cancelledAt: b.cancellationDetails?.cancelledAt || b.updatedAt,
           cancelledBy: b.cancellationDetails?.cancelledBy || 'Staff',
           cancelledByRole: b.cancellationDetails?.cancelledByRole || 'Staff',
@@ -672,7 +721,8 @@ class StaffService {
           reason: b.cancellationDetails?.cancellationReason || 'यात्री अनुरोध'
         }))
       },
-      recentLogs: filteredLogs.slice(0, 50)
+      transactions: personalTxOut,
+      recentLogs: filteredLogs.slice(0, 50).map(attachCoachDisplay)
     };
   }
   // -------------------------------------------------------------

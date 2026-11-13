@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, ChevronRight, Phone, ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, DollarSign, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
+import { MapPin, ChevronRight, Phone, ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
 
 import { db, auth, firebaseConfig } from './firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -71,7 +71,10 @@ const SmartAIAuditor = ({ adminBookings, staffToken }) => {
   const chatEndRef = React.useRef(null);
 
   React.useEffect(() => {
-    fetch('/api/admin/audit-logs?token=' + (staffToken || 'admin_token'))
+    if (!staffToken) return;
+    fetch('/api/admin/audit-logs?token=' + encodeURIComponent(staffToken), {
+      headers: { 'Authorization': 'Bearer ' + staffToken }
+    })
       .then(r => r.json())
       .then(d => { if (d.logs) setAuditLogs(d.logs); })
       .catch(e => console.error(e));
@@ -237,7 +240,6 @@ const SmartAIAuditor = ({ adminBookings, staffToken }) => {
   );
 };
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
   const [pnrInput, setPnrInput] = useState('');
   const [ticketModal, setTicketModal] = useState(null);
   const [receiptModal, setReceiptModal] = useState(null);
@@ -246,8 +248,10 @@ export default function App() {
   const [utrInput, setUtrInput] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stationsList, setStationsList] = useState(DEFAULT_ROUTE_STATIONS);
+  const [coachesMasterList, setCoachesMasterList] = useState([]);
   const [posterModal, setPosterModal] = useState(false);
   const [editYatriModal, setEditYatriModal] = useState(null);
+  const [editYatriCoachLayout, setEditYatriCoachLayout] = useState({ layout: [], totalCapacity: 72 });
   const [cancelRefundModal, setCancelRefundModal] = useState(null);
   const [editReceiptModal, setEditReceiptModal] = useState(null);
   const [ticketPrintLayout, setTicketPrintLayout] = useState('full'); // 'full' or 'half'
@@ -524,7 +528,7 @@ export default function App() {
 
   // Unified Staff & Admin Authentication State (Persisted in localStorage for permanent login until Logout)
   const [staffToken, setStaffToken] = useState(() => localStorage.getItem('mvd_staff_token') || sessionStorage.getItem('mvd_staff_token') || '');
-  const safeStaffToken = encodeURIComponent(staffToken || (typeof window !== 'undefined' ? (localStorage.getItem('mvd_staff_token') || 'mvd_admin_token') : 'mvd_admin_token'));
+  const safeStaffToken = encodeURIComponent(staffToken || (typeof window !== 'undefined' ? (localStorage.getItem('mvd_staff_token') || '') : ''));
   const [staffUser, setStaffUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('mvd_staff_user')) || JSON.parse(sessionStorage.getItem('mvd_staff_user')) || null; }
     catch (e) { return null; }
@@ -605,41 +609,133 @@ export default function App() {
   const [projectSettingsSuccess, setProjectSettingsSuccess] = useState('');
   const [projectSettingsError, setProjectSettingsError] = useState('');
 
-  // Fetch live system configuration on initial mount
-  useEffect(() => {
-    fetch('/api/config')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.success) {
-          if (data.settings) {
-            setProjectSettings(prev => ({
-              ...prev,
-              ...data.settings,
-              defaultTravelDate: data.defaultTravelDate || data.settings.defaultTravelDate || '2026-10-15',
-              journeyDate: data.defaultTravelDate || data.settings.journeyDate || '2026-10-15',
-              returnTravelDate: data.returnTravelDate || data.settings.returnTravelDate || '2026-10-22'
-            }));
-            if (data.settings.printLayout) {
-              setTicketPrintLayout(data.settings.printLayout);
-            }
+  const normalizeCoachBucket = (cls = '') => {
+    const c = String(cls || '').toLowerCase();
+    if (c.includes('ac') || c === '3a' || c === '2a' || c === '1a') return 'AC';
+    if (c.includes('gen') || c === 'gs' || c === '2s') return 'General';
+    if (c.includes('guard') || c.includes('slr') || c.includes('pantry')) return 'NonBookable';
+    return 'Sleeper';
+  };
+
+  const activeBookableCoaches = (coachesMasterList && coachesMasterList.length > 0 ? coachesMasterList : [])
+    .filter(c => c && c.isBookable !== false && c.coachCode)
+    .sort((a, b) => Number(a.position || a.positionSequence || 999) - Number(b.position || b.positionSequence || 999));
+
+  const dynamicCoachesByClass = (() => {
+    if (activeBookableCoaches.length === 0) return COACHES;
+    const grouped = { AC: [], Sleeper: [], General: [] };
+    activeBookableCoaches.forEach(c => {
+      const bucket = normalizeCoachBucket(c.coachClass);
+      if (grouped[bucket]) grouped[bucket].push(c.coachCode);
+    });
+    return {
+      AC: grouped.AC,
+      Sleeper: grouped.Sleeper.length > 0 ? grouped.Sleeper : COACHES.Sleeper,
+      General: grouped.General.length > 0 ? grouped.General : COACHES.General
+    };
+  })();
+
+  const allSelectableCoaches = activeBookableCoaches.length > 0
+    ? activeBookableCoaches
+    : ['SLR1', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'SLR2'].map((code, idx) => ({
+        coachCode: code,
+        coachName: `Coach ${code}`,
+        coachClass: code.startsWith('SLR') ? 'General' : 'Sleeper',
+        position: idx + 1
+      }));
+
+  const withCoachUiAliasesClient = (c = {}) => {
+    const position = c.position !== undefined ? c.position : (c.positionSequence !== undefined ? c.positionSequence : 1);
+    const capacity = c.capacity !== undefined ? c.capacity : (c.totalSeats !== undefined ? c.totalSeats : 72);
+    const fare = c.fare !== undefined ? c.fare : (c.baseFare !== undefined ? c.baseFare : 3000);
+    const platform = c.platformPlacement || c.platformPosition || 'Center of Platform';
+    const notes = c.notes !== undefined ? c.notes : (c.description !== undefined ? c.description : '');
+    return {
+      ...c,
+      position,
+      positionSequence: position,
+      totalSeats: capacity,
+      capacity,
+      fare,
+      baseFare: fare,
+      platformPosition: platform,
+      platformPlacement: platform,
+      description: notes,
+      notes
+    };
+  };
+
+  const getLiveBogieName = (code, fallbackName = '') => {
+    if (!code) return String(fallbackName || '').trim();
+    const cleanCode = String(code).trim().toUpperCase();
+    const match =
+      (coachesMasterList || []).find(c => String(c.coachCode || '').trim().toUpperCase() === cleanCode) ||
+      (trainCompositionData?.coaches || []).find(c => String(c.coachCode || '').trim().toUpperCase() === cleanCode) ||
+      (adminCoachesList || []).find(c => String(c.coachCode || '').trim().toUpperCase() === cleanCode);
+    const resolved = (match?.coachName || fallbackName || '').trim();
+    return resolved;
+  };
+
+  const formatCoachDisplay = (code, fallbackName = '', { includeCode = true } = {}) => {
+    const cleanCode = String(code || '').trim();
+    const liveName = getLiveBogieName(cleanCode, fallbackName);
+    if (!liveName || liveName === cleanCode || liveName === `Coach ${cleanCode}` || liveName === `कोच ${cleanCode}`) {
+      return liveName || cleanCode || '-';
+    }
+    if (!includeCode) return liveName;
+    const boundaryRegex = new RegExp(`(^|[^a-zA-Z0-9])${cleanCode}([^a-zA-Z0-9]|$)`, 'i');
+    if (boundaryRegex.test(liveName)) {
+      return liveName;
+    }
+    return `${liveName} (${cleanCode})`;
+  };
+
+  const getCoachOptionLabel = (code) => {
+    return formatCoachDisplay(code, '', { includeCode: true });
+  };
+
+  const loadSystemConfig = async ({ syncFormDefaults = true } = {}) => {
+    try {
+      const res = await fetch('/api/config');
+      const data = await res.json();
+      if (data && data.success) {
+        if (data.settings) {
+          setProjectSettings(prev => ({
+            ...prev,
+            ...data.settings,
+            defaultTravelDate: data.defaultTravelDate || data.settings.defaultTravelDate || '2026-10-15',
+            journeyDate: data.defaultTravelDate || data.settings.journeyDate || '2026-10-15',
+            returnTravelDate: data.returnTravelDate || data.settings.returnTravelDate || '2026-10-22'
+          }));
+          if (syncFormDefaults && data.settings.printLayout) {
+            setTicketPrintLayout(data.settings.printLayout);
           }
-          if (data.stations && data.stations.length > 0) {
-            setStationsList(data.stations);
-          }
-          if (data.defaultTravelDate || data.journeyDate) {
-            setTravelDate(data.defaultTravelDate || data.journeyDate);
-          }
-          if (data.yatraYear || data.settings?.activeYatraYear) {
-            setBookingYear(String(data.yatraYear || data.settings?.activeYatraYear));
-          }
-          if (data.stations && data.stations.length > 0) {
+        }
+        if (data.stations && data.stations.length > 0) {
+          setStationsList(data.stations);
+          if (syncFormDefaults) {
             setFromStation(prev => data.stations.includes(prev) ? prev : data.stations[0]);
           }
         }
-      })
-      .catch(err => {
-        console.warn('Config fetch notice:', err.message);
-      });
+        if (syncFormDefaults && (data.defaultTravelDate || data.journeyDate)) {
+          setTravelDate(data.defaultTravelDate || data.journeyDate);
+        }
+        if (syncFormDefaults && (data.yatraYear || data.settings?.activeYatraYear)) {
+          setBookingYear(String(data.yatraYear || data.settings?.activeYatraYear));
+        }
+        if (Array.isArray(data.coachesList) && data.coachesList.length > 0) {
+          const normalized = data.coachesList.map(withCoachUiAliasesClient);
+          setCoachesMasterList(normalized);
+        }
+      }
+    } catch (err) {
+      console.warn('Config fetch notice:', err.message);
+    }
+  };
+
+  // Fetch live system configuration on initial mount
+  useEffect(() => {
+    loadSystemConfig();
   }, []);
 
   useEffect(() => {
@@ -805,14 +901,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     coachName: '',
     coachClass: 'Sleeper',
     detailedType: 'Sleeper 3-Tier (शयनयान)',
-    position: '',
-    totalSeats: 72,
-    fare: 3000,
+    positionSequence: '',
+    capacity: 72,
+    baseFare: 3000,
     status: 'Active',
     isBookable: true,
-    platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
+    platformPlacement: 'Center of Platform',
     facilities: '72 शयन बर्थ, पंखा व चार्जिंग सॉकेट, बायो-टॉयलेट',
-    description: ''
+    notes: ''
   });
 
   // Staff & Anti-Fraud State
@@ -847,11 +943,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     assignedStation: 'All Stations'
   });
 
-  // Staff Login Options (Firebase Phone OTP & Google Sign-In)
-  const [loginMethod, setLoginMethod] = useState('password'); // 'password' | 'phone' | 'google'
-  const [loginPhone, setLoginPhone] = useState('');
-  const [loginOtp, setLoginOtp] = useState('');
-  const [otpSentNotice, setOtpSentNotice] = useState(false);
+  // Staff Login Options (Password & Google Sign-In)
+  const [loginMethod, setLoginMethod] = useState('password'); // 'password' | 'google'
 
   // Anti-Fraud Slip Verifier State
   const [verifierPnr, setVerifierPnr] = useState('');
@@ -868,26 +961,115 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const canManageStaff = isSuperAdmin || (staffUser?.permissions && staffUser.permissions.includes('staff_manage'));
   const canViewAudit = isSuperAdmin || (staffUser?.permissions && staffUser.permissions.includes('audit_view'));
 
-  // Real-time Firestore Listener
+  // Real-time Firestore Listeners (Bookings, Coaches, Settings)
   useEffect(() => {
+    const unsubscribers = [];
+
+    // 1. Live Bookings Listener
     try {
       const q = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      const unsubsBookings = onSnapshot(q, (snapshot) => {
         const liveList = [];
-        snapshot.forEach((doc) => {
-          liveList.push({ ...doc.data(), id: doc.id });
+        snapshot.forEach((docSnap) => {
+          liveList.push({ ...docSnap.data(), id: docSnap.id });
         });
         if (liveList.length > 0) {
           setAdminBookings(liveList);
         }
       }, (err) => {
-        console.warn('Firestore live listener notice:', err.message);
+        console.warn('Firestore live bookings listener notice:', err.message);
       });
-      return () => unsubscribe();
+      unsubscribers.push(unsubsBookings);
     } catch (e) {
-      console.warn('Firestore setup notice:', e);
+      console.warn('Firestore bookings setup notice:', e);
     }
+
+    // 2. Live Coaches & Bogie Master Listener
+    try {
+      const unsubsCoaches = onSnapshot(collection(db, 'trainCoaches'), (snapshot) => {
+        const liveCoaches = [];
+        snapshot.forEach((docSnap) => {
+          liveCoaches.push({ ...withCoachUiAliasesClient(docSnap.data()), id: docSnap.id });
+        });
+        if (liveCoaches.length > 0) {
+          liveCoaches.sort((a, b) => Number(a.position || a.positionSequence || 999) - Number(b.position || b.positionSequence || 999));
+          setCoachesMasterList(liveCoaches);
+          setAdminCoachesList(liveCoaches);
+          setTrainCompositionData(prev => {
+            if (!prev) return prev;
+            const updatedCoaches = (prev.coaches || []).map(oldC => {
+              const matched = liveCoaches.find(lc => String(lc.coachCode).toUpperCase() === String(oldC.coachCode).toUpperCase());
+              return matched ? { ...oldC, ...matched, bookedPassengers: oldC.bookedPassengers ?? 0 } : oldC;
+            });
+            return { ...prev, coaches: updatedCoaches };
+          });
+          setSelectedCoachForPosition(prev => {
+            if (!prev) return prev;
+            return liveCoaches.find(c => String(c.coachCode).toUpperCase() === String(prev.coachCode).toUpperCase()) || prev;
+          });
+        }
+      }, (err) => {
+        console.warn('Firestore trainCoaches live notice:', err.message);
+      });
+      unsubscribers.push(unsubsCoaches);
+    } catch (e) {
+      console.warn('Firestore trainCoaches setup notice:', e);
+    }
+
+    // 3. Live System Settings Listener
+    try {
+      const unsubsSettings = onSnapshot(collection(db, 'systemSettings'), (snapshot) => {
+        snapshot.forEach((docSnap) => {
+          if (docSnap.id === 'global_config') {
+            const data = docSnap.data();
+            if (data) {
+              setProjectSettings(prev => ({ ...prev, ...data }));
+            }
+          }
+        });
+      }, (err) => {
+        console.warn('Firestore settings live notice:', err.message);
+      });
+      unsubscribers.push(unsubsSettings);
+    } catch (e) {
+      console.warn('Firestore settings setup notice:', e);
+    }
+
+    return () => {
+      unsubscribers.forEach(unsub => {
+        try { unsub(); } catch (_) {}
+      });
+    };
   }, []);
+
+  // Live Background Poller for Local JSON mode & Window Tab Focus
+  useEffect(() => {
+    const handleSync = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      loadSystemConfig({ syncFormDefaults: false });
+      if (currentPath === '/coach-position' || currentPath === '/train-composition' || currentPath === '/admin/coaches') {
+        loadTrainComposition(compositionYearFilter);
+      }
+      if (staffUser) {
+        if (currentPath === '/admin/coaches') loadAdminCoaches();
+        if (currentPath === '/admin/dashboard' || currentPath === '/admin/bookings') loadAdminDashboard();
+        if (currentPath === '/admin/chart' || currentPath === '/tt/chart') loadCoachChart(chartCoach, chartYear);
+        if (currentPath === '/admin/verifier' || currentPath === '/counter/verify' || currentPath === '/finance/verify') {
+          loadOnlineTransactions();
+        }
+      }
+    };
+
+    const intervalId = setInterval(handleSync, 15000);
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', handleSync);
+      document.removeEventListener('visibilitychange', handleSync);
+    };
+  }, [currentPath, staffUser, compositionYearFilter, chartCoach, chartYear]);
 
   // Verify staff token on mount - Keeps user logged in across reloads
   useEffect(() => {
@@ -918,10 +1100,19 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   }, [coachName, bookingYear, staffSubTab, staffUser]);
 
   useEffect(() => {
-    const list = COACHES[travelClass] || COACHES.Sleeper;
-    setCoachName(list[0]);
+    const list = dynamicCoachesByClass[travelClass] || dynamicCoachesByClass.Sleeper || [];
+    if (list.length > 0) {
+      setCoachName(prev => (list.includes(prev) ? prev : list[0]));
+    }
     setSelectedSeats([]);
   }, [travelClass]);
+
+  useEffect(() => {
+    const list = dynamicCoachesByClass[travelClass] || dynamicCoachesByClass.Sleeper || [];
+    if (list.length > 0 && !list.includes(coachName)) {
+      setCoachName(list[0]);
+    }
+  }, [coachesMasterList]);
 
   useEffect(() => {
     // Load train composition for both public & logged in users
@@ -959,6 +1150,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       if (p === '/admin/settings' || p === '/counter/settings' || p === '/tt/settings' || p === '/finance/settings' || p === '/station/settings') {
         loadProjectSettings();
       }
+      if (p === '/admin/verifier' || p === '/counter/verify' || p === '/finance/verify' || p === '/tt/verify') {
+        loadOnlineTransactions();
+      }
     }
   }, [currentPath, staffUser, adminYearFilter, chartCoach, chartYear, coachName, bookingYear, dailyFilterDate, compositionYearFilter]);
 
@@ -984,6 +1178,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       if (data.success) {
         setTrainCompositionData(data);
         if (data.coaches && data.coaches.length > 0) {
+          setCoachesMasterList(data.coaches);
           setSelectedCoachForPosition(prev => {
             if (prev) {
               const matched = data.coaches.find(c => c.coachCode === prev.coachCode);
@@ -1001,24 +1196,124 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
   };
 
+  const refreshAllBookingViews = () => {
+    loadAdminDashboard();
+    if (chartCoach) loadCoachChart(chartCoach, chartYear);
+    if (coachName) loadCoachSeats(coachName, bookingYear);
+    loadTrainComposition(compositionYearFilter);
+    if (dailyReportData) loadDailyReport(dailyFilterDate, dailyStaffFilter);
+    if (reconcileData) loadReconciliation();
+  };
+
+  const reloadAllCoachState = () => {
+    loadAdminCoaches();
+    loadTrainComposition(compositionYearFilter);
+    loadSystemConfig();
+    if (coachName) loadCoachSeats(coachName, bookingYear);
+    if (chartCoach) loadCoachChart(chartCoach, chartYear);
+    if (adminStats || adminBookings.length > 0) loadAdminDashboard();
+  };
+
+  const loadEditYatriCoachLayout = async (targetCoach, year = bookingYear) => {
+    if (!targetCoach) return;
+    try {
+      const res = await fetch(`/api/coaches/${encodeURIComponent(targetCoach)}/layout?year=${encodeURIComponent(year || '2026')}${staffToken ? `&token=${encodeURIComponent(staffToken)}` : ''}`, {
+        headers: staffToken ? { 'Authorization': 'Bearer ' + staffToken } : {}
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEditYatriCoachLayout({ layout: data.layout || [], totalCapacity: data.totalCapacity || 72 });
+      }
+    } catch (err) {
+      console.error('Error loading edit modal coach layout:', err);
+    }
+  };
+
+  const openEditYatriModal = (booking) => {
+    if (!booking) return;
+    const targetCoach = booking.coachName || 'S1';
+    const targetYear = booking.yatraYear || bookingYear || '2026';
+    const fallbackSeats = Array.isArray(booking.seatNumber)
+      ? booking.seatNumber
+      : (booking.seatNumber ? String(booking.seatNumber).split(',').map(s => s.trim()).filter(Boolean) : []);
+    const rawPax = Array.isArray(booking.passengers) && booking.passengers.length > 0
+      ? booking.passengers
+      : [{ name: booking.bookedBy || '', age: '', gender: 'Male', aadhar: booking.aadhar || '', seatAssigned: fallbackSeats[0] || 'AUTO' }];
+
+    const normalizedPax = rawPax.map((p, idx) => ({
+      name: p.name || '',
+      age: p.age ?? '',
+      gender: p.gender || 'Male',
+      aadhar: p.aadhar || '',
+      seatAssigned: String(p.seatAssigned || p.seatNumber || fallbackSeats[idx] || 'AUTO').trim(),
+      berthPreference: p.berthPreference || 'Berth',
+      checkInStatus: p.checkInStatus || 'Pending'
+    }));
+
+    const count = Math.max(1, normalizedPax.length);
+    const coachObj = (coachesMasterList || []).find(c => String(c.coachCode).toUpperCase() === String(targetCoach).toUpperCase());
+    const coachFare = coachObj?.fare ?? coachObj?.baseFare;
+    const inferredUnitPrice = (coachFare !== undefined && coachFare !== null && !Number.isNaN(Number(coachFare)))
+      ? Number(coachFare)
+      : (Number(booking.totalAmount || 0) > 0
+        ? Math.round(Number(booking.totalAmount) / count)
+        : Number(projectSettings?.fares?.[booking.travelClass] ?? (booking.travelClass === 'General' ? (projectSettings?.fareGeneral ?? 2000) : booking.travelClass === 'AC' ? (projectSettings?.fareAC ?? 0) : (projectSettings?.fareSleeper ?? 3000))));
+
+    setEditYatriModal({
+      ...booking,
+      originalBookingId: booking.bookingId,
+      yatraYear: targetYear,
+      coachName: targetCoach,
+      coachDisplayName: booking.coachDisplayName || coachObj?.coachName || targetCoach,
+      travelClass: booking.travelClass || coachObj?.coachClass || 'Sleeper',
+      bookedBy: booking.bookedBy || '',
+      mobile: booking.mobile || '',
+      aadhar: booking.aadhar || '',
+      fromStation: booking.fromStation || stationsList[0] || 'Lucknow Charbagh (LKO)',
+      travelDate: booking.travelDate || projectSettings?.defaultTravelDate || '2026-10-15',
+      offlineReceiptNo: booking.offlineReceiptNo || '',
+      advance: Number(booking.advance || 0),
+      discount: Number(booking.discount || 0),
+      unitPrice: inferredUnitPrice,
+      recalculateFare: true,
+      passengers: normalizedPax,
+      saveError: ''
+    });
+    loadEditYatriCoachLayout(targetCoach, targetYear);
+  };
+
   const loadAdminCoaches = async () => {
-    const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
+    const token = staffToken || localStorage.getItem('mvd_staff_token') || '';
+    if (!token) {
+      setAdminCoachesLoading(false);
+      return;
+    }
     setAdminCoachesLoading(true);
     try {
-      const res = await fetch(`/api/admin/coaches?token=${token}`, {
+      const res = await fetch(`/api/admin/coaches?token=${encodeURIComponent(token)}`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
-      if (data.success && data.coaches && data.coaches.length > 0) {
-        setAdminCoachesList(data.coaches);
-      } else {
-        // Auto reset if empty
-        const resetRes = await fetch(`/api/admin/coaches/reset-default?token=${token}`, { method: 'POST' });
-        const resetData = await resetRes.json();
-        if (resetData.success) {
-          const r2 = await fetch(`/api/admin/coaches?token=${token}`);
-          const d2 = await r2.json();
-          if (d2.coaches) setAdminCoachesList(d2.coaches);
+      if (res.ok && data.success && Array.isArray(data.coaches)) {
+        if (data.coaches.length > 0) {
+          setAdminCoachesList(data.coaches);
+          setCoachesMasterList(data.coaches);
+        } else {
+          const resetRes = await fetch(`/api/admin/coaches/reset-default?token=${encodeURIComponent(token)}`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const resetData = await resetRes.json();
+          if (resetData.success) {
+            const r2 = await fetch(`/api/admin/coaches?token=${encodeURIComponent(token)}`, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const d2 = await r2.json();
+            if (d2.coaches) {
+              setAdminCoachesList(d2.coaches);
+              setCoachesMasterList(d2.coaches);
+            }
+          }
         }
       }
     } catch (err) {
@@ -1034,16 +1329,30 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       alert('कृपया कोच कोड और नाम भरें।');
       return;
     }
-    const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
+    const token = staffToken || localStorage.getItem('mvd_staff_token') || '';
     try {
-      const res = await fetch(`/api/admin/coaches?token=${token}`, {
+      const posVal = newCoachForm.positionSequence ?? newCoachForm.position ?? (adminCoachesList.length + 1);
+      const capVal = newCoachForm.capacity ?? newCoachForm.totalSeats ?? 72;
+      const fareVal = newCoachForm.baseFare ?? newCoachForm.fare ?? (projectSettings?.fareSleeper ?? 3000);
+      const platformVal = newCoachForm.platformPlacement ?? newCoachForm.platformPosition ?? 'Center of Platform';
+      const notesVal = newCoachForm.notes ?? newCoachForm.description ?? '';
+
+      const res = await fetch(`/api/admin/coaches?token=${encodeURIComponent(token)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
-          ...newCoachForm,
-          position: newCoachForm.position || (adminCoachesList.length + 1),
-          totalSeats: Number(newCoachForm.totalSeats || 72),
-          fare: Number(newCoachForm.fare || 3000)
+          coachCode: newCoachForm.coachCode,
+          coachName: newCoachForm.coachName,
+          coachClass: newCoachForm.coachClass,
+          detailedType: newCoachForm.detailedType,
+          position: Number(posVal || (adminCoachesList.length + 1)),
+          totalSeats: Number(capVal),
+          fare: Number(fareVal),
+          status: newCoachForm.status || 'Active',
+          isBookable: newCoachForm.isBookable !== undefined ? newCoachForm.isBookable : true,
+          platformPosition: platformVal,
+          facilities: newCoachForm.facilities,
+          description: notesVal
         })
       });
       const data = await res.json();
@@ -1055,17 +1364,16 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           coachName: '',
           coachClass: 'Sleeper',
           detailedType: 'Sleeper 3-Tier (शयनयान)',
-          position: '',
-          totalSeats: 72,
-          fare: 3000,
+          positionSequence: '',
+          capacity: 72,
+          baseFare: projectSettings?.fares?.Sleeper ?? projectSettings?.fareSleeper ?? 3000,
           status: 'Active',
           isBookable: true,
-          platformPosition: 'ट्रेन का मध्य भाग (Center Platform)',
+          platformPlacement: 'Center of Platform',
           facilities: '72 शयन बर्थ, पंखा व चार्जिंग सॉकेट, बायो-टॉयलेट',
-          description: ''
+          notes: ''
         });
-        loadAdminCoaches();
-        loadTrainComposition(compositionYearFilter);
+        reloadAllCoachState();
       } else {
         alert('त्रुटि: ' + data.error);
       }
@@ -1077,22 +1385,22 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const handleUpdateCoach = async (e) => {
     e.preventDefault();
     if (!editCoachForm || !editCoachForm.id) return;
-    const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
+    const token = staffToken || localStorage.getItem('mvd_staff_token') || '';
     try {
       const payload = {
         coachCode: editCoachForm.coachCode,
         coachName: editCoachForm.coachName,
         coachClass: editCoachForm.coachClass,
         detailedType: editCoachForm.detailedType,
-        position: Number(editCoachForm.position || editCoachForm.positionSequence || 1),
-        totalSeats: Number(editCoachForm.totalSeats || editCoachForm.capacity || 72),
-        fare: Number(editCoachForm.fare || editCoachForm.baseFare || 3000),
+        position: Number(editCoachForm.positionSequence ?? editCoachForm.position ?? 1),
+        totalSeats: Number(editCoachForm.capacity ?? editCoachForm.totalSeats ?? 72),
+        fare: Number(editCoachForm.baseFare ?? editCoachForm.fare ?? 3000),
         status: editCoachForm.status || 'Active',
         isBookable: editCoachForm.isBookable !== undefined ? editCoachForm.isBookable : true,
-        platformPosition: editCoachForm.platformPosition || editCoachForm.platformPlacement || 'Center',
-        description: editCoachForm.description || editCoachForm.notes || ''
+        platformPosition: editCoachForm.platformPlacement ?? editCoachForm.platformPosition ?? 'Center',
+        description: editCoachForm.notes ?? editCoachForm.description ?? ''
       };
-      const res = await fetch(`/api/admin/coaches/${editCoachForm.id}?token=${token}`, {
+      const res = await fetch(`/api/admin/coaches/${encodeURIComponent(editCoachForm.id)}?token=${encodeURIComponent(token)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(payload)
@@ -1101,8 +1409,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       if (data.success) {
         alert(data.message || 'कोच विवरण सफलतापूर्वक अपडेट किया गया।');
         setEditCoachModal(false);
-        loadAdminCoaches();
-        loadTrainComposition(compositionYearFilter);
+        reloadAllCoachState();
       } else {
         alert('त्रुटि: ' + data.error);
       }
@@ -1123,9 +1430,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       return;
     }
 
-    const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
+    const token = staffToken || localStorage.getItem('mvd_staff_token') || '';
     try {
-      const res = await fetch(`/api/bookings/${b.bookingId}/cancel?token=${token}`, {
+      const res = await fetch(`/api/bookings/${b.bookingId}/cancel?token=${encodeURIComponent(token)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
@@ -1140,11 +1447,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       if (data.success) {
         alert(data.message || 'टिकट सफलतापूर्वक रद्द किया गया एवं रिफंड रिकॉर्ड दर्ज किया गया।');
         setCancelModal(null);
-        loadAdminDashboard();
-        loadDashboardStats();
-        loadCoachLayout(coachName, bookingYear);
-        loadTrainComposition(compositionYearFilter);
-        loadDailyReport(dailyFilterDate);
+        refreshAllBookingViews();
       } else {
         alert('त्रुटि: ' + data.error);
       }
@@ -1156,15 +1459,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const handleDeleteCoach = async (id, code) => {
     if (!confirm(`क्या आप कोच ${code} को ट्रेन संरचना से हटाना चाहते हैं?`)) return;
     try {
-      const res = await fetch(`/api/admin/coaches/${id}?token=${staffToken}`, {
+      const res = await fetch(`/api/admin/coaches/${id}?token=${encodeURIComponent(staffToken)}`, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + staffToken }
       });
       const data = await res.json();
       if (data.success) {
         alert('कोच सफलतापूर्वक हटा दिया गया।');
-        loadAdminCoaches();
-        loadTrainComposition(compositionYearFilter);
+        reloadAllCoachState();
       } else {
         alert('त्रुटि: ' + data.error);
       }
@@ -1185,13 +1487,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     setAdminCoachesList(list);
     try {
       const orderedIds = list.map(c => c.id);
-      await fetch(`/api/admin/coaches/reorder?token=${staffToken}`, {
+      await fetch(`/api/admin/coaches/reorder?token=${encodeURIComponent(staffToken)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + staffToken },
         body: JSON.stringify({ orderedIds })
       });
-      loadAdminCoaches();
-      loadTrainComposition(compositionYearFilter);
+      reloadAllCoachState();
     } catch (err) {
       console.error('Reorder error:', err);
     }
@@ -1199,9 +1500,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
   const handleResetDefaultRake = async () => {
     if (!confirm('क्या आप ट्रेन संरचना को मानक 18-बोगी प्रारूप (Default Rake) पर रीसेट करना चाहते हैं?')) return;
-    const token = staffToken || localStorage.getItem('mvd_staff_token') || 'mvd_admin_token';
+    const token = staffToken || localStorage.getItem('mvd_staff_token') || '';
     try {
-      const res = await fetch(`/api/admin/coaches/reset-default?token=${token}`, {
+      const res = await fetch(`/api/admin/coaches/reset-default?token=${encodeURIComponent(token)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({})
@@ -1209,8 +1510,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       const data = await res.json();
       if (data.success) {
         alert(data.message || 'ट्रेन संरचना सफलतापूर्वक मानक 18-बोगी प्रारूप पर रीसेट हो गई।');
-        loadAdminCoaches();
-        loadTrainComposition(compositionYearFilter);
+        reloadAllCoachState();
       } else {
         alert('त्रुटि: ' + data.error);
       }
@@ -1251,7 +1551,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const handleAutoAssignSeats = () => {
     const available = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
     if (available.length === 0) {
-      alert(`कोच ${coachName} में कोई भी सीट रिक्त नहीं है! कृपया अन्य कोच चुनें।`);
+      alert(`कोच ${formatCoachDisplay(coachName, coachLayout.coachDisplayName)} में कोई भी सीट रिक्त नहीं है! कृपया अन्य कोच चुनें।`);
       return;
     }
     const needed = Math.max(1, passengers.length);
@@ -1383,13 +1683,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const unitFare = (() => {
+    const selectedCoachObj = (coachesMasterList || []).find(c => String(c.coachCode).toUpperCase() === String(coachName).toUpperCase());
+    const coachFare = selectedCoachObj?.fare ?? selectedCoachObj?.baseFare;
+    if (coachFare !== undefined && coachFare !== null && !Number.isNaN(Number(coachFare)) && Number(coachFare) >= 0) {
+      return Number(coachFare);
+    }
     if (projectSettings?.fares && projectSettings.fares[travelClass] !== undefined) {
       return Number(projectSettings.fares[travelClass]);
     }
-    if (travelClass === 'Sleeper') return Number(projectSettings?.fareSleeper !== undefined ? projectSettings.fareSleeper : 3000);
-    if (travelClass === 'General') return Number(projectSettings?.fareGeneral !== undefined ? projectSettings.fareGeneral : 2000);
-    if (travelClass === 'AC' || travelClass === '3 AC' || travelClass === '2 AC') return Number(projectSettings?.fareAC !== undefined ? projectSettings.fareAC : 0);
-    return FARES[travelClass] || 3000;
+    if (travelClass === 'Sleeper') return Number(projectSettings?.fareSleeper ?? 3000);
+    if (travelClass === 'General') return Number(projectSettings?.fareGeneral ?? 2000);
+    if (travelClass === 'AC' || travelClass === '3 AC' || travelClass === '2 AC') return Number(projectSettings?.fareAC ?? 0);
+    return FARES[travelClass] ?? 3000;
   })();
   const grossAmount = unitFare * passengers.length;
   const netPayable = Math.max(0, grossAmount - Number(discount || 0));
@@ -1565,51 +1870,6 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
   };
 
-  const handlePhoneLogin = async (e) => {
-    e.preventDefault();
-    if (!otpSentNotice) {
-      if (!loginPhone || loginPhone.length < 10) {
-        setAuthLoginError('कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।');
-        return;
-      }
-      setOtpSentNotice(true);
-      setAuthLoginError('');
-      setLoginOtp('123456'); // demo prefilled OTP
-      return;
-    }
-    // Verify OTP
-    if (loginOtp !== '123456') {
-      setAuthLoginError('अमान्य OTP कोड! कृपया सही OTP (123456) दर्ज करें।');
-      return;
-    }
-    setAuthLoginLoading(true);
-    setAuthLoginError('');
-    try {
-      const data = await safeFetchJson('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'admin', password: 'admin@mvd2026' })
-      });
-      if (data.success) {
-        setStaffToken(data.token);
-        setStaffUser(data.user);
-        localStorage.setItem('mvd_staff_token', data.token);
-        localStorage.setItem('mvd_staff_user', JSON.stringify(data.user));
-        sessionStorage.setItem('mvd_staff_token', data.token);
-        sessionStorage.setItem('mvd_staff_user', JSON.stringify(data.user));
-        setOtpSentNotice(false);
-        const targetRoute = getRoleDefaultPath(data.user.role);
-        navigate(targetRoute);
-      } else {
-        setAuthLoginError(data.error);
-      }
-    } catch (err) {
-      setAuthLoginError('लॉगिन त्रुटि: ' + err.message);
-    } finally {
-      setAuthLoginLoading(false);
-    }
-  };
-
   const handleGoogleLogin = async () => {
     setAuthLoginLoading(true);
     setAuthLoginError('');
@@ -1732,7 +1992,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     setProjectSettingsSuccess('');
     setProjectSettingsError('');
     try {
-      const res = await fetch(`/api/admin/settings?token=${staffToken}`, {
+      const res = await fetch(`/api/admin/settings?token=${encodeURIComponent(staffToken)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + staffToken },
         body: JSON.stringify(projectSettings)
@@ -1741,6 +2001,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       if (data.success) {
         setProjectSettingsSuccess(data.message || 'प्रोजेक्ट एवं UPI सेटिंग्स सफलतापूर्वक सहेज ली गईं!');
         if (data.settings) setProjectSettings(data.settings);
+        loadSystemConfig();
+        loadTrainComposition(compositionYearFilter);
       } else {
         setProjectSettingsError(data.error || 'सेटिंग्स अपडेट करने में विफल।');
       }
@@ -1909,17 +2171,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const deleteBooking = async (id) => {
     if (!confirm(`क्या आप बुकिंग ${id} को निरस्त करना चाहते हैं?`)) return;
     try {
-      const res = await fetch(`/api/admin/bookings/${id}?token=${staffToken}`, {
+      const res = await fetch(`/api/admin/bookings/${id}?token=${encodeURIComponent(staffToken)}`, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + staffToken }
       });
       const data = await res.json();
       if (data.success) {
-        loadAdminDashboard();
-        loadDashboardStats();
-        loadCoachChart(chartCoach, chartYear);
-        loadCoachLayout(coachName, bookingYear);
-        loadTrainComposition(compositionYearFilter);
+        refreshAllBookingViews();
+      } else {
+        alert('त्रुटि: ' + (data.error || 'बुकिंग नहीं हटाई जा सकी।'));
       }
     } catch (err) {
       alert('त्रुटि: ' + err.message);
@@ -1972,13 +2232,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
   };
 
-  const handleTteCheckIn = async (seatNumber, status) => {
+  const handleTteCheckIn = async (seatNumber, status, rowCoachName = chartCoach) => {
+    const targetCoach = rowCoachName && rowCoachName !== 'all' ? rowCoachName : chartCoach;
+    if (!targetCoach || targetCoach === 'all') {
+      alert('कृपया चेक-इन के लिए एक मान्य कोच चुनें।');
+      return;
+    }
     try {
-      const res = await fetch(`/api/tte/checkin?token=${staffToken}`, {
+      const res = await fetch(`/api/tte/checkin?token=${encodeURIComponent(staffToken)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + staffToken },
         body: JSON.stringify({
-          coachName: chartCoach,
+          coachName: targetCoach,
           yatraYear: chartYear,
           seatNumber,
           status,
@@ -2045,7 +2310,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
   const loadStaffData = async () => {
     try {
-      const token = staffToken || (typeof window !== 'undefined' ? (localStorage.getItem('mvd_staff_token') || 'mvd_admin_token') : 'mvd_admin_token');
+      const token = staffToken || (typeof window !== 'undefined' ? (localStorage.getItem('mvd_staff_token') || '') : '');
+      if (!token) return;
       const res = await fetch(`/api/admin/staff?token=${encodeURIComponent(token)}`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
@@ -2477,7 +2743,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         { path: '/counter/collections', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> मेरा दैनिक कलेक्शन</>, subTab: 'collections' },
         { path: '/counter/verify', label: <><Search size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> टिकट सत्यापन</>, subTab: 'verifier' }
       ];
-    } else if (role === 'AccountsOfficer') {
+    } else if (role === 'AccountsOfficer' || role === 'FinanceOfficer') {
       navItems = [
         { path: '/finance/ledger', label: <><IndianRupee size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> वित्तीय समाधान व दैनिक कलेक्शन</>, subTab: 'reconcile' },
         { path: '/finance/bookings', label: <><ClipboardList size={16} style={{display:"inline", marginRight:"4px", verticalAlign:"text-bottom"}} /> आरक्षण वित्तीय सूची</>, subTab: 'bookings' },
@@ -2505,8 +2771,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               </div>
               <p>
                 {staffUser.department || 'रेलवे संचालन'} &nbsp;|&nbsp; ID: <code>{staffUser.username || staffUser.staffId}</code>
-                {staffUser.assignedCoach?.length > 0 && (
-                  <> &nbsp;|&nbsp; Coach: <strong style={{ color: '#047857' }}>{staffUser.assignedCoach.join(', ')}</strong></>
+                {staffUser.assignedCoach && (
+                  <> &nbsp;|&nbsp; Coach: <strong style={{ color: '#047857' }}>
+                    {Array.isArray(staffUser.assignedCoach)
+                      ? staffUser.assignedCoach.map(c => formatCoachDisplay(c)).join(', ')
+                      : String(staffUser.assignedCoach).split(',').map(c => formatCoachDisplay(c.trim())).join(', ')}
+                  </strong></>
                 )}
               </p>
             </div>
@@ -2736,7 +3006,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               </button>
             </div>
 
-            {!isPersonalOnly && (isSuperAdmin || staffUser?.role === 'AccountsOfficer') && (
+            {!isPersonalOnly && (isSuperAdmin || staffUser?.role === 'AccountsOfficer' || staffUser?.role === 'FinanceOfficer') && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412' }}>कर्मचारी:</span>
                 <select
@@ -3144,7 +3414,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <strong style={{ color: '#C2410C' }}>{tx.targetId || tx.bookingId || '-'}</strong>
                       </td>
                       <td>
-                        {tx.coachName || tx.coach ? `कोच ${tx.coachName || tx.coach} ${tx.seatNumber ? `(सीट ${tx.seatNumber})` : ''}` : '-'}
+                        {tx.coachName || tx.coach ? `कोच ${formatCoachDisplay(tx.coachName || tx.coach, tx.coachDisplayName)} ${tx.seatNumber ? `(सीट ${tx.seatNumber})` : ''}` : '-'}
                       </td>
                       <td style={{ fontWeight: 900, color: tx.amount > 0 ? '#047857' : '#784D35' }}>
                         {tx.amount > 0 ? `₹ ${tx.amount?.toLocaleString()}` : '-'}
@@ -3288,7 +3558,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         {b.fromStation} ➔ {b.toStation}
                       </div>
                       <div style={{ fontSize: '0.84rem', marginTop: 2 }}>
-                        कोच: <strong style={{ color: '#C2410C' }}>{b.coachName}</strong> | सीट: <strong style={{ color: '#1E40AF' }}>{Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</strong> ({b.travelClass})
+                        कोच: <strong style={{ color: '#C2410C' }}>{formatCoachDisplay(b.coachName, b.coachDisplayName)}</strong> | सीट: <strong style={{ color: '#1E40AF' }}>{Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</strong> ({b.travelClass})
                       </div>
                       <div style={{ marginTop: 6 }}>
                         <span className={`badge ${b.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-partial'}`}>
@@ -3856,29 +4126,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               </div>
             </div>
             <span className="badge badge-bhakti" style={{ fontSize: '0.75rem' }}>
-              16 आरक्षित बोगियां
+              {(stats.coachMatrix && stats.coachMatrix.length > 0 ? stats.coachMatrix.length : (activeBookableCoaches.length || 20))} आरक्षित बोगियां
             </span>
           </div>
 
           <div className="dash-coach-grid">
-            {(stats.coachMatrix && stats.coachMatrix.length > 0 ? stats.coachMatrix : [
-              { coachCode: 'S1', coachName: 'स्लीपर S1', capacity: 72, booked: stats.coachStats?.S1 || 0, occupancy: 0 },
-              { coachCode: 'S2', coachName: 'स्लीपर S2', capacity: 72, booked: stats.coachStats?.S2 || 0, occupancy: 0 },
-              { coachCode: 'S3', coachName: 'स्लीपर S3', capacity: 72, booked: stats.coachStats?.S3 || 0, occupancy: 0 },
-              { coachCode: 'S4', coachName: 'स्लीपर S4', capacity: 72, booked: stats.coachStats?.S4 || 0, occupancy: 0 },
-              { coachCode: 'S5', coachName: 'स्लीपर S5', capacity: 72, booked: stats.coachStats?.S5 || 0, occupancy: 0 },
-              { coachCode: 'S6', coachName: 'स्लीपर S6', capacity: 72, booked: stats.coachStats?.S6 || 0, occupancy: 0 },
-              { coachCode: 'B1', coachName: 'थर्ड एसी B1', capacity: 72, booked: stats.coachStats?.B1 || 0, occupancy: 0 },
-              { coachCode: 'B2', coachName: 'थर्ड एसी B2', capacity: 72, booked: stats.coachStats?.B2 || 0, occupancy: 0 },
-              { coachCode: 'B3', coachName: 'थर्ड एसी B3', capacity: 72, booked: stats.coachStats?.B3 || 0, occupancy: 0 },
-              { coachCode: 'A1', coachName: 'सेकंड एसी A1', capacity: 54, booked: stats.coachStats?.A1 || 0, occupancy: 0 },
-              { coachCode: 'A2', coachName: 'सेकंड एसी A2', capacity: 54, booked: stats.coachStats?.A2 || 0, occupancy: 0 },
-              { coachCode: 'A3', coachName: 'सेकंड एसी A3', capacity: 54, booked: stats.coachStats?.A3 || 0, occupancy: 0 },
-              { coachCode: 'GS1', coachName: 'जनरल GS1', capacity: 80, booked: stats.coachStats?.GS1 || 0, occupancy: 0 },
-              { coachCode: 'GS2', coachName: 'जनरल GS2', capacity: 80, booked: stats.coachStats?.GS2 || 0, occupancy: 0 },
-              { coachCode: 'SLR1', coachName: 'एसएलआर 1', capacity: 20, booked: stats.coachStats?.SLR1 || 0, occupancy: 0 },
-              { coachCode: 'SLR2', coachName: 'एसएलआर 2', capacity: 20, booked: stats.coachStats?.SLR2 || 0, occupancy: 0 }
-            ]).map((c, idx) => {
+            {(stats.coachMatrix && stats.coachMatrix.length > 0 ? stats.coachMatrix : allSelectableCoaches.map(c => ({
+              coachCode: c.coachCode,
+              coachName: c.coachName || c.coachCode,
+              capacity: c.capacity || c.totalSeats || 72,
+              booked: stats.coachStats?.[c.coachCode] || 0,
+              occupancy: 0
+            }))).map((c, idx) => {
               const booked = c.booked || (stats.coachStats && stats.coachStats[c.coachCode]) || 0;
               const cap = c.capacity || 72;
               const occPercent = cap > 0 ? Math.min(100, Math.round((booked / cap) * 100)) : 0;
@@ -3893,7 +4152,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     setChartCoach(c.coachCode);
                     navigate('/admin/chart');
                   }}
-                  title={`कोच ${c.coachCode} का चार्ट देखें`}
+                  title={`कोच ${formatCoachDisplay(c.coachCode, c.coachName)} का चार्ट देखें`}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontWeight: 900, color: '#431407', fontSize: '0.98rem' }}>{c.coachCode}</span>
@@ -3903,7 +4162,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   </div>
 
                   <div style={{ fontSize: '0.72rem', color: '#7C2D12', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 6 }}>
-                    {c.coachName}
+                    {getLiveBogieName(c.coachCode, c.coachName)}
                   </div>
 
                   <div className="dash-progress-track" style={{ height: 6, marginBottom: 6 }}>
@@ -4218,7 +4477,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{b.mobile}</div>
                     </td>
                     <td style={{ fontSize: '0.85rem' }}>{b.fromStation} ➔ {b.toStation}</td>
-                    <td><strong style={{ color: '#047857' }}>{b.coachName}</strong> ({Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber})</td>
+                    <td><strong style={{ color: '#047857' }}>{formatCoachDisplay(b.coachName, b.coachDisplayName)}</strong> ({Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber})</td>
                     <td>
                       <span className={`badge ${b.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-partial'}`}>
                         {b.paymentStatus}
@@ -4547,42 +4806,61 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     </div>
                   </div>
                   <div className="ent-class-grid">
-                    {/* AC 3-Tier */}
-                    <div className="ent-class-card ac">
-                      <span className="ent-class-type">AC 3-Tier — वातानुकूलित</span>
-                      <span className="ent-class-seats">
-                        {trainCompositionData?.coaches
-                          ? trainCompositionData.coaches.filter(c => c.coachClass === 'AC').reduce((s, c) => s + (c.availableBerths || 0), 0)
-                          : 384}
-                      </span>
-                      <span className="ent-class-seats-label">बर्थ उपलब्ध</span>
-                      <div className="ent-class-fare">₹ 4,000 / यात्री</div>
-                      <div className="ent-class-desc">कोच B1–B6 · कुल 384 बर्थ · चादर, कंबल, AC</div>
-                    </div>
-                    {/* Sleeper */}
-                    <div className="ent-class-card sl">
-                      <span className="ent-class-type">Sleeper Class — शयनयान</span>
-                      <span className="ent-class-seats">
-                        {trainCompositionData?.coaches
-                          ? trainCompositionData.coaches.filter(c => c.coachClass === 'Sleeper').reduce((s, c) => s + (c.availableBerths || 0), 0)
-                          : 432}
-                      </span>
-                      <span className="ent-class-seats-label">बर्थ उपलब्ध</span>
-                      <div className="ent-class-fare">₹ 3,000 / यात्री</div>
-                      <div className="ent-class-desc">कोच S1–S6 · कुल 432 बर्थ · आरक्षित शयनयान</div>
-                    </div>
-                    {/* General / SLR */}
-                    <div className="ent-class-card gen">
-                      <span className="ent-class-type">General / SLR — सामान्य</span>
-                      <span className="ent-class-seats">
-                        {trainCompositionData?.coaches
-                          ? trainCompositionData.coaches.filter(c => c.coachClass === 'General').reduce((s, c) => s + (c.availableBerths || 0), 0)
-                          : 170}
-                      </span>
-                      <span className="ent-class-seats-label">सीटें उपलब्ध</span>
-                      <div className="ent-class-fare">₹ 2,000 / यात्री</div>
-                      <div className="ent-class-desc">कोच G1–G4 · कुल 170 सीटें · सुगम बैठक व्यवस्था</div>
-                    </div>
+                    {(() => {
+                      const srcCoaches = (trainCompositionData?.coaches && trainCompositionData.coaches.length > 0)
+                        ? trainCompositionData.coaches
+                        : coachesMasterList;
+                      const bookable = (srcCoaches || []).filter(c => c && c.isBookable !== false);
+                      const acCoaches = bookable.filter(c => normalizeCoachBucket(c.coachClass) === 'AC');
+                      const slCoaches = bookable.filter(c => normalizeCoachBucket(c.coachClass) === 'Sleeper');
+                      const genCoaches = bookable.filter(c => normalizeCoachBucket(c.coachClass) === 'General');
+                      const sumAvail = (arr) => arr.reduce((s, c) => s + (c.availableBerths ?? Math.max(0, (c.capacity ?? c.totalSeats ?? 0) - (c.bookedPassengers ?? 0))), 0);
+                      const sumCap = (arr) => arr.reduce((s, c) => s + (c.capacity ?? c.totalSeats ?? 0), 0);
+                      const acFare = Number(projectSettings?.fares?.AC ?? projectSettings?.fareAC ?? 0);
+                      const slFare = Number(projectSettings?.fares?.Sleeper ?? projectSettings?.fareSleeper ?? 3000);
+                      const genFare = Number(projectSettings?.fares?.General ?? projectSettings?.fareGeneral ?? 2000);
+                      const fmtCodes = (arr, def) => {
+                        if (!arr.length) return def;
+                        if (arr.length <= 4) return arr.map(c => c.coachCode).join(', ');
+                        return `${arr[0].coachCode}–${arr[arr.length - 1].coachCode} (${arr.length} कोच)`;
+                      };
+                      return (
+                        <>
+                          {/* AC 3-Tier */}
+                          <div className="ent-class-card ac">
+                            <span className="ent-class-type">AC 3-Tier — वातानुकूलित</span>
+                            <span className="ent-class-seats">{sumAvail(acCoaches)}</span>
+                            <span className="ent-class-seats-label">बर्थ उपलब्ध</span>
+                            <div className="ent-class-fare">₹ {acFare.toLocaleString('en-IN')} / यात्री</div>
+                            <div className="ent-class-desc">
+                              {acCoaches.length > 0
+                                ? `कोच ${fmtCodes(acCoaches)} · कुल ${sumCap(acCoaches)} बर्थ · चादर, कंबल, AC`
+                                : 'वर्तमान में कोई AC कोच सक्रिय नहीं'}
+                            </div>
+                          </div>
+                          {/* Sleeper */}
+                          <div className="ent-class-card sl">
+                            <span className="ent-class-type">Sleeper Class — शयनयान</span>
+                            <span className="ent-class-seats">{slCoaches.length > 0 ? sumAvail(slCoaches) : 1296}</span>
+                            <span className="ent-class-seats-label">बर्थ उपलब्ध</span>
+                            <div className="ent-class-fare">₹ {slFare.toLocaleString('en-IN')} / यात्री</div>
+                            <div className="ent-class-desc">
+                              कोच {fmtCodes(slCoaches, 'S1–S18')} · कुल {slCoaches.length > 0 ? sumCap(slCoaches) : 1296} बर्थ · आरक्षित शयनयान
+                            </div>
+                          </div>
+                          {/* General / SLR */}
+                          <div className="ent-class-card gen">
+                            <span className="ent-class-type">General / SLR — सामान्य</span>
+                            <span className="ent-class-seats">{genCoaches.length > 0 ? sumAvail(genCoaches) : 40}</span>
+                            <span className="ent-class-seats-label">सीटें उपलब्ध</span>
+                            <div className="ent-class-fare">₹ {genFare.toLocaleString('en-IN')} / यात्री</div>
+                            <div className="ent-class-desc">
+                              कोच {fmtCodes(genCoaches, 'SLR1, SLR2')} · कुल {genCoaches.length > 0 ? sumCap(genCoaches) : 40} सीटें · सुगम बैठक व्यवस्था
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                   {/* Route Schedule Bar */}
                   <div className="ent-schedule-bar">
@@ -4702,7 +4980,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           {searchedTicket.fromStation} — {searchedTicket.toStation}
                         </span>
                         <div style={{ fontSize: '0.82rem', marginTop: 2 }}>
-                          कोच: <strong style={{ color: '#BF360C' }}>{searchedTicket.coachName}</strong>
+                          कोच: <strong style={{ color: '#BF360C' }}>{formatCoachDisplay(searchedTicket.coachName, searchedTicket.coachDisplayName)}</strong>
                           {' '}| श्रेणी: <strong>{searchedTicket.travelClass}</strong>
                         </div>
                       </div>
@@ -4777,7 +5055,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     <Train size={18} strokeWidth={2} />
                     बोगी स्थिति एवं रेक संरचना
                   </button>
-                  <button className="btn btn-gold" style={{ padding: '12px 28px', fontSize: '0.93rem' }} onClick={() => setActiveTab('staff')}>
+                  <button className="btn btn-gold" style={{ padding: '12px 28px', fontSize: '0.93rem' }} onClick={() => navigate('/login')}>
                     <Lock size={18} strokeWidth={2} />
                     कर्मचारी एवं ट्रस्ट अधिकारी लॉगिन
                   </button>
@@ -4912,9 +5190,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट द्वारा प्रत्येक वर्ष आयोजित यह पावन तीर्थ यात्रा हजारों श्रद्धालुओं को सुरक्षित एवं व्यवस्थित तरीके से माता के दरबार तक पहुँचाती है।
                         </p>
                         {[
-                          { label: 'सम्पर्क', val: projectSettings.organizerPhone || '+91-XXXXX-XXXXX' },
-                          { label: 'ईमेल', val: projectSettings.organizerEmail || 'info@mvdtrust.org' },
-                          { label: 'स्थान', val: 'लखनऊ, उत्तर प्रदेश' },
+                          { label: 'सम्पर्क', val: projectSettings.helplineNumber || projectSettings.organizerPhone || '+91 7398959993' },
+                          { label: 'ईमेल', val: projectSettings.officialEmail || projectSettings.organizerEmail || 'infomatavaishnodevi@gmail.com' },
+                          { label: 'स्थान', val: 'लखनऊ / फतेहगढ़, उत्तर प्रदेश' },
                         ].map(({ label, val }) => (
                           <div key={label} style={{ display: 'flex', gap: 10, fontSize: '0.82rem', marginBottom: 5 }}>
                             <span style={{ color: '#9A6642', fontWeight: 700, minWidth: 55 }}>{label}:</span>
@@ -4993,7 +5271,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       </div>
                       <ul className="ent-footer-list">
                         {[
-                          { label: 'ट्रस्ट कार्यालय', val: projectSettings.organizerPhone || '+91-XXXXX-XXXXX' },
+                          { label: 'ट्रस्ट कार्यालय', val: projectSettings.helplineNumber || projectSettings.organizerPhone || '+91 7398959993' },
                           { label: 'रेलवे हेल्पलाइन', val: '139' },
                           { label: 'कटड़ा स्टेशन', val: '01991-234XXX' },
                           { label: 'आपातकाल', val: '112' },
@@ -5133,7 +5411,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>आवंटित कोच व सीट</div>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857' }}>
-                                  कोच {verifierResult.booking.coachName} • सीट: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
+                                  कोच {formatCoachDisplay(verifierResult.booking.coachName, verifierResult.booking.coachDisplayName)} • सीट: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
                                 </div>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
@@ -5180,7 +5458,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 वास्तविक भक्त: <strong>{verifierResult.authenticData.bookedBy}</strong> ({verifierResult.authenticData.mobile})
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                वास्तविक सीट: <strong style={{ color: '#DC2626' }}>कोच {verifierResult.authenticData.coachName}, सीट {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
+                                वास्तविक सीट: <strong style={{ color: '#DC2626' }}>कोच {formatCoachDisplay(verifierResult.authenticData.coachName, verifierResult.authenticData.coachDisplayName)}, सीट {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
                               </div>
                               <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
                                 वास्तविक देय राशि: <strong style={{ color: '#DC2626' }}>₹ {verifierResult.authenticData.remainingAmount} ({verifierResult.authenticData.paymentStatus})</strong>
@@ -5324,8 +5602,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               <div className="form-group">
                                 <label className="form-label">कोच नंबर (Coach):</label>
                                 <select className="form-control" value={coachName} onChange={(e) => setCoachName(e.target.value)}>
-                                  {(COACHES[travelClass] || COACHES.Sleeper).map(c => (
-                                    <option key={c} value={c}>Coach {c}</option>
+                                  {(dynamicCoachesByClass[travelClass] || dynamicCoachesByClass.Sleeper || []).map(c => (
+                                    <option key={c} value={c}>{getCoachOptionLabel(c)}</option>
                                   ))}
                                 </select>
                               </div>
@@ -5336,7 +5614,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           <div className="glass-card">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
                               <div>
-                                <h4 style={{ fontSize: '1.15rem', color: '#9A3412', fontWeight: 800, margin: 0 }}>कोच {coachName} सीट मैप (यात्रा {bookingYear})</h4>
+                                <h4 style={{ fontSize: '1.15rem', color: '#9A3412', fontWeight: 800, margin: 0 }}>कोच {formatCoachDisplay(coachName, coachLayout.coachDisplayName)} सीट मैप (यात्रा {bookingYear})</h4>
                                 <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>उपलब्ध सीट पर क्लिक करके चुनें अथवा स्वतः आवंटित करें</div>
                               </div>
                               <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -5722,7 +6000,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 (b.bookingId && b.bookingId.toLowerCase().includes(adminSearch.toLowerCase())) ||
                                 (b.bookedBy && b.bookedBy.toLowerCase().includes(adminSearch.toLowerCase())) ||
                                 (b.mobile && b.mobile.includes(adminSearch)) ||
-                                (b.offlineReceiptNo && b.offlineReceiptNo.toLowerCase().includes(adminSearch.toLowerCase()))
+                                (b.offlineReceiptNo && b.offlineReceiptNo.toLowerCase().includes(adminSearch.toLowerCase())) ||
+                                (b.coachName && b.coachName.toLowerCase().includes(adminSearch.toLowerCase())) ||
+                                (b.coachDisplayName && b.coachDisplayName.toLowerCase().includes(adminSearch.toLowerCase()))
                               )
                               .map(b => (
                                 <tr key={b.bookingId}>
@@ -5744,7 +6024,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                     <div style={{ color: '#047857', fontWeight: 600 }}>➔ {b.toStation}</div>
                                   </td>
                                   <td>
-                                    <span style={{ color: '#9A3412', fontWeight: 'bold' }}>{b.coachName}</span>
+                                    <span style={{ color: '#9A3412', fontWeight: 'bold' }}>{formatCoachDisplay(b.coachName, b.coachDisplayName)}</span>
                                     <div style={{ fontSize: '0.75rem' }}>सीट: {Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber}</div>
                                   </td>
                                   <td><strong>{b.numberOfPassengers || (b.passengers ? b.passengers.length : 1)}</strong></td>
@@ -5789,7 +6069,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                           <Ticket size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Ticket Print
                                         </button>
                                       {isSuperAdmin && (
-                                        <button className="btn btn-xs btn-outline" onClick={() => setEditYatriModal(b)} title="Edit Yatri" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
+                                        <button className="btn btn-xs btn-outline" onClick={() => openEditYatriModal(b)} title="Edit Yatri / Add or Delete Yatri" style={{ borderColor: '#F59E0B', color: '#B45309' }}>
                                             <Edit size={13} style={{ verticalAlign: 'text-bottom', marginRight: 2 }} /> Edit Yatri
                                           </button>
                                       )}
@@ -5846,7 +6126,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             कोच आरक्षण चार्ट (IRCTC Seating Chart)
                           </h2>
                           <div style={{ color: '#7C2D12', fontSize: '0.9rem', marginTop: 4 }}>
-                            कोच अनुसार वास्तविक बर्थ आवंटन, पीएनआर एवं आधिकारिक प्रिंट प्रारूप
+                            {coachChartData
+                              ? `चयनित बोगी: ${formatCoachDisplay(coachChartData.coachName, coachChartData.coachDisplayName)} • वास्तविक बर्थ आवंटन व प्रिंट प्रारूप`
+                              : 'कोच अनुसार वास्तविक बर्थ आवंटन, पीएनआर एवं आधिकारिक प्रिंट प्रारूप'}
                           </div>
                         </div>
 
@@ -5864,8 +6146,10 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               }}
                             >
                               <option value="all">★ सभी कोच (All Coaches)</option>
-                              {['SLR1', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'SLR2'].map(c => (
-                                <option key={c} value={c}>Coach {c}</option>
+                              {allSelectableCoaches.map(c => (
+                                <option key={c.coachCode} value={c.coachCode}>
+                                  {formatCoachDisplay(c.coachCode, c.coachName)}
+                                </option>
                               ))}
                             </select>
                           </div>
@@ -5989,6 +6273,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   <tr key={r.displaySeat || `${r.coachName || 'c'}-${r.seatNumber}-${rIdx}`} style={{ background: !r.isBooked ? '#FFFDFB' : '#FFFFFF' }}>
                                     <td style={{ textAlign: 'center', fontWeight: 900, color: '#C2410C', fontSize: '1.05rem' }}>
                                       {r.displaySeat || r.seatNumber}
+                                      {chartCoach === 'all' && r.coachName && (
+                                        <div style={{ fontSize: '0.68rem', color: '#9A3412', fontWeight: 600 }}>
+                                          {formatCoachDisplay(r.coachName, r.coachDisplayName, { includeCode: false })}
+                                        </div>
+                                      )}
                                     </td>
                                     <td>
                                       <span style={{ fontWeight: 700, color: '#9A3412' }}>{r.berthType}</span>
@@ -6087,8 +6376,10 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                               }}
                             >
                               <option value="all">★ सभी कोच (All Coaches)</option>
-                              {['SLR1', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'SLR2'].map(c => (
-                                <option key={c} value={c}>Coach {c}</option>
+                              {allSelectableCoaches.map(c => (
+                                <option key={c.coachCode} value={c.coachCode}>
+                                  {formatCoachDisplay(c.coachCode, c.coachName)}
+                                </option>
                               ))}
                             </select>
                           </div>
@@ -6130,7 +6421,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     <div className="glass-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
                         <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.25rem', fontWeight: 800 }}>
-                          कोच {chartCoach} ऑन-ट्रेन चेकिंग सूची
+                          कोच {chartCoach !== 'all' ? formatCoachDisplay(chartCoach, coachChartData?.coachDisplayName) : 'सभी कोच (All Coaches)'} ऑन-ट्रेन चेकिंग सूची
                         </h3>
 
                         <input
@@ -6163,13 +6454,20 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   if (!chartSearch) return true;
                                   const q = chartSearch.toLowerCase();
                                   return String(r.seatNumber).includes(q) ||
+                                    (r.displaySeat && r.displaySeat.toLowerCase().includes(q)) ||
+                                    (r.coachName && r.coachName.toLowerCase().includes(q)) ||
                                     (r.passengerName && r.passengerName.toLowerCase().includes(q)) ||
                                     (r.pnr && r.pnr.toLowerCase().includes(q));
                                 })
-                                .map((r) => (
-                                  <tr key={r.seatNumber} style={{ background: !r.isBooked ? '#FFFDFB' : '#FFFFFF' }}>
-                                    <td style={{ textAlign: 'center', fontWeight: 900, color: '#C2410C', fontSize: '1.1rem' }}>
-                                      {r.seatNumber}
+                                .map((r, rIdx) => (
+                                  <tr key={r.displaySeat || `${r.coachName || 'c'}-${r.seatNumber}-${rIdx}`} style={{ background: !r.isBooked ? '#FFFDFB' : '#FFFFFF' }}>
+                                    <td style={{ textAlign: 'center', fontWeight: 900, color: '#C2410C', fontSize: '1.05rem' }}>
+                                      {r.displaySeat || r.seatNumber}
+                                      {chartCoach === 'all' && r.coachName && (
+                                        <div style={{ fontSize: '0.68rem', color: '#9A3412', fontWeight: 600 }}>
+                                          {formatCoachDisplay(r.coachName, r.coachDisplayName, { includeCode: false })}
+                                        </div>
+                                      )}
                                     </td>
                                     <td>
                                       <strong style={{ color: '#9A3412' }}>{r.berthType}</strong>
@@ -6220,14 +6518,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                           <button
                                             className={`btn btn-sm ${r.checkInStatus === 'Present' ? 'btn-success' : 'btn-outline'}`}
                                             style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                                            onClick={() => handleTteCheckIn(r.seatNumber, 'Present')}
+                                            onClick={() => handleTteCheckIn(r.seatNumber, 'Present', r.coachName || chartCoach)}
                                           >
                                             ✓ उपस्थित
                                           </button>
                                           <button
                                             className={`btn btn-sm ${r.checkInStatus === 'Absent' ? 'btn-danger' : 'btn-outline'}`}
                                             style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                                            onClick={() => handleTteCheckIn(r.seatNumber, 'Absent')}
+                                            onClick={() => handleTteCheckIn(r.seatNumber, 'Absent', r.coachName || chartCoach)}
                                           >
                                             ✕ अनुपस्थित
                                           </button>
@@ -6810,7 +7108,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                         <div style={{ fontWeight: 800, color: '#C2410C' }}>{tx.pnr}</div>
                                         <div style={{ fontWeight: 700, color: '#1F2937' }}>{tx.devoteeName}</div>
                                         <div style={{ fontSize: '0.76rem', color: '#6B7280' }}>
-                                          {tx.mobile} | कोच {tx.coachName} (सीट: {tx.seatNumber})
+                                          {tx.mobile} | कोच {formatCoachDisplay(tx.coachName, tx.coachDisplayName)} (सीट: {tx.seatNumber})
                                         </div>
                                       </td>
                                       <td>
@@ -6997,7 +7295,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
                                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>आवंटित कोच व सीट</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857' }}>
-                                      कोच {verifierResult.booking.coachName} • सीट: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
+                                      कोच {formatCoachDisplay(verifierResult.booking.coachName, verifierResult.booking.coachDisplayName)} • सीट: {Array.isArray(verifierResult.booking.seatNumber) ? verifierResult.booking.seatNumber.join(', ') : verifierResult.booking.seatNumber}
                                     </div>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 10, borderRadius: 8, border: '1px solid #FED7AA' }}>
@@ -7044,7 +7342,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                     वास्तविक भक्त: <strong>{verifierResult.authenticData.bookedBy}</strong> ({verifierResult.authenticData.mobile})
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
-                                    वास्तविक सीट: <strong style={{ color: '#DC2626' }}>कोच {verifierResult.authenticData.coachName}, सीट {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
+                                    वास्तविक सीट: <strong style={{ color: '#DC2626' }}>कोच {formatCoachDisplay(verifierResult.authenticData.coachName, verifierResult.authenticData.coachDisplayName)}, सीट {Array.isArray(verifierResult.authenticData.seatNumber) ? verifierResult.authenticData.seatNumber.join(', ') : verifierResult.authenticData.seatNumber}</strong>
                                   </div>
                                   <div style={{ background: '#FFF8F2', padding: 8, borderRadius: 6 }}>
                                     वास्तविक देय राशि: <strong style={{ color: '#DC2626' }}>₹ {verifierResult.authenticData.remainingAmount} ({verifierResult.authenticData.paymentStatus})</strong>
@@ -7213,8 +7511,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   type="number"
                                   min="0"
                                   className="form-control"
-                                  value={projectSettings.fareSleeper || 3000}
-                                  onChange={e => setProjectSettings({ ...projectSettings, fareSleeper: Number(e.target.value) })}
+                                  value={projectSettings.fareSleeper ?? projectSettings.fares?.Sleeper ?? 3000}
+                                  onChange={e => {
+                                    const v = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setProjectSettings({ ...projectSettings, fareSleeper: v, fares: { ...(projectSettings.fares || {}), Sleeper: v } });
+                                  }}
                                 />
                               </div>
                               <div className="form-group">
@@ -7223,8 +7524,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   type="number"
                                   min="0"
                                   className="form-control"
-                                  value={projectSettings.fareAC || 4000}
-                                  onChange={e => setProjectSettings({ ...projectSettings, fareAC: Number(e.target.value) })}
+                                  value={projectSettings.fareAC ?? projectSettings.fares?.AC ?? 0}
+                                  onChange={e => {
+                                    const v = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setProjectSettings({ ...projectSettings, fareAC: v, fares: { ...(projectSettings.fares || {}), AC: v } });
+                                  }}
                                 />
                               </div>
                               <div className="form-group">
@@ -7233,8 +7537,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   type="number"
                                   min="0"
                                   className="form-control"
-                                  value={projectSettings.fareGeneral || 2000}
-                                  onChange={e => setProjectSettings({ ...projectSettings, fareGeneral: Number(e.target.value) })}
+                                  value={projectSettings.fareGeneral ?? projectSettings.fares?.General ?? 2000}
+                                  onChange={e => {
+                                    const v = e.target.value === '' ? 0 : Number(e.target.value);
+                                    setProjectSettings({ ...projectSettings, fareGeneral: v, fares: { ...(projectSettings.fares || {}), General: v } });
+                                  }}
                                 />
                               </div>
                             </div>
@@ -7444,7 +7751,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           {staffUser.assignedCoach && (
                             <div style={{ background: '#FFF8F2', padding: '10px 14px', borderRadius: 8, border: '1px solid #FED7AA' }}>
                               <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>आवंटित कोच (Assigned Coaches):</div>
-                              <strong style={{ color: '#C2410C' }}>{staffUser.assignedCoach}</strong>
+                              <strong style={{ color: '#C2410C' }}>
+                                {Array.isArray(staffUser.assignedCoach)
+                                  ? staffUser.assignedCoach.map(c => formatCoachDisplay(c)).join(', ')
+                                  : String(staffUser.assignedCoach).split(',').map(c => formatCoachDisplay(c.trim())).join(', ')}
+                              </strong>
                             </div>
                           )}
                           {staffUser.assignedStation && (
@@ -7573,35 +7884,35 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
                             <div style={{ fontSize: '0.75rem', color: '#7C2D12', fontWeight: 700 }}>कुल बोगियां (Total Bogies)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#9A3412' }}>
-                              {trainCompositionData.stats.totalCoaches || 18}
+                              {trainCompositionData.stats.totalCoaches ?? (trainCompositionData.coaches?.length || 0)}
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#9A3412' }}>इंजन + 18 डिब्बे</div>
+                            <div style={{ fontSize: '0.72rem', color: '#9A3412' }}>इंजन + {trainCompositionData.stats.totalCoaches ?? (trainCompositionData.coaches?.length || 0)} डिब्बे</div>
                           </div>
 
                           <div style={{ background: '#EFF6FF', padding: 12, borderRadius: 8, border: '1px solid #BFDBFE', textAlign: 'center' }}>
                             <div style={{ fontSize: '0.75rem', color: '#1E40AF', fontWeight: 700 }}>स्लीपर बोगियां (Sleeper)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1D4ED8' }}>
-                              {trainCompositionData.stats.sleeperCoaches || 6} बोगी
+                              {trainCompositionData.stats.sleeperCoaches ?? 0} बोगी
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#2563EB' }}>{trainCompositionData.stats.sleeperBerths || 432} सीटें</div>
+                            <div style={{ fontSize: '0.72rem', color: '#2563EB' }}>{trainCompositionData.stats.sleeperBerths ?? 0} सीटें</div>
                           </div>
 
                           <div style={{ background: '#F5F3FF', padding: 12, borderRadius: 8, border: '1px solid #DDD6FE', textAlign: 'center' }}>
                             <div style={{ fontSize: '0.75rem', color: '#5B21B6', fontWeight: 700 }}>वातानुकूलित (AC 3T / 2T)</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#6D28D9' }}>
-                              {trainCompositionData.stats.acCoaches || 6} बोगी
+                              {trainCompositionData.stats.acCoaches ?? 0} बोगी
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#7C3AED' }}>{trainCompositionData.stats.acBerths || 384} सीटें</div>
+                            <div style={{ fontSize: '0.72rem', color: '#7C3AED' }}>{trainCompositionData.stats.acBerths ?? 0} सीटें</div>
                           </div>
 
                           {staffUser && (
                             <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
                               <div style={{ fontSize: '0.75rem', color: '#065F46', fontWeight: 700 }}>कुल आरक्षित यात्री</div>
                               <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
-                                {trainCompositionData.stats.totalBooked || 0} / {trainCompositionData.stats.totalBerthCapacity || 816}
+                                {trainCompositionData.stats.totalBooked || 0} / {trainCompositionData.stats.totalBerthCapacity ?? 0}
                               </div>
                               <div style={{ fontSize: '0.72rem', color: '#059669' }}>
-                                उपलब्ध: {(trainCompositionData.stats.totalBerthCapacity || 816) - (trainCompositionData.stats.totalBooked || 0)}
+                                उपलब्ध: {(trainCompositionData.stats.totalBerthCapacity ?? 0) - (trainCompositionData.stats.totalBooked || 0)}
                               </div>
                             </div>
                           )}
@@ -7796,6 +8107,20 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 }}>
                                   {coach.coachClass}
                                 </div>
+                                {coach.coachName && coach.coachName !== coach.coachCode && coach.coachName !== `Coach ${coach.coachCode}` && (
+                                  <div style={{
+                                    fontSize: '0.62rem',
+                                    fontWeight: 700,
+                                    color: '#7C2D12',
+                                    marginTop: 3,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    maxWidth: 84
+                                  }}>
+                                    {coach.coachName}
+                                  </div>
+                                )}
                               </div>
 
                               <div style={{ marginTop: 8, fontSize: '0.72rem', color: '#4B5563', width: '100%' }}>
@@ -8035,7 +8360,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                 coachName: '',
                                 coachClass: 'Sleeper',
                                 capacity: 72,
-                                baseFare: 1650,
+                                baseFare: projectSettings?.fares?.Sleeper ?? projectSettings?.fareSleeper ?? 3000,
                                 platformPlacement: 'Center of Platform',
                                 positionSequence: (adminCoachesList.length + 1),
                                 isBookable: true,
@@ -8092,7 +8417,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <div style={{ background: '#F5F3FF', padding: 12, borderRadius: 8, border: '1px solid #DDD6FE', textAlign: 'center' }}>
                           <div style={{ fontSize: '0.74rem', color: '#5B21B6', fontWeight: 700 }}>कुल बर्थ क्षमता (Total Seats)</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#6D28D9' }}>
-                            {adminCoachesList.reduce((acc, c) => acc + (parseInt(c.capacity) || 0), 0)} सीटें
+                            {adminCoachesList.reduce((acc, c) => acc + (parseInt(c.capacity ?? c.totalSeats, 10) || 0), 0)} सीटें
                           </div>
                         </div>
 
@@ -8163,8 +8488,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                       {coach.coachClass}
                                     </span>
                                   </td>
-                                  <td><strong>{coach.totalSeats || coach.capacity || 72}</strong></td>
-                                  <td><strong>₹ {Number(coach.fare || coach.baseFare || 3000).toLocaleString('en-IN')}</strong></td>
+                                  <td><strong>{coach.totalSeats ?? coach.capacity ?? 72}</strong></td>
+                                  <td><strong>₹ {Number(coach.fare ?? coach.baseFare ?? 3000).toLocaleString('en-IN')}</strong></td>
                                   <td style={{ fontSize: '0.82rem', color: '#7C2D12' }}>{coach.platformPosition || coach.platformPlacement || 'Center'}</td>
                                   <td>
                                     {coach.isBookable ? (
@@ -8204,10 +8529,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                           setEditCoachForm({
                                             ...coach,
                                             id: coach.id || coach.coachCode,
-                                            positionSequence: coach.position || coach.positionSequence || idx + 1,
-                                            capacity: coach.totalSeats || coach.capacity || 72,
-                                            baseFare: coach.fare || coach.baseFare || 3000,
-                                            platformPlacement: coach.platformPosition || coach.platformPlacement || 'Center'
+                                            positionSequence: coach.positionSequence ?? coach.position ?? idx + 1,
+                                            capacity: coach.capacity ?? coach.totalSeats ?? 72,
+                                            baseFare: coach.baseFare ?? coach.fare ?? 3000,
+                                            platformPlacement: coach.platformPlacement || coach.platformPosition || 'Center of Platform',
+                                            notes: coach.notes ?? coach.description ?? ''
                                           });
                                           setEditCoachModal(true);
                                         }}
@@ -8323,7 +8649,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                   <td><strong>{b.bookedBy}</strong> ({b.numberOfPassengers} यात्री)</td>
                                   <td>{b.mobile}</td>
                                   <td>
-                                    <span className="badge badge-bhakti">{b.coachName || b.cancellationDetails?.originalCoach}</span>
+                                    <span className="badge badge-bhakti">{formatCoachDisplay(b.coachName || b.cancellationDetails?.originalCoach, b.coachDisplayName || b.cancellationDetails?.originalCoachDisplayName)}</span>
                                     <span style={{ fontSize: '0.75rem', color: '#6B7280', marginLeft: 4 }}>
                                       (सीटें: {Array.isArray(b.releasedSeats || b.cancellationDetails?.originalSeats) ? (b.releasedSeats || b.cancellationDetails?.originalSeats).join(', ') : 'Free'})
                                     </span>
@@ -8554,7 +8880,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span>कोच व आवंटित सीटें:</span>
-                  <strong>{cancelModal.booking.coachName} - सीट: {Array.isArray(cancelModal.booking.seatNumber) ? cancelModal.booking.seatNumber.join(', ') : cancelModal.booking.seatNumber}</strong>
+                  <strong>{formatCoachDisplay(cancelModal.booking.coachName, cancelModal.booking.coachDisplayName)} - सीट: {Array.isArray(cancelModal.booking.seatNumber) ? cancelModal.booking.seatNumber.join(', ') : cancelModal.booking.seatNumber}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span>कुल किराया:</span>
@@ -8804,7 +9130,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 <div className="irctc-half-trainbar">
                   <div><strong>04201 / MVD SPECIAL</strong> ({ticketModal.travelClass || 'Sleeper'})</div>
                   <div style={{ color: '#0284C7', fontWeight: 800 }}>
-                    Coach {ticketModal.coachName || 'S1'} {!(projectSettings && projectSettings.hideBerthNumber) && `: Seat [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
+                    {formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} {!(projectSettings && projectSettings.hideBerthNumber) && `: Seat [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
                   </div>
                   <div><strong>Date:</strong> {ticketModal.travelDate || projectSettings?.defaultTravelDate || '2026-10-15'}</div>
                 </div>
@@ -8847,8 +9173,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <div style={{ fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name || 'Passenger'}</div>
                         <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
                         <div style={{ color: isCancelled ? '#DC2626' : '#16A34A', fontWeight: 700 }}>{isCancelled ? 'CANCELLED' : 'CNF'}</div>
-                        <div style={{ color: '#0284C7', fontWeight: 700 }}>
-                          {ticketModal.coachName || 'S1'} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${p.berthPreference || 'B'})` : (p.berthPreference || 'Berth')}
+                        <div style={{ color: '#0284C7', fontWeight: 700, fontSize: '0.66rem', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                          {formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} (${p.berthPreference || 'B'})` : (p.berthPreference || 'Berth')}
                         </div>
                       </div>
                     );
@@ -8890,12 +9216,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
                 {/* 7. Guidelines */}
                 <div className="irctc-half-guidelines">
-                  <strong>GUIDELINES:</strong> Carry original Govt ID (Aadhaar). Report station 45m before departure. Collect RFID Yatra Card at Katra base. Helpline: +91 7398959993.
+                  <strong>GUIDELINES:</strong> Carry original Govt ID (Aadhaar). Report station 45m before departure. Collect RFID Yatra Card at Katra base. Helpline: {projectSettings?.helplineNumber || '+91 7398959993'}.
                 </div>
 
                 {/* 8. Footer */}
                 <div className="irctc-half-footer">
-                  Trust Helpline: +91 7398959993 • Digitally Signed Official ERS Pass • Software by ArovenTech
+                  Trust Helpline: {projectSettings?.helplineNumber || '+91 7398959993'} • Digitally Signed Official ERS Pass • Software by ArovenTech
                 </div>
 
                 {/* Cancelled Stamp */}
@@ -8949,7 +9275,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     <div>
                       <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Coach / Assigned Seats</div>
                       <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0284C7' }}>
-                        Coach {ticketModal.coachName || 'S1'} {!(projectSettings && projectSettings.hideBerthNumber) && `: Berths [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
+                        {formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} {!(projectSettings && projectSettings.hideBerthNumber) && `: Berths [ ${Array.isArray(ticketModal.seatNumber) ? ticketModal.seatNumber.join(', ') : ticketModal.seatNumber} ]`}
                       </div>
                     </div>
                   </div>
@@ -9004,7 +9330,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           <div style={{ color: '#475569' }}>{p.age || '-'} / {p.gender || '-'}</div>
                           <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
                           <div style={{ color: statusColor, fontWeight: 700 }}>{statusText}</div>
-                          <div style={{ color: '#0284C7', fontWeight: 700 }}>{ticketModal.coachName || 'S1'} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}</div>
+                          <div style={{ color: '#0284C7', fontWeight: 700 }}>{formatCoachDisplay(ticketModal.coachName || 'S1', ticketModal.coachDisplayName)} / {!(projectSettings && projectSettings.hideBerthNumber) ? `${assignedSeat} / ${p.berthPreference || 'Berth'}` : (p.berthPreference || 'Berth')}</div>
                         </div>
                       );
                     })}
@@ -9074,13 +9400,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   <div>2. Reporting at boarding station is mandatory at least 45 minutes prior to scheduled train departure.</div>
                   <div>3. Mandatory RFID Yatra Registration Card must be collected at Katra base before commencing the Mata Vaishno Devi Bhawan trek.</div>
                   <div>4. Any remaining balance dues must be cleared with authorized Trust volunteers before boarding.</div>
-                  <div>5. For medical emergency or coach assistance, contact Trust Helpline: +91 7398959993 or Train Captain.</div>
+                  <div>5. For medical emergency or coach assistance, contact Trust Helpline: {projectSettings?.helplineNumber || '+91 7398959993'} or Train Captain.</div>
                 </div>
 
                 {/* Signatures & Footer */}
                 <div className="irctc-footer-bar">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <div>Helpline: +91 7398959993 • Support: iammshyam@gmail.com</div>
+                    <div>Helpline: {projectSettings?.helplineNumber || '+91 7398959993'} • Support: {projectSettings?.officialEmail || 'iammshyam@gmail.com'}</div>
                     <div style={{ color: '#047857', fontWeight: 'bold' }}>*Digitally Signed (No Signature Required)*</div>
                   </div>
                   <div style={{ color: '#0284C7', fontWeight: 700 }}>Software Developed by ArovenTech (www.aroventech.site | +91 9598023701)</div>
@@ -9120,8 +9446,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     setCancelModal({ 
                       show: true, 
                       booking: ticketModal, 
-                      refundAmount: 0, 
-                      cancellationCharges: ticketModal.advance || 0, 
+                      refundAmount: ticketModal.advance || 0, 
+                      cancellationCharges: 0, 
                       cancellationReason: 'यात्री के अनुरोध पर', 
                       refundMode: 'Cash', 
                       utr: '' 
@@ -9129,6 +9455,19 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     setTicketModal(null); 
                   }}>
                   रद्द करें (Cancel)
+                </button>
+              )}
+              {isSuperAdmin && (
+                <button
+                  className="btn btn-outline btn-sm"
+                  style={{ borderColor: '#F59E0B', color: '#B45309' }}
+                  onClick={() => {
+                    const b = ticketModal;
+                    setTicketModal(null);
+                    openEditYatriModal(b);
+                  }}
+                >
+                  <Edit size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> यात्री जोड़ें/बदलें
                 </button>
               )}
               {ticketModal.remainingAmount > 0 && (
@@ -9191,7 +9530,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       SHRI MATA VAISHNO DEVI PUBLIC CHARITABLE TRUST
                     </div>
                     <div style={{ color: '#9A3412', fontSize: '0.72rem', fontWeight: 600 }}>
-                      Mata Vaishno Devi Mandir, Nagla Deena, Bholepur, Fatehgarh, Uttar Pradesh - 209601 | Helpline: +91 7398959993
+                      Mata Vaishno Devi Mandir, Nagla Deena, Bholepur, Fatehgarh, Uttar Pradesh - 209601 | Helpline: {projectSettings?.helplineNumber || '+91 7398959993'}
                     </div>
                   </div>
                 </div>
@@ -9242,7 +9581,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         </div>
                         <div>
                           <span style={{ color: '#4B5563', fontWeight: 700, display: 'block' }}>Class & Coach:</span>
-                          <span style={{ color: '#1F2937' }}>{receiptModal.booking.travelClass || 'Sleeper'} (Coach {receiptModal.booking.coachName || 'S1'})</span>
+                          <span style={{ color: '#1F2937' }}>{receiptModal.booking.travelClass || 'Sleeper'} (Coach {formatCoachDisplay(receiptModal.booking.coachName, receiptModal.booking.coachDisplayName)})</span>
                         </div>
                         <div>
                           <span style={{ color: '#4B5563', fontWeight: 700, display: 'block' }}>Seat No(s):</span>
@@ -9347,7 +9686,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
                       {/* Branding Footer */}
                       <div style={{ textAlign: 'center', color: '#6B7280', fontSize: '0.62rem', marginTop: 4 }}>
-                        Software Developed by: ArovenTech (www.aroventech.site | +91 9598023701) | Support: iammshyam@gmail.com
+                        Software Developed by: ArovenTech (www.aroventech.site | +91 9598023701) | Support: {projectSettings?.officialEmail || 'iammshyam@gmail.com'}
                       </div>
                     </>
                   );
@@ -9374,43 +9713,289 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
       {/* ----------------- OFFICIAL YATRA POSTER FULLSCREEN MODAL ----------------- */}
       
-      {/* ----------------- EDIT YATRI MODAL ----------------- */}
+      {/* ----------------- EDIT YATRI / ADD OR DELETE YATRI MODAL ----------------- */}
       {editYatriModal && (
-        <div className="modal-overlay" style={{ zIndex: 9999 }}>
-          <div className="modal-content" style={{ maxWidth: 800 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.2rem', fontWeight: 800 }}>
-                ✏️ यात्री विवरण एडिट करें (PNR: {editYatriModal.bookingId})
-              </h3>
-              <button onClick={() => setEditYatriModal(null)} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#6B7280' }}>✕</button>
+        <div className="modal-overlay" style={{ zIndex: 9999 }} onClick={() => setEditYatriModal(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 920, border: '2px solid #F97316', background: '#FFFFFF' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, borderBottom: '1.5px solid #FED7AA', paddingBottom: 10 }}>
+              <div>
+                <h3 style={{ margin: 0, color: '#9A3412', fontSize: '1.22rem', fontWeight: 800 }}>
+                  ✏️ पुरानी बुकिंग संपादित करें — यात्री जोड़ें / हटाएं (PNR: {editYatriModal.bookingId})
+                </h3>
+                <div style={{ fontSize: '0.8rem', color: '#7C2D12', marginTop: 2 }}>
+                  नए यात्री जोड़ें, पुराने यात्री हटाएं, कोच या सीट बदलें और किराया स्वतः अपडेट करें
+                </div>
+              </div>
+              <button onClick={() => setEditYatriModal(null)} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#9A3412', fontWeight: 800 }}>✕</button>
             </div>
-            
-            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+
+            {editYatriModal.saveError && (
+              <div style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', color: '#B91C1C', padding: '10px 12px', borderRadius: 8, marginBottom: 12, fontSize: '0.85rem', fontWeight: 700 }}>
+                ⚠️ {editYatriModal.saveError}
+              </div>
+            )}
+
+            <div style={{ maxHeight: '68vh', overflowY: 'auto', paddingRight: 4 }}>
+              {/* Lead Devotee & Journey Header */}
+              <div style={{ background: '#FFF8F2', border: '1.5px solid #FED7AA', borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                <div style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.9rem', marginBottom: 10 }}>
+                  1. मुख्य भक्त एवं यात्रा / कोच विवरण (Lead Devotee & Coach)
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: 10 }}>
+                  <div>
+                    <label style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>मुख्य भक्त का नाम *</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      value={editYatriModal.bookedBy || ''}
+                      onChange={(e) => setEditYatriModal({ ...editYatriModal, bookedBy: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>मोबाइल नंबर *</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      value={editYatriModal.mobile || ''}
+                      onChange={(e) => setEditYatriModal({ ...editYatriModal, mobile: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>आधार / आईडी</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      value={editYatriModal.aadhar || ''}
+                      onChange={(e) => setEditYatriModal({ ...editYatriModal, aadhar: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>कोच चुनें (Coach) *</label>
+                    <select
+                      className="form-control form-control-sm"
+                      value={editYatriModal.coachName || 'S1'}
+                      onChange={(e) => {
+                        const newCoach = e.target.value;
+                        const coachObj = allSelectableCoaches.find(c => String(c.coachCode).toUpperCase() === String(newCoach).toUpperCase());
+                        const nextClass = coachObj?.coachClass || editYatriModal.travelClass || 'Sleeper';
+                        const nextUnitFare = coachObj && Number(coachObj.fare ?? coachObj.baseFare) >= 0
+                          ? Number(coachObj.fare ?? coachObj.baseFare)
+                          : editYatriModal.unitPrice;
+                        setEditYatriModal({
+                          ...editYatriModal,
+                          coachName: newCoach,
+                          coachDisplayName: coachObj ? (coachObj.coachName || coachObj.coachCode) : (editYatriModal.coachDisplayName || newCoach),
+                          travelClass: nextClass,
+                          unitPrice: nextUnitFare,
+                          saveError: ''
+                        });
+                        loadEditYatriCoachLayout(newCoach, editYatriModal.yatraYear || bookingYear);
+                      }}
+                    >
+                      {allSelectableCoaches.map(c => (
+                        <option key={c.coachCode} value={c.coachCode}>
+                          {formatCoachDisplay(c.coachCode, c.coachName)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>बोर्डिंग स्टेशन</label>
+                    <select
+                      className="form-control form-control-sm"
+                      value={editYatriModal.fromStation || ''}
+                      onChange={(e) => setEditYatriModal({ ...editYatriModal, fromStation: e.target.value })}
+                    >
+                      {!stationsList.includes(editYatriModal.fromStation) && editYatriModal.fromStation && (
+                        <option value={editYatriModal.fromStation}>{editYatriModal.fromStation}</option>
+                      )}
+                      {stationsList.map((stn, idx) => (
+                        <option key={idx} value={stn}>{stn}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.76rem', color: '#7C2D12', fontWeight: 700 }}>यात्रा तिथि</label>
+                    <input
+                      type="date"
+                      className="form-control form-control-sm"
+                      value={editYatriModal.travelDate || ''}
+                      onChange={(e) => setEditYatriModal({ ...editYatriModal, travelDate: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Compact Visual Seat Strip for Quick Picking */}
+              {editYatriCoachLayout?.layout?.length > 0 && (
+                <div style={{ background: '#FFFDF9', border: '1px solid #FED7AA', borderRadius: 10, padding: '10px 12px', marginBottom: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412' }}>
+                      कोच {formatCoachDisplay(editYatriModal.coachName, editYatriModal.coachDisplayName)} सीट स्थिति (हरे रंग की सीट = वर्तमान बुकिंग, सफेद = खाली)
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-gold"
+                      onClick={() => {
+                        const usedHere = new Set();
+                        const updatedPax = editYatriModal.passengers.map(p => {
+                          const freeSeat = editYatriCoachLayout.layout.find(s => {
+                            const sStr = String(s.seatNumber);
+                            const isMineOnServer = s.bookingId === editYatriModal.originalBookingId || s.booking?.bookingId === editYatriModal.originalBookingId;
+                            return (!s.isBooked || isMineOnServer) && !usedHere.has(sStr);
+                          });
+                          const chosen = freeSeat ? String(freeSeat.seatNumber) : 'AUTO';
+                          usedHere.add(chosen);
+                          return {
+                            ...p,
+                            seatAssigned: chosen,
+                            berthPreference: chosen !== 'AUTO' ? getBerthType(chosen, editYatriModal.travelClass).split(' ')[0] : p.berthPreference
+                          };
+                        });
+                        setEditYatriModal({ ...editYatriModal, passengers: updatedPax, saveError: '' });
+                      }}
+                    >
+                      खाली सीटें ऑटो-आवंटित करें
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxHeight: 112, overflowY: 'auto' }}>
+                    {editYatriCoachLayout.layout.map(s => {
+                      const sStr = String(s.seatNumber);
+                      const isBookedOther = s.isBooked && s.bookingId !== editYatriModal.originalBookingId && s.booking?.bookingId !== editYatriModal.originalBookingId;
+                      const isAssignedHere = editYatriModal.passengers.some(p => String(p.seatAssigned) === sStr);
+                      return (
+                        <button
+                          key={sStr}
+                          type="button"
+                          disabled={isBookedOther}
+                          title={isBookedOther ? `Seat ${sStr} Booked (${s.booking?.bookingId || ''})` : `Seat ${sStr} (${s.berthType || 'Berth'})`}
+                          onClick={() => {
+                            if (isBookedOther) return;
+                            const newPax = [...editYatriModal.passengers];
+                            const autoIdx = newPax.findIndex(p => !p.seatAssigned || String(p.seatAssigned).toUpperCase() === 'AUTO');
+                            if (autoIdx >= 0) {
+                              newPax[autoIdx] = {
+                                ...newPax[autoIdx],
+                                seatAssigned: sStr,
+                                berthPreference: getBerthType(sStr, editYatriModal.travelClass).split(' ')[0]
+                              };
+                              setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                            }
+                          }}
+                          style={{
+                            width: 34,
+                            height: 28,
+                            borderRadius: 5,
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            border: isAssignedHere ? '2px solid #047857' : isBookedOther ? '1px solid #FCA5A5' : '1px solid #FDBA74',
+                            background: isAssignedHere ? '#10B981' : isBookedOther ? '#FEE2E2' : '#FFFFFF',
+                            color: isAssignedHere ? '#FFFFFF' : isBookedOther ? '#991B1B' : '#9A3412',
+                            cursor: isBookedOther ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          {sStr}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Passengers List + Add/Delete Controls */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+                <div style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.92rem' }}>
+                  2. यात्री सूची ({editYatriModal.passengers.length} यात्री)
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  onClick={() => {
+                    const taken = new Set(editYatriModal.passengers.map(p => String(p.seatAssigned)));
+                    const freeSeatObj = (editYatriCoachLayout?.layout || []).find(s => {
+                      const sStr = String(s.seatNumber);
+                      const isMineOnServer = s.bookingId === editYatriModal.originalBookingId || s.booking?.bookingId === editYatriModal.originalBookingId;
+                      return (!s.isBooked || isMineOnServer) && !taken.has(sStr);
+                    });
+                    const nextSeat = freeSeatObj ? String(freeSeatObj.seatNumber) : 'AUTO';
+                    const newPax = [
+                      ...editYatriModal.passengers,
+                      {
+                        name: '',
+                        age: '',
+                        gender: 'Male',
+                        aadhar: '',
+                        seatAssigned: nextSeat,
+                        berthPreference: nextSeat !== 'AUTO' ? getBerthType(nextSeat, editYatriModal.travelClass).split(' ')[0] : 'Berth',
+                        checkInStatus: 'Pending'
+                      }
+                    ];
+                    setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                  }}
+                >
+                  <Plus size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} />
+                  नया यात्री जोड़ें (Add Yatri)
+                </button>
+              </div>
+
               {editYatriModal.passengers.map((p, idx) => (
-                <div key={idx} style={{ background: '#F9FAFB', padding: 12, borderRadius: 8, marginBottom: 12, border: '1px solid #E5E7EB' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 8, color: '#4B5563' }}>यात्री #{idx + 1}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
+                <div key={idx} style={{ background: '#F9FAFB', padding: 12, borderRadius: 8, marginBottom: 10, border: '1px solid #E5E7EB' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span style={{ fontWeight: 800, color: '#4B5563', fontSize: '0.86rem' }}>यात्री #{idx + 1}</span>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-danger"
+                      disabled={editYatriModal.passengers.length <= 1}
+                      title={editYatriModal.passengers.length <= 1 ? 'कम से कम 1 यात्री होना आवश्यक है (पूरी बुकिंग हटाने हेतु Cancel/Delete उपयोग करें)' : 'इस यात्री को बुकिंग से हटाएं'}
+                      onClick={() => {
+                        if (editYatriModal.passengers.length <= 1) return;
+                        const newPax = editYatriModal.passengers.filter((_, i) => i !== idx);
+                        setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                      }}
+                    >
+                      <Trash2 size={12} style={{ display: 'inline', marginRight: 3, verticalAlign: 'text-bottom' }} /> हटाएं (Delete)
+                    </button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: 8 }}>
                     <div>
-                      <label style={{ fontSize: '0.8rem', color: '#6B7280' }}>नाम</label>
-                      <input type="text" className="form-control form-control-sm" value={p.name} onChange={(e) => {
-                        const newPax = [...editYatriModal.passengers];
-                        newPax[idx].name = e.target.value;
-                        setEditYatriModal({...editYatriModal, passengers: newPax});
-                      }} />
+                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>नाम *</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="पूरा नाम"
+                        value={p.name || ''}
+                        onChange={(e) => {
+                          const newPax = [...editYatriModal.passengers];
+                          newPax[idx] = { ...newPax[idx], name: e.target.value };
+                          setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                        }}
+                      />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.8rem', color: '#6B7280' }}>उम्र / लिंग</label>
+                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>उम्र / लिंग</label>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <input type="number" className="form-control form-control-sm" style={{ width: '40%' }} value={p.age} onChange={(e) => {
-                          const newPax = [...editYatriModal.passengers];
-                          newPax[idx].age = e.target.value;
-                          setEditYatriModal({...editYatriModal, passengers: newPax});
-                        }} />
-                        <select className="form-control form-control-sm" style={{ width: '60%' }} value={p.gender} onChange={(e) => {
-                          const newPax = [...editYatriModal.passengers];
-                          newPax[idx].gender = e.target.value;
-                          setEditYatriModal({...editYatriModal, passengers: newPax});
-                        }}>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          style={{ width: '42%' }}
+                          placeholder="Age"
+                          value={p.age ?? ''}
+                          onChange={(e) => {
+                            const newPax = [...editYatriModal.passengers];
+                            newPax[idx] = { ...newPax[idx], age: e.target.value };
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                          }}
+                        />
+                        <select
+                          className="form-control form-control-sm"
+                          style={{ width: '58%' }}
+                          value={p.gender || 'Male'}
+                          onChange={(e) => {
+                            const newPax = [...editYatriModal.passengers];
+                            newPax[idx] = { ...newPax[idx], gender: e.target.value };
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                          }}
+                        >
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
                           <option value="Other">Other</option>
@@ -9418,63 +10003,182 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       </div>
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.8rem', color: '#6B7280' }}>कोच / सीट</label>
+                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>आधार नंबर</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="आधार / ID"
+                        value={p.aadhar || ''}
+                        onChange={(e) => {
+                          const newPax = [...editYatriModal.passengers];
+                          newPax[idx] = { ...newPax[idx], aadhar: e.target.value };
+                          setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>सीट नं (या AUTO)</label>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <input type="text" className="form-control form-control-sm" placeholder="Coach" style={{ width: '40%' }} value={p.coach} onChange={(e) => {
-                          const newPax = [...editYatriModal.passengers];
-                          newPax[idx].coach = e.target.value;
-                          setEditYatriModal({...editYatriModal, passengers: newPax});
-                        }} />
-                        <input type="text" className="form-control form-control-sm" placeholder="Seat" style={{ width: '60%' }} value={p.seat} onChange={(e) => {
-                          const newPax = [...editYatriModal.passengers];
-                          newPax[idx].seat = e.target.value;
-                          setEditYatriModal({...editYatriModal, passengers: newPax});
-                        }} />
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          placeholder="e.g. 12 or AUTO"
+                          value={p.seatAssigned ?? ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const newPax = [...editYatriModal.passengers];
+                            newPax[idx] = {
+                              ...newPax[idx],
+                              seatAssigned: val,
+                              berthPreference: (val && val.toUpperCase() !== 'AUTO') ? getBerthType(val, editYatriModal.travelClass).split(' ')[0] : newPax[idx].berthPreference
+                            };
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-xs btn-outline"
+                          title="सीट खाली होने पर AUTO चुनें"
+                          onClick={() => {
+                            const newPax = [...editYatriModal.passengers];
+                            newPax[idx] = { ...newPax[idx], seatAssigned: 'AUTO' };
+                            setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                          }}
+                        >
+                          AUTO
+                        </button>
                       </div>
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.8rem', color: '#6B7280' }}>स्थिति</label>
-                      <select className="form-control form-control-sm" value={p.status || 'CNF'} onChange={(e) => {
+                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>उपस्थिति स्थिति</label>
+                      <select
+                        className="form-control form-control-sm"
+                        value={p.checkInStatus || 'Pending'}
+                        onChange={(e) => {
                           const newPax = [...editYatriModal.passengers];
-                          newPax[idx].status = e.target.value;
-                          setEditYatriModal({...editYatriModal, passengers: newPax});
-                        }}>
-                          <option value="CNF">CNF (Confirmed)</option>
-                          <option value="WL">WL (Waitlist)</option>
-                          <option value="RAC">RAC</option>
-                          <option value="CAN">CAN (Cancelled)</option>
+                          newPax[idx] = { ...newPax[idx], checkInStatus: e.target.value };
+                          setEditYatriModal({ ...editYatriModal, passengers: newPax });
+                        }}
+                      >
+                        <option value="Pending">Pending (प्रतीक्षारत)</option>
+                        <option value="Present">Present (उपस्थित)</option>
+                        <option value="Absent">Absent (अनुपस्थित)</option>
                       </select>
                     </div>
                   </div>
                 </div>
               ))}
+
+              {/* Fare & Payment Summary */}
+              {(() => {
+                const paxCount = editYatriModal.passengers.length;
+                const unitFareEst = Number(editYatriModal.unitPrice || 0);
+                const estTotal = editYatriModal.recalculateFare ? (unitFareEst * paxCount) : Number(editYatriModal.totalAmount || 0);
+                const estDue = Math.max(0, estTotal - (Number(editYatriModal.advance || 0) + Number(editYatriModal.discount || 0)));
+                return (
+                  <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: 12, marginTop: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0, cursor: 'pointer', fontWeight: 800, color: '#065F46', fontSize: '0.86rem' }}>
+                        <input
+                          type="checkbox"
+                          checked={editYatriModal.recalculateFare}
+                          onChange={(e) => setEditYatriModal({ ...editYatriModal, recalculateFare: e.target.checked })}
+                          style={{ width: 16, height: 16, accentColor: '#059669' }}
+                        />
+                        यात्रियों की संख्या के अनुसार किराया स्वतः पुनः गणना करें (₹{unitFareEst} × {paxCount} = ₹{unitFareEst * paxCount})
+                      </label>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, fontSize: '0.84rem' }}>
+                      <div>
+                        <span style={{ color: '#065F46' }}>नया कुल किराया:</span>
+                        <div style={{ fontWeight: 900, color: '#047857', fontSize: '1.05rem' }}>₹ {estTotal.toLocaleString('en-IN')}</div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#065F46' }}>अग्रिम जमा (Advance):</span>
+                        <div style={{ fontWeight: 800 }}>₹ {Number(editYatriModal.advance || 0).toLocaleString('en-IN')}</div>
+                      </div>
+                      <div>
+                        <span style={{ color: '#065F46' }}>छूट (Discount):</span>
+                        <div style={{ fontWeight: 800 }}>₹ {Number(editYatriModal.discount || 0).toLocaleString('en-IN')}</div>
+                      </div>
+                      <div>
+                        <span style={{ color: estDue > 0 ? '#B91C1C' : '#047857' }}>अनुमानित शेष देय:</span>
+                        <div style={{ fontWeight: 900, color: estDue > 0 ? '#DC2626' : '#059669', fontSize: '1.05rem' }}>₹ {estDue.toLocaleString('en-IN')}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
-              <button className="btn btn-outline" onClick={() => setEditYatriModal(null)}>रद्द करें</button>
-              <button className="btn btn-primary" onClick={async () => {
-                const btn = document.activeElement;
-                const prev = btn.innerText;
-                btn.innerText = 'Updating...';
-                try {
-                  const res = await fetch(`/api/admin/bookings/${editYatriModal.bookingId}?token=${staffToken}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ passengers: editYatriModal.passengers })
-                  });
-                  const data = await res.json();
-                  if (data.success) {
-                    alert('यात्री विवरण सफलतापूर्वक अपडेट हो गया!');
-                    fetchAdminData();
-                    setEditYatriModal(null);
-                  } else {
-                    alert('Error: ' + data.error);
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16, borderTop: '1px solid #E5E7EB', paddingTop: 12 }}>
+              <button type="button" className="btn btn-outline" onClick={() => setEditYatriModal(null)}>रद्द करें</button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={async (e) => {
+                  const missingIdx = editYatriModal.passengers.findIndex(p => !String(p.name || '').trim());
+                  if (missingIdx >= 0) {
+                    setEditYatriModal({ ...editYatriModal, saveError: `कृपया यात्री #${missingIdx + 1} का नाम भरें।` });
+                    return;
                   }
-                } catch (e) {
-                  alert('Network error');
-                }
-                btn.innerText = prev;
-              }}>अपडेट सेव करें (Save)</button>
+                  const btn = e.currentTarget;
+                  const prev = btn.innerText;
+                  btn.innerText = 'Updating...';
+                  btn.disabled = true;
+                  try {
+                    const res = await fetch(`/api/admin/bookings/${encodeURIComponent(editYatriModal.bookingId)}?token=${encodeURIComponent(staffToken)}`, {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + staffToken
+                      },
+                      body: JSON.stringify({
+                        bookedBy: editYatriModal.bookedBy,
+                        mobile: editYatriModal.mobile,
+                        aadhar: editYatriModal.aadhar,
+                        fromStation: editYatriModal.fromStation,
+                        travelDate: editYatriModal.travelDate,
+                        travelClass: editYatriModal.travelClass,
+                        coachName: editYatriModal.coachName,
+                        coachDisplayName: editYatriModal.coachDisplayName,
+                        offlineReceiptNo: editYatriModal.offlineReceiptNo,
+                        advance: Number(editYatriModal.advance || 0),
+                        discount: Number(editYatriModal.discount || 0),
+                        unitPrice: editYatriModal.recalculateFare ? Number(editYatriModal.unitPrice || 0) : undefined,
+                        recalculateFare: editYatriModal.recalculateFare,
+                        passengers: editYatriModal.passengers.map(p => ({
+                          name: String(p.name || '').trim(),
+                          age: p.age,
+                          gender: p.gender || 'Male',
+                          aadhar: p.aadhar || '',
+                          seatAssigned: String(p.seatAssigned || 'AUTO').trim(),
+                          berthPreference: p.berthPreference || 'Berth',
+                          checkInStatus: p.checkInStatus || 'Pending'
+                        }))
+                      })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      if (searchedTicket?.bookingId === editYatriModal.bookingId && data.booking) {
+                        setSearchedTicket(data.booking);
+                      }
+                      alert('बुकिंग एवं यात्री विवरण सफलतापूर्वक अपडेट हो गया!');
+                      refreshAllBookingViews();
+                      setEditYatriModal(null);
+                    } else {
+                      setEditYatriModal({ ...editYatriModal, saveError: data.error || 'अपडेट विफल रहा।' });
+                    }
+                  } catch (err) {
+                    setEditYatriModal({ ...editYatriModal, saveError: 'नेटवर्क त्रुटि: ' + err.message });
+                  } finally {
+                    btn.innerText = prev;
+                    btn.disabled = false;
+                  }
+                }}
+              >
+                अपडेट सेव करें (Save Changes)
+              </button>
             </div>
           </div>
         </div>
@@ -9562,15 +10266,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       newPaymentHistory.push(editReceiptModal.txn);
                   }
 
-                  const res = await fetch(`/api/admin/bookings/${editReceiptModal.booking.bookingId}?token=${staffToken}`, {
+                  const res = await fetch(`/api/admin/bookings/${editReceiptModal.booking.bookingId}?token=${encodeURIComponent(staffToken)}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer ' + staffToken
+                    },
                     body: JSON.stringify({ paymentHistory: newPaymentHistory })
                   });
                   const data = await res.json();
                   if (data.success) {
                     alert('रसीद सफलतापूर्वक अपडेट हो गई!');
-                    fetchAdminData();
+                    refreshAllBookingViews();
                     setEditReceiptModal(null);
                   } else {
                     alert('Error: ' + data.error);
@@ -9621,15 +10328,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               btn.disabled = true;
               
               try {
-                const res = await fetch(`/api/admin/bookings/${cancelRefundModal.bookingId}/cancel?token=${staffToken}`, {
+                const res = await fetch(`/api/admin/bookings/${cancelRefundModal.bookingId}/cancel?token=${encodeURIComponent(staffToken)}`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + staffToken
+                  },
                   body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 if (data.success) {
                   alert('टिकट सफलतापूर्वक रद्द और रिफंड किया गया!');
-                  fetchAdminData();
+                  refreshAllBookingViews();
                   setCancelRefundModal(null);
                 } else {
                   alert('Error: ' + data.error);
@@ -9795,7 +10505,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '14px 0' }}>
                 <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>प्रारूप नमूना चाहिए?</span>
-                <a href="/api/admin/sample-template?token=mvd_admin_token" className="btn btn-gold btn-sm">
+                <a href={`/api/admin/sample-template?token=${safeStaffToken}`} className="btn btn-gold btn-sm">
                   नमूना टेम्पलेट डाउनलोड करें
                 </a>
               </div>
@@ -9967,7 +10677,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         : [
                             { id: 'SuperAdmin', name: 'ट्रस्ट मुख्य व्यवस्थापक (Super Admin)' },
                             { id: 'TTE', name: 'चल टिकट परीक्षक (TTE / On-Train Officer)' },
-                            { id: 'BookingClerk', name: 'काउंटर आरक्षण लिपik (Booking Clerk)' },
+                            { id: 'BookingClerk', name: 'काउंटर आरक्षण लिपिक (Booking Clerk)' },
                             { id: 'FinanceOfficer', name: 'लेखा व कोषाध्यक्ष अधिकारी (Finance Officer)' },
                             { id: 'StationMaster', name: 'स्टेशन समन्वयक (Station Coordinator)' }
                           ]
@@ -10082,7 +10792,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     onChange={(e) => {
                       const cl = e.target.value;
                       const cap = cl === 'Sleeper' ? 72 : cl === '3 AC' ? 64 : cl === '2 AC' ? 48 : cl === 'General' ? 80 : 0;
-                      const fare = cl === 'Sleeper' ? (projectSettings.fareSleeper || 3000) : (cl === '3 AC' || cl === '2 AC') ? (projectSettings.fareAC || 4000) : cl === 'General' ? (projectSettings.fareGeneral || 2000) : 0;
+                      const fare = cl === 'Sleeper'
+                        ? (projectSettings?.fares?.Sleeper ?? projectSettings?.fareSleeper ?? 3000)
+                        : (cl === '3 AC' || cl === '2 AC')
+                          ? (projectSettings?.fares?.AC ?? projectSettings?.fareAC ?? 0)
+                          : cl === 'General'
+                            ? (projectSettings?.fares?.General ?? projectSettings?.fareGeneral ?? 2000)
+                            : 0;
                       setNewCoachForm({
                         ...newCoachForm,
                         coachClass: cl,
@@ -10236,7 +10952,13 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     onChange={(e) => {
                       const cl = e.target.value;
                       const cap = cl === 'Sleeper' ? 72 : cl === '3 AC' ? 64 : cl === '2 AC' ? 48 : cl === 'General' ? 80 : 0;
-                      const fare = cl === 'Sleeper' ? (projectSettings.fareSleeper || 3000) : (cl === '3 AC' || cl === '2 AC') ? (projectSettings.fareAC || 4000) : cl === 'General' ? (projectSettings.fareGeneral || 2000) : 0;
+                      const fare = cl === 'Sleeper'
+                        ? (projectSettings?.fares?.Sleeper ?? projectSettings?.fareSleeper ?? 3000)
+                        : (cl === '3 AC' || cl === '2 AC')
+                          ? (projectSettings?.fares?.AC ?? projectSettings?.fareAC ?? 0)
+                          : cl === 'General'
+                            ? (projectSettings?.fares?.General ?? projectSettings?.fareGeneral ?? 2000)
+                            : 0;
                       setEditCoachForm({ 
                         ...editCoachForm, 
                         coachClass: cl,
@@ -10704,11 +11426,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           color: '#7C2D12', fontSize: '0.9rem', boxShadow: '0 -4px 15px rgba(230,81,0,0.05)'
         }}>
           <div style={{ color: '#9A3412', fontWeight: 900, fontSize: '1.1rem', marginBottom: 4 }}>
-            श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट
+            {projectSettings?.trustName || 'श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट'}
           </div>
-          <div>Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India</div>
+          <div>{projectSettings?.officeAddress || 'Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India'}</div>
           <div style={{ marginTop: 8, color: '#C2410C', fontSize: '0.85rem', fontWeight: 700 }}>
-            हेल्पलाइन: +91 7398959993 • ईमेल: infomatavaishnodevi@gmail.com • ।। जय माता दी ।।
+            हेल्पलाइन: {projectSettings?.helplineNumber || '+91 7398959993'} • ईमेल: {projectSettings?.officialEmail || 'infomatavaishnodevi@gmail.com'} • ।। जय माता दी ।।
           </div>
           <div style={{
             marginTop: 16,

@@ -16,12 +16,39 @@ const COACH_CONFIG = {
 
 const { SettingsService } = require('./settingsService');
 
+function normalizeClassKey(cls, coachCode = '') {
+  const c = String(cls || '').trim().toUpperCase();
+  const code = String(coachCode || '').trim().toUpperCase();
+  if (c === 'AC' || c === '3 AC' || c === '2 AC' || c === '1 AC' || c === '3A' || c === '2A' || c === '1A') return 'AC';
+  if (c === 'SLEEPER' || c === 'SL') return 'Sleeper';
+  if (c === 'GENERAL' || c === '2S' || c === 'GS' || c === 'GUARD / SLR' || c === 'SLR') return 'General';
+  if (code.startsWith('A') || code.startsWith('B') || code.startsWith('H')) return 'AC';
+  if (code.startsWith('S') && !code.startsWith('SLR')) return 'Sleeper';
+  return 'General';
+}
+
+async function resolveCoachAndSettings(coachCode, travelClass) {
+  let coachMeta = null;
+  let settings = null;
+  try {
+    settings = await SettingsService.getSettings();
+  } catch (e) {}
+  try {
+    const { CoachService } = require('./coachService');
+    const all = await CoachService.getAllCoaches();
+    const target = String(coachCode || '').trim().toUpperCase();
+    coachMeta = all.find(c => String(c.coachCode || '').trim().toUpperCase() === target) || null;
+  } catch (e) {}
+  const normClass = normalizeClassKey(travelClass || coachMeta?.coachClass, coachCode);
+  return { coachMeta, settings, normClass };
+}
+
 // Calculate berth type based on Indian Railways standard layout (8-seat bay)
 function getBerthType(seatNum, travelClass) {
   const num = parseInt(seatNum, 10);
   if (isNaN(num)) return 'Chair';
-  if (travelClass === 'General') return 'General';
-  
+  if (normalizeClassKey(travelClass) === 'General') return 'General';
+
   const mod = num % 8;
   if (mod === 1 || mod === 4) return 'Lower';
   if (mod === 2 || mod === 5) return 'Middle';
@@ -180,13 +207,49 @@ class BookingService {
     return isRefund ? `R${yr}${padded}-REF` : `R${yr}${padded}`;
   }
 
+  static async getCoachDisplayMap() {
+    const map = {};
+    try {
+      const { CoachService } = require('./coachService');
+      const all = await CoachService.getAllCoaches();
+      all.forEach(c => {
+        const code = String(c.coachCode || '').trim().toUpperCase();
+        if (code && c.coachName) {
+          map[code] = String(c.coachName).trim();
+        }
+      });
+    } catch (e) {}
+    return map;
+  }
+
+  static enrichBookingWithCoachDisplay(booking, coachDisplayMap = {}) {
+    if (!booking) return booking;
+    const code = String(booking.coachName || '').trim().toUpperCase();
+    const liveName = coachDisplayMap[code] || booking.coachDisplayName || '';
+    const enriched = {
+      ...booking,
+      coachDisplayName: liveName
+    };
+    if (booking.cancellationDetails && booking.cancellationDetails.originalCoach) {
+      const origCode = String(booking.cancellationDetails.originalCoach).trim().toUpperCase();
+      enriched.cancellationDetails = {
+        ...booking.cancellationDetails,
+        originalCoachDisplayName: coachDisplayMap[origCode] || booking.cancellationDetails.originalCoachDisplayName || liveName
+      };
+    }
+    return enriched;
+  }
+
   // Get all bookings with optional filters
   static async getBookings(filters = {}) {
-    const snapshot = await db.collection('bookings').get();
+    const [snapshot, coachDisplayMap] = await Promise.all([
+      db.collection('bookings').get(),
+      this.getCoachDisplayMap()
+    ]);
     let list = [];
     snapshot.docs.forEach(doc => {
       const data = doc.data();
-      list.push({ ...data, id: doc.id });
+      list.push(this.enrichBookingWithCoachDisplay({ ...data, id: doc.id }, coachDisplayMap));
     });
 
     // Apply filtering
@@ -194,7 +257,8 @@ class BookingService {
       list = list.filter(b => String(b.yatraYear) === String(filters.yatraYear));
     }
     if (filters.coachName) {
-      list = list.filter(b => b.coachName === filters.coachName);
+      const targetCoach = String(filters.coachName).trim().toUpperCase();
+      list = list.filter(b => String(b.coachName || '').trim().toUpperCase() === targetCoach);
     }
     if (filters.travelClass) {
       list = list.filter(b => b.travelClass === filters.travelClass);
@@ -213,6 +277,7 @@ class BookingService {
         (b.mobile && b.mobile.includes(q)) ||
         (b.aadhar && b.aadhar.includes(q)) ||
         (b.offlineReceiptNo && b.offlineReceiptNo.toLowerCase().includes(q)) ||
+        (b.coachDisplayName && b.coachDisplayName.toLowerCase().includes(q)) ||
         (b.passengers && b.passengers.some(p => p.name && p.name.toLowerCase().includes(q)))
       );
     }
@@ -226,18 +291,19 @@ class BookingService {
   static async getBookingByIdOrPNR(identifier) {
     if (!identifier) return null;
     const clean = identifier.trim();
+    const enrich = async (raw) => this.enrichBookingWithCoachDisplay(raw, await this.getCoachDisplayMap());
 
     // Check by doc id first
     const doc = await db.collection('bookings').doc(clean).get();
     if (doc.exists) {
-      return { ...doc.data(), id: doc.id };
+      return enrich({ ...doc.data(), id: doc.id });
     }
 
     // Check by bookingId / PNR field
     const query = await db.collection('bookings').where('bookingId', '==', clean).get();
     if (!query.empty) {
       const first = query.docs[0];
-      return { ...first.data(), id: first.id };
+      return enrich({ ...first.data(), id: first.id });
     }
 
     // Check by offline receipt number (exact match)
@@ -245,7 +311,7 @@ class BookingService {
       const receiptQuery = await db.collection('bookings').where('offlineReceiptNo', '==', clean).get();
       if (!receiptQuery.empty) {
         const first = receiptQuery.docs[0];
-        return { ...first.data(), id: first.id };
+        return enrich({ ...first.data(), id: first.id });
       }
 
       // Case-insensitive / whitespace-tolerant fallback for offline receipt number
@@ -256,31 +322,90 @@ class BookingService {
         return val && String(val).trim().toLowerCase() === needle;
       });
       if (matchDoc) {
-        return { ...matchDoc.data(), id: matchDoc.id };
+        return enrich({ ...matchDoc.data(), id: matchDoc.id });
       }
     }
 
     return null;
   }
 
-  // Create new booking with passenger array and dynamic fare calculation
+  // Create new booking with passenger array, seat validation, and dynamic fare calculation
   static async createBooking(payload) {
-    const yatraYear = payload.yatraYear || 2026;
+    const yatraYear = parseInt(payload.yatraYear, 10) || 2026;
     const bookingId = payload.bookingId || await this.generateBookingId(yatraYear);
 
-    const passengerCount = parseInt(payload.numberOfPassengers, 10) || (payload.passengers ? payload.passengers.length : 1);
+    const coachCode = String(payload.coachName || 'S1').trim().toUpperCase();
+    const passengerCount = parseInt(payload.numberOfPassengers, 10) || (Array.isArray(payload.passengers) ? payload.passengers.length : 1) || 1;
     const travelClass = payload.travelClass || 'Sleeper';
-    
-    // Dynamically fetch fare from Settings
-    let unitPrice = FARES[travelClass] || 3000;
-    try {
-      const settings = await SettingsService.getSettings();
-      if (settings && settings.fares && settings.fares[travelClass]) {
-        unitPrice = Number(settings.fares[travelClass]);
-      }
-    } catch (e) {}
 
-    if (payload.unitPrice) {
+    const { coachMeta, settings, normClass } = await resolveCoachAndSettings(coachCode, travelClass);
+    const coachCapacity = coachMeta ? Number(coachMeta.totalSeats || 0) : (normClass === 'AC' ? 64 : normClass === 'General' ? 18 : 72);
+
+    // Build set of currently occupied seats in this coach & year (active bookings only)
+    const yearCoachBookings = await this.getBookings({ coachName: coachCode, yatraYear });
+    const occupiedSeats = new Set();
+    yearCoachBookings.forEach(b => {
+      if (b.status !== 'Cancelled') {
+        if (Array.isArray(b.seatNumber)) {
+          b.seatNumber.forEach(s => occupiedSeats.add(String(s).trim()));
+        }
+        if (Array.isArray(b.passengers)) {
+          b.passengers.forEach(p => {
+            if (p.seatAssigned && p.seatAssigned !== 'Cancelled') {
+              occupiedSeats.add(String(p.seatAssigned).trim());
+            }
+          });
+        }
+      }
+    });
+
+    // Determine requested seat numbers or auto-assign vacant seats
+    let seatNumbers = [];
+    if (Array.isArray(payload.seatNumber)) {
+      seatNumbers = payload.seatNumber.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof payload.seatNumber === 'string' && payload.seatNumber.trim()) {
+      seatNumbers = payload.seatNumber.split(',').map(s => s.trim()).filter(Boolean);
+    } else if (Array.isArray(payload.passengers)) {
+      seatNumbers = payload.passengers.map(p => String(p.seatAssigned || '').trim()).filter(Boolean);
+    }
+
+    if (seatNumbers.length > 0) {
+      const seenRequested = new Set();
+      for (const s of seatNumbers) {
+        if (seenRequested.has(s)) {
+          throw new Error(`सीट नंबर ${s} एक से अधिक यात्रियों को आवंटित नहीं किया जा सकता।`);
+        }
+        seenRequested.add(s);
+        if (occupiedSeats.has(s)) {
+          throw new Error(`सीट नंबर ${s} कोच ${coachCode} (${yatraYear}) में पहले से आरक्षित है। कृपया अन्य खाली सीट चुनें।`);
+        }
+        const n = parseInt(s, 10);
+        if (coachCapacity > 0 && (!isNaN(n) && (n < 1 || n > coachCapacity))) {
+          throw new Error(`कोच ${coachCode} में अधिकतम ${coachCapacity} सीटें हैं (अमान्य सीट: ${s})।`);
+        }
+      }
+    } else {
+      const cap = coachCapacity > 0 ? coachCapacity : 72;
+      for (let i = 1; i <= cap && seatNumbers.length < passengerCount; i++) {
+        const s = String(i);
+        if (!occupiedSeats.has(s)) {
+          seatNumbers.push(s);
+        }
+      }
+      if (seatNumbers.length < passengerCount) {
+        throw new Error(`कोच ${coachCode} में ${passengerCount} रिक्त सीटें उपलब्ध नहीं हैं।`);
+      }
+    }
+
+    // Dynamically fetch fare from Coach Master / Settings
+    let unitPrice = FARES[normClass] !== undefined ? FARES[normClass] : 3000;
+    if (coachMeta && coachMeta.fare !== undefined && Number(coachMeta.fare) > 0) {
+      unitPrice = Number(coachMeta.fare);
+    }
+    if (settings && settings.fares && settings.fares[normClass] !== undefined && Number(settings.fares[normClass]) > 0) {
+      unitPrice = Number(settings.fares[normClass]);
+    }
+    if (payload.unitPrice !== undefined && payload.unitPrice !== '') {
       unitPrice = Number(payload.unitPrice);
     }
 
@@ -297,33 +422,32 @@ class BookingService {
       paymentStatus = 'Partial';
     }
 
-    // Format seat numbers
-    let seatNumbers = [];
-    if (Array.isArray(payload.seatNumber)) {
-      seatNumbers = payload.seatNumber;
-    } else if (typeof payload.seatNumber === 'string') {
-      seatNumbers = payload.seatNumber.split(',').map(s => s.trim()).filter(Boolean);
-    }
-
     // Format passengers
-    const passengers = (payload.passengers || []).map((p, idx) => ({
-      name: p.name || `Yatri ${idx + 1}`,
-      age: parseInt(p.age, 10) || null,
-      gender: p.gender || 'Male',
-      aadhar: p.aadhar || '',
-      mobile: p.mobile || payload.mobile || '',
-      berthPreference: p.berthPreference || getBerthType(seatNumbers[idx] || (idx + 1), travelClass),
-      seatAssigned: seatNumbers[idx] || `${idx + 1}`
-    }));
+    const passengers = (payload.passengers || []).map((p, idx) => {
+      const assigned = String(p.seatAssigned || seatNumbers[idx] || (idx + 1)).trim();
+      return {
+        name: p.name || `Yatri ${idx + 1}`,
+        age: parseInt(p.age, 10) || null,
+        gender: p.gender || 'Male',
+        aadhar: p.aadhar || '',
+        mobile: p.mobile || payload.mobile || '',
+        berthPreference: p.berthPreference || getBerthType(assigned, normClass),
+        seatAssigned: assigned,
+        checkInStatus: p.checkInStatus || 'Pending'
+      };
+    });
+
+    const finalSeats = seatNumbers.length > 0 ? seatNumbers : passengers.map(p => String(p.seatAssigned));
 
     const bookingData = {
       bookingId,
-      yatraYear: parseInt(yatraYear, 10),
+      yatraYear,
       fromStation: payload.fromStation || 'New Delhi (NDLS)',
       toStation: payload.toStation || 'Shri Mata Vaishno Devi Katra (SVDK)',
-      travelClass,
-      coachName: payload.coachName || 'S1',
-      seatNumber: seatNumbers.length > 0 ? seatNumbers : passengers.map((_, i) => String(i + 1)),
+      travelClass: normClass,
+      coachName: coachCode,
+      coachDisplayName: coachMeta?.coachName || '',
+      seatNumber: finalSeats,
       travelDate: payload.date || payload.travelDate || new Date().toISOString().split('T')[0],
       bookedBy: payload.bookedBy || (passengers[0] ? passengers[0].name : 'Devotee'),
       aadhar: payload.aadhar || (passengers[0] ? passengers[0].aadhar : ''),
@@ -364,19 +488,201 @@ class BookingService {
     return bookingData;
   }
 
-  // Update existing booking
-  static async updateBooking(bookingId, updates, adminName = 'System') {
+  // Update existing booking (supports Add/Delete/Edit Yatris, coach transfer, seat collision guard, and fare recalculation)
+  static async updateBooking(bookingId, updates = {}, adminName = 'System') {
     const existing = await this.getBookingByIdOrPNR(bookingId);
     if (!existing) throw new Error(`Booking ${bookingId} not found`);
+
+    const actorName = typeof adminName === 'object' ? (adminName.name || adminName.username || 'Admin') : (adminName || 'System');
+    const prevPaxCount = Number(existing.numberOfPassengers) || (Array.isArray(existing.passengers) ? existing.passengers.length : 1) || 1;
+    const prevCoach = String(existing.coachName || 'S1').trim().toUpperCase();
+    const prevSeats = Array.isArray(existing.seatNumber) ? existing.seatNumber : (existing.seatNumber ? [existing.seatNumber] : []);
+
+    const targetYear = updates.yatraYear !== undefined ? (parseInt(updates.yatraYear, 10) || existing.yatraYear) : existing.yatraYear;
+    const targetCoach = updates.coachName !== undefined ? String(updates.coachName).trim().toUpperCase() : prevCoach;
+    const targetClassRaw = updates.travelClass !== undefined ? updates.travelClass : existing.travelClass;
+    const targetStatus = updates.status !== undefined ? updates.status : existing.status;
+
+    const { coachMeta, settings, normClass } = await resolveCoachAndSettings(targetCoach, targetClassRaw);
+    const coachCapacity = coachMeta ? Number(coachMeta.totalSeats || 0) : 0;
+
+    // Build set of occupied seats from ALL OTHER active bookings in the target (coach, year)
+    const needsSeatCheck = targetStatus !== 'Cancelled' && (
+      updates.passengers !== undefined ||
+      updates.seatNumber !== undefined ||
+      updates.coachName !== undefined ||
+      updates.yatraYear !== undefined
+    );
+
+    const otherOccupiedSeats = new Set();
+    if (needsSeatCheck) {
+      const cohortBookings = await this.getBookings({ coachName: targetCoach, yatraYear: targetYear });
+      cohortBookings.forEach(b => {
+        if (b.bookingId !== existing.bookingId && b.status !== 'Cancelled') {
+          if (Array.isArray(b.seatNumber)) {
+            b.seatNumber.forEach(s => otherOccupiedSeats.add(String(s).trim()));
+          }
+          if (Array.isArray(b.passengers)) {
+            b.passengers.forEach(p => {
+              if (p.seatAssigned && p.seatAssigned !== 'Cancelled') {
+                otherOccupiedSeats.add(String(p.seatAssigned).trim());
+              }
+            });
+          }
+        }
+      });
+    }
 
     const updatedData = {
       ...existing,
       ...updates,
+      yatraYear: targetYear,
+      coachName: targetCoach,
+      coachDisplayName: coachMeta?.coachName || existing.coachDisplayName || '',
+      travelClass: normClass,
       updatedAt: new Date().toISOString()
     };
+    delete updatedData.recalculateFare;
 
-    // Recalculate remaining amount and status if financial values change
-    if (updates.totalAmount !== undefined || updates.advance !== undefined || updates.discount !== undefined) {
+    let passengerMutationNote = '';
+
+    // Handle full passenger array update (Add Yatri / Delete Yatri / Edit Yatri / Attendance Check-In)
+    if (updates.passengers !== undefined) {
+      if (!Array.isArray(updates.passengers)) {
+        throw new Error('यात्रियों की सूची (passengers) अमान्य है।');
+      }
+      if (targetStatus !== 'Cancelled' && updates.passengers.length === 0) {
+        throw new Error('कम से कम 1 यात्री होना अनिवार्य है। पूरी बुकिंग समाप्त करने के लिए Cancel / Delete विकल्प चुनें।');
+      }
+
+      const fallbackSeats = Array.isArray(updates.seatNumber)
+        ? updates.seatNumber.map(s => String(s).trim())
+        : (typeof updates.seatNumber === 'string' ? updates.seatNumber.split(',').map(s => s.trim()).filter(Boolean) : []);
+
+      const seenInBooking = new Set();
+      const normalizedPassengers = updates.passengers.map((p, idx) => {
+        const cleanName = String(p?.name || '').trim();
+        if (!cleanName && targetStatus !== 'Cancelled') {
+          throw new Error(`यात्री #${idx + 1} का पूरा नाम भरना अनिवार्य है।`);
+        }
+
+        let seatStr = String(p?.seatAssigned ?? p?.seat ?? p?.seatNumber ?? fallbackSeats[idx] ?? '').trim();
+        if (targetStatus !== 'Cancelled') {
+          if (!seatStr || seatStr.toUpperCase() === 'AUTO') {
+            const capLimit = coachCapacity > 0 ? coachCapacity : 72;
+            let assignedAuto = '';
+            for (let s = 1; s <= capLimit; s++) {
+              const cand = String(s);
+              if (!otherOccupiedSeats.has(cand) && !seenInBooking.has(cand)) {
+                assignedAuto = cand;
+                break;
+              }
+            }
+            if (!assignedAuto) {
+              throw new Error(`कोच ${targetCoach} में यात्री #${idx + 1} के लिए कोई खाली सीट उपलब्ध नहीं है।`);
+            }
+            seatStr = assignedAuto;
+          }
+
+          if (seenInBooking.has(seatStr)) {
+            throw new Error(`सीट नंबर ${seatStr} एक ही बुकिंग के दो यात्रियों को आवंटित नहीं की जा सकती।`);
+          }
+          if (otherOccupiedSeats.has(seatStr)) {
+            throw new Error(`सीट नंबर ${seatStr} कोच ${targetCoach} (${targetYear}) में पहले से किसी अन्य टिकट पर आरक्षित है। कृपया खाली सीट चुनें।`);
+          }
+          const seatNum = parseInt(seatStr, 10);
+          if (coachCapacity > 0 && (isNaN(seatNum) || seatNum < 1 || seatNum > coachCapacity)) {
+            throw new Error(`कोच ${targetCoach} में केवल 1 से ${coachCapacity} तक सीटें उपलब्ध हैं (अमान्य सीट: ${seatStr})।`);
+          }
+          seenInBooking.add(seatStr);
+        }
+
+        const rawCheckIn = String(p?.checkInStatus || '').trim();
+        const checkInStatus = ['Present', 'Absent', 'Pending', 'Cancelled'].includes(rawCheckIn)
+          ? rawCheckIn
+          : (targetStatus === 'Cancelled' ? 'Cancelled' : 'Pending');
+
+        return {
+          name: cleanName || existing.bookedBy || `Yatri ${idx + 1}`,
+          age: p?.age !== undefined && p?.age !== '' && p?.age !== null ? (parseInt(p.age, 10) || null) : null,
+          gender: p?.gender || 'Male',
+          aadhar: String(p?.aadhar || '').trim(),
+          mobile: String(p?.mobile || updatedData.mobile || existing.mobile || '').trim(),
+          berthPreference: (updates.coachName !== undefined || updates.travelClass !== undefined || String(seatStr) !== String(prevSeats[idx] || ''))
+            ? getBerthType(seatStr, normClass)
+            : (p?.berthPreference || getBerthType(seatStr, normClass)),
+          seatAssigned: targetStatus === 'Cancelled' ? 'Cancelled' : seatStr,
+          checkInStatus
+        };
+      });
+
+      updatedData.passengers = normalizedPassengers;
+      updatedData.numberOfPassengers = normalizedPassengers.length;
+      updatedData.seatNumber = targetStatus === 'Cancelled' ? [] : normalizedPassengers.map(p => String(p.seatAssigned));
+
+      if (normalizedPassengers.length !== prevPaxCount || prevCoach !== targetCoach || prevSeats.join(',') !== updatedData.seatNumber.join(',')) {
+        passengerMutationNote = ` [यात्री: ${prevPaxCount} → ${normalizedPassengers.length}, कोच: ${prevCoach} → ${targetCoach}, सीटें: ${prevSeats.join(',')} → ${updatedData.seatNumber.join(',')}]`;
+      }
+    } else if (needsSeatCheck) {
+      // Coach/Year/SeatNumber changed directly without passing passengers array
+      const seatList = Array.isArray(updatedData.seatNumber)
+        ? updatedData.seatNumber.map(s => String(s).trim()).filter(Boolean)
+        : (typeof updatedData.seatNumber === 'string' ? updatedData.seatNumber.split(',').map(s => s.trim()).filter(Boolean) : prevSeats);
+
+      const seen = new Set();
+      for (const s of seatList) {
+        if (seen.has(s)) throw new Error(`सीट नंबर ${s} दोहराया नहीं जा सकता।`);
+        seen.add(s);
+        if (otherOccupiedSeats.has(s)) {
+          throw new Error(`सीट नंबर ${s} कोच ${targetCoach} (${targetYear}) में पहले से आरक्षित है।`);
+        }
+        const n = parseInt(s, 10);
+        if (coachCapacity > 0 && !isNaN(n) && (n < 1 || n > coachCapacity)) {
+          throw new Error(`कोच ${targetCoach} में केवल 1 से ${coachCapacity} तक सीटें उपलब्ध हैं।`);
+        }
+      }
+      updatedData.seatNumber = seatList;
+      if (Array.isArray(updatedData.passengers)) {
+        updatedData.passengers = updatedData.passengers.map((p, idx) => {
+          const s = seatList[idx] || String(p.seatAssigned || idx + 1);
+          return { ...p, seatAssigned: s, berthPreference: getBerthType(s, normClass) };
+        });
+      }
+    }
+
+    // Fare & payment recalculation
+    const newPaxCount = Number(updatedData.numberOfPassengers) || (Array.isArray(updatedData.passengers) ? updatedData.passengers.length : 1) || 1;
+    let effectiveUnitPrice = Number(existing.unitPrice) || Math.round((Number(existing.totalAmount) || 0) / Math.max(1, prevPaxCount)) || 3000;
+    if (updates.unitPrice !== undefined && updates.unitPrice !== '') {
+      effectiveUnitPrice = Number(updates.unitPrice);
+    } else if (updates.coachName !== undefined || updates.travelClass !== undefined) {
+      if (coachMeta && coachMeta.fare !== undefined && Number(coachMeta.fare) > 0) {
+        effectiveUnitPrice = Number(coachMeta.fare);
+      } else if (settings && settings.fares && settings.fares[normClass] !== undefined && Number(settings.fares[normClass]) > 0) {
+        effectiveUnitPrice = Number(settings.fares[normClass]);
+      } else if (FARES[normClass] !== undefined) {
+        effectiveUnitPrice = Number(FARES[normClass]);
+      }
+    }
+    updatedData.unitPrice = effectiveUnitPrice;
+
+    const shouldAutoRecalcTotal = updates.recalculateFare === false
+      ? false
+      : (updates.recalculateFare === true ||
+        (updates.totalAmount === undefined && (newPaxCount !== prevPaxCount || updates.coachName !== undefined || updates.travelClass !== undefined || updates.unitPrice !== undefined)));
+
+    if (shouldAutoRecalcTotal) {
+      updatedData.totalAmount = effectiveUnitPrice * newPaxCount;
+    } else if (updates.totalAmount !== undefined && updates.totalAmount !== '') {
+      updatedData.totalAmount = Number(updates.totalAmount);
+    }
+
+    if (
+      shouldAutoRecalcTotal ||
+      updates.totalAmount !== undefined ||
+      updates.advance !== undefined ||
+      updates.discount !== undefined
+    ) {
       const tot = parseFloat(updatedData.totalAmount) || 0;
       const adv = parseFloat(updatedData.advance) || 0;
       const disc = parseFloat(updatedData.discount) || 0;
@@ -393,7 +699,18 @@ class BookingService {
     }
 
     await db.collection('bookings').doc(existing.bookingId).set(updatedData);
-    await this.logAudit('BOOKING_EDIT', adminName, `Booking ${bookingId} was edited.`, bookingId);
+    await this.logAudit('BOOKING_EDIT', actorName, `Booking ${existing.bookingId} was edited.${passengerMutationNote}`, existing.bookingId);
+    try {
+      const { StaffService } = require('./staffService');
+      await StaffService.logAudit({
+        action: 'BOOKING_EDIT',
+        performedBy: typeof adminName === 'object' ? adminName : { name: actorName, role: 'Admin', username: actorName },
+        details: `PNR ${existing.bookingId} (${updatedData.bookedBy}) का विवरण अपडेट किया गया।${passengerMutationNote}`,
+        targetId: existing.bookingId,
+        coachName: updatedData.coachName
+      });
+    } catch (e) {}
+
     return updatedData;
   }
 
@@ -461,6 +778,7 @@ class BookingService {
       refundAccount,
       originalSeats: booking.seatNumber || [],
       originalCoach: booking.coachName,
+      originalCoachDisplayName: booking.coachDisplayName || '',
       originalAdvance: totalPaid
     };
 
@@ -545,35 +863,66 @@ class BookingService {
 
   // Get real-time seat occupancy for a coach in a specific year (excluding cancelled)
   static async getCoachOccupancy(coachName, yatraYear = 2026) {
-    const bookings = await this.getBookings({ coachName, yatraYear });
+    const cleanCoach = String(coachName || 'S1').trim().toUpperCase();
+    const { coachMeta, normClass } = await resolveCoachAndSettings(cleanCoach);
+    const bookings = await this.getBookings({ coachName: cleanCoach, yatraYear });
     const bookedSeats = new Set();
+    const seatOwnerMap = {};
 
     bookings.forEach(b => {
-      if (b.status !== 'Cancelled' && Array.isArray(b.seatNumber)) {
-        b.seatNumber.forEach(s => bookedSeats.add(String(s).trim()));
+      if (b.status !== 'Cancelled') {
+        const owner = { bookingId: b.bookingId, bookedBy: b.bookedBy };
+        if (Array.isArray(b.seatNumber)) {
+          b.seatNumber.forEach(s => {
+            const seatStr = String(s).trim();
+            if (seatStr) {
+              bookedSeats.add(seatStr);
+              seatOwnerMap[seatStr] = owner;
+            }
+          });
+        }
+        if (Array.isArray(b.passengers)) {
+          b.passengers.forEach(p => {
+            if (p.seatAssigned && p.seatAssigned !== 'Cancelled') {
+              const seatStr = String(p.seatAssigned).trim();
+              if (seatStr) {
+                bookedSeats.add(seatStr);
+                if (!seatOwnerMap[seatStr]) seatOwnerMap[seatStr] = owner;
+              }
+            }
+          });
+        }
       }
     });
 
-    const isSLR = coachName.startsWith('SLR');
-    const isSleeper = coachName.startsWith('S') && !isSLR;
-    const isAC = coachName.startsWith('A') || coachName.startsWith('B');
-    const totalCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (coachName.startsWith('A') ? 54 : 64) : 80));
+    const isSLR = cleanCoach.startsWith('SLR');
+    const isSleeper = cleanCoach.startsWith('S') && !isSLR;
+    const isAC = cleanCoach.startsWith('A') || cleanCoach.startsWith('B');
+    const fallbackCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (cleanCoach.startsWith('A') ? 54 : 64) : 80));
+    const totalCapacity = coachMeta && coachMeta.totalSeats !== undefined ? Number(coachMeta.totalSeats) : fallbackCapacity;
+    const travelClass = coachMeta ? normalizeClassKey(coachMeta.coachClass, cleanCoach) : (isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General'));
+    const coachDisplayName = coachMeta?.coachName || '';
     const layout = [];
 
     for (let i = 1; i <= totalCapacity; i++) {
       const seatStr = String(i);
       const isBooked = bookedSeats.has(seatStr);
-      const travelClass = isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General');
+      const owner = isBooked ? (seatOwnerMap[seatStr] || null) : null;
       layout.push({
         seatNumber: i,
         berthType: getBerthType(i, travelClass),
         isBooked,
-        coachName
+        coachName: cleanCoach,
+        coachDisplayName,
+        bookingId: owner ? owner.bookingId : null,
+        booking: owner
       });
     }
 
     return {
-      coachName,
+      coachName: cleanCoach,
+      coachDisplayName,
+      coachClass: coachMeta?.coachClass || travelClass,
       yatraYear,
       totalCapacity,
       bookedCount: bookedSeats.size,
@@ -590,10 +939,10 @@ class BookingService {
     if (isAllCoaches) {
       const { CoachService } = require('./coachService');
       const allCoaches = await CoachService.getAllCoaches();
-      const bookableCoaches = allCoaches.filter(c => c.status === 'Active' && c.isBookable !== false && Number(c.totalSeats) > 0);
-      
-      const coachesToProcess = bookableCoaches.length > 0 
-        ? bookableCoaches 
+      const bookableCoaches = allCoaches.filter(c => c.status !== 'Inactive' && c.isBookable !== false && Number(c.totalSeats) > 0);
+
+      const coachesToProcess = bookableCoaches.length > 0
+        ? bookableCoaches
         : ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR1'].map(code => ({ coachCode: code, totalSeats: 72, coachClass: code.startsWith('A') || code.startsWith('B') ? 'AC' : 'Sleeper' }));
 
       let totalCapacity = 0;
@@ -615,6 +964,7 @@ class BookingService {
         const annotatedRows = cChart.rows.map(r => ({
           ...r,
           coachName: coach.coachCode || coach,
+          coachDisplayName: coach.coachName || cChart.coachDisplayName || '',
           displaySeat: `${coach.coachCode || coach}-${r.seatNumber}`
         }));
         allRows.push(...annotatedRows);
@@ -622,6 +972,7 @@ class BookingService {
 
       return {
         coachName: 'ALL (सभी कोच)',
+        coachDisplayName: 'सम्पूर्ण ट्रेन संरचना (All Active Coaches)',
         yatraYear: yYear,
         travelClass: 'All Classes (सम्पूर्ण ट्रेन)',
         totalCapacity,
@@ -638,13 +989,16 @@ class BookingService {
       };
     }
 
-    const bookings = await this.getBookings({ coachName, yatraYear: yYear });
+    const cleanCoach = String(coachName).trim().toUpperCase();
+    const { coachMeta } = await resolveCoachAndSettings(cleanCoach);
+    const bookings = await this.getBookings({ coachName: cleanCoach, yatraYear: yYear });
 
-    const isSLR = coachName.startsWith('SLR');
-    const isSleeper = coachName.startsWith('S') && !isSLR;
-    const isAC = coachName.startsWith('A') || coachName.startsWith('B');
-    const totalCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (coachName.startsWith('A') ? 54 : 64) : 80));
-    const travelClass = isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General');
+    const isSLR = cleanCoach.startsWith('SLR');
+    const isSleeper = cleanCoach.startsWith('S') && !isSLR;
+    const isAC = cleanCoach.startsWith('A') || cleanCoach.startsWith('B');
+    const fallbackCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (cleanCoach.startsWith('A') ? 54 : 64) : 80));
+    const totalCapacity = coachMeta && coachMeta.totalSeats !== undefined ? Number(coachMeta.totalSeats) : fallbackCapacity;
+    const travelClass = coachMeta ? (coachMeta.coachClass || normalizeClassKey(coachMeta.coachClass, cleanCoach)) : (isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General'));
 
     // Build map: seatStr -> { booking, passenger, paxRemaining }
     const seatMap = {};
@@ -704,8 +1058,9 @@ class BookingService {
         if (bookingInfo.passenger.checkInStatus === 'Absent') absentCount++;
 
         rows.push({
-          coachName,
-          displaySeat: `${coachName}-${i}`,
+          coachName: cleanCoach,
+          coachDisplayName: coachMeta?.coachName || '',
+          displaySeat: `${cleanCoach}-${i}`,
           seatNumber: i,
           berthType,
           status: 'CNF',
@@ -729,8 +1084,9 @@ class BookingService {
         });
       } else {
         rows.push({
-          coachName,
-          displaySeat: `${coachName}-${i}`,
+          coachName: cleanCoach,
+          coachDisplayName: coachMeta?.coachName || '',
+          displaySeat: `${cleanCoach}-${i}`,
           seatNumber: i,
           berthType,
           status: 'VACANT',
@@ -756,7 +1112,8 @@ class BookingService {
     }
 
     return {
-      coachName,
+      coachName: cleanCoach,
+      coachDisplayName: coachMeta?.coachName || '',
       yatraYear: yYear,
       travelClass,
       totalCapacity,
@@ -859,7 +1216,7 @@ class BookingService {
 
     const coachStats = {};
     activeBookings.forEach(b => {
-      const coach = b.coachName || 'Unassigned';
+      const coach = String(b.coachName || 'UNASSIGNED').trim().toUpperCase();
       coachStats[coach] = (coachStats[coach] || 0) + (Number(b.numberOfPassengers) || 1);
     });
 
@@ -886,9 +1243,10 @@ class BookingService {
     const sourceCoaches = (coachList && coachList.length > 0) ? coachList : defaultRakeCoaches;
 
     const coachMatrix = sourceCoaches
-      .filter(c => Number(c.totalSeats) > 0 && c.coachCode !== 'ENG')
+      .filter(c => Number(c.totalSeats) > 0 && c.coachCode !== 'ENG' && c.isBookable !== false)
       .map(c => {
-        const booked = coachStats[c.coachCode] || 0;
+        const code = String(c.coachCode || '').trim().toUpperCase();
+        const booked = coachStats[code] || 0;
         const capacity = Number(c.totalSeats) || 72;
         const available = Math.max(0, capacity - booked);
         const occupancy = capacity > 0 ? Math.min(100, Math.round((booked / capacity) * 100)) : 0;
@@ -896,6 +1254,7 @@ class BookingService {
           coachCode: c.coachCode,
           coachName: c.coachName,
           coachClass: c.coachClass,
+          normClass: normalizeClassKey(c.coachClass, c.coachCode),
           capacity,
           booked,
           available,
@@ -908,37 +1267,44 @@ class BookingService {
 
     // Class Breakdown & Capacities
     const classCapacities = {
-      AC: coachMatrix.filter(c => c.coachClass === 'AC').reduce((s, c) => s + c.capacity, 0) || 378,
-      Sleeper: coachMatrix.filter(c => c.coachClass === 'Sleeper').reduce((s, c) => s + c.capacity, 0) || 432,
-      General: coachMatrix.filter(c => c.coachClass === 'General').reduce((s, c) => s + c.capacity, 0) || 200
+      AC: coachMatrix.filter(c => c.normClass === 'AC').reduce((s, c) => s + c.capacity, 0),
+      Sleeper: coachMatrix.filter(c => c.normClass === 'Sleeper').reduce((s, c) => s + c.capacity, 0),
+      General: coachMatrix.filter(c => c.normClass === 'General').reduce((s, c) => s + c.capacity, 0)
     };
 
     const classStats = {
       AC: {
-        booked: activeBookings.filter(b => b.travelClass === 'AC').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+        booked: activeBookings.filter(b => normalizeClassKey(b.travelClass, b.coachName) === 'AC').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
         capacity: classCapacities.AC,
-        revenue: activeBookings.filter(b => b.travelClass === 'AC').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
+        revenue: activeBookings.filter(b => normalizeClassKey(b.travelClass, b.coachName) === 'AC').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
       },
       Sleeper: {
-        booked: activeBookings.filter(b => b.travelClass === 'Sleeper').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+        booked: activeBookings.filter(b => normalizeClassKey(b.travelClass, b.coachName) === 'Sleeper').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
         capacity: classCapacities.Sleeper,
-        revenue: activeBookings.filter(b => b.travelClass === 'Sleeper').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
+        revenue: activeBookings.filter(b => normalizeClassKey(b.travelClass, b.coachName) === 'Sleeper').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
       },
       General: {
-        booked: activeBookings.filter(b => b.travelClass === 'General').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
+        booked: activeBookings.filter(b => normalizeClassKey(b.travelClass, b.coachName) === 'General').reduce((s, b) => s + (Number(b.numberOfPassengers) || 1), 0),
         capacity: classCapacities.General,
-        revenue: activeBookings.filter(b => b.travelClass === 'General').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
+        revenue: activeBookings.filter(b => normalizeClassKey(b.travelClass, b.coachName) === 'General').reduce((s, b) => s + (Number(b.totalAmount) || 0), 0)
       }
     };
 
     // Staff Performance Leaderboard & Graph
     const staffMap = {};
     activeBookings.forEach(b => {
-      const staffName = (b.bookedByName || b.createdByName || b.bookedBy || 'काउंटर लिपिक').trim();
+      const staffObj = (b.bookedByStaff && typeof b.bookedByStaff === 'object') ? b.bookedByStaff : null;
+      const staffName = String(
+        staffObj?.name ||
+        (typeof b.bookedByStaff === 'string' && b.bookedByStaff !== 'Self' ? b.bookedByStaff : '') ||
+        b.bookedByName ||
+        b.createdByName ||
+        'ऑनलाइन / काउंटर'
+      ).trim();
       if (!staffMap[staffName]) {
         staffMap[staffName] = {
           name: staffName,
-          role: b.bookedByRole || (staffName.toLowerCase() === 'admin' ? 'SuperAdmin' : 'BookingClerk'),
+          role: staffObj?.role || b.bookedByRole || (staffName.toLowerCase().includes('admin') ? 'SuperAdmin' : 'BookingClerk'),
           bookingsCount: 0,
           passengersCount: 0,
           grossCollection: 0,
@@ -996,16 +1362,25 @@ class BookingService {
       percentage: totalPassengers > 0 ? Math.round((stationMap[stn] / totalPassengers) * 100) : 0
     })).sort((a, b) => b.passengers - a.passengers);
 
-    // Check-in & Journey Attendance
+    // Check-in & Journey Attendance (per-passenger first, booking fallback)
     let presentCount = 0, absentCount = 0, pendingCheckinCount = 0;
     activeBookings.forEach(b => {
-      const pCount = (Number(b.numberOfPassengers) || (b.passengers ? b.passengers.length : 1));
-      if (b.checkinStatus === 'Present' || b.checkinStatus === 'Boarded') {
-        presentCount += pCount;
-      } else if (b.checkinStatus === 'Absent') {
-        absentCount += pCount;
+      if (Array.isArray(b.passengers) && b.passengers.length > 0) {
+        b.passengers.forEach(p => {
+          const st = p.checkInStatus || b.checkinStatus || 'Pending';
+          if (st === 'Present' || st === 'Boarded') presentCount++;
+          else if (st === 'Absent') absentCount++;
+          else pendingCheckinCount++;
+        });
       } else {
-        pendingCheckinCount += pCount;
+        const pCount = Number(b.numberOfPassengers) || 1;
+        if (b.checkinStatus === 'Present' || b.checkinStatus === 'Boarded') {
+          presentCount += pCount;
+        } else if (b.checkinStatus === 'Absent') {
+          absentCount += pCount;
+        } else {
+          pendingCheckinCount += pCount;
+        }
       }
     });
 

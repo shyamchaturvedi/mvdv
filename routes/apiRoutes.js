@@ -101,9 +101,11 @@ router.get('/config', async (req, res) => {
   try {
     const settings = await SettingsService.getSettings();
     const coachesMap = await CoachService.getBookableCoachesMap();
+    const coachesList = await CoachService.getAllCoaches();
     res.json({
       success: true,
       activeYear: settings.activeYatraYear || 2026,
+      yatraYear: settings.activeYatraYear || 2026,
       years: settings.availableYears || [2024, 2025, 2026, 2027, 2028],
       defaultTravelDate: settings.defaultTravelDate || settings.journeyDate || '2026-10-15',
       journeyDate: settings.defaultTravelDate || settings.journeyDate || '2026-10-15',
@@ -123,6 +125,7 @@ router.get('/config', async (req, res) => {
       },
       fares: settings.fares || FARES,
       coaches: coachesMap || COACH_CONFIG,
+      coachesList,
       stations: settings.routeStations && settings.routeStations.length > 0 ? settings.routeStations : [
         'Lucknow Charbagh (LKO)',
         'Sandila (SAN)',
@@ -191,7 +194,8 @@ router.put('/admin/settings', requireAuth('SuperAdmin'), async (req, res) => {
 // Train Composition & Coach Position Viewer (Public Devotees & Staff)
 router.get('/coaches/train-composition', async (req, res) => {
   try {
-    const yatraYear = parseInt(req.query.year, 10) || 2026;
+    const settings = await SettingsService.getSettings();
+    const yatraYear = parseInt(req.query.year, 10) || settings.activeYatraYear || 2026;
     const composition = await CoachService.getTrainCompositionWithStats(yatraYear);
     res.json({ success: true, ...composition });
   } catch (err) {
@@ -200,7 +204,7 @@ router.get('/coaches/train-composition', async (req, res) => {
 });
 
 // Admin & Staff Coach Management Routes
-router.get('/admin/coaches', async (req, res) => {
+router.get('/admin/coaches', requireAuth(), async (req, res) => {
   try {
     const coaches = await CoachService.getAllCoaches();
     res.json({ success: true, coaches });
@@ -416,7 +420,7 @@ router.post('/bookings', async (req, res) => {
       booking
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
@@ -477,17 +481,25 @@ router.put('/bookings/:id/utr', async (req, res) => {
     if (!utrNumber || utrNumber.trim() === '') {
       return res.status(400).json({ success: false, error: 'UTR number is required' });
     }
+
+    const booking = await BookingService.getBookingByIdOrPNR(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found' });
+    }
+    if (booking.status === 'Cancelled') {
+      return res.status(400).json({ success: false, error: 'रद्द की गई बुकिंग पर UTR सबमिट नहीं किया जा सकता।' });
+    }
     
-    // Update the booking in firestore via BookingService
-    await BookingService.updateBooking(req.params.id, {
+    // Update the booking via BookingService
+    await BookingService.updateBooking(booking.bookingId, {
       utrNumber: utrNumber.trim(),
       utrStatus: 'Pending',
       utrSubmittedAt: new Date().toISOString()
-    });
+    }, 'Online Devotee');
 
     res.json({ success: true, message: 'UTR submitted successfully. Pending admin verification.' });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
@@ -512,11 +524,6 @@ router.get('/bookings/:id/pdf', async (req, res) => {
       targetId: booking.bookingId,
       coachName: booking.coachName
     });
-
-    // Mark as downloaded
-    if (booking.status !== 'Downloaded') {
-      await BookingService.updateBooking(booking.bookingId, { status: 'Downloaded' });
-    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="MVD-Travel-Slip-${booking.bookingId}.pdf"`);
@@ -617,6 +624,7 @@ router.get('/verify-slip', async (req, res) => {
           bookedBy: booking.bookedBy,
           mobile: booking.mobile,
           coachName: booking.coachName,
+          coachDisplayName: booking.coachDisplayName || '',
           seatNumber: booking.seatNumber,
           travelClass: booking.travelClass,
           fromStation: booking.fromStation,
@@ -644,6 +652,7 @@ router.get('/verify-slip', async (req, res) => {
         bookedBy: booking.bookedBy,
         mobile: booking.mobile,
         coachName: booking.coachName,
+        coachDisplayName: booking.coachDisplayName || '',
         seatNumber: booking.seatNumber,
         travelClass: booking.travelClass,
         fromStation: booking.fromStation,
@@ -699,6 +708,13 @@ router.post('/tte/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const staff = await StaffService.authenticateStaff(username, password);
+    const token = AuthService.generateToken(staff);
+
+    if (req.session) {
+      req.session.staffUser = staff;
+      req.session.token = token;
+      if (staff.role === 'SuperAdmin') req.session.isAdmin = true;
+    }
 
     // Audit log staff login
     await StaffService.logAudit({
@@ -711,7 +727,7 @@ router.post('/tte/login', async (req, res) => {
       success: true,
       message: 'Staff authenticated successfully',
       tte: staff,
-      token: 'mvd_tte_session_token'
+      token
     });
   } catch (err) {
     res.status(401).json({ success: false, error: err.message });
@@ -742,7 +758,7 @@ router.post('/tte/checkin', requireAuth('checkin'), async (req, res) => {
     // Anti-Fraud Audit Log for every attendance mark
     await StaffService.logAudit({
       action: status === 'Present' ? 'CHECKIN_PRESENT' : 'CHECKIN_ABSENT',
-      performedBy: { name: staffName || 'TTE Officer', role: 'TTE', username: staffUsername || 'tt' },
+      performedBy: req.user || { name: staffName || 'TTE Officer', role: 'TTE', username: staffUsername || 'tt' },
       details: `Seat ${seatNumber} marked as ${status} in Coach ${coachName} (Year ${yatraYear || 2026})`,
       targetId: result.bookingId,
       coachName,
@@ -788,7 +804,7 @@ router.post('/tte/collect-due', requireAuth('collect_due'), async (req, res) => 
 });
 
 // Admin Online Transactions & UTR Matching Desk (SuperAdmin, FinanceOfficer)
-router.get('/admin/online-transactions', async (req, res) => {
+router.get('/admin/online-transactions', requireAuth(), async (req, res) => {
   try {
     const { status, search, year } = req.query;
     const bookings = await BookingService.getBookings(year ? { yatraYear: parseInt(year, 10) } : {});
@@ -805,6 +821,7 @@ router.get('/admin/online-transactions', async (req, res) => {
           mobile: b.mobile,
           yatraYear: b.yatraYear,
           coachName: b.coachName,
+          coachDisplayName: b.coachDisplayName || '',
           seatNumber: Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber,
           travelClass: b.travelClass,
           amount: b.advance || b.totalAmount,
@@ -836,6 +853,7 @@ router.get('/admin/online-transactions', async (req, res) => {
               mobile: b.mobile,
               yatraYear: b.yatraYear,
               coachName: b.coachName,
+              coachDisplayName: b.coachDisplayName || '',
               seatNumber: Array.isArray(b.seatNumber) ? b.seatNumber.join(', ') : b.seatNumber,
               travelClass: b.travelClass,
               amount: tx.amount,
@@ -893,7 +911,7 @@ router.get('/admin/online-transactions', async (req, res) => {
 });
 
 // Admin UTR Matching & Approval Action
-router.put('/admin/transactions/verify-utr', async (req, res) => {
+router.put('/admin/transactions/verify-utr', requireAuth(), async (req, res) => {
   try {
     const { bookingId, txnId, status, utrNumber, remarks, adminName } = req.body;
     if (!bookingId) {
@@ -958,12 +976,13 @@ router.get('/chart/:coachName/print', requireAuth('print_chart'), async (req, re
     const { coachName } = req.params;
     const yatraYear = req.query.year || 2026;
     const chart = await BookingService.getCoachSeatingChart(coachName, yatraYear);
+    const coachTitle = chart.coachDisplayName ? `${chart.coachName} — ${chart.coachDisplayName}` : chart.coachName;
 
     const html = `<!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <title>IRCTC RESERVATION CHART - COACH ${chart.coachName} (${chart.yatraYear})</title>
+  <title>IRCTC RESERVATION CHART - COACH ${coachTitle} (${chart.yatraYear})</title>
   <style>
     @page { size: A4 landscape; margin: 8mm; }
     * { box-sizing: border-box; }
@@ -1078,7 +1097,7 @@ router.get('/chart/:coachName/print', requireAuth('print_chart'), async (req, re
 <body>
   <div class="print-controls">
     <div>
-      <strong style="color: #9A3412; font-size: 14px;">🇮🇳 IRCTC / MVD विशेष आरक्षण चार्ट - कोच ${chart.coachName} (${chart.yatraYear})</strong>
+      <strong style="color: #9A3412; font-size: 14px;">🇮🇳 IRCTC / MVD विशेष आरक्षण चार्ट - कोच ${coachTitle} (${chart.yatraYear})</strong>
       <span style="margin-left: 12px; color: #666; font-size: 12px;">प्रिंट करने के लिए 'चार्ट प्रिंट करें' पर क्लिक करें</span>
     </div>
     <div>
@@ -1095,7 +1114,7 @@ router.get('/chart/:coachName/print', requireAuth('print_chart'), async (req, re
   <table class="meta-table">
     <tr>
       <td><strong>ट्रेन नं एवं नाम:</strong> 04201 - MVD SPECIAL SF EXP</td>
-      <td><strong>कोच नंबर:</strong> ${chart.coachName} (${chart.travelClass})</td>
+      <td><strong>कोच नंबर / नाम:</strong> ${coachTitle} (${chart.travelClass})</td>
       <td><strong>यात्रा तिथि:</strong> ${chart.rows.find(r => r.travelDate)?.travelDate || chart.journeyDate || '2026-10-15'}</td>
       <td><strong>चार्ट निर्माण समय:</strong> ${chart.chartPreparedAt}</td>
     </tr>
