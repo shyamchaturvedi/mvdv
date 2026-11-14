@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, ChevronRight, Phone, ShieldCheck, Key, Smartphone, Globe, AlertTriangle, Send, Lightbulb, LayoutDashboard, Ticket, ClipboardList, Printer, IndianRupee, Users, Search, BadgeCheck, Briefcase, Download, Upload, FileText, LogOut, Crown, Eye, Lock, Scan, Home, Settings, CalendarDays, Armchair, Mail, Train, Plus, Trash2, Edit, ArrowUp, ArrowDown, RefreshCw, QrCode, BarChart3, CheckCircle2, TrendingUp, Percent, Menu, X, Sparkles, Layers } from 'lucide-react';
 
 import { db, auth, firebaseConfig } from './firebase';
@@ -885,6 +885,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [chartFilter, setChartFilter] = useState('all');
   const [chartSearch, setChartSearch] = useState('');
   const [chartLoading, setChartLoading] = useState(false);
+  const chartCacheRef = useRef({});
 
   // Dynamic Train Composition & Coach Position State
   const [trainCompositionData, setTrainCompositionData] = useState(null);
@@ -1218,7 +1219,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const loadTrainComposition = async (year = compositionYearFilter) => {
-    setTrainCompositionLoading(true);
+    if (!trainCompositionData) setTrainCompositionLoading(true);
     try {
       const res = await fetch(`/api/coaches/train-composition?year=${year}`);
       const data = await res.json();
@@ -1335,7 +1336,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       setAdminCoachesLoading(false);
       return;
     }
-    setAdminCoachesLoading(true);
+    if (adminCoachesList.length === 0) setAdminCoachesLoading(true);
     try {
       const res = await fetch(`/api/admin/coaches?token=${encodeURIComponent(token)}`, {
         headers: { 'Authorization': 'Bearer ' + token }
@@ -2475,7 +2476,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
   const loadDailyReport = async (targetDate = dailyFilterDate, targetStaff = dailyStaffFilter, startParam = null, endParam = null) => {
     if (!staffToken) return;
-    setDailyReportLoading(true);
+    if (!dailyReportData) setDailyReportLoading(true);
     try {
       let q = `/api/staff/daily-collection?token=${staffToken}`;
       if (startParam && endParam) {
@@ -2746,13 +2747,21 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const loadCoachChart = async (coach = chartCoach, year = chartYear) => {
-    setChartLoading(true);
+    const cacheKey = `${coach}_${year}`;
+    if (chartCacheRef.current[cacheKey]) {
+      setCoachChartData(chartCacheRef.current[cacheKey]);
+      setChartLoading(false);
+    } else if (!coachChartData) {
+      setChartLoading(true);
+    }
+
     try {
       const res = await fetch(`/api/chart/${coach}?year=${year}&token=${staffToken}`, {
         headers: { 'Authorization': 'Bearer ' + staffToken }
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.chart) {
+        chartCacheRef.current[cacheKey] = data.chart;
         setCoachChartData(data.chart);
       }
     } catch (err) {
@@ -2763,6 +2772,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const handleTteCheckIn = async (seatNumber, status, rowCoachName = chartCoach) => {
+    chartCacheRef.current = {};
     const targetCoach = rowCoachName && rowCoachName !== 'all' ? rowCoachName : chartCoach;
     if (!targetCoach || targetCoach === 'all') {
       alert('कृपया चेक-इन के लिए एक मान्य कोच चुनें।');
@@ -2825,6 +2835,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       const data = await res.json();
       if (data.success) {
         alert('बकाया राशि सफलतापूर्वक जमा की गई!');
+        chartCacheRef.current = {};
         loadCoachChart(chartCoach, chartYear);
       } else {
         alert('त्रुटि: ' + data.error);
@@ -2885,7 +2896,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const loadOnlineTransactions = async (status = onlineTxnsStatusFilter, search = onlineTxnsSearch) => {
-    setOnlineTxnsLoading(true);
+    if (onlineTxnsList.length === 0) setOnlineTxnsLoading(true);
     try {
       let url = `/api/admin/online-transactions?token=${staffToken}`;
       if (status && status !== 'All') url += `&status=${encodeURIComponent(status)}`;
@@ -6837,8 +6848,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         />
                       </div>
 
-                      {chartLoading ? (
+                      {chartLoading && !coachChartData ? (
                         <div style={{ textAlign: 'center', padding: '40px', color: '#E65100', fontWeight: 'bold' }}>
+                          <RefreshCw size={24} className="spin" style={{ display: 'block', margin: '0 auto 10px' }} />
                           चार्ट लोड हो रहा है... कृपया प्रतीक्षा करें
                         </div>
                       ) : coachChartData ? (

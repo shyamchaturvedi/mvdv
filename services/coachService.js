@@ -112,9 +112,20 @@ function withCoachUiAliases(coach, extra = {}) {
   };
 }
 
+let cachedCoachesList = null;
+let lastCoachesFetchTime = 0;
+let hasInitializedDefaultCoaches = false;
+const COACHES_CACHE_TTL = 60 * 1000; // 60 seconds
+
 class CoachService {
-  // Initialize default coaches if collection is empty
+  static invalidateCache() {
+    cachedCoachesList = null;
+    lastCoachesFetchTime = 0;
+  }
+
+  // Initialize default coaches if collection is empty (run once per lifecycle)
   static async initDefaultCoaches() {
+    if (hasInitializedDefaultCoaches) return;
     try {
       const snap = await db.collection('trainCoaches').get();
       if (snap.empty) {
@@ -126,13 +137,19 @@ class CoachService {
         }
         console.log('✅ Default Train Rake Composition (18 Coaches) initialized in database.');
       }
+      hasInitializedDefaultCoaches = true;
     } catch (e) {
       console.warn('⚠️ Coach initialization notice:', e.message);
     }
   }
 
-  // Get all coaches ordered by sequence position (1 to N)
+  // Get all coaches ordered by sequence position (1 to N) with high-speed memory caching
   static async getAllCoaches() {
+    const now = Date.now();
+    if (cachedCoachesList && (now - lastCoachesFetchTime) < COACHES_CACHE_TTL) {
+      return cachedCoachesList;
+    }
+
     await this.initDefaultCoaches();
     const snap = await db.collection('trainCoaches').get();
     let list = [];
@@ -146,6 +163,8 @@ class CoachService {
 
     // Sort by position ascending
     list.sort((a, b) => Number(a.position || 999) - Number(b.position || 999));
+    cachedCoachesList = list;
+    lastCoachesFetchTime = now;
     return list;
   }
 
@@ -303,6 +322,7 @@ class CoachService {
     });
 
     await db.collection('trainCoaches').doc(newId).set(newCoach);
+    this.invalidateCache();
     return newCoach;
   }
 
@@ -418,6 +438,7 @@ class CoachService {
       }
     }
 
+    this.invalidateCache();
     const updated = await docRef.get();
     return withCoachUiAliases({ ...updated.data(), id: updated.id }, {
       previousCoachCode: oldCode,
@@ -437,6 +458,7 @@ class CoachService {
       throw new Error('कोच नहीं मिला।');
     }
     await docRef.delete();
+    this.invalidateCache();
     return { success: true, message: 'कोच हटा दिया गया।' };
   }
 
@@ -453,7 +475,7 @@ class CoachService {
         updatedAt: new Date().toISOString()
       }, { merge: true });
     }
-
+    this.invalidateCache();
     return { success: true, message: 'कोच स्थिति क्रम सफलतापूर्वक सहेजा गया।' };
   }
 
@@ -487,7 +509,8 @@ class CoachService {
         }
       }
     } catch (e) {}
-    return { success: true, message: 'ट्रेन की मानक 18-बोगी संरचना रीसेट कर दी गई।' };
+    this.invalidateCache();
+    return { success: true, message: 'डिफ़ॉल्ट ट्रेन रेक संरचना सफलतापूर्वक रीसेट की गई।' };
   }
 }
 
