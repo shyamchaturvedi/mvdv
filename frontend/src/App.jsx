@@ -3423,14 +3423,17 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     const sevenDaysAgoStr = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
     const firstDayOfMonthStr = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
 
-    // Active calculations
+    // Active calculations with complete refund accounting
     const activeCollected = isPersonalOnly ? (personal.totalCollected || 0) : (dailyStaffFilter ? (personal.totalCollected || 0) : (overall.totalCollected || 0));
     const activeCash = isPersonalOnly ? (personal.cashCollected || 0) : (dailyStaffFilter ? (personal.cashCollected || 0) : (overall.cashCollected || 0));
     const activeUpi = isPersonalOnly ? (personal.upiCollected || 0) : (dailyStaffFilter ? (personal.upiCollected || 0) : (overall.upiCollected || 0));
+    const activeRefund = isPersonalOnly ? (personal.totalRefund || 0) : (dailyStaffFilter ? (personal.totalRefund || 0) : (overall.totalRefundAmount || report?.cancellationSummary?.totalRefundAmount || 0));
+    const activeCashRefund = isPersonalOnly ? (personal.cashRefund || 0) : (dailyStaffFilter ? (personal.cashRefund || 0) : (overall.cashRefundAmount || report?.cancellationSummary?.cashRefundAmount || 0));
+    const activeUpiRefund = isPersonalOnly ? (personal.upiRefund || 0) : (dailyStaffFilter ? (personal.upiRefund || 0) : (overall.upiRefundAmount || report?.cancellationSummary?.upiRefundAmount || 0));
     const activeDues = isPersonalOnly ? (personal.pendingDues || 0) : (dailyStaffFilter ? (personal.pendingDues || 0) : (overall.pendingDues || 0));
     const activeDiscounts = isPersonalOnly ? (personal.discountsGiven || 0) : (dailyStaffFilter ? (personal.discountsGiven || 0) : (overall.discountsGiven || 0));
     const activeBookings = isPersonalOnly ? (personal.bookingsCount || transactions.length || 0) : (dailyStaffFilter ? (personal.bookingsCount || 0) : (overall.totalBookings || staffBreakdown.reduce((acc, s) => acc + (s.bookingsCount || 0), 0)));
-    const activeGross = activeCollected + activeDues + activeDiscounts;
+    const activeGross = activeCollected + activeRefund + activeDues + activeDiscounts;
 
     // Find max value in date-wise time series for graph scaling
     const maxDayTotal = Math.max(...dateWiseBreakdown.map(d => (d.totalCollected || 0) + (d.pendingDues || 0)), 1000);
@@ -3617,7 +3620,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           </div>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: 10,
             background: '#FFFFFF',
             padding: '12px 14px',
@@ -3630,8 +3633,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#9A3412' }}>₹ {activeGross.toLocaleString()}</div>
             </div>
             <div>
-              <span style={{ color: '#065F46', fontSize: '0.76rem' }}>= कुल संकलित (Cash+UPI):</span>
+              <span style={{ color: '#065F46', fontSize: '0.76rem' }}>= शुद्ध संकलित (Net Cash+UPI):</span>
               <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>₹ {activeCollected.toLocaleString()}</div>
+            </div>
+            <div>
+              <span style={{ color: '#BE123C', fontSize: '0.76rem' }}>+ कुल रिफंड अदायगी (Refund):</span>
+              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#E11D48' }}>₹ {activeRefund.toLocaleString()}</div>
             </div>
             <div>
               <span style={{ color: '#991B1B', fontSize: '0.76rem' }}>+ शेष देय / उधारी (Dues):</span>
@@ -3644,17 +3651,29 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           </div>
         </div>
 
-        {/* 4 Primary KPI Summary Metric Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 22 }} className="grid-kpi-mobile">
-          {/* Total Collected */}
+        {/* 5 Primary KPI Summary Metric Cards with Complete Net Cash & Refund Breakdown */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 14, marginBottom: 22 }} className="grid-kpi-mobile">
+          {/* Total Net Collected */}
           <div className="kpi-card green">
-            <div className="kpi-label">{isPersonalOnly ? 'मेरा कुल संकलन' : 'समस्त कुल वसूली (Total Collected)'}</div>
+            <div className="kpi-label">{isPersonalOnly ? 'मेरा शुद्ध संकलन (Net)' : 'समस्त शुद्ध वसूली (Net Collected)'}</div>
             <div className="kpi-value">
               ₹ {activeCollected.toLocaleString()}
             </div>
             <div className="kpi-sub" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <span><IndianRupee size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> नकद: ₹{activeCash.toLocaleString()}</span>
-              <span><Smartphone size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> UPI: ₹{activeUpi.toLocaleString()}</span>
+              <span><IndianRupee size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> शुद्ध नकद: ₹{activeCash.toLocaleString()}</span>
+              <span><Smartphone size={15} style={{display:"inline", marginRight:"2px", verticalAlign:"text-bottom"}} /> शुद्ध UPI: ₹{activeUpi.toLocaleString()}</span>
+            </div>
+          </div>
+
+          {/* Refund Outflow */}
+          <div className="kpi-card red" style={{ background: '#FFF1F2', borderLeft: '4px solid #E11D48' }}>
+            <div className="kpi-label" style={{ color: '#BE123C' }}>कुल रिफंड अदायगी (Refunds)</div>
+            <div className="kpi-value" style={{ color: '#BE123C' }}>
+              ₹ {activeRefund.toLocaleString()}
+            </div>
+            <div className="kpi-sub" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', color: '#9F1239' }}>
+              <span>नकद रिफंड: ₹{activeCashRefund.toLocaleString()}</span>
+              <span>UPI रिफंड: ₹{activeUpiRefund.toLocaleString()}</span>
             </div>
           </div>
 
@@ -3892,15 +3911,16 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                     <th>टिकट संख्या</th>
                     <th>नकद (Cash)</th>
                     <th>UPI</th>
+                    <th>रिफंड (Refund)</th>
                     <th>छूट (Discount)</th>
                     <th>शेष बकाया</th>
-                    <th>कुल वसूली (Total)</th>
+                    <th>शुद्ध वसूली (Net In-Hand)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {staffBreakdown.length === 0 ? (
                     <tr>
-                      <td colSpan="10" style={{ textAlign: 'center', padding: 20, color: '#784D35' }}>
+                      <td colSpan="11" style={{ textAlign: 'center', padding: 20, color: '#784D35' }}>
                         कोई स्टाफ डेटा उपलब्ध नहीं है।
                       </td>
                     </tr>
@@ -3917,14 +3937,72 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <td style={{ textAlign: 'center', fontWeight: 700 }}>{s.bookingsCount || s.transactionCount || 0}</td>
                         <td style={{ color: '#047857', fontWeight: 700 }}>₹ {(s.cashCollected || 0)?.toLocaleString()}</td>
                         <td style={{ color: '#0284C7', fontWeight: 700 }}>₹ {(s.upiCollected || 0)?.toLocaleString()}</td>
+                        <td style={{ color: '#E11D48', fontWeight: 700 }}>₹ {(s.totalRefund || 0)?.toLocaleString()}</td>
                         <td style={{ color: '#D97706', fontWeight: 600 }}>₹ {(s.discountsGiven || 0)?.toLocaleString()}</td>
                         <td style={{ color: '#DC2626', fontWeight: 600 }}>₹ {(s.pendingDues || 0)?.toLocaleString()}</td>
-                        <td style={{ fontWeight: 900, color: '#9A3412', fontSize: '1rem' }}>
+                        <td style={{ fontWeight: 900, color: '#047857', fontSize: '1rem' }}>
                           ₹ {(s.totalCollected || 0)?.toLocaleString()}
                         </td>
                       </tr>
                     ))
                   )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* DAILY CANCELLATIONS & REFUND LEDGER */}
+        {report?.cancellationSummary?.cancelledBookings && report.cancellationSummary.cancelledBookings.length > 0 && (
+          <div className="glass-card" style={{ marginBottom: 22, border: '2px solid #FECDD3', background: '#FFF1F2' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <AlertTriangle size={20} color="#BE123C" />
+                <h4 style={{ color: '#9F1239', margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>
+                  दैनिक रद्दीकरण एवं रिफंड लेजर (Daily Cancelled & Refunded Tickets Roster)
+                </h4>
+              </div>
+              <span className="badge" style={{ background: '#BE123C', color: '#fff', fontSize: '0.74rem' }}>
+                कुल रिफंड: ₹{(report.cancellationSummary.totalRefundAmount || 0).toLocaleString()} ({report.cancellationSummary.cancelledBookings.length} टिकट)
+              </span>
+            </div>
+            <div className="table-responsive">
+              <table className="custom-table" style={{ background: '#fff' }}>
+                <thead>
+                  <tr>
+                    <th>PNR क्रमांक</th>
+                    <th>श्रद्धालु नाम</th>
+                    <th>मोबाइल</th>
+                    <th>कोच</th>
+                    <th>रिफंड राशि</th>
+                    <th>माध्यम</th>
+                    <th>रिफंडकर्ता स्टाफ</th>
+                    <th>समय व कारण</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.cancellationSummary.cancelledBookings.map((b, idx) => (
+                    <tr key={idx}>
+                      <td><strong style={{ color: '#BE123C' }}>{b.bookingId}</strong></td>
+                      <td><strong>{b.bookedBy}</strong></td>
+                      <td>{b.mobile || '-'}</td>
+                      <td>{b.coachDisplayName || b.coachName || '-'}</td>
+                      <td style={{ color: '#BE123C', fontWeight: 900, fontSize: '1rem' }}>₹{(b.refundAmount || 0).toLocaleString()}</td>
+                      <td>
+                        <span className={`badge ${(b.refundMode || '').toLowerCase().includes('cash') ? 'badge-partial' : 'badge-paid'}`}>
+                          {b.refundMode || 'Cash'}
+                        </span>
+                      </td>
+                      <td>
+                        <strong>{b.cancelledBy}</strong>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{b.cancelledByRole}</div>
+                      </td>
+                      <td style={{ fontSize: '0.78rem' }}>
+                        <div>{b.cancelledAt ? new Date(b.cancelledAt).toLocaleTimeString('hi-IN') : '-'}</div>
+                        <div style={{ color: '#7C2D12' }}>{b.reason || 'यात्री अनुरोध'}</div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -4313,88 +4391,116 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           </div>
         </div>
 
-        {/* 1. Core Financial & Volume KPI Intelligence Strip (6 Responsive Cards) */}
-        <div className="kpi-responsive-grid" style={{ marginBottom: 22 }}>
+        {/* 1. Core Financial & Volume KPI Intelligence Strip (8 Responsive Cards with Accurate Refund Accounting) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14, marginBottom: 22 }}>
           {/* Card 1: Gross Ticket Value */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #C2410C' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल सकल किराया</div>
               <IndianRupee size={16} color="#C2410C" />
             </div>
-            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#C2410C', margin: '4px 0', lineHeight: 1.1 }}>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#C2410C', margin: '4px 0', lineHeight: 1.1 }}>
               ₹ {(stats.totalCollection || 0).toLocaleString()}
             </div>
-            <div style={{ fontSize: '0.76rem', color: '#784D35' }}>
+            <div style={{ fontSize: '0.74rem', color: '#784D35' }}>
               सकल लक्षित टिकट राजस्व
             </div>
           </div>
 
-          {/* Card 2: Net Advance Received */}
-          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #047857' }}>
+          {/* Card 2: Gross Advance Inflow */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #0284C7' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>प्राप्त अग्रिम (Net Collected)</div>
-              <CheckCircle2 size={16} color="#047857" />
+              <div style={{ fontSize: '0.74rem', color: '#0369A1', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>सकल प्राप्त अग्रिम</div>
+              <CheckCircle2 size={16} color="#0284C7" />
             </div>
-            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#047857', margin: '4px 0', lineHeight: 1.1 }}>
-              ₹ {(stats.totalAdvance || 0).toLocaleString()}
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0369A1', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {((stats.grossAdvance !== undefined ? stats.grossAdvance : ((stats.netAdvance || stats.totalAdvance || 0) + (stats.totalRefundAmount || 0))) || 0).toLocaleString()}
             </div>
-            <div style={{ fontSize: '0.76rem', color: '#047857', fontWeight: 700 }}>
-              {stats.totalCollection > 0 ? Math.round(((stats.totalAdvance || 0) / stats.totalCollection) * 100) : 0}% कुल किराया वसूल
+            <div style={{ fontSize: '0.74rem', color: '#0284C7' }}>
+              काउंटर पर कुल आवक अग्रिम
             </div>
           </div>
 
-          {/* Card 3: Outstanding Remaining Dues */}
+          {/* Card 3: Total Refund Paid Out */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #E11D48', background: (stats.totalRefundAmount > 0 ? '#FFF1F2' : '#FFFFFF') }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#BE123C', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल रिफंड अदायगी</div>
+              <AlertTriangle size={16} color="#E11D48" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#BE123C', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {(stats.totalRefundAmount || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.74rem', color: '#9F1239', fontWeight: 600 }}>
+              {stats.totalCancelledCount || 0} टिकट/यात्री रद्दीकरण
+            </div>
+          </div>
+
+          {/* Card 4: Net Advance In Hand */}
+          <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #059669', background: '#F0FDF4' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.74rem', color: '#065F46', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>शुद्ध अग्रिम (Net Collected)</div>
+              <CheckCircle2 size={16} color="#059669" />
+            </div>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#047857', margin: '4px 0', lineHeight: 1.1 }}>
+              ₹ {((stats.netAdvance !== undefined ? stats.netAdvance : stats.totalAdvance) || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.74rem', color: '#047857', fontWeight: 700 }}>
+              रिफंड घटाने के बाद शुद्ध शेष
+            </div>
+          </div>
+
+          {/* Card 5: Outstanding Remaining Dues */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #DC2626' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>शेष देय राशि (Outstanding)</div>
               <AlertTriangle size={16} color="#DC2626" />
             </div>
-            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#DC2626', margin: '4px 0', lineHeight: 1.1 }}>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#DC2626', margin: '4px 0', lineHeight: 1.1 }}>
               ₹ {(stats.totalRemaining || 0).toLocaleString()}
             </div>
-            <div style={{ fontSize: '0.76rem', color: '#991B1B' }}>
+            <div style={{ fontSize: '0.74rem', color: '#991B1B' }}>
               ट्रेन/कटड़ा काउंटर पर वसूली योग्य
             </div>
           </div>
 
-          {/* Card 4: Total Discount Conceded */}
+          {/* Card 6: Total Discount Conceded */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #D97706' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>कुल छूट व रियायत</div>
               <Percent size={16} color="#D97706" />
             </div>
-            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#D97706', margin: '4px 0', lineHeight: 1.1 }}>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#D97706', margin: '4px 0', lineHeight: 1.1 }}>
               ₹ {(stats.totalDiscount || 0).toLocaleString()}
             </div>
-            <div style={{ fontSize: '0.76rem', color: '#92400E' }}>
+            <div style={{ fontSize: '0.74rem', color: '#92400E' }}>
               {stats.discountStats?.discountedTicketsCount || 0} टिकटों पर ट्रस्टी छूट
             </div>
           </div>
 
-          {/* Card 5: Pilgrims & Tickets Count */}
+          {/* Card 7: Pilgrims & Tickets Count */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #2563EB' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>आरक्षित श्रद्धालु</div>
               <Users size={16} color="#2563EB" />
             </div>
-            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#2563EB', margin: '4px 0', lineHeight: 1.1 }}>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#2563EB', margin: '4px 0', lineHeight: 1.1 }}>
               {stats.totalPassengers || 0}
             </div>
-            <div style={{ fontSize: '0.76rem', color: '#1E40AF' }}>
+            <div style={{ fontSize: '0.74rem', color: '#1E40AF' }}>
               {stats.totalBookings || 0} PNR टिकटों में आरक्षित
             </div>
           </div>
 
-          {/* Card 6: Train Capacity Occupancy Rate */}
+          {/* Card 8: Train Capacity Occupancy Rate */}
           <div className="glass-card" style={{ padding: '16px 18px', borderLeft: '4px solid #7C3AED' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ fontSize: '0.74rem', color: '#7C2D12', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>ट्रेन लाइव ऑक्यूपेंसी</div>
               <TrendingUp size={16} color="#7C3AED" />
             </div>
-            <div className="kpi-num" style={{ fontSize: '1.85rem', fontWeight: 900, color: '#7C3AED', margin: '4px 0', lineHeight: 1.1 }}>
+            <div className="kpi-num" style={{ fontSize: '1.75rem', fontWeight: 900, color: '#7C3AED', margin: '4px 0', lineHeight: 1.1 }}>
               {stats.overallOccupancyPercent || 0}%
             </div>
-            <div style={{ fontSize: '0.76rem', color: '#5B21B6' }}>
+            <div style={{ fontSize: '0.74rem', color: '#5B21B6' }}>
               {stats.totalPassengers || 0} / {stats.totalTrainCapacity || 1000} सीटें भरीं
             </div>
           </div>
@@ -4553,7 +4659,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
               {/* Mode 1: Cash */}
               <div style={{ background: '#FFF7ED', border: '1.5px solid #FED7AA', borderRadius: 10, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.85rem' }}>💵 नकद (Cash Collection)</span>
+                  <span style={{ fontWeight: 800, color: '#9A3412', fontSize: '0.85rem' }}>💵 शुद्ध नकद (Net Cash in Hand)</span>
                   <span style={{ fontWeight: 900, color: '#C2410C', fontSize: '0.95rem' }}>
                     ₹ {(stats.paymentModes?.cash?.amount || 0).toLocaleString()}
                     <span style={{ fontSize: '0.74rem', color: '#7C2D12', marginLeft: 4 }}>({stats.paymentModes?.cash?.percent || 0}%)</span>
@@ -4563,14 +4669,16 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   <div className="dash-progress-fill orange" style={{ width: `${stats.paymentModes?.cash?.percent || 0}%` }} />
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#784D35', marginTop: 4 }}>
-                  {stats.paymentModes?.cash?.count || 0} नकद रसीदें जमा
+                  {stats.paymentModes?.cash?.refund > 0
+                    ? `सकल नकद ₹${(stats.paymentModes?.cash?.gross || 0).toLocaleString()} − रिफंड ₹${(stats.paymentModes?.cash?.refund || 0).toLocaleString()}`
+                    : `${stats.paymentModes?.cash?.count || 0} नकद रसीदें जमा`}
                 </div>
               </div>
 
               {/* Mode 2: UPI / QR */}
               <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 10, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.85rem' }}>📱 UPI / क्यूआर कोड (Online UPI)</span>
+                  <span style={{ fontWeight: 800, color: '#065F46', fontSize: '0.85rem' }}>📱 शुद्ध UPI / बैंक (Net Online UPI)</span>
                   <span style={{ fontWeight: 900, color: '#047857', fontSize: '0.95rem' }}>
                     ₹ {(stats.paymentModes?.upi?.amount || 0).toLocaleString()}
                     <span style={{ fontSize: '0.74rem', color: '#065F46', marginLeft: 4 }}>({stats.paymentModes?.upi?.percent || 0}%)</span>
@@ -4580,7 +4688,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   <div className="dash-progress-fill green" style={{ width: `${stats.paymentModes?.upi?.percent || 0}%` }} />
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#065F46', marginTop: 4 }}>
-                  {stats.paymentModes?.upi?.count || 0} ऑनलाइन क्यूआर डिजिटल रसीदें
+                  {stats.paymentModes?.upi?.refund > 0
+                    ? `सकल UPI ₹${(stats.paymentModes?.upi?.gross || 0).toLocaleString()} − रिफंड ₹${(stats.paymentModes?.upi?.refund || 0).toLocaleString()}`
+                    : `${stats.paymentModes?.upi?.count || 0} ऑनलाइन क्यूआर डिजिटल रसीदें`}
                 </div>
               </div>
 

@@ -1320,7 +1320,10 @@ class BookingService {
         action: isFullCancellation ? 'TICKET_CANCELLED' : 'PASSENGERS_CANCELLED',
         performedBy: staffUser,
         details: `PNR ${booking.bookingId} (${booking.bookedBy}) ${isFullCancellation ? 'का पूरा टिकट' : `के ${cancellingCount} यात्री`} रद्द किया गया। रद्द यात्री: ${cancelledPaxList.map(p => p.name).join(', ')}, मुक्त सीटें: ${releasedSeats.join(', ')}, रिफंड: ₹${refundAmount}, कटौती शुल्क: ₹${cancellationCharges}, माध्यम: ${refundMode}, कारण: ${cancellationReason}, टिप्पणी: ${remarks}`,
-        targetId: booking.bookingId
+        targetId: booking.bookingId,
+        amount: -refundAmount,
+        refundAmount: refundAmount,
+        paymentMode: refundMode
       });
     } catch (e) {}
 
@@ -1723,37 +1726,73 @@ class BookingService {
 
     const totalPassengers = activeBookings.reduce((sum, b) => sum + (Number(b.numberOfPassengers) || (b.passengers ? b.passengers.length : 1)), 0);
     const totalCollection = activeBookings.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
-    const grossAdvance = allBookings.reduce((sum, b) => sum + (Number(b.advance) || 0), 0);
-    const totalRefundAmount = cancelledBookings.reduce((sum, b) => sum + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0);
-    const netAdvance = Math.max(0, grossAdvance - totalRefundAmount);
 
-    const totalAdvance = activeBookings.reduce((sum, b) => sum + (Number(b.advance) || 0), 0);
+    // Multi-Tier Financial Reconciliation Accounting:
+    // 1. Total Refund Across ALL Bookings (Full Ticket & Partial Passenger Cancellations)
+    let totalRefundAmount = 0;
+    let cashRefundAmount = 0;
+    let upiRefundAmount = 0;
+    let otherRefundAmount = 0;
+    let grossAdvance = 0;
+    let cashGrossAdvance = 0;
+    let upiGrossAdvance = 0;
+    let otherGrossAdvance = 0;
+    let cashCount = 0, upiCount = 0, otherCount = 0;
+
+    allBookings.forEach(b => {
+      // Calculate total refund on this booking
+      let bRefund = Number(b.refundAmount || 0);
+      if (!bRefund && b.cancellationDetails?.refundAmount) {
+        bRefund = Number(b.cancellationDetails.refundAmount);
+      }
+      totalRefundAmount += bRefund;
+
+      // Calculate gross advance originally paid
+      let bGrossAdv = 0;
+      if (b.status === 'Cancelled') {
+        bGrossAdv = Number(b.cancellationDetails?.originalAdvance ?? (bRefund || b.advance || 0));
+      } else {
+        bGrossAdv = Number(b.advance || 0) + bRefund;
+      }
+      grossAdvance += bGrossAdv;
+
+      const mode = String(b.paymentMode || b.advancePaymentMode || '').toUpperCase();
+      const refundMode = String(b.cancellationDetails?.refundMode || b.paymentMode || '').toUpperCase();
+
+      if (mode.includes('CASH') || mode.includes('नकद')) {
+        cashGrossAdvance += bGrossAdv;
+        if (b.status !== 'Cancelled') cashCount++;
+      } else if (mode.includes('UPI') || mode.includes('QR') || mode.includes('GPAY') || mode.includes('PHONEPE')) {
+        upiGrossAdvance += bGrossAdv;
+        if (b.status !== 'Cancelled') upiCount++;
+      } else {
+        otherGrossAdvance += bGrossAdv;
+        if (b.status !== 'Cancelled') otherCount++;
+      }
+
+      if (bRefund > 0) {
+        if (refundMode.includes('CASH') || refundMode.includes('नकद')) {
+          cashRefundAmount += bRefund;
+        } else if (refundMode.includes('UPI') || refundMode.includes('QR') || refundMode.includes('GPAY') || refundMode.includes('PHONEPE') || refundMode.includes('BANK')) {
+          upiRefundAmount += bRefund;
+        } else {
+          otherRefundAmount += bRefund;
+        }
+      }
+    });
+
+    const netAdvance = Math.max(0, grossAdvance - totalRefundAmount);
+    const netCash = Math.max(0, cashGrossAdvance - cashRefundAmount);
+    const netUpi = Math.max(0, upiGrossAdvance - upiRefundAmount);
+    const netOther = Math.max(0, otherGrossAdvance - otherRefundAmount);
+
+    const totalAdvance = netAdvance; // Canonical: totalAdvance is Net Advance in hand
     const totalDiscount = activeBookings.reduce((sum, b) => sum + (Number(b.discount) || 0), 0);
     const totalRemaining = activeBookings.reduce((sum, b) => sum + (Number(b.remainingAmount) || 0), 0);
 
     const paidCount = activeBookings.filter(b => b.paymentStatus === 'Paid').length;
     const partialCount = activeBookings.filter(b => b.paymentStatus === 'Partial').length;
     const unpaidCount = activeBookings.filter(b => b.paymentStatus === 'Unpaid').length;
-
-    // Payment Modes Split (Cash vs UPI vs Bank/Other)
-    let cashAmount = 0, cashCount = 0;
-    let upiAmount = 0, upiCount = 0;
-    let otherAmount = 0, otherCount = 0;
-
-    activeBookings.forEach(b => {
-      const mode = (b.paymentMode || b.advancePaymentMode || '').toUpperCase();
-      const adv = Number(b.advance) || 0;
-      if (mode.includes('CASH') || mode.includes('नकद')) {
-        cashAmount += adv;
-        cashCount++;
-      } else if (mode.includes('UPI') || mode.includes('QR') || mode.includes('GPAY') || mode.includes('PHONEPE')) {
-        upiAmount += adv;
-        upiCount++;
-      } else {
-        otherAmount += adv;
-        otherCount++;
-      }
-    });
 
     // Coach Capacities & Coach-wise stats
     let coachList = [];
@@ -1964,10 +2003,30 @@ class BookingService {
       partialCount,
       unpaidCount,
       paymentModes: {
-        cash: { amount: cashAmount, count: cashCount, percent: totalAdvance > 0 ? Math.round((cashAmount / totalAdvance) * 100) : 0 },
-        upi: { amount: upiAmount, count: upiCount, percent: totalAdvance > 0 ? Math.round((upiAmount / totalAdvance) * 100) : 0 },
-        other: { amount: otherAmount, count: otherCount, percent: totalAdvance > 0 ? Math.round((otherAmount / totalAdvance) * 100) : 0 }
+        cash: {
+          amount: netCash,
+          gross: cashGrossAdvance,
+          refund: cashRefundAmount,
+          count: cashCount,
+          percent: netAdvance > 0 ? Math.round((netCash / netAdvance) * 100) : 0
+        },
+        upi: {
+          amount: netUpi,
+          gross: upiGrossAdvance,
+          refund: upiRefundAmount,
+          count: upiCount,
+          percent: netAdvance > 0 ? Math.round((netUpi / netAdvance) * 100) : 0
+        },
+        other: {
+          amount: netOther,
+          gross: otherGrossAdvance,
+          refund: otherRefundAmount,
+          count: otherCount,
+          percent: netAdvance > 0 ? Math.round((netOther / netAdvance) * 100) : 0
+        }
       },
+      cashRefundAmount,
+      upiRefundAmount,
       coachStats,
       coachMatrix,
       classStats,

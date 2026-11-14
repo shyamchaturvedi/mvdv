@@ -557,19 +557,19 @@
       "id": "booking_2026",
       "yatraYear": 2026,
       "lastNumber": 0,
-      "updatedAt": "2026-11-14T08:50:37.522Z"
+      "updatedAt": "2026-11-14T09:31:37.719Z"
     },
     {
       "id": "pnr_2026",
       "yatraYear": 2026,
       "lastNumber": 0,
-      "updatedAt": "2026-11-14T08:50:37.524Z"
+      "updatedAt": "2026-11-14T09:31:37.719Z"
     },
     {
       "id": "receipt_2026",
       "yatraYear": 2026,
       "lastNumber": 0,
-      "updatedAt": "2026-11-14T08:50:37.524Z"
+      "updatedAt": "2026-11-14T09:31:37.719Z"
     }
   ]
 }

@@ -445,9 +445,14 @@ class StaffService {
       return true; // all dates
     };
 
-    // Filter audit logs and bookings
+    // Filter audit logs and bookings (including cancellations and refunds processed in this period)
     const filteredLogs = auditLogs.filter(l => isDateMatch(l.timestamp) || isDateMatch(l.formattedTime));
-    const filteredBookings = bookings.filter(b => isDateMatch(b.createdAt) || isDateMatch(b.travelDate));
+    const filteredBookings = bookings.filter(b => 
+      isDateMatch(b.createdAt) || 
+      isDateMatch(b.travelDate) ||
+      (b.cancellationDetails?.cancelledAt && isDateMatch(b.cancellationDetails.cancelledAt)) ||
+      (Array.isArray(b.paymentHistory) && b.paymentHistory.some(tx => isDateMatch(tx.date)))
+    );
     const activeFilteredBookings = filteredBookings.filter(b => b.status !== 'Cancelled');
 
     const targetStaff = username ? staffList.find(s => s.username === username || s.staffId === username) : null;
@@ -472,8 +477,14 @@ class StaffService {
         department: s.department,
         status: s.status,
         totalCollected: 0,
+        grossCollected: 0,
         cashCollected: 0,
+        cashGross: 0,
         upiCollected: 0,
+        upiGross: 0,
+        totalRefund: 0,
+        cashRefund: 0,
+        upiRefund: 0,
         transactionCount: 0,
         bookingsCount: 0,
         grossBookedAmount: 0,
@@ -492,8 +503,14 @@ class StaffService {
         department: 'Trust Executive',
         status: 'Active',
         totalCollected: 0,
+        grossCollected: 0,
         cashCollected: 0,
+        cashGross: 0,
         upiCollected: 0,
+        upiGross: 0,
+        totalRefund: 0,
+        cashRefund: 0,
+        upiRefund: 0,
         transactionCount: 0,
         bookingsCount: 0,
         grossBookedAmount: 0,
@@ -571,16 +588,35 @@ class StaffService {
     });
 
     filteredLogs.forEach(log => {
-      const actor = log.actorUsername || (log.performedBy && typeof log.performedBy === 'string' ? log.performedBy : '');
+      const actor = log.actorUsername || (log.performedBy && typeof log.performedBy === 'string' ? log.performedBy : '') || 'admin';
       const amt = Number(log.amount || 0);
+      const refAmt = Number(log.refundAmount || 0);
       const isCash = (log.paymentMode || '').toLowerCase().includes('cash') || (log.paymentMode || '').toLowerCase().includes('नकद');
 
       if (staffBreakdownMap[actor]) {
         staffBreakdownMap[actor].transactionCount++;
         if (amt > 0) {
+          staffBreakdownMap[actor].grossCollected += amt;
           staffBreakdownMap[actor].totalCollected += amt;
-          if (isCash) staffBreakdownMap[actor].cashCollected += amt;
-          else staffBreakdownMap[actor].upiCollected += amt;
+          if (isCash) {
+            staffBreakdownMap[actor].cashGross += amt;
+            staffBreakdownMap[actor].cashCollected += amt;
+          } else {
+            staffBreakdownMap[actor].upiGross += amt;
+            staffBreakdownMap[actor].upiCollected += amt;
+          }
+        } else if (amt < 0 || refAmt > 0) {
+          // Negative Outflow (Refund)
+          const outVal = Math.abs(refAmt || amt);
+          staffBreakdownMap[actor].totalRefund += outVal;
+          staffBreakdownMap[actor].totalCollected -= outVal;
+          if (isCash) {
+            staffBreakdownMap[actor].cashRefund += outVal;
+            staffBreakdownMap[actor].cashCollected -= outVal;
+          } else {
+            staffBreakdownMap[actor].upiRefund += outVal;
+            staffBreakdownMap[actor].upiCollected -= outVal;
+          }
         }
       }
 
@@ -589,6 +625,11 @@ class StaffService {
           personalTotalCollected += amt;
           if (isCash) personalCashCollected += amt;
           else personalUpiCollected += amt;
+        } else if (amt < 0 || refAmt > 0) {
+          const outVal = Math.abs(refAmt || amt);
+          personalTotalCollected -= outVal;
+          if (isCash) personalCashCollected -= outVal;
+          else personalUpiCollected -= outVal;
         }
         personalTransactions.push(log);
       }
@@ -618,10 +659,67 @@ class StaffService {
       }
     });
 
-    const overallLogCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.totalCollected, 0);
-    const overallTotalCollected = overallLogCollected > 0 ? overallLogCollected : overallAdvance;
-    const overallCashCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.cashCollected, 0) || overallBookingCash;
-    const overallUpiCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.upiCollected, 0) || overallBookingUpi;
+    // Accurately aggregate all refunds processed within the filtered date range
+    let overallRefundAmount = 0;
+    let overallCashRefund = 0;
+    let overallUpiRefund = 0;
+    const periodCancelledBookings = [];
+
+    filteredBookings.forEach(b => {
+      let bRefundInPeriod = 0;
+      let bRefundMode = 'Cash';
+
+      // 1. Check payment history entries matching date
+      const history = Array.isArray(b.paymentHistory) ? b.paymentHistory : [];
+      history.forEach(tx => {
+        if (tx && isDateMatch(tx.date) && (tx.refundAmount > 0 || tx.amount < 0)) {
+          const val = Math.abs(Number(tx.refundAmount || tx.amount || 0));
+          const method = String(tx.method || '').toLowerCase();
+          const isCash = method.includes('cash') || method.includes('नकद');
+          overallRefundAmount += val;
+          bRefundInPeriod += val;
+          if (isCash) overallCashRefund += val;
+          else overallUpiRefund += val;
+          bRefundMode = tx.method || bRefundMode;
+        }
+      });
+
+      // 2. Fallback to cancellationDetails if paymentHistory didn't capture it
+      if (bRefundInPeriod === 0 && b.cancellationDetails?.cancelledAt && isDateMatch(b.cancellationDetails.cancelledAt)) {
+        const val = Number(b.refundAmount || b.cancellationDetails.refundAmount || 0);
+        if (val > 0) {
+          const mode = String(b.cancellationDetails.refundMode || '').toLowerCase();
+          const isCash = mode.includes('cash') || mode.includes('नकद');
+          overallRefundAmount += val;
+          bRefundInPeriod += val;
+          if (isCash) overallCashRefund += val;
+          else overallUpiRefund += val;
+          bRefundMode = b.cancellationDetails.refundMode || bRefundMode;
+        }
+      }
+
+      if (bRefundInPeriod > 0 || b.status === 'Cancelled') {
+        periodCancelledBookings.push({
+          bookingId: b.bookingId,
+          bookedBy: b.bookedBy,
+          mobile: b.mobile,
+          coachName: b.coachName || b.cancellationDetails?.originalCoach || '',
+          coachDisplayName: b.coachDisplayName || b.cancellationDetails?.originalCoachDisplayName || '',
+          cancelledAt: b.cancellationDetails?.cancelledAt || b.updatedAt,
+          cancelledBy: b.cancellationDetails?.cancelledBy || 'Staff',
+          cancelledByRole: b.cancellationDetails?.cancelledByRole || 'Staff',
+          refundAmount: bRefundInPeriod > 0 ? bRefundInPeriod : (Number(b.refundAmount || b.cancellationDetails?.refundAmount || 0)),
+          refundMode: bRefundMode,
+          reason: b.cancellationDetails?.cancellationReason || 'यात्री अनुरोध'
+        });
+      }
+    });
+
+    const overallLogCollected = Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.grossCollected, 0);
+    const overallGrossCollected = overallLogCollected > 0 ? overallLogCollected : overallAdvance;
+    const overallNetCollected = Math.max(0, overallGrossCollected - overallRefundAmount);
+    const overallNetCash = Math.max(0, (Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.cashCollected, 0) || overallBookingCash) - overallCashRefund);
+    const overallNetUpi = Math.max(0, (Object.values(staffBreakdownMap).reduce((acc, s) => acc + s.upiCollected, 0) || overallBookingUpi) - overallUpiRefund);
 
     // Build chronological date-wise breakdown array for UI graphs
     const dateWiseBreakdown = Object.values(dateWiseBuckets).sort((a, b) => a.date.localeCompare(b.date));
@@ -636,6 +734,11 @@ class StaffService {
     };
 
     Object.values(staffBreakdownMap).forEach(s => {
+      // Ensure positive net balances for display
+      s.totalCollected = Math.max(0, s.totalCollected);
+      s.cashCollected = Math.max(0, s.cashCollected);
+      s.upiCollected = Math.max(0, s.upiCollected);
+
       const rKey = s.role || 'Staff';
       if (roleBreakdown[rKey]) {
         roleBreakdown[rKey].bookings += s.bookingsCount;
@@ -676,9 +779,9 @@ class StaffService {
         staffName: targetStaff ? targetStaff.name : (username === 'admin' ? 'मुख्य व्यवस्थापक' : (username || 'All Staff')),
         role: targetStaff ? targetStaff.role : (username === 'admin' ? 'SuperAdmin' : 'Staff'),
         department: targetStaff ? targetStaff.department : 'General',
-        totalCollected: isFilteredToStaff ? personalTotalCollected : overallTotalCollected,
-        cashCollected: isFilteredToStaff ? personalCashCollected : overallCashCollected,
-        upiCollected: isFilteredToStaff ? personalUpiCollected : overallUpiCollected,
+        totalCollected: isFilteredToStaff ? Math.max(0, personalTotalCollected) : overallNetCollected,
+        cashCollected: isFilteredToStaff ? Math.max(0, personalCashCollected) : overallNetCash,
+        upiCollected: isFilteredToStaff ? Math.max(0, personalUpiCollected) : overallNetUpi,
         bookingsCount: isFilteredToStaff ? personalBookingsCount : activeFilteredBookings.length,
         grossBookedAmount: isFilteredToStaff ? personalGrossAmount : overallGross,
         discountsGiven: isFilteredToStaff ? personalDiscountsGiven : overallDiscounts,
@@ -691,35 +794,32 @@ class StaffService {
         totalYatris: overallYatris,
         totalGrossAmount: overallGross,
         grossAmount: overallGross,
-        totalCollected: overallTotalCollected,
-        cashCollected: overallCashCollected,
-        upiCollected: overallUpiCollected,
+        grossCollected: overallGrossCollected,
+        totalRefundAmount: overallRefundAmount,
+        cashRefundAmount: overallCashRefund,
+        upiRefundAmount: overallUpiRefund,
+        totalCollected: overallNetCollected,
+        netCollected: overallNetCollected,
+        cashCollected: overallNetCash,
+        netCash: overallNetCash,
+        upiCollected: overallNetUpi,
+        netUpi: overallNetUpi,
         totalDiscounts: overallDiscounts,
         discountsGiven: overallDiscounts,
         totalPendingDues: overallDues,
         pendingDues: overallDues,
         totalTransactions: filteredLogs.length,
-        reconciliationBalanced: (overallGross === (overallAdvance + overallDues + overallDiscounts))
+        reconciliationBalanced: (overallGross === (overallNetCollected + overallRefundAmount + overallDues + overallDiscounts))
       },
       dateWiseBreakdown,
       roleBreakdown,
       staffBreakdown: Object.values(staffBreakdownMap),
       cancellationSummary: {
-        totalCancelled: filteredBookings.filter(b => b.status === 'Cancelled').length,
-        totalRefundAmount: filteredBookings.filter(b => b.status === 'Cancelled').reduce((acc, b) => acc + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0),
-        cancelledBookings: filteredBookings.filter(b => b.status === 'Cancelled').map(b => ({
-          bookingId: b.bookingId,
-          bookedBy: b.bookedBy,
-          mobile: b.mobile,
-          coachName: b.coachName || b.cancellationDetails?.originalCoach || '',
-          coachDisplayName: b.coachDisplayName || b.cancellationDetails?.originalCoachDisplayName || '',
-          cancelledAt: b.cancellationDetails?.cancelledAt || b.updatedAt,
-          cancelledBy: b.cancellationDetails?.cancelledBy || 'Staff',
-          cancelledByRole: b.cancellationDetails?.cancelledByRole || 'Staff',
-          refundAmount: b.refundAmount || b.cancellationDetails?.refundAmount || 0,
-          refundMode: b.cancellationDetails?.refundMode || 'Cash',
-          reason: b.cancellationDetails?.cancellationReason || 'यात्री अनुरोध'
-        }))
+        totalCancelled: periodCancelledBookings.length,
+        totalRefundAmount: overallRefundAmount,
+        cashRefundAmount: overallCashRefund,
+        upiRefundAmount: overallUpiRefund,
+        cancelledBookings: periodCancelledBookings
       },
       transactions: personalTxOut,
       recentLogs: filteredLogs.slice(0, 50).map(attachCoachDisplay)
