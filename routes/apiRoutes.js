@@ -347,7 +347,10 @@ router.post('/admin/bookings/:id/cancel', requireAuth(), async (req, res) => {
 // Real-time coach seat layout & booked seats
 router.get('/coaches/:coachName/layout', async (req, res) => {
   try {
-    const coachName = req.params.coachName.toUpperCase();
+    const rawCoach = req.params.coachName || '';
+    let coachName = rawCoach;
+    try { coachName = decodeURIComponent(rawCoach); } catch (_) {}
+    coachName = coachName.trim().toUpperCase();
     const yatraYear = parseInt(req.query.year, 10) || 2026;
     const occupancy = await BookingService.getCoachOccupancy(coachName, yatraYear);
     res.json({ success: true, ...occupancy });

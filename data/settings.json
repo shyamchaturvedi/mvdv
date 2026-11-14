@@ -23,12 +23,12 @@
     2027,
     2028
   ],
-  "defaultTravelDate": "2026-10-15",
-  "journeyDate": "2026-10-15",
-  "returnTravelDate": "2026-10-22",
+  "defaultTravelDate": "2026-12-22",
+  "journeyDate": "2026-12-22",
+  "returnTravelDate": "2026-10-27",
   "fares": {
     "AC": 0,
-    "Sleeper": 3000,
+    "Sleeper": 3500,
     "General": 2000
   },
   "routeStations": [
@@ -73,11 +73,13 @@
   ],
   "enablePublicPnrSearch": true,
   "strictQrVerification": true,
-  "hideBerthNumber": true,
-  "updatedAt": "2026-10-11T10:25:50.577Z",
+  "hideBerthNumber": false,
+  "printLayout": "half",
+  "updatedAt": "2026-11-12T04:04:59.745Z",
   "createdAt": "2026-10-04T17:49:56.047Z",
-  "lastUpdatedBy": "Admin",
-  "fareSleeper": 3000,
+  "lastUpdatedBy": "Shyam Chaturvedi",
+  "fareSleeper": 3500,
   "fareAC": 0,
-  "fareGeneral": 2000
+  "fareGeneral": 2000,
+  "id": "general"
 }

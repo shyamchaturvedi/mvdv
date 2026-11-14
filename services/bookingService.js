@@ -45,10 +45,38 @@ async function resolveCoachAndSettings(coachCode, travelClass) {
     const { CoachService } = require('./coachService');
     const all = await CoachService.getAllCoaches();
     const target = String(coachCode || '').trim().toUpperCase();
-    coachMeta = all.find(c => String(c.coachCode || '').trim().toUpperCase() === target) || null;
+    coachMeta = all.find(c => {
+      const cCode = String(c.coachCode || '').trim().toUpperCase();
+      const cName = String(c.coachName || '').trim().toUpperCase();
+      const cId = String(c.id || '').trim().toUpperCase();
+      return cCode === target || cId === target || cName === target || cName.includes(target) ||
+        (target === 'S1' && (cCode.includes('GANESH') || cName.includes('S1'))) ||
+        (target.includes('GANESH') && (cCode === 'S1' || cId === 'COACH-S1' || cName.includes('S1')));
+    }) || null;
   } catch (e) {}
   const normClass = normalizeClassKey(travelClass || coachMeta?.coachClass, coachCode);
   return { coachMeta, settings, normClass };
+}
+
+function matchesCoach(bCoach, targetCoach, coachMeta) {
+  const b = String(bCoach || '').trim().toUpperCase();
+  const t = String(targetCoach || '').trim().toUpperCase();
+  if (!b || !t) return false;
+  if (b === t) return true;
+  if (coachMeta) {
+    const cCode = String(coachMeta.coachCode || '').trim().toUpperCase();
+    const cName = String(coachMeta.coachName || '').trim().toUpperCase();
+    const cId = String(coachMeta.id || '').trim().toUpperCase();
+    if (b === cCode || b === cName || b === cId) return true;
+    if (t === cCode || t === cName || t === cId) {
+      if (b === 'S1' && (cCode.includes('GANESH') || cName.includes('S1'))) return true;
+      if (b.includes('GANESH') && (cCode === 'S1' || cId === 'COACH-S1' || cName.includes('S1') || cCode.includes('GANESH'))) return true;
+    }
+  }
+  // Check common aliases e.g. S1 <-> GANESH COACH
+  if ((b === 'S1' && t.includes('GANESH')) || (t === 'S1' && b.includes('GANESH'))) return true;
+  if (b.includes('GANESH') && t.includes('GANESH')) return true;
+  return false;
 }
 
 // IRCTC Standard Coach Berth Engine (Indian Railways PRS Architecture)
@@ -1356,7 +1384,8 @@ class BookingService {
   static async getCoachOccupancy(coachName, yatraYear = 2026) {
     const cleanCoach = String(coachName || 'S1').trim().toUpperCase();
     const { coachMeta, normClass } = await resolveCoachAndSettings(cleanCoach);
-    const bookings = await this.getBookings({ coachName: cleanCoach, yatraYear });
+    const allBookings = await this.getBookings({ yatraYear });
+    const bookings = allBookings.filter(b => matchesCoach(b.coachName, cleanCoach, coachMeta) || matchesCoach(b.coachDisplayName, cleanCoach, coachMeta));
     const bookedSeats = new Set();
     const seatOwnerMap = {};
 
@@ -1366,7 +1395,7 @@ class BookingService {
         if (Array.isArray(b.seatNumber)) {
           b.seatNumber.forEach(s => {
             const seatStr = String(s).trim();
-            if (seatStr) {
+            if (seatStr && seatStr !== 'Free' && seatStr !== 'Cancelled') {
               bookedSeats.add(seatStr);
               seatOwnerMap[seatStr] = owner;
             }
@@ -1374,7 +1403,7 @@ class BookingService {
         }
         if (Array.isArray(b.passengers)) {
           b.passengers.forEach(p => {
-            if (p.seatAssigned && p.seatAssigned !== 'Cancelled') {
+            if (p.seatAssigned && p.seatAssigned !== 'Cancelled' && p.seatAssigned !== 'Free') {
               const seatStr = String(p.seatAssigned).trim();
               if (seatStr) {
                 bookedSeats.add(seatStr);
@@ -1389,10 +1418,10 @@ class BookingService {
     const isSLR = cleanCoach.startsWith('SLR');
     const isSleeper = cleanCoach.startsWith('S') && !isSLR;
     const isAC = cleanCoach.startsWith('A') || cleanCoach.startsWith('B');
-    const fallbackCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (cleanCoach.startsWith('A') ? 54 : 64) : 80));
+    const fallbackCapacity = isSLR ? 18 : (isSleeper || cleanCoach.includes('COACH') ? 72 : (isAC ? (cleanCoach.startsWith('A') ? 54 : 64) : 80));
     const totalCapacity = coachMeta && coachMeta.totalSeats !== undefined ? Number(coachMeta.totalSeats) : fallbackCapacity;
-    const travelClass = coachMeta ? normalizeClassKey(coachMeta.coachClass, cleanCoach) : (isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General'));
-    const coachDisplayName = coachMeta?.coachName || '';
+    const travelClass = coachMeta ? (coachMeta.coachClass || normalizeClassKey(coachMeta.coachClass, cleanCoach)) : (isAC ? 'AC' : ((isSleeper || cleanCoach.includes('COACH')) ? 'Sleeper' : 'General'));
+    const coachDisplayName = coachMeta?.coachName || `Coach ${cleanCoach}`;
     const layout = [];
 
     for (let i = 1; i <= totalCapacity; i++) {
@@ -1427,9 +1456,9 @@ class BookingService {
     const isSLR = cleanCoach.startsWith('SLR');
     const isSleeper = cleanCoach.startsWith('S') && !isSLR;
     const isAC = cleanCoach.startsWith('A') || cleanCoach.startsWith('B');
-    const fallbackCapacity = isSLR ? 18 : (isSleeper ? 72 : (isAC ? (cleanCoach.startsWith('A') ? 54 : 64) : 80));
+    const fallbackCapacity = isSLR ? 18 : (isSleeper || cleanCoach.includes('COACH') ? 72 : (isAC ? (cleanCoach.startsWith('A') ? 54 : 64) : 80));
     const totalCapacity = coachMeta && coachMeta.totalSeats !== undefined ? Number(coachMeta.totalSeats) : fallbackCapacity;
-    const travelClass = coachMeta ? (coachMeta.coachClass || normalizeClassKey(coachMeta.coachClass, cleanCoach)) : (isAC ? 'AC' : (isSleeper ? 'Sleeper' : 'General'));
+    const travelClass = coachMeta ? (coachMeta.coachClass || normalizeClassKey(coachMeta.coachClass, cleanCoach)) : (isAC ? 'AC' : ((isSleeper || cleanCoach.includes('COACH')) ? 'Sleeper' : 'General'));
 
     const seatMap = {};
     const coachBookingsMap = new Map();
@@ -1587,12 +1616,14 @@ class BookingService {
         ? bookableCoaches
         : ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'GS1', 'GS2', 'SLR1'].map(code => ({ coachCode: code, totalSeats: 72, coachClass: code.startsWith('A') || code.startsWith('B') ? 'AC' : code.startsWith('S') ? 'Sleeper' : 'General' }));
 
-      // Index bookings by coach code in a Map for instantaneous lookup
+      // Index bookings by canonical coach code matching either exact or alias
       const bookingsByCoach = new Map();
       allYearBookings.forEach(b => {
-        const cKey = String(b.coachName || '').trim().toUpperCase();
-        if (!bookingsByCoach.has(cKey)) bookingsByCoach.set(cKey, []);
-        bookingsByCoach.get(cKey).push(b);
+        const bCoach = String(b.coachName || '').trim().toUpperCase();
+        const matched = coachesToProcess.find(c => matchesCoach(bCoach, c.coachCode, c) || matchesCoach(b.coachDisplayName, c.coachCode, c)) || { coachCode: bCoach };
+        const key = String(matched.coachCode || bCoach).trim().toUpperCase();
+        if (!bookingsByCoach.has(key)) bookingsByCoach.set(key, []);
+        bookingsByCoach.get(key).push(b);
       });
 
       let totalCapacity = 0;
@@ -1635,10 +1666,11 @@ class BookingService {
       };
     } else {
       const cleanCoach = String(coachName).trim().toUpperCase();
-      const [{ coachMeta }, bookings] = await Promise.all([
+      const [{ coachMeta }, allYearBookings] = await Promise.all([
         resolveCoachAndSettings(cleanCoach),
-        this.getBookings({ coachName: cleanCoach, yatraYear: yYear })
+        this.getBookings({ yatraYear: yYear })
       ]);
+      const bookings = allYearBookings.filter(b => matchesCoach(b.coachName, cleanCoach, coachMeta) || matchesCoach(b.coachDisplayName, cleanCoach, coachMeta));
       result = this.buildSingleCoachChartSync(cleanCoach, coachMeta, bookings, yYear);
     }
 
@@ -1649,7 +1681,9 @@ class BookingService {
   // Update TTE passenger attendance / check-in
   static async updatePassengerCheckIn(coachName, yatraYear, seatNumber, checkInStatus) {
     const yYear = parseInt(yatraYear, 10);
-    const bookings = await this.getBookings({ coachName, yatraYear: yYear });
+    const { coachMeta } = await resolveCoachAndSettings(coachName);
+    const allBookings = await this.getBookings({ yatraYear: yYear });
+    const bookings = allBookings.filter(b => matchesCoach(b.coachName, coachName, coachMeta) || matchesCoach(b.coachDisplayName, coachName, coachMeta));
 
     const seatStr = String(seatNumber).trim();
     for (const b of bookings) {

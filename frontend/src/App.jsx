@@ -1184,7 +1184,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
   const loadCoachSeats = async (coach, year) => {
     try {
-      const res = await fetch(`/api/coaches/${coach}/layout?year=${year}${staffToken ? `&token=${staffToken}` : ''}`, {
+      const res = await fetch(`/api/coaches/${encodeURIComponent(coach)}/layout?year=${encodeURIComponent(year || bookingYear || '2026')}${staffToken ? `&token=${encodeURIComponent(staffToken)}` : ''}`, {
         headers: staffToken ? { 'Authorization': 'Bearer ' + staffToken } : {}
       });
       const data = await res.json();
@@ -1910,24 +1910,35 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       return null;
     };
 
+    let lastAssignedTier = null;
     prioritizedPax.forEach(item => {
       let assignedNum = null;
-      // 1. Honor explicit preference if available
-      if (item.pref.includes('lower')) {
-        assignedNum = takeSeat(remainingLowers);
-      } else if (item.pref.includes('middle')) {
-        assignedNum = takeSeat(remainingMiddles);
-      } else if (item.pref.includes('upper')) {
-        assignedNum = takeSeat(remainingUppers);
+      const wantsUpper = item.pref.includes('upper');
+      const wantsMiddle = item.pref.includes('middle');
+      const wantsLower = item.pref.includes('lower');
+
+      // IRCTC Senior Rule: If previous passenger got Upper Berth, NEXT PASSENGER MUST NOT BE GIVEN UPPER BERTH!
+      if (wantsUpper && lastAssignedTier === 'Upper') {
+        assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingLowers) || takeSeat(remainingUppers);
+      } else if (wantsUpper) {
+        assignedNum = takeSeat(remainingUppers) || takeSeat(remainingMiddles) || takeSeat(remainingLowers);
+      } else if (wantsMiddle) {
+        assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingLowers) || (lastAssignedTier === 'Upper' ? takeSeat(remainingLowers) : takeSeat(remainingUppers));
+      } else if (wantsLower) {
+        assignedNum = takeSeat(remainingLowers) || takeSeat(remainingMiddles) || (lastAssignedTier === 'Upper' ? takeSeat(remainingMiddles) : takeSeat(remainingUppers));
       }
 
       // 2. IRCTC standard allocation:
       // Seniors, Females, and Older passengers get Lower berths first
       if (!assignedNum) {
         if (item.isSenior || item.isFemale || item.age >= 45) {
-          assignedNum = takeSeat(remainingLowers) || takeSeat(remainingMiddles) || takeSeat(remainingUppers);
+          assignedNum = takeSeat(remainingLowers) || takeSeat(remainingMiddles) || (lastAssignedTier === 'Upper' ? takeSeat(remainingMiddles) : takeSeat(remainingUppers));
         } else {
-          assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingUppers) || takeSeat(remainingLowers);
+          if (lastAssignedTier === 'Upper') {
+            assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingLowers) || takeSeat(remainingUppers);
+          } else {
+            assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingUppers) || takeSeat(remainingLowers);
+          }
         }
       }
 
@@ -1937,6 +1948,10 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           assignedSeatSet.add(fallback);
           assignedNum = fallback;
         }
+      }
+
+      if (assignedNum) {
+        lastAssignedTier = getBerthInfo(assignedNum, coachClass).tier;
       }
       seatAssignmentMap.set(item.originalIdx, assignedNum);
     });
@@ -1973,66 +1988,60 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
   const toggleSeatSelection = (seatNum) => {
     const str = String(seatNum);
-    let updated;
-    if (selectedSeats.includes(str)) {
-      updated = selectedSeats.filter(s => s !== str);
+    const numPax = Math.max(1, passengers.length);
+    let nextSelected = [...selectedSeats];
+
+    if (nextSelected.includes(str)) {
+      // Toggle off: remove
+      nextSelected = nextSelected.filter(s => s !== str);
     } else {
-      updated = [...selectedSeats, str];
+      // Toggle on
+      if (nextSelected.length < numPax) {
+        nextSelected.push(str);
+      } else {
+        // Replace oldest selection so total selected matches passenger count
+        nextSelected.shift();
+        nextSelected.push(str);
+      }
     }
+
     // Keep seats sorted numerically like IRCTC
-    updated.sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
+    nextSelected.sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
 
-    // Synchronize to passengers WITHOUT wiping out their entered data
-    setPassengers(prevPax => {
-      let paxCopy = [...prevPax];
-      const usedAssigned = new Set();
-      const availableCoachSeats = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
-
-      // Step 1: Assign clicked/selected seats in order
-      const newPax = paxCopy.map((p, idx) => {
-        let seat = updated[idx];
-        if (seat && !usedAssigned.has(seat)) {
-          usedAssigned.add(seat);
-          const bInfo = getBerthInfo(seat, travelClass);
-          return {
-            ...p,
-            seatAssigned: String(seat),
-            berthPreference: bInfo.name,
-            berthCode: bInfo.code,
-            berthType: bInfo.fullName
-          };
-        }
-        return { ...p, seatAssigned: '' };
-      });
-
-      // Step 2: Ensure every passenger has a distinct vacant seat
-      const finalizedPax = newPax.map((p, idx) => {
-        if (p.seatAssigned) return p;
-        let cand = availableCoachSeats.find(s => !usedAssigned.has(s) && !updated.includes(s));
+    // Synchronize to passengers strictly ensuring 1-to-1 unique assignment
+    const availableCoachSeats = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
+    const used = new Set();
+    const updatedPax = passengers.map((p, idx) => {
+      let seat = nextSelected[idx];
+      if (!seat || used.has(seat)) {
+        // Find next distinct vacant seat
+        let cand = availableCoachSeats.find(s => !nextSelected.includes(s) && !used.has(s));
         if (!cand) {
           for (let i = 1; i <= 100; i++) {
-            const candStr = String(i);
-            if (!usedAssigned.has(candStr)) {
-              cand = candStr;
-              break;
-            }
+            const cs = String(i);
+            if (!nextSelected.includes(cs) && !used.has(cs)) { cand = cs; break; }
           }
         }
-        usedAssigned.add(String(cand));
-        const bInfo = getBerthInfo(cand, travelClass);
-        return {
-          ...p,
-          seatAssigned: String(cand),
-          berthPreference: bInfo.name,
-          berthCode: bInfo.code,
-          berthType: bInfo.fullName
-        };
-      });
-
-      const allAssigned = Array.from(new Set(finalizedPax.map(p => String(p.seatAssigned)))).sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
-      setSelectedSeats(allAssigned);
-      return finalizedPax;
+        seat = cand || String(idx + 1);
+        if (!nextSelected.includes(seat) && nextSelected.length < numPax) {
+          nextSelected.push(seat);
+        }
+      }
+      used.add(seat);
+      const bInfo = getBerthInfo(seat, travelClass);
+      return {
+        ...p,
+        seatAssigned: String(seat),
+        berthPreference: bInfo.name,
+        berthCode: bInfo.code,
+        berthType: bInfo.fullName
+      };
     });
+
+    const finalSelected = Array.from(new Set(updatedPax.map(p => String(p.seatAssigned))))
+      .sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
+    setSelectedSeats(finalSelected);
+    setPassengers(updatedPax);
   };
 
   // Synchronize Lead Devotee info to Passenger 1 if autofill checkbox is active
@@ -2089,35 +2098,37 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
   };
 
   const addPassenger = () => {
-    // Current seats already assigned to passengers or currently selected
+    const currentPax = [...passengers];
     const occupiedInForm = new Set(
-      passengers.map(p => String(p.seatAssigned || '').trim())
+      currentPax.map(p => String(p.seatAssigned || '').trim())
         .concat(selectedSeats.map(s => String(s).trim()))
         .filter(Boolean)
     );
 
-    // Available seats in current coach not booked and not in form
     const available = (coachLayout.layout || [])
       .filter(s => !s.isBooked && !occupiedInForm.has(String(s.seatNumber)))
       .map(s => String(s.seatNumber));
 
-    // Try to pick next seat in the same bay if possible, avoiding consecutive upper berths
+    const lastAssigned = currentPax[currentPax.length - 1]?.seatAssigned;
+    const lastNum = parseInt(lastAssigned, 10);
+    const lastTier = !isNaN(lastNum) ? getBerthInfo(lastNum, travelClass).tier : null;
+    const cUpper = String(travelClass || '').toUpperCase();
+    const baySize = (cUpper === 'AC' || cUpper === '2A' || cUpper.includes('2A')) ? 6 : 8;
+
     let nextSeat = null;
     if (available.length > 0) {
-      const lastAssigned = passengers[passengers.length - 1]?.seatAssigned;
-      const lastNum = parseInt(lastAssigned, 10);
-      const cUpper = String(travelClass || '').toUpperCase();
-      const baySize = (cUpper === 'AC' || cUpper === '2A' || cUpper.includes('2A')) ? 6 : 8;
-
       if (!isNaN(lastNum) && lastNum > 0) {
         const currentBay = Math.ceil(lastNum / baySize);
         // Look for seats in the same bay first
         const sameBaySeats = available.filter(s => Math.ceil(parseInt(s, 10) / baySize) === currentBay);
         if (sameBaySeats.length > 0) {
+          // If previous seat was Upper, prioritize Middle or Lower; avoid consecutive upper berths
           sameBaySeats.sort((a, b) => {
-            const trA = getBerthInfo(a, travelClass).tier === 'Lower' ? 1 : (getBerthInfo(a, travelClass).tier === 'Middle' ? 2 : 3);
-            const trB = getBerthInfo(b, travelClass).tier === 'Lower' ? 1 : (getBerthInfo(b, travelClass).tier === 'Middle' ? 2 : 3);
-            if (trA !== trB) return trA - trB;
+            const trA = getBerthInfo(a, travelClass).tier;
+            const trB = getBerthInfo(b, travelClass).tier;
+            const scoreA = (lastTier === 'Upper' && trA === 'Upper') ? 99 : (trA === 'Lower' ? 1 : (trA === 'Middle' ? 2 : 3));
+            const scoreB = (lastTier === 'Upper' && trB === 'Upper') ? 99 : (trB === 'Lower' ? 1 : (trB === 'Middle' ? 2 : 3));
+            if (scoreA !== scoreB) return scoreA - scoreB;
             return (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0);
           });
           nextSeat = sameBaySeats[0];
@@ -2125,9 +2136,11 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       }
       if (!nextSeat) {
         const sortedAvail = [...available].sort((a, b) => {
-          const trA = getBerthInfo(a, travelClass).tier === 'Lower' ? 1 : (getBerthInfo(a, travelClass).tier === 'Middle' ? 2 : 3);
-          const trB = getBerthInfo(b, travelClass).tier === 'Lower' ? 1 : (getBerthInfo(b, travelClass).tier === 'Middle' ? 2 : 3);
-          if (trA !== trB) return trA - trB;
+          const trA = getBerthInfo(a, travelClass).tier;
+          const trB = getBerthInfo(b, travelClass).tier;
+          const scoreA = (lastTier === 'Upper' && trA === 'Upper') ? 99 : (trA === 'Lower' ? 1 : (trA === 'Middle' ? 2 : 3));
+          const scoreB = (lastTier === 'Upper' && trB === 'Upper') ? 99 : (trB === 'Lower' ? 1 : (trB === 'Middle' ? 2 : 3));
+          if (scoreA !== scoreB) return scoreA - scoreB;
           return (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0);
         });
         nextSeat = sortedAvail[0];
@@ -2143,12 +2156,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           break;
         }
       }
-      if (!nextSeat) nextSeat = String(passengers.length + 1);
+      if (!nextSeat) nextSeat = String(currentPax.length + 1);
     }
 
     const bInfo = getBerthInfo(nextSeat, travelClass);
     const updatedPax = [
-      ...passengers,
+      ...currentPax,
       {
         name: '',
         age: '',
@@ -6300,7 +6313,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                             </div>
 
                             {passengers.map((p, idx) => {
-                              const assignedSeat = p.seatAssigned || selectedSeats[idx] || (idx + 1).toString();
+                              let assignedSeat = String(p.seatAssigned || selectedSeats[idx] || (idx + 1)).trim();
+                              // Defensive UI safeguard: ensure no two passengers display identical seat numbers
+                              const previousSeats = passengers.slice(0, idx).map(prev => String(prev.seatAssigned || '').trim());
+                              if (previousSeats.includes(assignedSeat)) {
+                                const avail = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
+                                const cand = avail.find(s => !previousSeats.includes(s) && !selectedSeats.includes(s)) || String(idx + 1);
+                                assignedSeat = cand;
+                              }
                               const detectedBerth = getBerthType(assignedSeat, travelClass);
                               return (
                               <div key={idx} style={{ background: '#FFF8F2', padding: 14, borderRadius: 8, border: '1px solid #FED7AA', marginBottom: 12 }}>
