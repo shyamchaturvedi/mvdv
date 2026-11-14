@@ -799,6 +799,11 @@ class BookingService {
     const targetClassRaw = updates.travelClass !== undefined ? updates.travelClass : existing.travelClass;
     const targetStatus = updates.status !== undefined ? updates.status : existing.status;
 
+    // Strict IRCTC Anti-Fraud Rule: A cancelled ticket can NEVER be reinstated
+    if (existing.status === 'Cancelled' && updates.status !== undefined && updates.status !== 'Cancelled') {
+      throw new Error('सुरक्षा एवं IRCTC नियम: एक बार पूर्ण रूप से रद्द (Cancelled) टिकट को पुनः बहाल (Reinstate) नहीं किया जा सकता।');
+    }
+
     const { coachMeta, settings, normClass } = await resolveCoachAndSettings(targetCoach, targetClassRaw);
     const coachCapacity = coachMeta ? Number(coachMeta.totalSeats || 0) : 0;
 
@@ -856,14 +861,32 @@ class BookingService {
         : (typeof updates.seatNumber === 'string' ? updates.seatNumber.split(',').map(s => s.trim()).filter(Boolean) : []);
 
       const seenInBooking = new Set();
+      const existingPaxList = Array.isArray(existing.passengers) ? existing.passengers : [];
+
       const normalizedPassengers = updates.passengers.map((p, idx) => {
         const cleanName = String(p?.name || '').trim();
         if (!cleanName && targetStatus !== 'Cancelled') {
           throw new Error(`यात्री #${idx + 1} का पूरा नाम भरना अनिवार्य है।`);
         }
 
+        // IRCTC Strict Anti-Fraud Rule: A cancelled passenger can NEVER be reinstated
+        const matchingOldPax = existingPaxList[idx] || existingPaxList.find(op => cleanName && op.name && String(op.name).trim().toLowerCase() === cleanName.toLowerCase());
+        const wasPreviouslyCancelled = Boolean(
+          matchingOldPax && (
+            matchingOldPax.seatAssigned === 'Cancelled' || 
+            matchingOldPax.checkInStatus === 'Cancelled' ||
+            String(matchingOldPax.seatAssigned || '').toUpperCase() === 'CANCELLED'
+          )
+        );
+
         const rawCheckIn = String(p?.checkInStatus || '').trim();
-        const isPaxCancelled = rawCheckIn === 'Cancelled' || String(p?.seatAssigned || '').toUpperCase() === 'CANCELLED' || targetStatus === 'Cancelled';
+        const requestedCancellation = rawCheckIn === 'Cancelled' || String(p?.seatAssigned || '').toUpperCase() === 'CANCELLED' || targetStatus === 'Cancelled';
+
+        if (wasPreviouslyCancelled && !requestedCancellation) {
+          throw new Error(`सुरक्षा एवं IRCTC नियम: रद्द किए गए यात्री "${cleanName || matchingOldPax.name}" को पुनः बहाल (Reinstate) नहीं किया जा सकता। रद्दीकरण व रिफंड स्थायी है।`);
+        }
+
+        const isPaxCancelled = wasPreviouslyCancelled || requestedCancellation;
         const checkInStatus = isPaxCancelled ? 'Cancelled' : (['Present', 'Absent', 'Pending'].includes(rawCheckIn) ? rawCheckIn : 'Pending');
 
         let seatStr = isPaxCancelled ? 'Cancelled' : String(p?.seatAssigned ?? p?.seat ?? p?.seatNumber ?? fallbackSeats[idx] ?? '').trim();

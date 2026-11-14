@@ -244,6 +244,8 @@ export default function App() {
   const [ticketModal, setTicketModal] = useState(null);
   const [receiptModal, setReceiptModal] = useState(null);
   const [receiptSearchQuery, setReceiptSearchQuery] = useState('');
+  const [refundSearchQuery, setRefundSearchQuery] = useState('');
+  const [refundFilterType, setRefundFilterType] = useState('ALL'); // ALL | FULL | PARTIAL
   const [upiQrModal, setUpiQrModal] = useState(null);
   const [utrInput, setUtrInput] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -9164,118 +9166,426 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 )}
 
                 {/* VIEW: TICKET CANCELLATION & REFUND DESK */}
-                {activeView === 'refunds_desk' && (
-                  <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                    <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA', background: '#FFFFFF' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, borderBottom: '1.5px solid #FED7AA', paddingBottom: 14, marginBottom: 16 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #EF4444, #DC2626)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <AlertTriangle size={28} />
+                {activeView === 'refunds_desk' && (() => {
+                  // IRCTC Senior Developer Architecture: Gather ALL cancellations & refunds (Full + Partial)
+                  const allRefundBookings = adminBookings.filter(b => {
+                    if (!b) return false;
+                    if (b.status === 'Cancelled') return true;
+                    if (Number(b.refundAmount || 0) > 0) return true;
+                    if (Number(b.cancellationCharges || 0) > 0) return true;
+                    if (b.cancellationDetails && (Number(b.cancellationDetails.refundAmount || 0) > 0 || b.cancellationDetails.cancelledAt)) return true;
+                    if (Array.isArray(b.cancellationHistory) && b.cancellationHistory.length > 0) return true;
+                    if (Array.isArray(b.passengers) && b.passengers.some(p => p.seatAssigned === 'Cancelled' || p.checkInStatus === 'Cancelled')) return true;
+                    if (Array.isArray(b.paymentHistory) && b.paymentHistory.some(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund'))) return true;
+                    if (Array.isArray(b.releasedSeats) && b.releasedSeats.length > 0) return true;
+                    return false;
+                  });
+
+                  const isFullCancelCheck = (b) => {
+                    if (b.status === 'Cancelled') return true;
+                    if (b.cancellationDetails?.isFullCancellation === true) return true;
+                    const pList = Array.isArray(b.passengers) ? b.passengers : [];
+                    if (pList.length > 0 && pList.every(p => p.seatAssigned === 'Cancelled' || p.checkInStatus === 'Cancelled')) return true;
+                    return false;
+                  };
+
+                  const totalRefundRecords = allRefundBookings.length;
+                  const fullCancelCount = allRefundBookings.filter(b => isFullCancelCheck(b)).length;
+                  const partialCancelCount = totalRefundRecords - fullCancelCount;
+                  const totalRefundDistributed = allRefundBookings.reduce((sum, b) => sum + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0);
+                  const totalChargesKept = allRefundBookings.reduce((sum, b) => sum + (Number(b.cancellationCharges) || Number(b.cancellationDetails?.cancellationCharges) || 0), 0);
+                  const totalSeatsReleased = allRefundBookings.reduce((sum, b) => {
+                    const seats = Array.isArray(b.releasedSeats) && b.releasedSeats.length > 0
+                      ? b.releasedSeats
+                      : (Array.isArray(b.cancellationDetails?.releasedSeats) ? b.cancellationDetails.releasedSeats : (Array.isArray(b.cancellationDetails?.originalSeats) ? b.cancellationDetails.originalSeats : []));
+                    if (seats.length > 0) return sum + seats.length;
+                    const cPax = (b.passengers || []).filter(p => p.seatAssigned === 'Cancelled' || p.checkInStatus === 'Cancelled');
+                    return sum + (cPax.length || (b.status === 'Cancelled' ? (Number(b.numberOfPassengers) || 1) : 1));
+                  }, 0);
+
+                  // Filter by Search & Filter Type
+                  const filteredRefundBookings = allRefundBookings.filter(b => {
+                    const isFull = isFullCancelCheck(b);
+                    if (refundFilterType === 'FULL' && !isFull) return false;
+                    if (refundFilterType === 'PARTIAL' && isFull) return false;
+
+                    if (refundSearchQuery && refundSearchQuery.trim()) {
+                      const q = refundSearchQuery.toLowerCase().trim();
+                      const pnrMatch = (b.bookingId || '').toLowerCase().includes(q);
+                      const devoteeMatch = (b.bookedBy || '').toLowerCase().includes(q);
+                      const mobileMatch = String(b.mobile || '').includes(q);
+                      const coachMatch = String(b.coachName || '').toLowerCase().includes(q) || String(b.coachDisplayName || '').toLowerCase().includes(q);
+                      const voucherMatch = String(b.cancellationDetails?.refundVoucherId || '').toLowerCase().includes(q);
+                      const reasonMatch = String(b.cancellationDetails?.cancellationReason || '').toLowerCase().includes(q) || String(b.cancellationDetails?.remarks || '').toLowerCase().includes(q);
+                      const paxMatch = Array.isArray(b.passengers) && b.passengers.some(p => String(p.name || '').toLowerCase().includes(q) || String(p.seatAssigned || '').toLowerCase().includes(q));
+                      const histPaxMatch = Array.isArray(b.cancellationHistory) && b.cancellationHistory.some(h => 
+                        (Array.isArray(h.cancelledPassengers) && h.cancelledPassengers.some(cp => String(cp.name || '').toLowerCase().includes(q))) ||
+                        (Array.isArray(h.releasedSeats) && h.releasedSeats.some(rs => String(rs).includes(q)))
+                      );
+                      const releasedMatch = Array.isArray(b.releasedSeats) && b.releasedSeats.some(s => String(s).includes(q));
+                      return pnrMatch || devoteeMatch || mobileMatch || coachMatch || voucherMatch || reasonMatch || paxMatch || histPaxMatch || releasedMatch;
+                    }
+                    return true;
+                  });
+
+                  return (
+                    <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                      <div className="glass-card" style={{ marginBottom: 20, border: '2px solid #FED7AA', background: '#FFFFFF' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, borderBottom: '1.5px solid #FED7AA', paddingBottom: 14, marginBottom: 16 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #EF4444, #DC2626)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <AlertTriangle size={28} />
+                            </div>
+                            <div>
+                              <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.35rem', fontWeight: 800 }}>
+                                 टिकट रद्दीकरण व रिफंड मास्टर डेस्क (IRCTC Cancellation & Refund Master)
+                              </h2>
+                              <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.85rem' }}>
+                                पूर्ण एवं आंशिक (Partial) यात्री रद्दीकरण लेजर, रिफंड वाउचर पर्ची पुनः मुद्रण व मुक्त सीटों का लाइव प्रबंधन
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h2 style={{ margin: 0, color: '#9A3412', fontSize: '1.35rem', fontWeight: 800 }}>
-                               टिकट रद्दीकरण व रिफंड डेस्क (Ticket Cancellation & Refund Master)
-                            </h2>
-                            <p style={{ margin: '2px 0 0', color: '#7C2D12', fontSize: '0.85rem' }}>
-                              यात्री टिकट रद्द करें, रिफंड राशि समायोजित करें तथा रद्दीकरणकर्ता कर्मचारी का रिकॉर्ड देखें
-                            </p>
-                          </div>
+
+                          <button className="btn btn-outline btn-sm" onClick={loadAdminDashboard}>
+                            <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रिफ्रेश डेटा
+                          </button>
                         </div>
 
-                        <button className="btn btn-outline btn-sm" onClick={loadAdminDashboard}>
-                          <RefreshCw size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रिफ्रेश
-                        </button>
+                        {/* Refund KPI Stats */}
+                        <div className="grid-4" style={{ gap: 12 }}>
+                          <div style={{ background: '#FEF2F2', padding: 12, borderRadius: 8, border: '1px solid #FECACA', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.74rem', color: '#991B1B', fontWeight: 700 }}>कुल रद्द प्रकरण (Total Cases)</div>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#DC2626' }}>
+                              {totalRefundRecords} रिकॉर्ड्स
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: '#7F1D1D', marginTop: 2 }}>
+                              {fullCancelCount} पूर्ण टिकट • {partialCancelCount} आंशिक यात्री
+                            </div>
+                          </div>
+                          <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>कुल रिफंड राशि (Total Refunded)</div>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#EA580C' }}>
+                              ₹ {totalRefundDistributed.toLocaleString('en-IN')}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: '#C2410C', marginTop: 2 }}>
+                              काउंटर नकद एवं बैंक माध्यम
+                            </div>
+                          </div>
+                          <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.74rem', color: '#065F46', fontWeight: 700 }}>कटौती / शुल्क (Charges Kept)</div>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
+                              ₹ {totalChargesKept.toLocaleString('en-IN')}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: '#047857', marginTop: 2 }}>
+                              ट्रस्ट खाता में जमा शुल्क
+                            </div>
+                          </div>
+                          <div style={{ background: '#F8FAFC', padding: 12, borderRadius: 8, border: '1px solid #E2E8F0', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 700 }}>सीटें स्वतः मुक्त (Seats Released)</div>
+                            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0F172A' }}>
+                              {totalSeatsReleased} सीटें
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: '#059669', fontWeight: 700, marginTop: 2 }}>
+                              ✓ 100% Realtime Available
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Refund KPI Stats */}
-                      <div className="grid-4" style={{ gap: 12 }}>
-                        <div style={{ background: '#FEF2F2', padding: 12, borderRadius: 8, border: '1px solid #FECACA', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#991B1B', fontWeight: 700 }}>कुल रद्द टिकट (Cancelled)</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#DC2626' }}>
-                            {adminBookings.filter(b => b.status === 'Cancelled').length} टिकट
-                          </div>
+                      {/* Cancelled Bookings Table with IRCTC Search & Filters */}
+                      <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                          <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>
+                            रद्द टिकटों व रिफंड का विस्तृत लेजर (Cancellation & Refund Roster)
+                          </h3>
+                          <span style={{ fontSize: '0.8rem', color: '#7C2D12', background: '#FFEDD5', padding: '3px 10px', borderRadius: 12, fontWeight: 700 }}>
+                            प्रदर्शित: {filteredRefundBookings.length} / {totalRefundRecords} रिकॉर्ड्स
+                          </span>
                         </div>
-                        <div style={{ background: '#FFF8F2', padding: 12, borderRadius: 8, border: '1px solid #FED7AA', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#7C2D12', fontWeight: 700 }}>कुल रिफंड राशि (Total Refunded)</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#EA580C' }}>
-                            ₹ {adminBookings.filter(b => b.status === 'Cancelled').reduce((sum, b) => sum + (Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0), 0).toLocaleString('en-IN')}
-                          </div>
-                        </div>
-                        <div style={{ background: '#ECFDF5', padding: 12, borderRadius: 8, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#065F46', fontWeight: 700 }}>कटौती / शुल्क (Charges Kept)</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857' }}>
-                            ₹ {adminBookings.filter(b => b.status === 'Cancelled').reduce((sum, b) => sum + (Number(b.cancellationCharges) || Number(b.cancellationDetails?.cancellationCharges) || 0), 0).toLocaleString('en-IN')}
-                          </div>
-                        </div>
-                        <div style={{ background: '#F8FAFC', padding: 12, borderRadius: 8, border: '1px solid #E2E8F0', textAlign: 'center' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 700 }}>सीटें स्वतः मुक्त (Seats Released)</div>
-                          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A' }}>
-                            ✓ 100% Realtime Available
-                          </div>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Cancelled Bookings Table */}
-                    <div className="glass-card" style={{ border: '2px solid #FED7AA', background: '#FFFFFF', padding: 20 }}>
-                      <h3 style={{ color: '#9A3412', fontWeight: 800, fontSize: '1.1rem', margin: '0 0 14px 0' }}>
-                        रद्द टिकटों का विस्तृत लेजर (Cancelled Tickets Roster)
-                      </h3>
+                        {/* Search & Filter Toolbar */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16, background: '#FFF7ED', padding: 12, borderRadius: 8, border: '1px solid #FED7AA' }}>
+                          {/* Search Input */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 320px', position: 'relative' }}>
+                            <Search size={18} style={{ position: 'absolute', left: 12, color: '#C2410C', pointerEvents: 'none' }} />
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="PNR, श्रद्धालु / यात्री का नाम (जैसे दुबे, यतीन्द्र), मोबाइल, सीट नंबर या वाउचर खोजें..."
+                              value={refundSearchQuery}
+                              onChange={(e) => setRefundSearchQuery(e.target.value)}
+                              style={{ paddingLeft: 38, borderColor: '#FDBA74', borderRadius: 8, fontSize: '0.88rem' }}
+                            />
+                            {refundSearchQuery && (
+                              <button
+                                type="button"
+                                onClick={() => setRefundSearchQuery('')}
+                                style={{ position: 'absolute', right: 10, background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontWeight: 800, fontSize: '0.95rem' }}
+                                title="खोज साफ़ करें"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
 
-                      <div className="table-responsive">
-                        <table className="custom-table" style={{ width: '100%', fontSize: '0.85rem' }}>
-                          <thead>
-                            <tr style={{ background: '#FEF2F2', color: '#991B1B' }}>
-                              <th>PNR क्रमांक</th>
-                              <th>श्रद्धालु / यात्री</th>
-                              <th>मोबाइल</th>
-                              <th>कोच व मूल सीटें</th>
-                              <th>जमा अग्रिम</th>
-                              <th>रिफंड राशि</th>
-                              <th>माध्यम</th>
-                              <th>रद्दीकरणकर्ता (Staff)</th>
-                              <th>रद्दीकरण समय व कारण</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {adminBookings.filter(b => b.status === 'Cancelled').length === 0 ? (
-                              <tr>
-                                <td colSpan="9" style={{ textAlign: 'center', padding: 24, color: '#6B7280' }}>
-                                  वर्तमान में कोई टिकट रद्द नहीं हुआ है। समस्त बुकिंग्स सुरक्षित व सक्रिय हैं।
-                                </td>
+                          {/* Filter Tabs */}
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            <button
+                              type="button"
+                              className={`btn btn-sm ${refundFilterType === 'ALL' ? 'btn-primary' : 'btn-outline'}`}
+                              onClick={() => setRefundFilterType('ALL')}
+                              style={{ borderRadius: 20, fontSize: '0.78rem', padding: '5px 12px' }}
+                            >
+                              सभी रद्दीकरण ({totalRefundRecords})
+                            </button>
+                            <button
+                              type="button"
+                              className={`btn btn-sm ${refundFilterType === 'FULL' ? 'btn-danger' : 'btn-outline'}`}
+                              onClick={() => setRefundFilterType('FULL')}
+                              style={{ borderRadius: 20, fontSize: '0.78rem', padding: '5px 12px', borderColor: '#DC2626', color: refundFilterType === 'FULL' ? '#FFF' : '#DC2626' }}
+                            >
+                              🚫 पूर्ण टिकट रद्द ({fullCancelCount})
+                            </button>
+                            <button
+                              type="button"
+                              className={`btn btn-sm ${refundFilterType === 'PARTIAL' ? 'btn-gold' : 'btn-outline'}`}
+                              onClick={() => setRefundFilterType('PARTIAL')}
+                              style={{ borderRadius: 20, fontSize: '0.78rem', padding: '5px 12px', borderColor: '#D97706', color: refundFilterType === 'PARTIAL' ? '#FFF' : '#D97706' }}
+                            >
+                              ⚠️ आंशिक यात्री रद्द ({partialCancelCount})
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="table-responsive">
+                          <table className="custom-table" style={{ width: '100%', fontSize: '0.85rem' }}>
+                            <thead>
+                              <tr style={{ background: '#FEF2F2', color: '#991B1B' }}>
+                                <th>PNR व स्थिति</th>
+                                <th>श्रद्धालु व रद्द यात्री विवरण</th>
+                                <th>कोच व मुक्त सीटें</th>
+                                <th>अग्रिम व कटौती</th>
+                                <th>रिफंड राशि व माध्यम</th>
+                                <th>रद्दीकरणकर्ता (Staff) व कारण</th>
+                                <th style={{ textAlign: 'center' }}>कार्यवाही</th>
                               </tr>
-                            ) : (
-                              adminBookings.filter(b => b.status === 'Cancelled').map((b, idx) => (
-                                <tr key={b.bookingId || idx}>
-                                  <td><strong style={{ color: '#DC2626' }}>{b.bookingId}</strong></td>
-                                  <td><strong>{b.bookedBy}</strong> ({b.numberOfPassengers} यात्री)</td>
-                                  <td>{b.mobile}</td>
-                                  <td>
-                                    <span className="badge badge-bhakti">{formatCoachDisplay(b.coachName || b.cancellationDetails?.originalCoach, b.coachDisplayName || b.cancellationDetails?.originalCoachDisplayName)}</span>
-                                    <span style={{ fontSize: '0.75rem', color: '#6B7280', marginLeft: 4 }}>
-                                      (सीटें: {Array.isArray(b.releasedSeats || b.cancellationDetails?.originalSeats) ? (b.releasedSeats || b.cancellationDetails?.originalSeats).join(', ') : 'Free'})
-                                    </span>
-                                  </td>
-                                  <td>₹ {b.cancellationDetails?.originalAdvance || b.advance || 0}</td>
-                                  <td><strong style={{ color: '#EA580C' }}>₹ {b.refundAmount || b.cancellationDetails?.refundAmount || 0}</strong></td>
-                                  <td><span className="badge badge-paid">{b.cancellationDetails?.refundMode || 'Cash'}</span></td>
-                                  <td>
-                                    <strong style={{ color: '#1F2937' }}>{b.cancellationDetails?.cancelledBy || 'Admin'}</strong>
-                                    <span style={{ fontSize: '0.72rem', color: '#6B7280', display: 'block' }}>({b.cancellationDetails?.cancelledByRole || 'Staff'})</span>
-                                  </td>
-                                  <td style={{ fontSize: '0.78rem', color: '#4B5563' }}>
-                                    {b.cancellationDetails?.cancelledAt ? new Date(b.cancellationDetails.cancelledAt).toLocaleString('en-IN') : 'N/A'}
-                                    <div style={{ color: '#B91C1C', fontStyle: 'italic', marginTop: 2 }}>{b.cancellationDetails?.cancellationReason || 'यात्री अनुरोध'}</div>
+                            </thead>
+                            <tbody>
+                              {filteredRefundBookings.length === 0 ? (
+                                <tr>
+                                  <td colSpan="7" style={{ textAlign: 'center', padding: 28, color: '#6B7280' }}>
+                                    {refundSearchQuery ? (
+                                      <div>
+                                        <div style={{ fontSize: '1rem', fontWeight: 700, color: '#B91C1C', marginBottom: 4 }}>
+                                          "{refundSearchQuery}" से संबंधित कोई रद्दीकरण या रिफंड रिकॉर्ड नहीं मिला।
+                                        </div>
+                                        <button className="btn btn-outline btn-xs" onClick={() => setRefundSearchQuery('')}>
+                                          खोज फ़िल्टर हटाएं
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      'वर्तमान में कोई रद्दीकरण अथवा रिफंड रिकॉर्ड दर्ज नहीं है।'
+                                    )}
                                   </td>
                                 </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
+                              ) : (
+                                filteredRefundBookings.map((b, idx) => {
+                                  const isFull = isFullCancelCheck(b);
+                                  const paxList = Array.isArray(b.passengers) ? b.passengers : [];
+                                  const cancelledPax = paxList.filter(p => p.seatAssigned === 'Cancelled' || p.checkInStatus === 'Cancelled');
+                                  const activePax = paxList.filter(p => p.seatAssigned !== 'Cancelled' && p.checkInStatus !== 'Cancelled');
+                                  const refundAmt = Number(b.refundAmount) || Number(b.cancellationDetails?.refundAmount) || 0;
+                                  const deductionAmt = Number(b.cancellationCharges) || Number(b.cancellationDetails?.cancellationCharges) || 0;
+                                  const origAdv = Number(b.cancellationDetails?.originalAdvance) || Number(b.advance) || 0;
+                                  const releasedSeatsList = Array.isArray(b.releasedSeats) && b.releasedSeats.length > 0
+                                    ? b.releasedSeats
+                                    : (Array.isArray(b.cancellationDetails?.releasedSeats) ? b.cancellationDetails.releasedSeats : (Array.isArray(b.cancellationDetails?.originalSeats) ? b.cancellationDetails.originalSeats : []));
+
+                                  const openRefundSlip = () => {
+                                    const refundTxn = (b.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
+                                      id: b.cancellationDetails?.refundVoucherId || `MVD-REF-${b.bookingId}`,
+                                      date: b.cancellationDetails?.cancelledAt || new Date().toISOString(),
+                                      amount: -(refundAmt || origAdv || 0),
+                                      refundAmount: refundAmt || origAdv || 0,
+                                      cancellationCharges: deductionAmt,
+                                      originalAdvance: origAdv,
+                                      method: b.cancellationDetails?.refundMode || 'Refund Processed',
+                                      type: 'Ticket Cancellation Refund',
+                                      cashierName: b.cancellationDetails?.cancelledBy || 'Trust Admin',
+                                      reason: b.cancellationDetails?.cancellationReason || 'Cancelled Ticket',
+                                      remarks: b.cancellationDetails?.remarks || ''
+                                    };
+                                    setReceiptModal({ booking: b, txn: refundTxn });
+                                  };
+
+                                  return (
+                                    <tr key={b.bookingId || idx} style={{ background: isFull ? '#FFF8F8' : '#FFFDF9' }}>
+                                      {/* PNR & Status Type */}
+                                      <td>
+                                        <strong style={{ color: isFull ? '#DC2626' : '#D97706', fontSize: '0.92rem' }}>
+                                          {b.bookingId}
+                                        </strong>
+                                        <div style={{ marginTop: 3 }}>
+                                          {isFull ? (
+                                            <span style={{ background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', padding: '2px 8px', borderRadius: 4, fontWeight: 800, fontSize: '0.72rem', display: 'inline-block' }}>
+                                              🚫 पूर्ण रद्द (Full Cancel)
+                                            </span>
+                                          ) : (
+                                            <span style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', padding: '2px 8px', borderRadius: 4, fontWeight: 800, fontSize: '0.72rem', display: 'inline-block' }}>
+                                              ⚠️ आंशिक रद्द ({cancelledPax.length}/{paxList.length || (cancelledPax.length + activePax.length)} Pax)
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div style={{ fontSize: '0.72rem', color: '#6B7280', marginTop: 2 }}>
+                                          यात्रा: {b.yatraDate || b.travelDate || '2026-12-22'}
+                                        </div>
+                                      </td>
+
+                                      {/* Devotee & Cancelled Pax Details */}
+                                      <td>
+                                        <div style={{ fontWeight: 800, color: '#1F2937', fontSize: '0.9rem' }}>
+                                          {b.bookedBy}
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>
+                                          📱 {b.mobile}
+                                        </div>
+
+                                        {/* Cancelled passengers details */}
+                                        {cancelledPax.length > 0 ? (
+                                          <div style={{ marginTop: 4, borderLeft: '2px solid #EF4444', paddingLeft: 6 }}>
+                                            {cancelledPax.map((cp, cIdx) => (
+                                              <div key={cIdx} style={{ color: '#DC2626', fontWeight: 700, fontSize: '0.78rem' }}>
+                                                ✕ रद्द: {cp.name} {cp.age ? `(${cp.age}/${cp.gender})` : ''}
+                                                <span style={{ color: '#7F1D1D', fontSize: '0.72rem', marginLeft: 4 }}>
+                                                  [सीट: {cp.seatAssigned || 'Allocated'}{cp.berthType ? ' • ' + cp.berthType : ''}]
+                                                </span>
+                                              </div>
+                                            ))}
+                                            {activePax.length > 0 && (
+                                              <div style={{ color: '#047857', fontSize: '0.74rem', fontWeight: 600, marginTop: 2 }}>
+                                                ✓ शेष सक्रिय: {activePax.map(p => `${p.name} (सीट ${p.seatAssigned})`).join(', ')}
+                                              </div>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <div style={{ color: '#DC2626', fontSize: '0.78rem', marginTop: 3 }}>
+                                            ✕ समस्त यात्री रद्द ({b.numberOfPassengers || 0} यात्री)
+                                          </div>
+                                        )}
+                                      </td>
+
+                                      {/* Coach & Released Seats */}
+                                      <td>
+                                        <span className="badge badge-bhakti">
+                                          {formatCoachDisplay(b.coachName || b.cancellationDetails?.originalCoach, b.coachDisplayName || b.cancellationDetails?.originalCoachDisplayName)}
+                                        </span>
+                                        <div style={{ marginTop: 4 }}>
+                                          <span style={{ background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0', padding: '2px 7px', borderRadius: 4, fontWeight: 800, fontSize: '0.78rem', display: 'inline-block' }}>
+                                            मुक्त सीटें: {releasedSeatsList.length > 0 ? releasedSeatsList.join(', ') : 'Free / Quota'}
+                                          </span>
+                                        </div>
+                                      </td>
+
+                                      {/* Advance & Deductions */}
+                                      <td>
+                                        <div style={{ fontSize: '0.82rem', color: '#4B5563' }}>
+                                          मूल अग्रिम: ₹{origAdv.toLocaleString('en-IN')}
+                                        </div>
+                                        {deductionAmt > 0 ? (
+                                          <div style={{ color: '#B91C1C', fontSize: '0.76rem', fontWeight: 700 }}>
+                                            कटौती: ₹{deductionAmt.toLocaleString('en-IN')}
+                                          </div>
+                                        ) : (
+                                          <div style={{ color: '#059669', fontSize: '0.76rem' }}>
+                                            कटौती शुल्क: ₹0
+                                          </div>
+                                        )}
+                                      </td>
+
+                                      {/* Refund Amount & Mode */}
+                                      <td>
+                                        <strong style={{ color: '#EA580C', fontSize: '1.1rem' }}>
+                                          ₹ {refundAmt.toLocaleString('en-IN')}
+                                        </strong>
+                                        <div>
+                                          <span className="badge badge-paid" style={{ display: 'inline-block', marginTop: 2, fontSize: '0.72rem' }}>
+                                            {b.cancellationDetails?.refundMode === 'Cash' ? '💵 काउंटर नकद (Cash)' : (b.cancellationDetails?.refundMode || 'Refund')}
+                                          </span>
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: '#6B7280', marginTop: 2 }}>
+                                          वाउचर: {b.cancellationDetails?.refundVoucherId || `MVD-REF-${b.bookingId}`}
+                                        </div>
+                                      </td>
+
+                                      {/* Staff & Reason */}
+                                      <td>
+                                        <strong style={{ color: '#1F2937' }}>
+                                          {b.cancellationDetails?.cancelledBy || 'Admin'}
+                                        </strong>
+                                        <span style={{ fontSize: '0.72rem', color: '#6B7280', display: 'block' }}>
+                                          ({b.cancellationDetails?.cancelledByRole || 'Staff'})
+                                        </span>
+                                        <div style={{ fontSize: '0.74rem', color: '#4B5563', marginTop: 2 }}>
+                                          {b.cancellationDetails?.cancelledAt ? new Date(b.cancellationDetails.cancelledAt).toLocaleString('en-IN') : 'N/A'}
+                                        </div>
+                                        <div style={{ color: '#B91C1C', fontStyle: 'italic', fontSize: '0.76rem', marginTop: 2 }}>
+                                          {b.cancellationDetails?.cancellationReason || 'यात्री अनुरोध'}
+                                        </div>
+                                        {b.cancellationDetails?.remarks && (
+                                          <div style={{ color: '#4B5563', fontSize: '0.72rem', marginTop: 1 }}>
+                                            "{b.cancellationDetails.remarks}"
+                                          </div>
+                                        )}
+                                      </td>
+
+                                      {/* Actions */}
+                                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                                          <button
+                                            type="button"
+                                            className="btn btn-outline btn-xs"
+                                            style={{ borderColor: '#DC2626', color: '#DC2626', fontWeight: 700, padding: '4px 8px', minWidth: 105 }}
+                                            title="रद्दीकरण एवं रिफंड वाउचर देखें / पुनः प्रिंट करें"
+                                            onClick={openRefundSlip}
+                                          >
+                                            <Printer size={13} style={{ display: 'inline', marginRight: 4, verticalAlign: 'text-bottom' }} /> रिफंड पर्ची
+                                          </button>
+
+                                          {activePax.length > 0 && (
+                                            <div style={{ display: 'flex', gap: 4 }}>
+                                              <button
+                                                type="button"
+                                                className="btn btn-outline btn-xs"
+                                                style={{ borderColor: '#D97706', color: '#D97706', padding: '3px 6px', fontSize: '0.72rem' }}
+                                                title="शेष सक्रिय यात्रियों को प्रबंधित करें"
+                                                onClick={() => setEditYatriModal({ ...b, passengers: b.passengers ? JSON.parse(JSON.stringify(b.passengers)) : [], recalculateFare: true, saveError: '' })}
+                                              >
+                                                <Edit size={11} style={{ display: 'inline', marginRight: 2, verticalAlign: 'text-bottom' }} /> यात्री
+                                              </button>
+                                              <button
+                                                type="button"
+                                                className="btn btn-outline btn-xs"
+                                                style={{ borderColor: '#2563EB', color: '#2563EB', padding: '3px 6px', fontSize: '0.72rem' }}
+                                                title="संशोधित टिकट देखें"
+                                                onClick={() => setTicketModal(b)}
+                                              >
+                                                <FileText size={11} style={{ display: 'inline', marginRight: 2, verticalAlign: 'text-bottom' }} /> टिकट
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* VIEW: COMPREHENSIVE USER GUIDE & SOP */}
                 {activeView === 'user_guide' && (
@@ -10852,24 +11162,23 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                       {isPaxCancelled ? (
-                        <button
-                          type="button"
-                          className="btn btn-xs btn-success"
-                          style={{ background: '#059669', borderColor: '#059669', color: '#FFF' }}
-                          title="इस यात्री को दोबारा सक्रिय करें"
-                          onClick={() => {
-                            const newPax = [...editYatriModal.passengers];
-                            newPax[idx] = {
-                              ...newPax[idx],
-                              seatAssigned: 'AUTO',
-                              checkInStatus: 'Pending',
-                              berthPreference: 'Berth'
-                            };
-                            setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                        <span
+                          style={{
+                            fontSize: '0.74rem',
+                            color: '#991B1B',
+                            fontWeight: 800,
+                            background: '#FEE2E2',
+                            border: '1px solid #FCA5A5',
+                            padding: '4px 9px',
+                            borderRadius: 4,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4
                           }}
+                          title="IRCTC सुरक्षा नियम: एक बार रद्द किया गया टिकट / यात्री दोबारा बहाल (Reinstate) नहीं हो सकता"
                         >
-                          ✓ पुनः बहाल करें (Reinstate)
-                        </button>
+                          <Lock size={12} /> स्थायी रूप से रद्द (Cancelled - Permanent)
+                        </span>
                       ) : (
                         <button
                           type="button"
@@ -10883,7 +11192,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         </button>
                       )}
 
-                      {(!p.name && editYatriModal.passengers.length > 1) && (
+                      {(!p.name && editYatriModal.passengers.length > 1 && !isPaxCancelled) && (
                         <button
                           type="button"
                           className="btn btn-xs btn-outline"
@@ -10901,12 +11210,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: 8 }}>
                     <div>
-                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>नाम *</label>
+                      <label style={{ fontSize: '0.75rem', color: isPaxCancelled ? '#991B1B' : '#6B7280', fontWeight: 600 }}>नाम *</label>
                       <input
                         type="text"
                         className="form-control form-control-sm"
                         placeholder="पूरा नाम"
                         value={p.name || ''}
+                        disabled={isPaxCancelled}
+                        style={{ backgroundColor: isPaxCancelled ? '#FEE2E2' : '#FFFFFF', cursor: isPaxCancelled ? 'not-allowed' : 'text', color: isPaxCancelled ? '#991B1B' : 'inherit' }}
                         onChange={(e) => {
                           const newPax = [...editYatriModal.passengers];
                           newPax[idx] = { ...newPax[idx], name: e.target.value };
@@ -10915,14 +11226,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>उम्र / लिंग</label>
+                      <label style={{ fontSize: '0.75rem', color: isPaxCancelled ? '#991B1B' : '#6B7280', fontWeight: 600 }}>उम्र / लिंग</label>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <input
                           type="number"
                           className="form-control form-control-sm"
-                          style={{ width: '42%' }}
+                          style={{ width: '42%', backgroundColor: isPaxCancelled ? '#FEE2E2' : '#FFFFFF', cursor: isPaxCancelled ? 'not-allowed' : 'text', color: isPaxCancelled ? '#991B1B' : 'inherit' }}
                           placeholder="Age"
                           value={p.age ?? ''}
+                          disabled={isPaxCancelled}
                           onChange={(e) => {
                             const newPax = [...editYatriModal.passengers];
                             newPax[idx] = { ...newPax[idx], age: e.target.value };
@@ -10931,8 +11243,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         />
                         <select
                           className="form-control form-control-sm"
-                          style={{ width: '58%' }}
+                          style={{ width: '58%', backgroundColor: isPaxCancelled ? '#FEE2E2' : '#FFFFFF', cursor: isPaxCancelled ? 'not-allowed' : 'default', color: isPaxCancelled ? '#991B1B' : 'inherit' }}
                           value={p.gender || 'Male'}
+                          disabled={isPaxCancelled}
                           onChange={(e) => {
                             const newPax = [...editYatriModal.passengers];
                             newPax[idx] = { ...newPax[idx], gender: e.target.value };
@@ -10946,12 +11259,14 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       </div>
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>आधार नंबर</label>
+                      <label style={{ fontSize: '0.75rem', color: isPaxCancelled ? '#991B1B' : '#6B7280', fontWeight: 600 }}>आधार नंबर</label>
                       <input
                         type="text"
                         className="form-control form-control-sm"
                         placeholder="आधार / ID"
                         value={p.aadhar || ''}
+                        disabled={isPaxCancelled}
+                        style={{ backgroundColor: isPaxCancelled ? '#FEE2E2' : '#FFFFFF', cursor: isPaxCancelled ? 'not-allowed' : 'text', color: isPaxCancelled ? '#991B1B' : 'inherit' }}
                         onChange={(e) => {
                           const newPax = [...editYatriModal.passengers];
                           newPax[idx] = { ...newPax[idx], aadhar: e.target.value };
@@ -10960,13 +11275,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>सीट नं (या AUTO)</label>
+                      <label style={{ fontSize: '0.75rem', color: isPaxCancelled ? '#991B1B' : '#6B7280', fontWeight: 600 }}>सीट नं (या AUTO)</label>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <input
                           type="text"
                           className="form-control form-control-sm"
                           placeholder="e.g. 12 or AUTO"
                           value={p.seatAssigned ?? ''}
+                          disabled={isPaxCancelled}
+                          style={{ backgroundColor: isPaxCancelled ? '#FEE2E2' : '#FFFFFF', cursor: isPaxCancelled ? 'not-allowed' : 'text', color: isPaxCancelled ? '#991B1B' : 'inherit' }}
                           onChange={(e) => {
                             const val = e.target.value;
                             const newPax = [...editYatriModal.passengers];
@@ -10985,6 +11302,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           type="button"
                           className="btn btn-xs btn-outline"
                           title="सीट खाली होने पर AUTO चुनें"
+                          disabled={isPaxCancelled}
                           onClick={() => {
                             const newPax = [...editYatriModal.passengers];
                             newPax[idx] = { ...newPax[idx], seatAssigned: 'AUTO' };
@@ -10996,10 +11314,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       </div>
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>उपस्थिति स्थिति</label>
+                      <label style={{ fontSize: '0.75rem', color: isPaxCancelled ? '#991B1B' : '#6B7280', fontWeight: 600 }}>उपस्थिति स्थिति</label>
                       <select
                         className="form-control form-control-sm"
                         value={p.checkInStatus || 'Pending'}
+                        disabled={isPaxCancelled}
+                        style={{ backgroundColor: isPaxCancelled ? '#FEE2E2' : '#FFFFFF', cursor: isPaxCancelled ? 'not-allowed' : 'default', color: isPaxCancelled ? '#991B1B' : 'inherit' }}
                         onChange={(e) => {
                           const newPax = [...editYatriModal.passengers];
                           newPax[idx] = { ...newPax[idx], checkInStatus: e.target.value };
@@ -11009,9 +11329,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <option value="Pending">Pending (प्रतीक्षारत)</option>
                         <option value="Present">Present (उपस्थित)</option>
                         <option value="Absent">Absent (अनुपस्थित)</option>
+                        {isPaxCancelled && <option value="Cancelled">Cancelled (रद्द)</option>}
                       </select>
                     </div>
                   </div>
+                  {isPaxCancelled && (
+                    <div style={{ fontSize: '0.72rem', color: '#991B1B', marginTop: 6, fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span>ℹ️</span> <span>IRCTC सुरक्षा नियम: इस यात्री का टिकट रद्द कर रिफंड दिया जा चुका है और सीट कोटा में मुक्त हो चुकी है। यह विवरण स्थायी रूप से लॉक है।</span>
+                    </div>
+                  )}
                 </div>
                 );
               })}
