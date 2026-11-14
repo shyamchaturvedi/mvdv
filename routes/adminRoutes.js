@@ -29,6 +29,7 @@ const upload = multer({ storage });
 
 // Admin Authentication Middleware using high-security AuthService
 const checkAdminAuth = requireAuth();
+const checkSuperAdmin = requireAuth('SuperAdmin');
 
 // Admin Login - Legacy route (main auth via /api/auth/login)
 router.post('/login', async (req, res) => {
@@ -111,8 +112,8 @@ router.get('/bookings', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Update booking details (supports add/delete/edit yatris, coach change & seat assignment)
-router.put('/bookings/:id', checkAdminAuth, async (req, res) => {
+// Update booking details (supports add/delete/edit yatris, coach change & seat assignment) - Strictly SuperAdmin
+router.put('/bookings/:id', checkSuperAdmin, async (req, res) => {
   try {
     const actor = req.user || req.session?.user || 'Admin';
     const updated = await BookingService.updateBooking(req.params.id, req.body, actor);
@@ -123,8 +124,8 @@ router.put('/bookings/:id', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Update specific payment info (Admin)
-router.put('/bookings/:id/payment', checkAdminAuth, async (req, res) => {
+// Update specific payment info (SuperAdmin Only)
+router.put('/bookings/:id/payment', checkSuperAdmin, async (req, res) => {
   try {
     const { paymentMode, upiTransactionId, advance, discount } = req.body;
     const actor = req.user || req.session?.user || 'Admin';
@@ -256,8 +257,8 @@ router.post('/bookings/:id/cancel', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Cancel / Delete a booking
-router.delete('/bookings/:id', checkAdminAuth, async (req, res) => {
+// Cancel / Delete a booking (SuperAdmin Only)
+router.delete('/bookings/:id', checkSuperAdmin, async (req, res) => {
   try {
     const actor = req.user?.name || req.user?.username || req.session?.user?.username || 'Admin';
     await BookingService.deleteBooking(req.params.id, actor);
@@ -308,8 +309,8 @@ router.get('/sample-template', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Bulk upload bookings from Excel
-router.post('/bulk-upload', checkAdminAuth, upload.single('excelFile'), async (req, res) => {
+// Bulk upload bookings from Excel (SuperAdmin Only)
+router.post('/bulk-upload', checkSuperAdmin, upload.single('excelFile'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No Excel file uploaded.' });
@@ -378,8 +379,8 @@ router.get('/staff', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Add a new staff member with role & department
-router.post('/staff', checkAdminAuth, async (req, res) => {
+// Add a new staff member with role & department (SuperAdmin Only)
+router.post('/staff', checkSuperAdmin, async (req, res) => {
   try {
     const creator = req.user?.username || req.user?.name || req.session?.user?.username || 'Admin';
     const newStaff = await StaffService.addStaff({ ...req.body, createdByName: creator });
@@ -389,8 +390,8 @@ router.post('/staff', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Update staff status or role
-router.put('/staff/:staffId', checkAdminAuth, async (req, res) => {
+// Update staff status or role (SuperAdmin Only)
+router.put('/staff/:staffId', checkSuperAdmin, async (req, res) => {
   try {
     const updater = req.user?.username || req.user?.name || req.session?.user?.username || 'Admin';
     const updated = await StaffService.updateStaff(req.params.staffId, { ...req.body, updatedByName: updater });
@@ -400,8 +401,8 @@ router.put('/staff/:staffId', checkAdminAuth, async (req, res) => {
   }
 });
 
-// Delete a staff member
-router.delete('/staff/:staffId', checkAdminAuth, async (req, res) => {
+// Delete a staff member (SuperAdmin Only)
+router.delete('/staff/:staffId', checkSuperAdmin, async (req, res) => {
   try {
     const deleter = req.user?.username || req.user?.name || req.session?.user?.username || 'Admin';
     const result = await StaffService.deleteStaff(req.params.staffId, deleter);

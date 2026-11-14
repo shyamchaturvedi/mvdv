@@ -213,7 +213,7 @@ router.get('/admin/coaches', requireAuth(), async (req, res) => {
   }
 });
 
-router.post('/admin/coaches', requireAuth(), async (req, res) => {
+router.post('/admin/coaches', requireAuth('SuperAdmin'), async (req, res) => {
   try {
     const newCoach = await CoachService.addCoach(req.body);
     await StaffService.logAudit({
@@ -227,7 +227,7 @@ router.post('/admin/coaches', requireAuth(), async (req, res) => {
   }
 });
 
-router.put('/admin/coaches/:id', requireAuth(), async (req, res) => {
+router.put('/admin/coaches/:id', requireAuth('SuperAdmin'), async (req, res) => {
   try {
     const updated = await CoachService.updateCoach(req.params.id, req.body);
     await StaffService.logAudit({
@@ -241,7 +241,7 @@ router.put('/admin/coaches/:id', requireAuth(), async (req, res) => {
   }
 });
 
-router.delete('/admin/coaches/:id', requireAuth(), async (req, res) => {
+router.delete('/admin/coaches/:id', requireAuth('SuperAdmin'), async (req, res) => {
   try {
     await CoachService.deleteCoach(req.params.id);
     await StaffService.logAudit({
@@ -255,7 +255,7 @@ router.delete('/admin/coaches/:id', requireAuth(), async (req, res) => {
   }
 });
 
-router.post('/admin/coaches/reorder', requireAuth(), async (req, res) => {
+router.post('/admin/coaches/reorder', requireAuth('SuperAdmin'), async (req, res) => {
   try {
     const { orderedIds } = req.body;
     const result = await CoachService.reorderCoaches(orderedIds);

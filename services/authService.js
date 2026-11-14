@@ -355,7 +355,8 @@ class AuthService {
       return true;
     }
     if (!requiredPermission) return true;
-    return user.permissions && user.permissions.includes(requiredPermission);
+    if (user.role === requiredPermission) return true;
+    return !!(user.permissions && user.permissions.includes(requiredPermission));
   }
 }
 
