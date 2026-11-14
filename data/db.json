@@ -554,22 +554,22 @@
   "transactions": [],
   "counters": [
     {
+      "id": "booking_2026",
       "yatraYear": 2026,
       "lastNumber": 0,
-      "updatedAt": "2026-11-14T08:47:56.549Z",
-      "id": "booking_2026"
+      "updatedAt": "2026-11-14T08:50:37.522Z"
     },
     {
+      "id": "pnr_2026",
       "yatraYear": 2026,
-      "lastNumber": 1,
-      "updatedAt": "2026-11-14T08:48:30.042Z",
-      "id": "receipt_2026"
+      "lastNumber": 0,
+      "updatedAt": "2026-11-14T08:50:37.524Z"
     },
     {
+      "id": "receipt_2026",
       "yatraYear": 2026,
-      "lastNumber": 1,
-      "updatedAt": "2026-11-14T08:48:30.027Z",
-      "id": "pnr_2026"
+      "lastNumber": 0,
+      "updatedAt": "2026-11-14T08:50:37.524Z"
     }
   ]
 }
