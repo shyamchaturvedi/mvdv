@@ -169,20 +169,20 @@ code, .mono {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
-  max-width: 460px;
-  min-width: 240px;
+  gap: 5px;
+  overflow: visible;
 }
 
 .action-btn-group .btn {
   white-space: nowrap;
   justify-content: center;
-  padding: 5px 8px;
-  font-size: 0.74rem;
+  padding: 4px 7px;
+  font-size: 0.73rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  box-sizing: border-box;
 }
 
 /* BADGES */

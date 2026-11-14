@@ -209,7 +209,14 @@ function allocateIRCTCBaySeats(passengers = [], availableSeatNumbers = [], trave
     bayMap.get(bay).push(num);
   });
 
-  // Find optimal cluster: preferably single bay with >= needed seats
+  const getTierRank = (seatNum) => {
+    const tier = getBerthInfo(seatNum, travelClass).tier;
+    if (tier === 'Lower') return 1;
+    if (tier === 'Middle') return 2;
+    return 3; // Upper
+  };
+
+  // Find optimal cluster: preferably single bay with >= needed seats in natural consecutive order
   let chosenSeats = [];
   for (const [, baySeats] of bayMap.entries()) {
     if (baySeats.length >= needed) {
@@ -218,50 +225,65 @@ function allocateIRCTCBaySeats(passengers = [], availableSeatNumbers = [], trave
     }
   }
 
-  // Fallback: take first contiguous available seats
+  // Fallback: take first available seats in natural consecutive order
   if (chosenSeats.length < needed) {
     chosenSeats = availNums.slice(0, needed);
   }
 
-  // Separate seats by Lower vs Non-Lower
-  const lowerSeats = chosenSeats.filter(s => {
-    const info = getBerthInfo(s, travelClass);
-    return info.tier === 'Lower';
-  });
-  const otherSeats = chosenSeats.filter(s => {
-    const info = getBerthInfo(s, travelClass);
-    return info.tier !== 'Lower';
-  });
+  // Separate seats by Lower, Middle, Upper
+  const lowerSeats = chosenSeats.filter(s => getBerthInfo(s, travelClass).tier === 'Lower');
+  const middleSeats = chosenSeats.filter(s => getBerthInfo(s, travelClass).tier === 'Middle');
+  const upperSeats = chosenSeats.filter(s => getBerthInfo(s, travelClass).tier === 'Upper');
 
-  // Sort passengers: Seniors (>= 60) first, then Females, then others
+  // Sort passengers: Seniors (>= 60) first, then Females, then by age descending (older first)
   const paxWithMeta = passengers.map((p, idx) => ({
     passenger: p,
     originalIdx: idx,
     age: parseInt(p.age, 10) || 0,
     isSenior: (parseInt(p.age, 10) || 0) >= 60,
-    isFemale: String(p.gender || '').toLowerCase() === 'female'
+    isFemale: String(p.gender || '').toLowerCase() === 'female',
+    pref: String(p.berthPreference || '').toLowerCase()
   }));
 
   const prioritizedPax = [...paxWithMeta].sort((a, b) => {
     if (a.isSenior !== b.isSenior) return a.isSenior ? -1 : 1;
     if (a.isFemale !== b.isFemale) return a.isFemale ? -1 : 1;
+    if (a.age !== b.age) return b.age - a.age; // Older passengers get priority
     return a.originalIdx - b.originalIdx;
   });
 
   const seatAssignmentMap = new Map();
   const remainingLowers = [...lowerSeats];
-  const remainingOthers = [...otherSeats];
+  const remainingMiddles = [...middleSeats];
+  const remainingUppers = [...upperSeats];
 
   prioritizedPax.forEach(item => {
-    let assignedNum;
-    if ((item.isSenior || item.isFemale) && remainingLowers.length > 0) {
+    let assignedNum = null;
+    // 1. Honor explicit preference if available
+    if (item.pref.includes('lower') && remainingLowers.length > 0) {
       assignedNum = remainingLowers.shift();
-    } else if (remainingOthers.length > 0) {
-      assignedNum = remainingOthers.shift();
-    } else if (remainingLowers.length > 0) {
-      assignedNum = remainingLowers.shift();
-    } else {
-      assignedNum = chosenSeats[item.originalIdx] || (item.originalIdx + 1);
+    } else if (item.pref.includes('middle') && remainingMiddles.length > 0) {
+      assignedNum = remainingMiddles.shift();
+    } else if (item.pref.includes('upper') && remainingUppers.length > 0) {
+      assignedNum = remainingUppers.shift();
+    }
+
+    // 2. IRCTC standard allocation:
+    // Seniors, Females, and Older passengers get Lower berths first
+    if (!assignedNum) {
+      if ((item.isSenior || item.isFemale || item.age >= 45) && remainingLowers.length > 0) {
+        assignedNum = remainingLowers.shift();
+      } else if (remainingLowers.length > 0 && remainingLowers.length >= (prioritizedPax.length - seatAssignmentMap.size)) {
+        assignedNum = remainingLowers.shift();
+      } else if (remainingMiddles.length > 0) {
+        assignedNum = remainingMiddles.shift();
+      } else if (remainingLowers.length > 0) {
+        assignedNum = remainingLowers.shift();
+      } else if (remainingUppers.length > 0) {
+        assignedNum = remainingUppers.shift();
+      } else {
+        assignedNum = chosenSeats[item.originalIdx] || (item.originalIdx + 1);
+      }
     }
     seatAssignmentMap.set(item.originalIdx, assignedNum);
   });
@@ -610,42 +632,45 @@ class BookingService {
       }
     });
 
-    // Determine requested seat numbers or auto-assign vacant seats
-    let seatNumbers = [];
-    if (Array.isArray(payload.seatNumber)) {
-      seatNumbers = payload.seatNumber.map(s => String(s).trim()).filter(Boolean);
+    // Determine requested seat numbers or auto-assign vacant seats adhering to IRCTC standards
+    let candidateSeats = [];
+    if (Array.isArray(payload.seatNumber) && payload.seatNumber.length === passengerCount) {
+      candidateSeats = payload.seatNumber.map(s => String(s).trim()).filter(Boolean);
+    } else if (Array.isArray(payload.passengers) && payload.passengers.length === passengerCount) {
+      candidateSeats = payload.passengers.map(p => String(p.seatAssigned || p.seatNumber || '').trim()).filter(Boolean);
     } else if (typeof payload.seatNumber === 'string' && payload.seatNumber.trim()) {
-      seatNumbers = payload.seatNumber.split(',').map(s => s.trim()).filter(Boolean);
-    } else if (Array.isArray(payload.passengers)) {
-      seatNumbers = payload.passengers.map(p => String(p.seatAssigned || '').trim()).filter(Boolean);
+      const parts = payload.seatNumber.split(',').map(s => s.trim()).filter(Boolean);
+      if (parts.length === passengerCount) candidateSeats = parts;
     }
 
-    if (seatNumbers.length > 0) {
-      const seenRequested = new Set();
-      for (const s of seatNumbers) {
-        if (seenRequested.has(s)) {
-          throw new Error(`सीट नंबर ${s} एक से अधिक यात्रियों को आवंटित नहीं किया जा सकता।`);
-        }
-        seenRequested.add(s);
-        if (occupiedSeats.has(s)) {
-          throw new Error(`सीट नंबर ${s} कोच ${coachCode} (${yatraYear}) में पहले से आरक्षित है। कृपया अन्य खाली सीट चुनें।`);
-        }
-        const n = parseInt(s, 10);
-        if (coachCapacity > 0 && (!isNaN(n) && (n < 1 || n > coachCapacity))) {
-          throw new Error(`कोच ${coachCode} में अधिकतम ${coachCapacity} सीटें हैं (अमान्य सीट: ${s})।`);
-        }
-      }
+    // Strict IRCTC Check: Each passenger MUST have a distinct, unique, vacant seat
+    const isCandidateValid = candidateSeats.length === passengerCount &&
+      new Set(candidateSeats).size === passengerCount &&
+      candidateSeats.every(s => !occupiedSeats.has(s) && (!coachCapacity || (parseInt(s, 10) >= 1 && parseInt(s, 10) <= coachCapacity)));
+
+    let seatNumbers = [];
+    if (isCandidateValid) {
+      seatNumbers = candidateSeats;
     } else {
+      // Auto-assign distinct, adjacent vacant seats adhering strictly to Indian Railways bay continuity
       const cap = coachCapacity > 0 ? coachCapacity : 72;
-      for (let i = 1; i <= cap && seatNumbers.length < passengerCount; i++) {
+      const allAvailableSeats = [];
+      for (let i = 1; i <= cap; i++) {
         const s = String(i);
         if (!occupiedSeats.has(s)) {
-          seatNumbers.push(s);
+          allAvailableSeats.push(s);
         }
       }
-      if (seatNumbers.length < passengerCount) {
-        throw new Error(`कोच ${coachCode} में ${passengerCount} रिक्त सीटें उपलब्ध नहीं हैं।`);
+      if (allAvailableSeats.length < passengerCount) {
+        throw new Error(`कोच ${coachCode} में ${passengerCount} रिक्त सीटें उपलब्ध नहीं हैं (केवल ${allAvailableSeats.length} सीटें खाली हैं)।`);
       }
+      const allocatedPax = allocateIRCTCBaySeats(payload.passengers || Array.from({ length: passengerCount }, () => ({})), allAvailableSeats, normClass);
+      seatNumbers = allocatedPax.map(p => String(p.seatAssigned));
+    }
+
+    // Double-check no duplicate seats ever escape
+    if (new Set(seatNumbers).size !== passengerCount || seatNumbers.length !== passengerCount) {
+      throw new Error(`सीट आवंटन त्रुटि: कुल ${passengerCount} यात्रियों के लिए प्रत्येक को अलग सीट आवंटित होना अनिवार्य है।`);
     }
 
     // Dynamically fetch fare from Coach Master / Settings
@@ -675,7 +700,7 @@ class BookingService {
 
     // Format passengers
     const passengers = (payload.passengers || []).map((p, idx) => {
-      const assigned = String(seatNumbers[idx] || p.seatAssigned || p.seatNumber || (idx + 1)).trim();
+      const assigned = String(seatNumbers[idx] || (idx + 1)).trim();
       const bInfo = getBerthInfo(assigned, normClass);
       return {
         name: p.name || `Yatri ${idx + 1}`,
