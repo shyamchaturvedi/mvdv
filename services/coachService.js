@@ -115,7 +115,7 @@ function withCoachUiAliases(coach, extra = {}) {
 let cachedCoachesList = null;
 let lastCoachesFetchTime = 0;
 let hasInitializedDefaultCoaches = false;
-const COACHES_CACHE_TTL = 60 * 1000; // 60 seconds
+const COACHES_CACHE_TTL = 10 * 60 * 1000; // 10 minutes (invalidated on coach update)
 
 class CoachService {
   static invalidateCache() {

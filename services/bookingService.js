@@ -1,12 +1,12 @@
 const { db } = require('../config/firebase');
 
-// High-performance In-Memory Caching layer to eliminate Firestore lag
+// High-performance In-Memory Caching layer to eliminate Firestore lag and prevent Quota Exceeded
 let cachedAllBookings = null;
 let lastBookingsFetchTime = 0;
-const BOOKINGS_CACHE_TTL = 15 * 1000; // 15 seconds
+const BOOKINGS_CACHE_TTL = 60 * 1000; // 60 seconds (invalidates immediately on create/cancel/update)
 
 const CHART_CACHE = new Map();
-const CHART_CACHE_TTL = 30 * 1000; // 30 seconds
+const CHART_CACHE_TTL = 60 * 1000; // 60 seconds
 
 // Fixed pricing per class
 const FARES = {

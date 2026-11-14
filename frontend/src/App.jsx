@@ -1068,10 +1068,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     };
   }, []);
 
-  // Live Background Poller for Local JSON mode & Window Tab Focus
+  // Live Background Poller - Throttled & Debounced to prevent Firestore Quota Exceeded
   useEffect(() => {
-    const handleSync = () => {
+    let lastSyncTimestamp = Date.now();
+
+    const handleSync = (force = false) => {
       if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (!force && (now - lastSyncTimestamp) < 45000) {
+        return; // Throttled: Ignore rapid tab switching within 45s
+      }
+      lastSyncTimestamp = now;
+
       loadSystemConfig({ syncFormDefaults: false });
       if (currentPath === '/coach-position' || currentPath === '/train-composition' || currentPath === '/admin/coaches') {
         loadTrainComposition(compositionYearFilter);
@@ -1086,14 +1094,15 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       }
     };
 
-    const intervalId = setInterval(handleSync, 15000);
-    window.addEventListener('focus', handleSync);
-    document.addEventListener('visibilitychange', handleSync);
+    const intervalId = setInterval(() => handleSync(true), 60000); // 60s background sync
+    const onWindowFocus = () => handleSync(false);
+    window.addEventListener('focus', onWindowFocus);
+    document.addEventListener('visibilitychange', onWindowFocus);
 
     return () => {
       clearInterval(intervalId);
-      window.removeEventListener('focus', handleSync);
-      document.removeEventListener('visibilitychange', handleSync);
+      window.removeEventListener('focus', onWindowFocus);
+      document.removeEventListener('visibilitychange', onWindowFocus);
     };
   }, [currentPath, staffUser, compositionYearFilter, chartCoach, chartYear]);
 

@@ -93,7 +93,7 @@ const os = require('os');
 const TMP_SETTINGS_FILE = path.join(os.tmpdir(), 'mvd_settings.json');
 let inMemorySettings = null;
 let lastSettingsFetchTime = 0;
-const SETTINGS_CACHE_TTL = 60 * 1000; // 60 seconds
+const SETTINGS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes (invalidated on settings save)
 
 function loadSettingsFromDisk() {
   if (inMemorySettings) return inMemorySettings;
