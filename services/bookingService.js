@@ -539,18 +539,28 @@ class BookingService {
     if (cachedAllBookings && (now - lastBookingsFetchTime) < BOOKINGS_CACHE_TTL) {
       list = [...cachedAllBookings];
     } else {
-      const [snapshot, coachDisplayMap] = await Promise.all([
-        db.collection('bookings').get(),
-        this.getCoachDisplayMap()
-      ]);
-      const rawList = [];
-      snapshot.docs.forEach(doc => {
-        const data = doc.data();
-        rawList.push(this.enrichBookingWithCoachDisplay({ ...data, id: doc.id }, coachDisplayMap));
-      });
-      cachedAllBookings = rawList;
-      lastBookingsFetchTime = now;
-      list = [...rawList];
+      try {
+        const [snapshot, coachDisplayMap] = await Promise.all([
+          Promise.race([
+            db.collection('bookings').get(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 4500))
+          ]),
+          this.getCoachDisplayMap()
+        ]);
+        const rawList = [];
+        snapshot.docs.forEach(doc => {
+          const data = doc.data();
+          rawList.push(this.enrichBookingWithCoachDisplay({ ...data, id: doc.id }, coachDisplayMap));
+        });
+        cachedAllBookings = rawList;
+        lastBookingsFetchTime = now;
+        list = [...rawList];
+      } catch (err) {
+        console.warn('⚠️ Firestore bookings fetch fallback to cache/local:', err.message);
+        list = cachedAllBookings ? [...cachedAllBookings] : [];
+        if (!cachedAllBookings) cachedAllBookings = [];
+        lastBookingsFetchTime = now;
+      }
     }
 
     // Apply filtering

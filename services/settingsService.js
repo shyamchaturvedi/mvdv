@@ -92,6 +92,8 @@ const DEFAULT_SETTINGS = {
 const os = require('os');
 const TMP_SETTINGS_FILE = path.join(os.tmpdir(), 'mvd_settings.json');
 let inMemorySettings = null;
+let lastSettingsFetchTime = 0;
+const SETTINGS_CACHE_TTL = 60 * 1000; // 60 seconds
 
 function loadSettingsFromDisk() {
   if (inMemorySettings) return inMemorySettings;
@@ -111,6 +113,7 @@ function loadSettingsFromDisk() {
 
 function saveSettingsToDisk(settings) {
   inMemorySettings = settings;
+  lastSettingsFetchTime = Date.now();
   try {
     const dataDir = path.dirname(SETTINGS_FILE);
     if (!fs.existsSync(dataDir)) {
@@ -128,11 +131,25 @@ function saveSettingsToDisk(settings) {
 }
 
 class SettingsService {
+  static invalidateCache() {
+    inMemorySettings = null;
+    lastSettingsFetchTime = 0;
+  }
+
   static async getSettings() {
-    // Always try Firebase first (primary source of truth)
+    const now = Date.now();
+    if (inMemorySettings && (now - lastSettingsFetchTime) < SETTINGS_CACHE_TTL) {
+      return inMemorySettings;
+    }
+
+    // Always try Firebase first with fast timeout guard
     try {
       const docRef = db.collection('settings').doc('general');
-      const snap = await docRef.get();
+      const snap = await Promise.race([
+        docRef.get(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 3500))
+      ]);
+
       if (snap.exists) {
         const data = snap.data();
         // Normalize fares
@@ -149,6 +166,8 @@ class SettingsService {
           fareAC: fares.AC,
           fareGeneral: fares.General
         };
+        lastSettingsFetchTime = now;
+        saveSettingsToDisk(inMemorySettings);
         return inMemorySettings;
       } else {
         // First time: Initialize settings in Firebase with defaults
@@ -161,10 +180,11 @@ class SettingsService {
         };
         await docRef.set(defaults);
         inMemorySettings = defaults;
+        lastSettingsFetchTime = now;
         return defaults;
       }
     } catch (e) {
-      console.warn('⚠️ Firebase settings read fallback to local:', e.message);
+      console.warn('⚠️ Firebase settings read fallback to local cache:', e.message);
     }
     // Emergency fallback: local disk
     const diskSettings = loadSettingsFromDisk();
@@ -173,13 +193,15 @@ class SettingsService {
       Sleeper: Number(diskSettings.fareSleeper ?? 3000),
       General: Number(diskSettings.fareGeneral ?? 2000)
     };
-    return {
+    inMemorySettings = {
       ...diskSettings,
       fares,
       fareSleeper: fares.Sleeper,
       fareAC: fares.AC,
       fareGeneral: fares.General
     };
+    lastSettingsFetchTime = now;
+    return inMemorySettings;
   }
 
   static async updateSettings(updates, updatedByName = 'Admin') {

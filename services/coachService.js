@@ -126,8 +126,12 @@ class CoachService {
   // Initialize default coaches if collection is empty (run once per lifecycle)
   static async initDefaultCoaches() {
     if (hasInitializedDefaultCoaches) return;
+    hasInitializedDefaultCoaches = true;
     try {
-      const snap = await db.collection('trainCoaches').get();
+      const snap = await Promise.race([
+        db.collection('trainCoaches').limit(1).get(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 2500))
+      ]);
       if (snap.empty) {
         for (const coach of DEFAULT_TRAIN_COACHES) {
           await db.collection('trainCoaches').doc(coach.id).set({
@@ -137,7 +141,6 @@ class CoachService {
         }
         console.log('✅ Default Train Rake Composition (18 Coaches) initialized in database.');
       }
-      hasInitializedDefaultCoaches = true;
     } catch (e) {
       console.warn('⚠️ Coach initialization notice:', e.message);
     }
@@ -150,22 +153,35 @@ class CoachService {
       return cachedCoachesList;
     }
 
-    await this.initDefaultCoaches();
-    const snap = await db.collection('trainCoaches').get();
-    let list = [];
-    snap.docs.forEach(doc => {
-      list.push(withCoachUiAliases({ ...doc.data(), id: doc.id }));
-    });
+    try {
+      await this.initDefaultCoaches();
+      const snap = await Promise.race([
+        db.collection('trainCoaches').get(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 3500))
+      ]);
+      let list = [];
+      snap.docs.forEach(doc => {
+        list.push(withCoachUiAliases({ ...doc.data(), id: doc.id }));
+      });
 
-    if (list.length === 0) {
-      list = DEFAULT_TRAIN_COACHES.map(c => withCoachUiAliases(c));
+      if (list.length === 0) {
+        list = DEFAULT_TRAIN_COACHES.map(c => withCoachUiAliases(c));
+      }
+
+      // Sort by position ascending
+      list.sort((a, b) => Number(a.position || 999) - Number(b.position || 999));
+      cachedCoachesList = list;
+      lastCoachesFetchTime = now;
+      return list;
+    } catch (e) {
+      console.warn('⚠️ Coach fetch fallback to default rake:', e.message);
+      const fallbackList = cachedCoachesList && cachedCoachesList.length > 0
+        ? cachedCoachesList
+        : DEFAULT_TRAIN_COACHES.map(c => withCoachUiAliases(c));
+      cachedCoachesList = fallbackList;
+      lastCoachesFetchTime = now;
+      return fallbackList;
     }
-
-    // Sort by position ascending
-    list.sort((a, b) => Number(a.position || 999) - Number(b.position || 999));
-    cachedCoachesList = list;
-    lastCoachesFetchTime = now;
-    return list;
   }
 
   // Get active bookable coaches mapped by class
