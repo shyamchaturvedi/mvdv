@@ -288,8 +288,9 @@ router.post('/admin/coaches/reset-default', requireAuth('SuperAdmin'), async (re
 // Cancel Ticket with Refund (Booking Counter & Admin)
 router.post('/bookings/:id/cancel', requireAuth(), async (req, res) => {
   try {
-    const { refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
+    const { passengerIndices, refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
     const cancelled = await BookingService.cancelBookingWithRefund(req.params.id, {
+      passengerIndices,
       refundAmount,
       cancellationCharges,
       cancellationReason,
@@ -316,8 +317,9 @@ router.post('/bookings/:id/cancel', requireAuth(), async (req, res) => {
 
 router.post('/admin/bookings/:id/cancel', requireAuth(), async (req, res) => {
   try {
-    const { refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
+    const { passengerIndices, refundAmount, cancellationCharges, cancellationReason, remarks, refundMode, refundChannel, upiId, accountHolder, bankName, accountNumber, ifscCode, utr } = req.body;
     const cancelled = await BookingService.cancelBookingWithRefund(req.params.id, {
+      passengerIndices,
       refundAmount,
       cancellationCharges,
       cancellationReason,

@@ -1463,6 +1463,62 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
   };
 
+  // Open Unified Full / Partial Cancellation & Refund Modal (IRCTC Standard)
+  const openCancelRefundModal = (booking, targetPaxIndex = null) => {
+    if (!booking) return;
+    const rawPax = Array.isArray(booking.passengers) && booking.passengers.length > 0
+      ? booking.passengers
+      : [{
+          name: booking.bookedBy || 'Devotee',
+          age: '',
+          gender: 'Male',
+          seatAssigned: Array.isArray(booking.seatNumber) ? booking.seatNumber[0] : (booking.seatNumber || '1'),
+          checkInStatus: 'Pending'
+        }];
+
+    // Identify active passengers
+    const activeIndices = rawPax
+      .map((p, idx) => ({ p, idx }))
+      .filter(item => item.p.seatAssigned !== 'Cancelled' && item.p.checkInStatus !== 'Cancelled')
+      .map(item => item.idx);
+
+    if (activeIndices.length === 0) {
+      alert('इस टिकट पर कोई भी सक्रिय यात्री नहीं है (सभी पहले ही रद्द हो चुके हैं)।');
+      return;
+    }
+
+    let initialSelected = [];
+    if (targetPaxIndex !== null && activeIndices.includes(targetPaxIndex)) {
+      initialSelected = [targetPaxIndex];
+    } else {
+      initialSelected = [...activeIndices];
+    }
+
+    const currentAdv = Number(booking.advance || 0);
+    const activeCount = Math.max(1, activeIndices.length);
+    const selCount = initialSelected.length;
+    const proRataRefund = Math.min(currentAdv, Math.round((currentAdv / activeCount) * selCount));
+
+    setCancelModal({
+      show: true,
+      booking,
+      activePassengerIndices: activeIndices,
+      selectedPassengerIndices: initialSelected,
+      refundAmount: proRataRefund,
+      cancellationCharges: 0,
+      cancellationReason: 'यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण',
+      remarks: '',
+      refundChannel: 'Cash',
+      refundMode: 'Cash (Counter Cash Refund)',
+      accountHolder: booking.bookedBy || '',
+      bankName: '',
+      accountNumber: '',
+      ifscCode: '',
+      upiId: '',
+      utr: ''
+    });
+  };
+
   // Ticket Cancellation & Refund Handler (Anti-Fraud & Auto-Print Refund Voucher)
   const handleCancelTicket = async (e) => {
     e.preventDefault();
@@ -1473,10 +1529,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     const charges = parseFloat(cancelModal.cancellationCharges) || 0;
     const reason = cancelModal.cancellationReason || 'यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण';
     const remarks = (cancelModal.remarks || '').trim();
+    const selectedIndices = cancelModal.selectedPassengerIndices || [];
 
-    // Anti-Fraud Validations
-    if (paid > 0 && Math.abs((refAmt + charges) - paid) > 0.01) {
-      alert(`त्रुटि: रिफंड राशि (₹${refAmt}) + कटौती शुल्क (₹${charges}) कुल जमा अग्रिम (₹${paid}) के बराबर होनी चाहिए।`);
+    if (selectedIndices.length === 0) {
+      alert('⚠️ कृपया रद्द करने के लिए कम से कम 1 यात्री चुनें।');
+      return;
+    }
+
+    const activeTotalCount = cancelModal.activePassengerIndices?.length || selectedIndices.length;
+    const maxRefundable = Math.min(paid, Math.round((paid / Math.max(1, activeTotalCount)) * selectedIndices.length));
+
+    if (refAmt < 0 || refAmt > paid) {
+      alert(`अमान्य रिफंड राशि: रिफंड राशि 0 से कुल जमा अग्रिम (₹${paid}) के बीच होनी चाहिए।`);
       return;
     }
     if (remarks.length < 5) {
@@ -1484,9 +1548,12 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
       return;
     }
 
-    if (!confirm(`क्या आप निश्चित हैं कि PNR ${b.bookingId} (${b.bookedBy}) का टिकट रद्द करना चाहते हैं?\n\nकुल जमा अग्रिम: ₹${paid}\nरिफंड राशि: ₹${refAmt}\nकटौती शुल्क: ₹${charges}\nमाध्यम: ${cancelModal.refundMode}\nकारण: ${reason}\n\nसीटें तुरंत मुक्त (VACANT) कर दी जाएंगी।`)) {
-      return;
-    }
+    const isFull = selectedIndices.length === activeTotalCount;
+    const confirmMsg = isFull
+      ? `क्या आप निश्चित हैं कि PNR ${b.bookingId} (${b.bookedBy}) का पूरा टिकट रद्द करना चाहते हैं?\n\nकुल जमा अग्रिम: ₹${paid}\nरिफंड राशि: ₹${refAmt}\nकटौती शुल्क: ₹${charges}\nमाध्यम: ${cancelModal.refundMode}\nकारण: ${reason}\n\nसभी सीटें तुरंत मुक्त (VACANT) कर दी जाएंगी।`
+      : `क्या आप निश्चित हैं कि PNR ${b.bookingId} के चयनित ${selectedIndices.length} यात्री का टिकट रद्द करना चाहते हैं?\n\nरिफंड राशि: ₹${refAmt}\nकटौती शुल्क: ₹${charges}\nमाध्यम: ${cancelModal.refundMode}\nकारण: ${reason}\n\nचयनित यात्रियों की सीटें तुरंत मुक्त (VACANT) कर दी जाएंगी। शेष यात्री यात्रा के लिए मान्य रहेंगे।`;
+
+    if (!confirm(confirmMsg)) return;
 
     const token = staffToken || localStorage.getItem('mvd_staff_token') || '';
     try {
@@ -1494,6 +1561,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
+          passengerIndices: selectedIndices,
           refundAmount: refAmt,
           cancellationCharges: charges,
           cancellationReason: reason,
@@ -1514,8 +1582,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
         setCancelModal(null);
         refreshAllBookingViews();
 
+        // If editYatriModal is currently open for this booking, update it immediately
+        if (editYatriModal && editYatriModal.bookingId === b.bookingId && data.booking) {
+          setEditYatriModal(prev => ({
+            ...prev,
+            ...data.booking,
+            passengers: data.booking.passengers || prev.passengers
+          }));
+          loadEditYatriCoachLayout(data.booking.coachName || editYatriModal.coachName, data.booking.yatraYear || editYatriModal.yatraYear);
+        }
+
         // Auto-Print Official Cancellation & Refund Advice Slip
-        const updatedBooking = data.booking || { ...b, status: 'Cancelled', refundAmount: refAmt, cancellationCharges: charges };
+        const updatedBooking = data.booking || { ...b, status: isFull ? 'Cancelled' : b.status, refundAmount: refAmt, cancellationCharges: charges };
         const refundTxn = (updatedBooking.paymentHistory || []).slice().reverse().find(t => parseFloat(t.amount) < 0 || String(t.type || '').toLowerCase().includes('refund')) || {
           id: `MVD-REF-${b.bookingId}`,
           date: new Date().toISOString(),
@@ -1524,7 +1602,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
           cancellationCharges: charges,
           originalAdvance: paid,
           method: cancelModal.refundMode || 'Cash (Counter Cash Refund)',
-          type: 'Ticket Cancellation Refund',
+          type: isFull ? 'Ticket Cancellation Refund' : 'Partial Passenger Cancellation Refund',
           cashierName: staffUser?.name || staffUser?.username || 'Counter Staff',
           reason: reason,
           remarks: remarks
@@ -1813,40 +1891,60 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     });
 
     const seatAssignmentMap = new Map();
+    const assignedSeatSet = new Set();
     const remainingLowers = [...lowerSeats];
     const remainingMiddles = [...middleSeats];
     const remainingUppers = [...upperSeats];
 
+    const takeSeat = (list) => {
+      while (list.length > 0) {
+        const s = list.shift();
+        if (!assignedSeatSet.has(s)) {
+          assignedSeatSet.add(s);
+          return s;
+        }
+      }
+      return null;
+    };
+
     prioritizedPax.forEach(item => {
       let assignedNum = null;
-      if (item.pref.includes('lower') && remainingLowers.length > 0) {
-        assignedNum = remainingLowers.shift();
-      } else if (item.pref.includes('middle') && remainingMiddles.length > 0) {
-        assignedNum = remainingMiddles.shift();
-      } else if (item.pref.includes('upper') && remainingUppers.length > 0) {
-        assignedNum = remainingUppers.shift();
+      // 1. Honor explicit preference if available
+      if (item.pref.includes('lower')) {
+        assignedNum = takeSeat(remainingLowers);
+      } else if (item.pref.includes('middle')) {
+        assignedNum = takeSeat(remainingMiddles);
+      } else if (item.pref.includes('upper')) {
+        assignedNum = takeSeat(remainingUppers);
+      }
+
+      // 2. IRCTC standard allocation:
+      // Seniors, Females, and Older passengers get Lower berths first
+      if (!assignedNum) {
+        if (item.isSenior || item.isFemale || item.age >= 45) {
+          assignedNum = takeSeat(remainingLowers) || takeSeat(remainingMiddles) || takeSeat(remainingUppers);
+        } else {
+          assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingUppers) || takeSeat(remainingLowers);
+        }
       }
 
       if (!assignedNum) {
-        if ((item.isSenior || item.isFemale || item.age >= 45) && remainingLowers.length > 0) {
-          assignedNum = remainingLowers.shift();
-        } else if (remainingLowers.length > 0 && remainingLowers.length >= (prioritizedPax.length - seatAssignmentMap.size)) {
-          assignedNum = remainingLowers.shift();
-        } else if (remainingMiddles.length > 0) {
-          assignedNum = remainingMiddles.shift();
-        } else if (remainingLowers.length > 0) {
-          assignedNum = remainingLowers.shift();
-        } else if (remainingUppers.length > 0) {
-          assignedNum = remainingUppers.shift();
-        } else {
-          assignedNum = chosen[item.originalIdx] || (item.originalIdx + 1);
+        const fallback = chosen.find(s => !assignedSeatSet.has(s)) || availNums.find(s => !assignedSeatSet.has(s));
+        if (fallback) {
+          assignedSeatSet.add(fallback);
+          assignedNum = fallback;
         }
       }
       seatAssignmentMap.set(item.originalIdx, assignedNum);
     });
 
     return paxList.map((p, idx) => {
-      const seatNum = seatAssignmentMap.get(idx) || chosen[idx] || (idx + 1);
+      let seatNum = seatAssignmentMap.get(idx);
+      if (!seatNum) {
+        const fallback = availNums.find(s => !assignedSeatSet.has(s)) || (idx + 1);
+        assignedSeatSet.add(fallback);
+        seatNum = fallback;
+      }
       const bInfo = getBerthInfo(seatNum, coachClass);
       return {
         ...p,
@@ -1880,44 +1978,57 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
     }
     // Keep seats sorted numerically like IRCTC
     updated.sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
-    setSelectedSeats(updated);
 
     // Synchronize to passengers WITHOUT wiping out their entered data
     setPassengers(prevPax => {
       let paxCopy = [...prevPax];
-      while (paxCopy.length < updated.length) {
-        const autoSeat = updated[paxCopy.length] || `${paxCopy.length + 1}`;
-        const autoInfo = getBerthInfo(autoSeat, travelClass);
-        paxCopy.push({
-          name: '',
-          age: '',
-          gender: 'Male',
-          aadhar: '',
-          seatAssigned: autoSeat,
-          berthPreference: autoInfo.name,
-          berthCode: autoInfo.code,
-          berthType: autoInfo.fullName
-        });
-      }
       const usedAssigned = new Set();
-      return paxCopy.map((p, idx) => {
+      const availableCoachSeats = (coachLayout.layout || []).filter(s => !s.isBooked).map(s => String(s.seatNumber));
+
+      // Step 1: Assign clicked/selected seats in order
+      const newPax = paxCopy.map((p, idx) => {
         let seat = updated[idx];
-        if (!seat || usedAssigned.has(seat)) {
-          seat = p.seatAssigned;
-          if (!seat || usedAssigned.has(seat)) {
-            seat = `${idx + 1}`;
+        if (seat && !usedAssigned.has(seat)) {
+          usedAssigned.add(seat);
+          const bInfo = getBerthInfo(seat, travelClass);
+          return {
+            ...p,
+            seatAssigned: String(seat),
+            berthPreference: bInfo.name,
+            berthCode: bInfo.code,
+            berthType: bInfo.fullName
+          };
+        }
+        return { ...p, seatAssigned: '' };
+      });
+
+      // Step 2: Ensure every passenger has a distinct vacant seat
+      const finalizedPax = newPax.map((p, idx) => {
+        if (p.seatAssigned) return p;
+        let cand = availableCoachSeats.find(s => !usedAssigned.has(s) && !updated.includes(s));
+        if (!cand) {
+          for (let i = 1; i <= 100; i++) {
+            const candStr = String(i);
+            if (!usedAssigned.has(candStr)) {
+              cand = candStr;
+              break;
+            }
           }
         }
-        usedAssigned.add(seat);
-        const bInfo = getBerthInfo(seat, travelClass);
+        usedAssigned.add(String(cand));
+        const bInfo = getBerthInfo(cand, travelClass);
         return {
           ...p,
-          seatAssigned: String(seat),
+          seatAssigned: String(cand),
           berthPreference: bInfo.name,
           berthCode: bInfo.code,
           berthType: bInfo.fullName
         };
       });
+
+      const allAssigned = Array.from(new Set(finalizedPax.map(p => String(p.seatAssigned)))).sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
+      setSelectedSeats(allAssigned);
+      return finalizedPax;
     });
   };
 
@@ -6589,24 +6700,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                                             <IndianRupee size={13} style={{ verticalAlign: 'text-bottom' }} />
                                           </button>
                                         )}
-                                        <button className="btn btn-xs" onClick={() => setCancelModal({
-                                          show: true,
-                                          booking: b,
-                                          refundAmount: b.advance || 0,
-                                          cancellationCharges: 0,
-                                          cancellationReason: 'यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण',
-                                          remarks: '',
-                                          refundChannel: 'Cash',
-                                          refundMode: 'Cash (Counter Cash Refund)',
-                                          accountHolder: b.bookedBy || '',
-                                          bankName: '',
-                                          accountNumber: '',
-                                          ifscCode: '',
-                                          upiId: '',
-                                          utr: ''
-                                        })} title="रद्द करें व रिफंड दें (Cancel/Refund)" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
-                                          <RefreshCw size={13} style={{ verticalAlign: 'text-bottom' }} /> रद्द/Cancel
-                                        </button>
+                                        <button className="btn btn-xs" onClick={() => openCancelRefundModal(b)} title="रद्द करें व रिफंड दें (Cancel/Refund)" style={{ background: '#DC2626', color: 'white', borderColor: '#B91C1C' }}>
+                                           <RefreshCw size={13} style={{ verticalAlign: 'text-bottom' }} /> रद्द/Cancel
+                                         </button>
                                       </div>
                                     )}
                                   </td>
@@ -9398,6 +9494,127 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 </div>
               </div>
 
+              {/* IRCTC-Style Passenger Selection for Full vs Partial Cancellation */}
+              {(() => {
+                const b = cancelModal.booking;
+                const rawPax = Array.isArray(b.passengers) && b.passengers.length > 0
+                  ? b.passengers
+                  : [{ name: b.bookedBy, seatAssigned: (Array.isArray(b.seatNumber) ? b.seatNumber[0] : b.seatNumber) || '1', checkInStatus: 'Pending' }];
+                const activePax = rawPax
+                  .map((p, idx) => ({ ...p, originalIndex: idx }))
+                  .filter(p => p.seatAssigned !== 'Cancelled' && p.checkInStatus !== 'Cancelled');
+                const selected = cancelModal.selectedPassengerIndices || [];
+                const allSelected = activePax.length > 0 && activePax.every(p => selected.includes(p.originalIndex));
+                const currentAdv = Number(b.advance || 0);
+                const activeCount = Math.max(1, activePax.length);
+
+                const handleTogglePax = (origIdx) => {
+                  let next;
+                  if (selected.includes(origIdx)) {
+                    next = selected.filter(i => i !== origIdx);
+                  } else {
+                    next = [...selected, origIdx];
+                  }
+                  const newRefund = Math.min(currentAdv, Math.round((currentAdv / activeCount) * next.length));
+                  setCancelModal({
+                    ...cancelModal,
+                    selectedPassengerIndices: next,
+                    refundAmount: newRefund,
+                    cancellationCharges: 0
+                  });
+                };
+
+                const handleSelectAll = (check) => {
+                  const next = check ? activePax.map(p => p.originalIndex) : [];
+                  const newRefund = check ? currentAdv : 0;
+                  setCancelModal({
+                    ...cancelModal,
+                    selectedPassengerIndices: next,
+                    refundAmount: newRefund,
+                    cancellationCharges: 0
+                  });
+                };
+
+                return (
+                  <div style={{ background: '#FFF8F2', border: '1.5px solid #FED7AA', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                      <strong style={{ color: '#9A3412', fontSize: '0.88rem' }}>
+                        रद्द किए जाने वाले यात्री चुनें ({selected.length}/{activePax.length} चयनित):
+                      </strong>
+                      <label style={{ fontSize: '0.78rem', color: '#C2410C', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        <input
+                          type="checkbox"
+                          checked={allSelected}
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                          style={{ accentColor: '#DC2626', width: 15, height: 15 }}
+                        />
+                        सभी चुनें (Full Cancellation)
+                      </label>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflowY: 'auto' }}>
+                      {activePax.map((p) => {
+                        const isChecked = selected.includes(p.originalIndex);
+                        const bInfo = getBerthInfo(p.seatAssigned, b.travelClass);
+                        const proRataShare = Math.round(currentAdv / activeCount);
+                        return (
+                          <label
+                            key={p.originalIndex}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '7px 10px',
+                              background: isChecked ? '#FEF2F2' : '#FFFFFF',
+                              border: isChecked ? '1.5px solid #FCA5A5' : '1px solid #E5E7EB',
+                              borderRadius: 6,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleTogglePax(p.originalIndex)}
+                                style={{ accentColor: '#DC2626', width: 16, height: 16 }}
+                              />
+                              <div>
+                                <strong style={{ color: isChecked ? '#991B1B' : '#1F2937', fontSize: '0.86rem' }}>
+                                  यात्री #{p.originalIndex + 1}: {p.name || 'Yatri'}
+                                </strong>
+                                <span style={{ fontSize: '0.74rem', color: '#6B7280', marginLeft: 6 }}>
+                                  ({p.age || '-'} / {p.gender || '-'})
+                                </span>
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0284C7' }}>
+                                सीट: {p.seatAssigned} ({bInfo.code})
+                              </span>
+                              <div style={{ fontSize: '0.7rem', color: '#047857', fontWeight: 600 }}>
+                                अग्रिम शेयर: ₹{proRataShare}
+                              </div>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+
+                    {selected.length > 0 && selected.length < activePax.length && (
+                      <div style={{ marginTop: 8, padding: '5px 8px', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 4, color: '#92400E', fontSize: '0.75rem', fontWeight: 700 }}>
+                        ℹ️ आंशिक रद्दीकरण (Partial Cancellation): केवल चयनित {selected.length} यात्री का टिकट रद्द होगा एवं सीट रिक्त होगी। शेष {activePax.length - selected.length} यात्री का टिकट यथावत रहेगा।
+                      </div>
+                    )}
+                    {selected.length === activePax.length && activePax.length > 0 && (
+                      <div style={{ marginTop: 8, padding: '5px 8px', background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', fontSize: '0.75rem', fontWeight: 700 }}>
+                        ⚠️ पूर्ण टिकट रद्दीकरण (Full Cancellation): सभी {selected.length} यात्रियों का टिकट रद्द होगा और पूरी बुकिंग कैंसल मानी जाएगी।
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Refund Policy Banner */}
               <div style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
                 <div style={{ color: '#991B1B', fontWeight: 800, fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -10029,17 +10246,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 <button 
                   className="btn btn-danger btn-sm" 
                   style={{ background: '#DC2626', color: '#fff', border: 'none', padding: '0 12px' }} 
-                  onClick={() => { 
-                    setCancelModal({ 
-                      show: true, 
-                      booking: ticketModal, 
-                      refundAmount: ticketModal.advance || 0, 
-                      cancellationCharges: 0, 
-                      cancellationReason: 'यात्री के अनुरोध पर', 
-                      refundMode: 'Cash', 
-                      utr: '' 
-                    }); 
-                    setTicketModal(null); 
+                  onClick={() => {
+                    openCancelRefundModal(ticketModal);
+                    setTicketModal(null);
                   }}>
                   रद्द करें (Cancel)
                 </button>
@@ -10261,6 +10470,18 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                       {/* Refund Detailed Audit Box */}
                       {isRefund && (
                         <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 4, padding: '6px 10px', fontSize: '0.74rem', marginBottom: 8, color: '#991B1B' }}>
+                          {receiptModal.txn.cancelledPassengers && receiptModal.txn.cancelledPassengers.length > 0 && (
+                            <div style={{ marginBottom: 6, padding: '4px 8px', background: '#FFF5F5', border: '1px solid #FCA5A5', borderRadius: 4, color: '#991B1B' }}>
+                              <strong>रद्द यात्री विवरण (Cancelled Passengers):</strong>
+                              <div style={{ marginTop: 2, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                {receiptModal.txn.cancelledPassengers.map((cp, cidx) => (
+                                  <span key={cidx} style={{ background: '#FEE2E2', padding: '2px 6px', borderRadius: 3, fontWeight: 700, fontSize: '0.72rem' }}>
+                                    #{cp.index !== undefined ? cp.index + 1 : cidx + 1} {cp.name} (सीट: {cp.seatAssigned || 'N/A'}{cp.berthType ? ' • ' + cp.berthType : ''}) [मुक्त/Vacant]
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 4 }}>
                             <div>
                               <span style={{ fontWeight: 700 }}>कुल जमा अग्रिम (Paid Advance):</span> Rs. {parseFloat(receiptModal.txn.originalAdvance || receiptModal.booking.cancellationDetails?.originalAdvance || receiptModal.booking.advance || absAmt).toFixed(2)}
@@ -10637,20 +10858,9 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                         <button
                           type="button"
                           className="btn btn-xs btn-danger"
-                          title="इस यात्री का टिकट रद्द करें (सीट तुरंत खाली होगी)"
+                          title="इस यात्री का टिकट रद्द करें (सीट तुरंत खाली होगी व रिफंड वाउचर जारी होगा)"
                           onClick={() => {
-                            const activeCount = editYatriModal.passengers.filter(x => x.seatAssigned !== 'Cancelled' && x.checkInStatus !== 'Cancelled').length;
-                            if (activeCount <= 1) {
-                              if (!confirm('यह इस बुकिंग का अंतिम सक्रिय यात्री है। इसे रद्द करने पर पूरी बुकिंग रद्द मानी जाएगी। क्या आप जारी रखना चाहते हैं?')) return;
-                            }
-                            const newPax = [...editYatriModal.passengers];
-                            newPax[idx] = {
-                              ...newPax[idx],
-                              seatAssigned: 'Cancelled',
-                              checkInStatus: 'Cancelled',
-                              berthPreference: 'Cancelled'
-                            };
-                            setEditYatriModal({ ...editYatriModal, passengers: newPax, saveError: '' });
+                            openCancelRefundModal(editYatriModal, idx);
                           }}
                         >
                           ✕ यात्री रद्द करें (Cancel Yatri)

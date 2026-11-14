@@ -253,43 +253,60 @@ function allocateIRCTCBaySeats(passengers = [], availableSeatNumbers = [], trave
   });
 
   const seatAssignmentMap = new Map();
+  const assignedSeatSet = new Set();
   const remainingLowers = [...lowerSeats];
   const remainingMiddles = [...middleSeats];
   const remainingUppers = [...upperSeats];
 
+  const takeSeat = (list) => {
+    while (list.length > 0) {
+      const s = list.shift();
+      if (!assignedSeatSet.has(s)) {
+        assignedSeatSet.add(s);
+        return s;
+      }
+    }
+    return null;
+  };
+
   prioritizedPax.forEach(item => {
     let assignedNum = null;
     // 1. Honor explicit preference if available
-    if (item.pref.includes('lower') && remainingLowers.length > 0) {
-      assignedNum = remainingLowers.shift();
-    } else if (item.pref.includes('middle') && remainingMiddles.length > 0) {
-      assignedNum = remainingMiddles.shift();
-    } else if (item.pref.includes('upper') && remainingUppers.length > 0) {
-      assignedNum = remainingUppers.shift();
+    if (item.pref.includes('lower')) {
+      assignedNum = takeSeat(remainingLowers);
+    } else if (item.pref.includes('middle')) {
+      assignedNum = takeSeat(remainingMiddles);
+    } else if (item.pref.includes('upper')) {
+      assignedNum = takeSeat(remainingUppers);
     }
 
     // 2. IRCTC standard allocation:
     // Seniors, Females, and Older passengers get Lower berths first
     if (!assignedNum) {
-      if ((item.isSenior || item.isFemale || item.age >= 45) && remainingLowers.length > 0) {
-        assignedNum = remainingLowers.shift();
-      } else if (remainingLowers.length > 0 && remainingLowers.length >= (prioritizedPax.length - seatAssignmentMap.size)) {
-        assignedNum = remainingLowers.shift();
-      } else if (remainingMiddles.length > 0) {
-        assignedNum = remainingMiddles.shift();
-      } else if (remainingLowers.length > 0) {
-        assignedNum = remainingLowers.shift();
-      } else if (remainingUppers.length > 0) {
-        assignedNum = remainingUppers.shift();
+      if (item.isSenior || item.isFemale || item.age >= 45) {
+        assignedNum = takeSeat(remainingLowers) || takeSeat(remainingMiddles) || takeSeat(remainingUppers);
       } else {
-        assignedNum = chosenSeats[item.originalIdx] || (item.originalIdx + 1);
+        assignedNum = takeSeat(remainingMiddles) || takeSeat(remainingUppers) || takeSeat(remainingLowers);
+      }
+    }
+
+    if (!assignedNum) {
+      const fallback = chosenSeats.find(s => !assignedSeatSet.has(s)) || availNums.find(s => !assignedSeatSet.has(s));
+      if (fallback) {
+        assignedSeatSet.add(fallback);
+        assignedNum = fallback;
       }
     }
     seatAssignmentMap.set(item.originalIdx, assignedNum);
   });
 
   return passengers.map((p, idx) => {
-    const seatNum = seatAssignmentMap.get(idx) || chosenSeats[idx] || (idx + 1);
+    let seatNum = seatAssignmentMap.get(idx);
+    if (!seatNum) {
+      const fallback = availNums.find(s => !assignedSeatSet.has(s)) || (idx + 1);
+      assignedSeatSet.add(fallback);
+      seatNum = fallback;
+    }
     const bInfo = getBerthInfo(seatNum, travelClass);
     return {
       ...p,
@@ -1008,24 +1025,67 @@ class BookingService {
     return updatedData;
   }
 
-  // Cancel Ticket with Unified Refund, Mandatory IRCTC Reason, Remarks, and Anti-Fraud Audit
+  // Cancel Ticket with Unified Full / Partial Passenger Refund, Mandatory IRCTC Reason, Remarks, and Anti-Fraud Audit
   static async cancelBookingWithRefund(bookingId, cancellationData = {}, adminName = 'System') {
     const booking = await this.getBookingByIdOrPNR(bookingId);
     if (!booking) throw new Error('आरक्षण (Booking) नहीं मिला।');
 
     if (booking.status === 'Cancelled') {
-      throw new Error('यह टिकट पहले ही रद्द (Cancelled) किया जा चुका है।');
+      throw new Error('यह टिकट पहले ही पूरी तरह रद्द (Cancelled) किया जा चुका है।');
     }
 
-    const totalPaid = Number(booking.advance || 0);
-    let refundAmount = cancellationData.refundAmount !== undefined ? Number(cancellationData.refundAmount) : totalPaid;
-    let cancellationCharges = cancellationData.cancellationCharges !== undefined ? Number(cancellationData.cancellationCharges) : Math.max(0, totalPaid - refundAmount);
+    const existingPax = Array.isArray(booking.passengers) && booking.passengers.length > 0
+      ? booking.passengers
+      : [{
+          name: booking.bookedBy || 'Devotee',
+          age: null,
+          gender: 'Male',
+          seatAssigned: (Array.isArray(booking.seatNumber) ? booking.seatNumber[0] : booking.seatNumber) || '1',
+          checkInStatus: 'Pending'
+        }];
+
+    // Identify active passengers on this booking
+    const activePaxWithIdx = existingPax
+      .map((p, idx) => ({ p, idx }))
+      .filter(item => item.p.seatAssigned !== 'Cancelled' && item.p.checkInStatus !== 'Cancelled');
+
+    if (activePaxWithIdx.length === 0) {
+      throw new Error('इस टिकट पर कोई भी सक्रिय यात्री नहीं बचा है (सभी पहले ही रद्द हो चुके हैं)।');
+    }
+
+    // Determine target passenger indices to cancel
+    let targetIndices = [];
+    if (Array.isArray(cancellationData.passengerIndices) && cancellationData.passengerIndices.length > 0) {
+      const allowed = new Set(activePaxWithIdx.map(i => i.idx));
+      targetIndices = cancellationData.passengerIndices.map(n => parseInt(n, 10)).filter(n => allowed.has(n));
+    } else {
+      // Default: All active passengers (Full Cancellation)
+      targetIndices = activePaxWithIdx.map(i => i.idx);
+    }
+
+    if (targetIndices.length === 0) {
+      throw new Error('रद्द करने के लिए कम से कम 1 सक्रिय यात्री चुनना अनिवार्य है।');
+    }
+
+    const isFullCancellation = targetIndices.length === activePaxWithIdx.length;
+    const currentAdvance = Number(booking.advance || 0);
+    const prevActiveCount = activePaxWithIdx.length;
+    const cancellingCount = targetIndices.length;
+
+    // Unit price per passenger
+    const unitPrice = Number(booking.unitPrice || (booking.totalAmount && prevActiveCount > 0 ? Math.round(Number(booking.totalAmount) / prevActiveCount) : 0)) || 0;
+
+    // Max refundable advance attributable to cancelling passengers
+    const proRataMaxRefundable = Math.min(currentAdvance, Math.round((currentAdvance / prevActiveCount) * cancellingCount));
+
+    let refundAmount = cancellationData.refundAmount !== undefined ? Number(cancellationData.refundAmount) : proRataMaxRefundable;
+    let cancellationCharges = cancellationData.cancellationCharges !== undefined ? Number(cancellationData.cancellationCharges) : Math.max(0, proRataMaxRefundable - refundAmount);
 
     // Strict Anti-Cheating Mathematical Verification: Advance Paid = Refund Amount + Cancellation Charges
     if (refundAmount < 0) refundAmount = 0;
     if (cancellationCharges < 0) cancellationCharges = 0;
-    if (refundAmount > totalPaid) refundAmount = totalPaid;
-    cancellationCharges = Math.max(0, totalPaid - refundAmount);
+    if (refundAmount > currentAdvance) refundAmount = currentAdvance;
+    cancellationCharges = Math.max(0, cancellationCharges);
 
     const cancellationReason = cancellationData.cancellationReason || 'यात्री के अनुरोध पर रद्दीकरण (Cancelled on Passenger Request)';
     const remarks = cancellationData.remarks || cancellationData.cancellationRemarks || cancellationData.notes || 'रद्दीकरण एवं रिफंड प्रक्रिया पूर्ण की गई';
@@ -1035,7 +1095,6 @@ class BookingService {
     const rawStaffName = typeof staffUser === 'string' ? staffUser : (staffUser.name || staffUser.username || 'Admin');
     const staffRole = typeof staffUser === 'object' ? (staffUser.role || 'Staff') : 'Staff';
 
-    // Clean staff name for clean display
     let staffName = String(rawStaffName).trim();
     if (staffName.includes('रमाकांत') || staffName.includes('tt')) staffName = 'Ramakant Sharma (TTE)';
     else if (staffName.includes('व्यवस्थापक') || staffName.includes('admin')) staffName = 'Chief Trust Admin';
@@ -1051,24 +1110,75 @@ class BookingService {
       status: refundMode.includes('Cash') ? 'Completed at Counter' : 'Pending Admin Processing (5-7 Working Days)'
     };
 
-    const paymentHistory = booking.paymentHistory || [];
-    // Always generate official refund voucher ID so there is an immutable audit slip
+    const cancelledPaxList = [];
+    const releasedSeats = [];
+
+    const updatedPax = existingPax.map((p, idx) => {
+      if (targetIndices.includes(idx)) {
+        const s = String(p.seatAssigned || p.seatNumber || '').trim();
+        if (s && s !== 'Cancelled') {
+          releasedSeats.push(s);
+        }
+        cancelledPaxList.push({
+          index: idx,
+          name: p.name || `Yatri ${idx + 1}`,
+          seatAssigned: s,
+          age: p.age,
+          gender: p.gender,
+          berthCode: p.berthCode,
+          berthType: p.berthType
+        });
+        return {
+          ...p,
+          seatAssigned: 'Cancelled',
+          seatNumber: 'Cancelled',
+          checkInStatus: 'Cancelled',
+          berthPreference: 'Cancelled',
+          berthCode: 'CAN',
+          berthType: 'Cancelled'
+        };
+      }
+      return p;
+    });
+
+    const remainingActivePax = updatedPax.filter(p => p.seatAssigned !== 'Cancelled' && p.checkInStatus !== 'Cancelled');
+    const newActiveSeats = remainingActivePax.map(p => String(p.seatAssigned || p.seatNumber)).filter(Boolean);
+
+    // Amounts calculation
+    const newTotalAmount = isFullCancellation
+      ? Number(booking.totalAmount || 0)
+      : Math.max(0, Number(booking.totalAmount || 0) - (unitPrice * cancellingCount));
+
+    const newAdvance = Math.max(0, currentAdvance - refundAmount);
+    const newRemainingDue = Math.max(0, newTotalAmount - newAdvance);
+
+    const newStatus = isFullCancellation ? 'Cancelled' : (booking.status || 'Confirmed');
+    const newPaymentStatus = isFullCancellation
+      ? 'Refunded'
+      : (newRemainingDue === 0 ? 'Paid' : (newAdvance > 0 ? 'Partial' : 'Unpaid'));
+
+    const paymentHistory = Array.isArray(booking.paymentHistory) ? [...booking.paymentHistory] : [];
     const refundReceiptId = await BookingService.generateReceiptId(booking.yatraYear || 2026, true);
-    paymentHistory.push({
+
+    const refundTxn = {
       id: refundReceiptId,
       date: new Date().toISOString(),
       amount: -refundAmount,
       refundAmount: refundAmount,
       cancellationCharges: cancellationCharges,
-      originalAdvance: totalPaid,
+      originalAdvance: currentAdvance,
+      remainingAdvance: newAdvance,
       method: refundMode,
-      type: 'Ticket Cancellation Refund',
+      type: isFullCancellation ? 'Full Ticket Cancellation Refund' : 'Partial Passenger Cancellation Refund',
       cashierName: staffName,
       reason: cancellationReason,
       remarks: remarks,
+      cancelledPassengers: cancelledPaxList,
+      releasedSeats: releasedSeats,
       refundAccount,
       utr: cancellationData.utr || refundAccount.upiId || refundAccount.accountNumber || (refundMode.includes('Cash') ? 'Counter Cash Handover' : 'Pending Admin Transfer (5-7 Days)')
-    });
+    };
+    paymentHistory.push(refundTxn);
 
     const cancellationRecord = {
       cancelledAt: new Date().toISOString(),
@@ -1082,22 +1192,34 @@ class BookingService {
       cancellationCharges,
       refundMode,
       refundAccount,
+      isFullCancellation,
+      cancelledPassengers: cancelledPaxList,
+      releasedSeats,
+      remainingActiveCount: remainingActivePax.length,
       originalSeats: booking.seatNumber || [],
       originalCoach: booking.coachName,
       originalCoachDisplayName: booking.coachDisplayName || '',
-      originalAdvance: totalPaid
+      originalAdvance: currentAdvance
     };
 
+    const cumulativeHistory = Array.isArray(booking.cancellationHistory) ? [...booking.cancellationHistory] : [];
+    cumulativeHistory.push(cancellationRecord);
+
     const updates = {
-      status: 'Cancelled',
-      paymentStatus: 'Refunded',
-      releasedSeats: booking.seatNumber || [],
-      seatNumber: [], // Release seats back to available pool!
-      passengers: (booking.passengers || []).map(p => ({ ...p, seatAssigned: 'Cancelled', checkInStatus: 'Cancelled', berthPreference: 'Cancelled', berthCode: 'CAN', berthType: 'Cancelled' })),
-      refundAmount,
-      cancellationCharges,
+      status: newStatus,
+      paymentStatus: newPaymentStatus,
+      numberOfPassengers: remainingActivePax.length,
+      seatNumber: newActiveSeats,
+      passengers: updatedPax,
+      totalAmount: newTotalAmount,
+      advance: newAdvance,
+      remainingAmount: newRemainingDue,
+      refundAmount: Number(booking.refundAmount || 0) + refundAmount,
+      cancellationCharges: Number(booking.cancellationCharges || 0) + cancellationCharges,
       cancellationDetails: cancellationRecord,
+      cancellationHistory: cumulativeHistory,
       paymentHistory,
+      releasedSeats: Array.from(new Set([...(booking.releasedSeats || []), ...releasedSeats])),
       updatedAt: new Date().toISOString()
     };
 
@@ -1107,9 +1229,9 @@ class BookingService {
     try {
       const { StaffService } = require('./staffService');
       await StaffService.logAudit({
-        action: 'TICKET_CANCELLED',
+        action: isFullCancellation ? 'TICKET_CANCELLED' : 'PASSENGERS_CANCELLED',
         performedBy: staffUser,
-        details: `PNR ${booking.bookingId} (${booking.bookedBy}) का टिकट रद्द किया गया। कुल अग्रिम: ₹${totalPaid}, रिफंड राशि: ₹${refundAmount}, कटौती शुल्क: ₹${cancellationCharges}, माध्यम: ${refundMode}, कारण: ${cancellationReason}, टिप्पणी: ${remarks}`,
+        details: `PNR ${booking.bookingId} (${booking.bookedBy}) ${isFullCancellation ? 'का पूरा टिकट' : `के ${cancellingCount} यात्री`} रद्द किया गया। रद्द यात्री: ${cancelledPaxList.map(p => p.name).join(', ')}, मुक्त सीटें: ${releasedSeats.join(', ')}, रिफंड: ₹${refundAmount}, कटौती शुल्क: ₹${cancellationCharges}, माध्यम: ${refundMode}, कारण: ${cancellationReason}, टिप्पणी: ${remarks}`,
         targetId: booking.bookingId
       });
     } catch (e) {}
