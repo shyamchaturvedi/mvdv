@@ -10362,6 +10362,8 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                 {(() => {
                   const isRefund = parseFloat(receiptModal.txn.amount) < 0 || String(receiptModal.txn.type || '').toLowerCase().includes('refund');
                   const absAmt = Math.abs(parseFloat(receiptModal.txn.amount) || 0);
+                  const methodStr = String(receiptModal.txn.method || receiptModal.booking.cancellationDetails?.refundMode || receiptModal.booking.paymentMode || '').toLowerCase();
+                  const isCashRefund = methodStr.includes('cash') || methodStr.includes('नकद');
                   const seatStr = Array.isArray(receiptModal.booking.seatNumber) && receiptModal.booking.seatNumber.length > 0
                     ? receiptModal.booking.seatNumber.join(', ')
                     : (receiptModal.booking.seatNumber || (isRefund ? 'Released' : 'Allocated'));
@@ -10429,40 +10431,54 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
 
                       {/* Amount Received / Refund Card */}
                       <div style={{
-                        background: isRefund ? '#FEF2F2' : '#ECFDF5',
-                        border: `1px solid ${isRefund ? '#FECACA' : '#A7F3D0'}`,
+                        background: isRefund ? (isCashRefund ? '#F0FDF4' : '#FEF2F2') : '#ECFDF5',
+                        border: `1px solid ${isRefund ? (isCashRefund ? '#BBF7D0' : '#FECACA') : '#A7F3D0'}`,
                         borderRadius: 4,
                         padding: '8px 12px',
                         marginBottom: 8
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <span style={{ fontSize: '0.74rem', color: isRefund ? '#991B1B' : '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
+                            <span style={{ fontSize: '0.74rem', color: isRefund ? (isCashRefund ? '#166534' : '#991B1B') : '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
                               {isRefund ? 'REFUND PROCESSED (REFUND DEYA RASHI):' : 'AMOUNT RECEIVED (PRAPT RASHI):'}
                             </span>
-                            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: isRefund ? '#DC2626' : '#047857' }}>
-                              Rs. {absAmt.toFixed(2)} {isRefund && <span style={{ fontSize: '0.75rem', color: '#991B1B', fontWeight: 700 }}>(Credit in 5-7 Working Days)</span>}
+                            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: isRefund ? (isCashRefund ? '#15803D' : '#DC2626') : '#047857' }}>
+                              Rs. {absAmt.toFixed(2)} {isRefund && (
+                                isCashRefund ? (
+                                  <span style={{ fontSize: '0.78rem', color: '#15803D', fontWeight: 800, marginLeft: 6 }}>
+                                    (काउंटर पर तत्काल नकद भुगतान / Instant Cash Handover)
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: '0.75rem', color: '#991B1B', fontWeight: 700, marginLeft: 6 }}>
+                                    (Credit in 5-7 Working Days)
+                                  </span>
+                                )
+                              )}
                             </div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <span style={{
-                              background: isRefund ? '#DC2626' : '#059669',
+                              background: isRefund ? (isCashRefund ? '#16A34A' : '#DC2626') : '#059669',
                               color: '#FFF',
                               fontSize: '0.72rem',
                               fontWeight: 700,
                               padding: '3px 10px',
                               borderRadius: 3
                             }}>
-                              {isRefund ? '✓ REFUND INITIATED' : '✓ PAYMENT RECEIVED'}
+                              {isRefund 
+                                ? (isCashRefund ? '✓ नकद रिफंड प्रदत्त (CASH PAID)' : '✓ REFUND INITIATED') 
+                                : '✓ PAYMENT RECEIVED'}
                             </span>
                           </div>
                         </div>
-                        <div style={{ borderTop: `1px solid ${isRefund ? '#FECACA' : '#A7F3D0'}`, marginTop: 6, paddingTop: 4, fontSize: '0.76rem', color: isRefund ? '#991B1B' : '#065F46' }}>
+                        <div style={{ borderTop: `1px solid ${isRefund ? (isCashRefund ? '#BBF7D0' : '#FECACA') : '#A7F3D0'}`, marginTop: 6, paddingTop: 4, fontSize: '0.76rem', color: isRefund ? (isCashRefund ? '#166534' : '#991B1B') : '#065F46' }}>
                           <strong>Amount In Words:</strong> <em>{numberToWords(absAmt)}</em>
                         </div>
                         <div style={{ fontSize: '0.7rem', color: '#374151', marginTop: 3 }}>
                           {isRefund 
-                            ? `Refund Channel: ${receiptModal.txn.method || 'Admin Bank/UPI Transfer (5-7 Days)'} ${receiptModal.txn.utr ? `(Ref: ${receiptModal.txn.utr})` : ''} | Processed by Trust Admin directly`
+                            ? (isCashRefund
+                                ? `Refund Channel: Counter Cash Handover (नकद रिफंड काउंटर पर तत्काल दिया गया) | Handed over by: ${receiptModal.txn.cashierName || 'Trust Cashier'}`
+                                : `Refund Channel: ${receiptModal.txn.method || 'Admin Bank/UPI Transfer (5-7 Days)'} ${receiptModal.txn.utr ? `(Ref: ${receiptModal.txn.utr})` : ''} | Processed by Trust Admin directly`)
                             : `Payment Mode: ${receiptModal.txn.method || 'Cash'} ${receiptModal.txn.utr ? `(UTR: ${receiptModal.txn.utr})` : ''} | Type: Advance/Balance Payment | ID: ${receiptModal.txn.id}`}
                         </div>
                       </div>
@@ -10520,7 +10536,7 @@ const [bulkModalOpen, setBulkModalOpen] = useState(false);
                           <span style={{ color: '#4B5563', fontWeight: 700, display: 'block' }}>Ticket Status</span>
                           <strong style={{ color: isRefund ? '#DC2626' : ((receiptModal.booking.remainingAmount || 0) > 0 ? '#EA580C' : '#059669'), fontSize: '0.82rem' }}>
                             {isRefund 
-                              ? 'CANCELLED & REFUND INITIATED' 
+                              ? (isCashRefund ? 'CANCELLED & CASH REFUND PAID' : 'CANCELLED & REFUND INITIATED') 
                               : ((receiptModal.booking.remainingAmount || 0) > 0 ? `Rs. ${parseFloat(receiptModal.booking.remainingAmount).toFixed(2)} (PENDING)` : 'PAID IN FULL')}
                           </strong>
                         </div>

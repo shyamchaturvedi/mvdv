@@ -223,7 +223,7 @@ class PDFService {
       `1. OFFICIAL CANCELLATION: This reservation was cancelled on ${cd.cancelledAt ? new Date(cd.cancelledAt).toLocaleString('en-IN') : 'Authorized Request'}. All seats released.`,
       `2. FINANCIAL SETTLEMENT: Total Paid: Rs. ${cd.originalAdvance || booking.advance || 0} | Deductions: Rs. ${cd.cancellationCharges || booking.cancellationCharges || 0} | Net Refund: Rs. ${cd.refundAmount || booking.refundAmount || 0}.`,
       `3. REASON & REMARKS: Reason: ${cd.cancellationReason || 'On Devotee Request'} | Remarks: ${cd.remarks || 'Standard Processing'}.`,
-      `4. REFUND CHANNEL: ${cd.refundMode || 'Admin Bank/UPI Processing (5-7 Working Days)'} | Refund Ref ID: ${cd.refundVoucherId || 'MVD-REF'}.`,
+      `4. REFUND CHANNEL: ${cd.refundMode || (String(cd.refundMode).toLowerCase().includes('cash') ? 'Counter Cash Handover (Instant)' : 'Admin Bank/UPI Processing (5-7 Working Days)')} | Refund Ref ID: ${cd.refundVoucherId || 'MVD-REF'}.`,
       '5. LEGAL CAUTION: THIS SLIP CANNOT BE USED FOR BOARDING. Attempting to board with this voucher is an offense under Trust & Railway rules.'
     ] : [
       '1. Carry this Electronic Reservation Slip (ERS) along with original Government ID (Aadhaar / Voter ID / DL) during journey.',
@@ -612,8 +612,11 @@ class PDFService {
 
     doc.rect(18, y, doc.page.width - 36, 46).fillColor(amtBoxBg).fill().strokeColor(amtBoxBorder).stroke();
 
+    const isCashRefund = isRefund && (String(cleanMethod).toLowerCase().includes('cash') || String(txn.method || '').toLowerCase().includes('cash') || String(booking.cancellationDetails?.refundMode || '').toLowerCase().includes('cash'));
     const amtLabel = isRefund ? 'REFUND PROCESSED (REFUND DEYA RASHI):' : 'AMOUNT RECEIVED (PRAPT RASHI):';
-    const amtSuffix = isRefund ? ' (Credit in 5-7 Working Days)' : '';
+    const amtSuffix = isRefund 
+      ? (isCashRefund ? ' (Instant Cash Handover at Counter)' : ' (Credit in 5-7 Working Days)') 
+      : '';
 
     doc.fillColor(amtLabelColor).fontSize(8).font('Helvetica-Bold').text(amtLabel, 26, y + 6);
     doc.fillColor(amtValColor).fontSize(13).font('Helvetica-Bold').text(`Rs. ${absAmount.toFixed(2)}${amtSuffix}`, 215, y + 4);
@@ -622,7 +625,9 @@ class PDFService {
     doc.fillColor(amtValColor).fontSize(8).font('Helvetica-Bold').text(amountWords, 110, y + 20, { width: 440, ellipsis: true });
 
     const modeText = isRefund 
-      ? `Refund Channel: ${cleanMethod} ${cleanUtr ? `(Ref/UTR: ${cleanUtr})` : ''} | Processed by Trust Admin directly to Bank/UPI`
+      ? (isCashRefund
+          ? `Refund Channel: Counter Cash Handover (नकद रिफंड काउंटर पर तत्काल दिया गया) | Handed over by Cashier`
+          : `Refund Channel: ${cleanMethod} ${cleanUtr ? `(Ref/UTR: ${cleanUtr})` : ''} | Processed by Trust Admin directly to Bank/UPI`)
       : `Payment Mode: ${cleanMethod} ${cleanUtr ? `(UTR: ${cleanUtr})` : ''} | Type: Advance/Balance Payment | ID: ${cleanTxnId}`;
 
     doc.fillColor('#374151').fontSize(7.5).font('Helvetica').text(modeText, 26, y + 32, { width: doc.page.width - 52, ellipsis: true });
@@ -638,7 +643,7 @@ class PDFService {
     doc.fillColor(isRefund ? '#DC2626' : '#059669').fontSize(8.5).font('Helvetica-Bold').text(`Rs. ${parseFloat(isRefund ? absAmount : (booking.advance || 0)).toFixed(2)}`, 210, y + 15);
 
     doc.fillColor('#4B5563').fontSize(7.5).font('Helvetica-Bold').text('Ticket Status', 390, y + 4);
-    const statusLabel = isRefund ? 'CANCELLED & REFUND INITIATED' : ((booking.remainingAmount || 0) > 0 ? `Rs. ${parseFloat(booking.remainingAmount).toFixed(2)} (PENDING)` : 'PAID IN FULL');
+    const statusLabel = isRefund ? (isCashRefund ? 'CANCELLED & CASH REFUND PAID' : 'CANCELLED & REFUND INITIATED') : ((booking.remainingAmount || 0) > 0 ? `Rs. ${parseFloat(booking.remainingAmount).toFixed(2)} (PENDING)` : 'PAID IN FULL');
     doc.fillColor(isRefund ? '#DC2626' : ((booking.remainingAmount || 0) > 0 ? '#EA580C' : '#059669')).fontSize(8).font('Helvetica-Bold').text(statusLabel, 390, y + 15);
 
     // Cashier & Authorization Stamp Section
