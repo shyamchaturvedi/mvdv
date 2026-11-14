@@ -16,5 +16,6 @@ build/
 # Firebase Service Account Key - NEVER commit this!
 serviceAccountKey.json
 *-firebase-adminsdk-*.json
+data/backup_*.json
 
 .vercel

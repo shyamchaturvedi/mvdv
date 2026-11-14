@@ -1,272 +1,5 @@
 {
-  "bookings": [
-    {
-      "bookingId": "MVD-2026-000001",
-      "yatraYear": 2026,
-      "fromStation": "Lucknow Charbagh (LKO)",
-      "toStation": "Shri Mata Vaishno Devi Katra (SVDK)",
-      "travelClass": "Sleeper",
-      "coachName": "GANESH COACH",
-      "coachDisplayName": "स्लीपर कोच S1 (Sleeper Class S1)",
-      "seatNumber": [],
-      "travelDate": "2026-12-22",
-      "bookedBy": "SHYAM CHATURVEDI",
-      "aadhar": "639725993076",
-      "mobile": "9598023701",
-      "email": "",
-      "address": "",
-      "numberOfPassengers": 0,
-      "unitPrice": 3500,
-      "totalAmount": 3500,
-      "advance": 0,
-      "discount": 3500,
-      "remainingAmount": 0,
-      "paymentStatus": "Paid",
-      "status": "Cancelled",
-      "paymentMode": "Cash",
-      "utrNumber": "",
-      "cardLast4": "",
-      "transactionRef": "",
-      "utrStatus": "N/A",
-      "paymentHistory": [],
-      "notes": "Mata Vaishno Devi Yatra Special Booking",
-      "offlineReceiptNo": "",
-      "passengers": [
-        {
-          "name": "SHYAM CHATURVEDI",
-          "age": 23,
-          "gender": "Male",
-          "aadhar": "639725993076",
-          "mobile": "9598023701",
-          "berthPreference": "Cancelled",
-          "berthCode": "CAN",
-          "berthType": "Cancelled",
-          "seatAssigned": "Cancelled",
-          "checkInStatus": "Cancelled"
-        }
-      ],
-      "bookedByStaff": {
-        "name": "Shyam Chaturvedi",
-        "role": "SuperAdmin",
-        "username": "admin"
-      },
-      "createdAt": "2026-11-13T19:58:57.998Z",
-      "updatedAt": "2026-11-13T20:03:25.116Z",
-      "id": "MVD-2026-000001"
-    },
-    {
-      "bookingId": "MVD-2026-000002",
-      "yatraYear": 2026,
-      "fromStation": "Fatehgarh (FGR)",
-      "toStation": "Shri Mata Vaishno Devi Katra (SVDK)",
-      "travelClass": "Sleeper",
-      "coachName": "GANESH COACH",
-      "coachDisplayName": "स्लीपर कोच S1 (Sleeper Class S1)",
-      "travelDate": "2026-12-22",
-      "bookedBy": "YATEENDRA DUBEY",
-      "aadhar": "44",
-      "mobile": "9598023701",
-      "email": "",
-      "address": "",
-      "unitPrice": 3500,
-      "discount": 0,
-      "remainingAmount": 0,
-      "paymentStatus": "Paid",
-      "status": "Confirmed",
-      "paymentMode": "Cash",
-      "utrNumber": "",
-      "cardLast4": "",
-      "transactionRef": "",
-      "utrStatus": "N/A",
-      "notes": "Mata Vaishno Devi Yatra Special Booking",
-      "offlineReceiptNo": "",
-      "bookedByStaff": {
-        "name": "Shyam Chaturvedi",
-        "role": "SuperAdmin",
-        "username": "admin"
-      },
-      "createdAt": "2026-11-13T20:07:41.559Z",
-      "id": "MVD-2026-000002",
-      "cancellationCharges": 0,
-      "totalAmount": 3500,
-      "passengers": [
-        {
-          "name": "YATEENDRA DUBEY",
-          "age": 58,
-          "gender": "Male",
-          "aadhar": "44",
-          "mobile": "9598023701",
-          "berthPreference": "Cancelled",
-          "berthCode": "CAN",
-          "berthType": "Cancelled",
-          "seatAssigned": "Cancelled",
-          "checkInStatus": "Cancelled",
-          "seatNumber": "Cancelled"
-        },
-        {
-          "name": "SANJAY DUBEY",
-          "age": 39,
-          "gender": "Male",
-          "aadhar": "45",
-          "mobile": "9598023701",
-          "berthPreference": "Middle",
-          "berthCode": "MB",
-          "berthType": "Middle (MB)",
-          "seatAssigned": "2",
-          "checkInStatus": "Pending"
-        }
-      ],
-      "releasedSeats": [
-        "1"
-      ],
-      "numberOfPassengers": 1,
-      "seatNumber": [
-        "2"
-      ],
-      "advance": 3500,
-      "refundAmount": 3500,
-      "cancellationDetails": {
-        "cancelledAt": "2026-11-14T06:15:11.540Z",
-        "cancelledBy": "Shyam Chaturvedi",
-        "cancelledByUsername": "admin",
-        "cancelledByRole": "SuperAdmin",
-        "cancellationReason": "यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण",
-        "remarks": "EMERGENCY",
-        "refundVoucherId": "R2026000005-REF",
-        "refundAmount": 3500,
-        "cancellationCharges": 0,
-        "refundMode": "Cash (Counter Cash Refund)",
-        "refundAccount": {
-          "channel": "Cash",
-          "upiId": "",
-          "accountHolder": "YATEENDRA DUBEY",
-          "bankName": "",
-          "accountNumber": "",
-          "ifscCode": "",
-          "status": "Completed at Counter"
-        },
-        "isFullCancellation": false,
-        "cancelledPassengers": [
-          {
-            "index": 0,
-            "name": "YATEENDRA DUBEY",
-            "seatAssigned": "1",
-            "age": 58,
-            "gender": "Male",
-            "berthCode": "LB",
-            "berthType": "Lower (LB)"
-          }
-        ],
-        "releasedSeats": [
-          "1"
-        ],
-        "remainingActiveCount": 1,
-        "originalSeats": [
-          "1",
-          "2"
-        ],
-        "originalCoach": "GANESH COACH",
-        "originalCoachDisplayName": "स्लीपर कोच S1 (Sleeper Class S1)",
-        "originalAdvance": 7000
-      },
-      "paymentHistory": [
-        {
-          "id": "R2026000001",
-          "date": "2026-11-13T20:07:41.559Z",
-          "amount": 7000,
-          "method": "Cash",
-          "type": "Advance Booking",
-          "cashierName": "System",
-          "utr": ""
-        },
-        {
-          "id": "R2026000005-REF",
-          "date": "2026-11-14T06:15:11.540Z",
-          "amount": -3500,
-          "refundAmount": 3500,
-          "cancellationCharges": 0,
-          "originalAdvance": 7000,
-          "remainingAdvance": 3500,
-          "method": "Cash (Counter Cash Refund)",
-          "type": "Partial Passenger Cancellation Refund",
-          "cashierName": "Shyam Chaturvedi",
-          "reason": "यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण",
-          "remarks": "EMERGENCY",
-          "cancelledPassengers": [
-            {
-              "index": 0,
-              "name": "YATEENDRA DUBEY",
-              "seatAssigned": "1",
-              "age": 58,
-              "gender": "Male",
-              "berthCode": "LB",
-              "berthType": "Lower (LB)"
-            }
-          ],
-          "releasedSeats": [
-            "1"
-          ],
-          "refundAccount": {
-            "channel": "Cash",
-            "upiId": "",
-            "accountHolder": "YATEENDRA DUBEY",
-            "bankName": "",
-            "accountNumber": "",
-            "ifscCode": "",
-            "status": "Completed at Counter"
-          },
-          "utr": "Counter Cash Handover"
-        }
-      ],
-      "cancellationHistory": [
-        {
-          "cancelledAt": "2026-11-14T06:15:11.540Z",
-          "cancelledBy": "Shyam Chaturvedi",
-          "cancelledByUsername": "admin",
-          "cancelledByRole": "SuperAdmin",
-          "cancellationReason": "यात्री द्वारा स्वयं अनुरोध / व्यक्तिगत कारण",
-          "remarks": "EMERGENCY",
-          "refundVoucherId": "R2026000005-REF",
-          "refundAmount": 3500,
-          "cancellationCharges": 0,
-          "refundMode": "Cash (Counter Cash Refund)",
-          "refundAccount": {
-            "channel": "Cash",
-            "upiId": "",
-            "accountHolder": "YATEENDRA DUBEY",
-            "bankName": "",
-            "accountNumber": "",
-            "ifscCode": "",
-            "status": "Completed at Counter"
-          },
-          "isFullCancellation": false,
-          "cancelledPassengers": [
-            {
-              "index": 0,
-              "name": "YATEENDRA DUBEY",
-              "seatAssigned": "1",
-              "age": 58,
-              "gender": "Male",
-              "berthCode": "LB",
-              "berthType": "Lower (LB)"
-            }
-          ],
-          "releasedSeats": [
-            "1"
-          ],
-          "remainingActiveCount": 1,
-          "originalSeats": [
-            "1",
-            "2"
-          ],
-          "originalCoach": "GANESH COACH",
-          "originalCoachDisplayName": "स्लीपर कोच S1 (Sleeper Class S1)",
-          "originalAdvance": 7000
-        }
-      ],
-      "updatedAt": "2026-11-14T06:15:11.540Z"
-    }
-  ],
+  "bookings": [],
   "staffMembers": [
     {
       "id": "ADMIN-001",
@@ -816,6 +549,27 @@
       "fareAC": 0,
       "fareGeneral": 2000,
       "id": "general"
+    }
+  ],
+  "transactions": [],
+  "counters": [
+    {
+      "yatraYear": 2026,
+      "lastNumber": 0,
+      "updatedAt": "2026-11-14T08:47:56.549Z",
+      "id": "booking_2026"
+    },
+    {
+      "yatraYear": 2026,
+      "lastNumber": 1,
+      "updatedAt": "2026-11-14T08:48:30.042Z",
+      "id": "receipt_2026"
+    },
+    {
+      "yatraYear": 2026,
+      "lastNumber": 1,
+      "updatedAt": "2026-11-14T08:48:30.027Z",
+      "id": "pnr_2026"
     }
   ]
 }
