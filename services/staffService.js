@@ -32,19 +32,16 @@ const DEPARTMENTS = [
 ];
 
 class StaffService {
-  // Ensure default staff initialization (Seed primary SuperAdmin in Firestore if missing)
+  // Ensure default staff initialization (Seed primary SuperAdmin and all core roles if missing)
   static async initDefaultStaff() {
     try {
-      const adminDocRef = db.collection('staffMembers').doc('ADMIN-001');
-      const snap = await adminDocRef.get();
-      if (!snap.exists) {
-        const adminPass = process.env.ADMIN_PASSWORD;
-        const defaultAdmin = {
+      const defaultStaffList = [
+        {
           staffId: 'ADMIN-001',
           name: 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
           username: 'admin',
           email: (process.env.ADMIN_EMAIL || 'iammshyam@gmail.com').trim().toLowerCase(),
-          password: adminPass || 'admin@mvd2026',
+          password: process.env.ADMIN_PASSWORD || 'admin@mvd2026',
           department: 'Trust Executive (ट्रस्ट प्रबंधन)',
           role: 'SuperAdmin',
           mobile: '9598023701',
@@ -55,9 +52,84 @@ class StaffService {
           upiCollected: 0,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
-        };
-        await adminDocRef.set(defaultAdmin);
-        console.log('✅ SuperAdmin ADMIN-001 ensured in Firestore staffMembers.');
+        },
+        {
+          staffId: 'STF-101',
+          name: 'श्री रमाकांत शर्मा (TTE / On-Train Officer)',
+          username: 'tt',
+          email: 'ramakant.tte@gmail.com',
+          password: 'tte@mvd2026',
+          department: 'Running Staff (ट्रेन संचालन)',
+          role: 'TTE',
+          mobile: '9876543211',
+          assignedCoaches: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+          status: 'Active',
+          totalCollected: 0,
+          cashCollected: 0,
+          upiCollected: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          staffId: 'STF-102',
+          name: 'मनोज कुमार वर्मा (Booking Clerk)',
+          username: 'clerk1',
+          email: 'clerk1@gmail.com',
+          password: 'clerk@mvd2026',
+          department: 'Booking Counter (टिकट काउंटर)',
+          role: 'BookingClerk',
+          mobile: '9876543212',
+          assignedStation: 'Lucknow Charbagh (LKO)',
+          status: 'Active',
+          totalCollected: 0,
+          cashCollected: 0,
+          upiCollected: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          staffId: 'STF-103',
+          name: 'वीरेंद्र सिंह (Finance Officer)',
+          username: 'finance',
+          email: 'finance@gmail.com',
+          password: 'finance@mvd2026',
+          department: 'Accounts & Audit (लेखा व कोषागार)',
+          role: 'FinanceOfficer',
+          mobile: '9876543213',
+          assignedStation: 'Head Office',
+          status: 'Active',
+          totalCollected: 0,
+          cashCollected: 0,
+          upiCollected: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          staffId: 'STF-104',
+          name: 'राजेश कुमार अवस्थी (Station Coordinator)',
+          username: 'station1',
+          email: 'station1@gmail.com',
+          password: 'station@mvd2026',
+          department: 'Station Management (स्टेशन समन्वयन)',
+          role: 'StationMaster',
+          mobile: '9876543214',
+          assignedStation: 'All Stations',
+          status: 'Active',
+          totalCollected: 0,
+          cashCollected: 0,
+          upiCollected: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+
+      for (const staff of defaultStaffList) {
+        const staffDocRef = db.collection('staffMembers').doc(staff.staffId);
+        const snap = await staffDocRef.get();
+        if (!snap.exists) {
+          await staffDocRef.set(staff);
+          console.log(`✅ Default Staff ${staff.staffId} (${staff.name} - ${staff.role}) seeded.`);
+        }
       }
     } catch (e) {
       console.warn('⚠️ Error in initDefaultStaff:', e.message);

@@ -5,8 +5,8 @@
   "defaultAdvance": 1000,
   "enableUpiOnlinePayment": true,
   "trustName": "श्री माता वैष्णो देवी पब्लिक चैरिटेबल ट्रस्ट",
-  "helplineNumber": "",
-  "officialEmail": "",
+  "helplineNumber": "+91 7398959993",
+  "officialEmail": "infomatavaishnodevi@gmail.com",
   "adminSupportEmail": "iammshyam@gmail.com",
   "officeAddress": "Nagla Deena, Bholepur Fatehgarh, Uttar Pradesh, 209601 India",
   "sacredAnnouncement": "।। ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके • शरण्ये त्र्यंबके गौरी नारायणि नमोऽस्तु ते ।।",
@@ -75,11 +75,10 @@
   "strictQrVerification": true,
   "hideBerthNumber": false,
   "printLayout": "half",
-  "updatedAt": "2026-11-12T04:04:59.745Z",
+  "updatedAt": "2026-11-15T07:30:45.199Z",
   "createdAt": "2026-10-04T17:49:56.047Z",
-  "lastUpdatedBy": "Shyam Chaturvedi",
+  "lastUpdatedBy": "Admin",
   "fareSleeper": 3500,
   "fareAC": 0,
-  "fareGeneral": 2000,
-  "id": "general"
+  "fareGeneral": 2000
 }

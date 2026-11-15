@@ -319,10 +319,10 @@ class ResilientFirestoreProxy {
             try {
               return await Promise.race([
                 rawColl.limit(n).get(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1500))
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 7000))
               ]);
             } catch (err) {
-              if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('timeout')) {
+              if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
                 tripCircuit(err.message);
               }
               return inner.get();
@@ -344,10 +344,10 @@ class ResilientFirestoreProxy {
               try {
                 return await Promise.race([
                   rawColl.where(field, op, val).limit(n).get(),
-                  new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1500))
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 7000))
                 ]);
               } catch (err) {
-                if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('timeout')) {
+                if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
                   tripCircuit(err.message);
                 }
                 return innerWhere.limit(n).get();
@@ -359,10 +359,10 @@ class ResilientFirestoreProxy {
             try {
               return await Promise.race([
                 rawColl.where(field, op, val).get(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1500))
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 7000))
               ]);
             } catch (err) {
-              if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('timeout')) {
+              if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
                 tripCircuit(err.message);
               }
               return innerWhere.get();
@@ -378,7 +378,7 @@ class ResilientFirestoreProxy {
         try {
           const snapshot = await Promise.race([
             rawColl.get(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1500))
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 7000))
           ]);
           // Sync remote snapshot docs into local disk store in background
           try {
@@ -394,7 +394,7 @@ class ResilientFirestoreProxy {
           } catch (_) {}
           return snapshot;
         } catch (err) {
-          if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('timeout')) {
+          if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
             tripCircuit(err.message);
           }
           return localColl.get();
@@ -402,13 +402,20 @@ class ResilientFirestoreProxy {
       },
 
       add: async (item) => {
-        // ALWAYS write to local disk store first!
+        // Write to local disk store
         const localRes = await localColl.add(item);
-        if (!isCircuitOpen() && rawColl) {
-          // Asynchronously sync to remote Firestore
-          rawColl.doc(localRes.id).set(item).catch(err => {
-            if (err.code === 8 || String(err.message).includes('Quota')) tripCircuit(err.message);
-          });
+        if (isFirebaseActive && rawColl && !isCircuitOpen()) {
+          try {
+            await Promise.race([
+              rawColl.doc(localRes.id).set(item),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore write timeout')), 8000))
+            ]);
+          } catch (err) {
+            if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
+              tripCircuit(err.message);
+            }
+            console.warn('⚠️ Remote add notice:', err.message);
+          }
         }
         return localRes;
       },
@@ -426,7 +433,7 @@ class ResilientFirestoreProxy {
             try {
               const snap = await Promise.race([
                 rawDocRef.get(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 1500))
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 7000))
               ]);
               if (snap.exists) {
                 // Sync to local
@@ -444,7 +451,7 @@ class ResilientFirestoreProxy {
               }
               return localDocRef.get();
             } catch (err) {
-              if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('timeout')) {
+              if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
                 tripCircuit(err.message);
               }
               return localDocRef.get();
@@ -452,34 +459,57 @@ class ResilientFirestoreProxy {
           },
 
           set: async (item, options = {}) => {
-            // ALWAYS write to local store first (immediate 0 ms ACID guarantee)
             const localResult = await localDocRef.set(item, options);
-            if (!isCircuitOpen() && rawDocRef) {
-              rawDocRef.set(item, options).catch(err => {
-                if (err.code === 8 || String(err.message).includes('Quota')) tripCircuit(err.message);
-              });
+            if (isFirebaseActive && rawDocRef && !isCircuitOpen()) {
+              try {
+                await Promise.race([
+                  rawDocRef.set(item, options),
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore write timeout')), 8000))
+                ]);
+              } catch (err) {
+                if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
+                  tripCircuit(err.message);
+                }
+                console.warn('⚠️ Remote set notice:', err.message);
+              }
             }
             return localResult;
           },
 
           update: async (fields) => {
-            // ALWAYS update local store first
             const localResult = await localDocRef.update(fields);
-            if (!isCircuitOpen() && rawDocRef) {
-              rawDocRef.update(fields).catch(err => {
-                if (err.code === 8 || String(err.message).includes('Quota')) tripCircuit(err.message);
-              });
+            if (isFirebaseActive && rawDocRef && !isCircuitOpen()) {
+              try {
+                await Promise.race([
+                  rawDocRef.update(fields),
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore write timeout')), 8000))
+                ]);
+              } catch (err) {
+                if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
+                  tripCircuit(err.message);
+                }
+                console.warn('⚠️ Remote update notice:', err.message);
+              }
             }
             return localResult;
           },
 
           delete: async () => {
-            await localDocRef.delete();
-            if (!isCircuitOpen() && rawDocRef) {
-              rawDocRef.delete().catch(err => {
-                if (err.code === 8 || String(err.message).includes('Quota')) tripCircuit(err.message);
-              });
+            const localResult = await localDocRef.delete();
+            if (isFirebaseActive && rawDocRef && !isCircuitOpen()) {
+              try {
+                await Promise.race([
+                  rawDocRef.delete(),
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore delete timeout')), 8000))
+                ]);
+              } catch (err) {
+                if (err.code === 8 || String(err.message).includes('Quota') || String(err.message).includes('RESOURCE_EXHAUSTED')) {
+                  tripCircuit(err.message);
+                }
+                console.warn('⚠️ Remote delete notice:', err.message);
+              }
             }
+            return localResult;
           }
         };
       }
