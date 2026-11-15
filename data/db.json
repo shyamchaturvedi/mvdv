@@ -227,6 +227,24 @@
       "createdAt": "2026-10-04T18:32:58.402Z",
       "updatedAt": "2026-10-04T18:32:58.402Z",
       "id": "ADMIN-001"
+    },
+    {
+      "staffId": "ADMIN-002",
+      "name": "YATEENDRA PRAKASH DUBEY",
+      "username": "fgrypd",
+      "email": "fgrypd@gmail.com",
+      "password": "ytindra@131",
+      "department": "Trust Executive (ट्रस्ट प्रबंधन)",
+      "role": "SuperAdmin",
+      "mobile": "9451124870",
+      "assignedStation": "All Stations",
+      "status": "Active",
+      "totalCollected": 0,
+      "cashCollected": 0,
+      "upiCollected": 0,
+      "createdAt": "2026-11-15T07:54:12.637Z",
+      "updatedAt": "2026-11-15T07:54:12.643Z",
+      "id": "ADMIN-002"
     }
   ],
   "auditLogs": [
@@ -261,6 +279,38 @@
       "coachName": "",
       "seatNumber": "",
       "id": "AUDIT-1794727848165-849"
+    },
+    {
+      "logId": "AUDIT-1794729253857-925",
+      "timestamp": "2026-11-15T07:54:13.857Z",
+      "formattedTime": "15/11/2026, 1:24:13 pm",
+      "action": "STAFF_LOGIN",
+      "performedBy": "YATEENDRA PRAKASH DUBEY",
+      "actorRole": "SuperAdmin",
+      "actorUsername": "fgrypd",
+      "details": "YATEENDRA PRAKASH DUBEY (SuperAdmin - fgrypd@gmail.com) ने सफलतापूर्वक लॉगिन किया।",
+      "targetId": "",
+      "amount": 0,
+      "paymentMode": "None",
+      "coachName": "",
+      "seatNumber": "",
+      "id": "AUDIT-1794729253857-925"
+    },
+    {
+      "logId": "AUDIT-1794729254771-897",
+      "timestamp": "2026-11-15T07:54:14.771Z",
+      "formattedTime": "15/11/2026, 1:24:14 pm",
+      "action": "STAFF_LOGIN",
+      "performedBy": "YATEENDRA PRAKASH DUBEY",
+      "actorRole": "SuperAdmin",
+      "actorUsername": "fgrypd",
+      "details": "YATEENDRA PRAKASH DUBEY (SuperAdmin - fgrypd@gmail.com) ने सफलतापूर्वक लॉगिन किया।",
+      "targetId": "",
+      "amount": 0,
+      "paymentMode": "None",
+      "coachName": "",
+      "seatNumber": "",
+      "id": "AUDIT-1794729254771-897"
     }
   ],
   "defaulters": [],

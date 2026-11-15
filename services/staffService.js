@@ -32,9 +32,10 @@ const DEPARTMENTS = [
 ];
 
 class StaffService {
-  // Ensure default staff initialization (Seed ONLY primary SuperAdmin ADMIN-001 if missing)
+  // Ensure default staff initialization (Seed primary SuperAdmins ADMIN-001 and ADMIN-002)
   static async initDefaultStaff() {
     try {
+      // 1. Primary SuperAdmin (Shyam Chaturvedi)
       const adminDocRef = db.collection('staffMembers').doc('ADMIN-001');
       const snap = await adminDocRef.get();
       if (!snap.exists) {
@@ -58,6 +59,31 @@ class StaffService {
         };
         await adminDocRef.set(defaultAdmin);
         console.log('✅ SuperAdmin ADMIN-001 ensured in Firestore staffMembers.');
+      }
+
+      // 2. SuperAdmin (YATEENDRA PRAKASH DUBEY)
+      const yateendraDocRef = db.collection('staffMembers').doc('ADMIN-002');
+      const ySnap = await yateendraDocRef.get();
+      if (!ySnap.exists) {
+        const yateendraAdmin = {
+          staffId: 'ADMIN-002',
+          name: 'YATEENDRA PRAKASH DUBEY',
+          username: 'fgrypd',
+          email: 'fgrypd@gmail.com',
+          password: 'ytindra@131',
+          department: 'Trust Executive (ट्रस्ट प्रबंधन)',
+          role: 'SuperAdmin',
+          mobile: '9451124870',
+          assignedStation: 'All Stations',
+          status: 'Active',
+          totalCollected: 0,
+          cashCollected: 0,
+          upiCollected: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        await yateendraDocRef.set(yateendraAdmin);
+        console.log('✅ SuperAdmin ADMIN-002 (YATEENDRA PRAKASH DUBEY) ensured in Firestore staffMembers.');
       }
     } catch (e) {
       console.warn('⚠️ Error in initDefaultStaff:', e.message);

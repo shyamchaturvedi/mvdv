@@ -124,7 +124,9 @@ class AuthService {
 
     // Get permissions list
     const roleDef = ROLES[staff.role] || {};
-    const permissions = roleDef.permissions || [];
+    const permissions = staff.role === 'SuperAdmin'
+      ? ['all', 'staff_manage', 'financial_reconcile', 'audit_view', 'delete_booking', 'export_excel', 'create_booking', 'checkin', 'collect_due', 'view_chart', 'print_chart']
+      : (roleDef.permissions || []);
     const staffUser = {
       ...staff,
       permissions
@@ -161,20 +163,22 @@ class AuthService {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Check SuperAdmin email (Strict exact match only: iammshyam@gmail.com)
+    // 1. Check SuperAdmin email
     const configuredAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
     const authorizedSuperAdminEmails = [
       'iammshyam@gmail.com',
+      'fgrypd@gmail.com',
       'info.aroventech@gmail.com',
       configuredAdminEmail
     ].filter(Boolean);
 
     if (authorizedSuperAdminEmails.includes(cleanEmail)) {
+      const isYateendra = cleanEmail === 'fgrypd@gmail.com';
       const adminUser = {
-        staffId: 'ADMIN-001',
-        name: profile.name || 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)',
+        staffId: isYateendra ? 'ADMIN-002' : 'ADMIN-001',
+        name: isYateendra ? (profile.name || 'YATEENDRA PRAKASH DUBEY') : (profile.name || 'मुख्य ट्रस्ट व्यवस्थापक (Shyam Chaturvedi)'),
         email: cleanEmail,
-        username: 'admin',
+        username: isYateendra ? 'fgrypd' : 'admin',
         role: 'SuperAdmin',
         department: 'Trust Executive (ट्रस्ट प्रबंधन)',
         photoUrl: profile.photoUrl || '',
@@ -303,8 +307,8 @@ class AuthService {
 
             // Only accept cryptographically verified active staff payloads
             if (isSigValid && data.user.status !== 'Suspended' && data.user.status !== 'Inactive') {
-              // Database Presence Check: If not primary SuperAdmin ADMIN-001, verify they still exist in staff database!
-              if (data.user.role !== 'SuperAdmin' || (data.user.staffId && data.user.staffId !== 'ADMIN-001')) {
+              // Database Presence Check: If not primary SuperAdmins ADMIN-001 or ADMIN-002, verify they still exist in staff database!
+              if (data.user.role !== 'SuperAdmin' || (data.user.staffId && data.user.staffId !== 'ADMIN-001' && data.user.staffId !== 'ADMIN-002')) {
                 const { loadLocalData } = require('../config/firebase');
                 const localData = loadLocalData();
                 const staffExists = (localData.staffMembers || []).some(s => 
@@ -347,7 +351,7 @@ class AuthService {
     }
 
     if (session.user) {
-      if (session.user.role !== 'SuperAdmin' || (session.user.staffId && session.user.staffId !== 'ADMIN-001')) {
+      if (session.user.role !== 'SuperAdmin' || (session.user.staffId && session.user.staffId !== 'ADMIN-001' && session.user.staffId !== 'ADMIN-002')) {
         const { loadLocalData } = require('../config/firebase');
         const localData = loadLocalData();
         const staffExists = (localData.staffMembers || []).some(s => 
