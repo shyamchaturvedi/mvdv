@@ -243,17 +243,15 @@ class AuthService {
     }
 
     // Standard static development/admin token backward compatibility
-    if (cleanToken === 'mvd_admin_token' || cleanToken === 'mvd_tte_session_token') {
+    if (cleanToken === 'mvd_admin_token') {
       return {
-        staffId: cleanToken === 'mvd_admin_token' ? 'ADMIN-001' : 'STF-101',
-        name: cleanToken === 'mvd_admin_token' ? 'मुख्य ट्रस्ट व्यवस्थापक' : 'श्री रमाकांत शर्मा (TTE)',
-        username: cleanToken === 'mvd_admin_token' ? 'admin' : 'tt',
-        role: cleanToken === 'mvd_admin_token' ? 'SuperAdmin' : 'TTE',
-        department: cleanToken === 'mvd_admin_token' ? 'Trust Executive' : 'Running Staff',
+        staffId: 'ADMIN-001',
+        name: 'मुख्य ट्रस्ट व्यवस्थापक',
+        username: 'admin',
+        role: 'SuperAdmin',
+        department: 'Trust Executive',
         status: 'Active',
-        permissions: cleanToken === 'mvd_admin_token' 
-          ? ['all', 'staff_manage', 'financial_reconcile', 'audit_view', 'delete_booking', 'export_excel', 'create_booking', 'checkin', 'collect_due', 'view_chart', 'print_chart']
-          : ['checkin', 'collect_due', 'view_chart', 'print_chart']
+        permissions: ['all', 'staff_manage', 'financial_reconcile', 'audit_view', 'delete_booking', 'export_excel', 'create_booking', 'checkin', 'collect_due', 'view_chart', 'print_chart']
       };
     }
 
@@ -305,6 +303,18 @@ class AuthService {
 
             // Only accept cryptographically verified active staff payloads
             if (isSigValid && data.user.status !== 'Suspended' && data.user.status !== 'Inactive') {
+              // Database Presence Check: If not primary SuperAdmin ADMIN-001, verify they still exist in staff database!
+              if (data.user.role !== 'SuperAdmin' || (data.user.staffId && data.user.staffId !== 'ADMIN-001')) {
+                const { loadLocalData } = require('../config/firebase');
+                const localData = loadLocalData();
+                const staffExists = (localData.staffMembers || []).some(s => 
+                  (s.staffId === data.user.staffId || s.id === data.user.staffId || s.username === data.user.username) && s.status === 'Active'
+                );
+                if (!staffExists) {
+                  return null; // Deleted staff tokens are immediately invalidated & rejected!
+                }
+              }
+
               if (!data.user.status) {
                 data.user.status = 'Active';
               }
@@ -334,6 +344,21 @@ class AuthService {
       activeSessions.delete(cleanToken);
       saveSessionsToDisk();
       return null;
+    }
+
+    if (session.user) {
+      if (session.user.role !== 'SuperAdmin' || (session.user.staffId && session.user.staffId !== 'ADMIN-001')) {
+        const { loadLocalData } = require('../config/firebase');
+        const localData = loadLocalData();
+        const staffExists = (localData.staffMembers || []).some(s => 
+          (s.staffId === session.user.staffId || s.id === session.user.staffId || s.username === session.user.username) && s.status === 'Active'
+        );
+        if (!staffExists) {
+          activeSessions.delete(cleanToken);
+          saveSessionsToDisk();
+          return null;
+        }
+      }
     }
 
     return session.user;
